@@ -1,0 +1,28 @@
+{
+  "name": "panjs",
+  "version": "0.0.1",
+  "description": "Javascript version of Pandas. A library of data manipulation and analysis",
+  "main": "src/index.js",
+  "dependencies": {
+    "@tensorflow/tfjs-node": "1.7.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/opensource9ja/panjs.git"
+  },
+  "keywords": [
+    "pandas",
+    "data-analysis",
+    "data-manipulation",
+    "analysis"
+  ],
+  "author": "Rising Odegua <risingodegua@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/opensource9ja/panjs/issues"
+  },
+  "homepage": "https://github.com/opensource9ja/panjs#readme"
+}
