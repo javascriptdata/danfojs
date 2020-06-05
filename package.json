@@ -2,14 +2,18 @@
   "name": "panjs",
   "version": "0.0.1",
   "description": "Javascript version of Pandas. A library of data manipulation and analysis",
-  "main": "src/index.js",
+  "main": "./dist/index.js",
+  "files": [
+    "dist/",
+    "src/"
+  ],
   "dependencies": {
     "@tensorflow/tfjs": "^1.3.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "parcel <your entry file>",
-    "build": "parcel build <your entry file>"
+    "dev": "babel src --out-dir dist --no-comments",
+    "build": "babel src --out-dir dist --no-comments"
   },
   "repository": {
     "type": "git",

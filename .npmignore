@@ -1,0 +1,8 @@
+node_modules/
+coverage/
+.idea/
+.vscode/
+# Documentation
+docs/
+__tests__/
+scripts/
