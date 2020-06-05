@@ -2,6 +2,6 @@
 export class Series {
 
     print(val) {
-        console.log("Printing Series Val:" + val);
+        console.log(`Printing In Series${val}`);
     }
 }

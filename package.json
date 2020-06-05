@@ -12,8 +12,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "babel src --out-dir dist --no-comments",
-    "build": "babel src --out-dir dist --no-comments"
+    "dev": "babel ./src -d dist --no-comments",
+    "build": "babel ./src -d ./dist --no-comments"
   },
   "repository": {
     "type": "git",
