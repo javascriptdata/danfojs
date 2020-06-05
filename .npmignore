@@ -2,6 +2,7 @@ node_modules/
 coverage/
 .idea/
 .vscode/
+src
 # Documentation
 docs/
 __tests__/
