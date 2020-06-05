@@ -12,8 +12,9 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "babel ./src -d dist --no-comments",
-    "build": "babel ./src -d ./dist --no-comments"
+    "dev": "npm run lint && babel ./src -d dist --no-comments",
+    "build": "babel ./src -d ./dist --no-comments",
+    "lint": "eslint ./src"
   },
   "repository": {
     "type": "git",
@@ -35,6 +36,7 @@
     "@babel/cli": "^7.10.1",
     "@babel/core": "^7.10.2",
     "@babel/preset-env": "^7.10.2",
+    "eslint": "^7.1.0",
     "parcel-bundler": "^1.12.4"
   }
 }
