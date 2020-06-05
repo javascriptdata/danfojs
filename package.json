@@ -15,7 +15,7 @@
     "dev": "npm run lint && babel ./src -d dist --no-comments",
     "build": "babel ./src -d ./dist --no-comments",
     "lint": "eslint ./src",
-    "prepare": "npm run build"
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
