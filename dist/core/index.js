@@ -5,13 +5,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 Object.defineProperty(exports, "Series", {
   enumerable: true,
-  get: function get() {
+  get: function () {
     return _series.Series;
   }
 });
 Object.defineProperty(exports, "DataFrame", {
   enumerable: true,
-  get: function get() {
+  get: function () {
     return _frame.DataFrame;
   }
 });
