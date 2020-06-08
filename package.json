@@ -5,16 +5,16 @@
   "main": "dist/index.js",
   "files": [
     "dist/",
-    "src/"
+    "panjs/src/"
   ],
   "dependencies": {
     "@tensorflow/tfjs": "^1.3.2"
   },
   "scripts": {
-    "test": "nyc mocha --require @babel/register src/__test__/*",
-    "dev": "npm run lint && babel ./src -d dist --no-comments",
-    "build": "babel ./src -d ./dist --no-comments",
-    "lint": "eslint ./src",
+    "test": "nyc mocha --require @babel/register panjs/tests/*",
+    "dev": "npm run lint && babel ./panjs/src -d dist --no-comments",
+    "build": "babel ./panjs/src -d ./dist --no-comments",
+    "lint": "eslint ./panjs/src",
     "prepublishOnly": "npm run build"
   },
   "repository": {

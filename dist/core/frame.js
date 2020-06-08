@@ -5,7 +5,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.DataFrame = void 0;
 
-class DataFrame {
+var _ndframe = require("./ndframe");
+
+class DataFrame extends _ndframe.ndframe {
   print(val) {
     console.log(`Printing In DataFrame ${val}`);
   }
