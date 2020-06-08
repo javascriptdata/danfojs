@@ -1,6 +1,6 @@
 import * as tf from '@tensorflow/tfjs';
 import { assert } from "chai";
-import { read_csv } from '../../io/reader';
+import { read_csv } from '../../src/io/reader';
 
 
 describe("read_csv", function () {

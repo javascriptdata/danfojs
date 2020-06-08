@@ -5,10 +5,20 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.DataFrame = void 0;
 
-class DataFrame {
-  print(val) {
-    console.log(`Printing In DataFrame ${val}`);
+var _generic = _interopRequireDefault(require("./generic"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class DataFrame extends _generic.default {
+  to_string() {
+    return null;
   }
+
+  get columns() {
+    return null;
+  }
+
+  set columns(cols) {}
 
 }
 
