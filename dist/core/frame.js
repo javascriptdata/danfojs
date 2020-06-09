@@ -10,15 +10,13 @@ var _generic = _interopRequireDefault(require("./generic"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 class DataFrame extends _generic.default {
-  to_string() {
-    return null;
+  constructor(data, columns, name) {
+    super(data, columns, name);
   }
 
-  get columns() {
+  get to_string() {
     return null;
   }
-
-  set columns(cols) {}
 
 }
 
