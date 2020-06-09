@@ -11,19 +11,4 @@ export class DataFrame extends Ndframe {
         return null
     }
 
-    /**
-         * Return a sequence of axis dimension along row and columns
-         * @returns Array list
-         */
-    get columns() {
-        return null
-    }
-
-    /**
-         * Return a sequence of axis dimension along row and columns
-         * @returns Array list
-         */
-    set columns(cols) {
-
-    }
 }
