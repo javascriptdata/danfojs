@@ -1,61 +1,107 @@
-// import * as tf from '@tensorflow/tfjs'
+import * as tf from '@tensorflow/tfjs'
 
 
-
-/**
- * N-Dimensiona data structure. Stores multi-dimensional 
- * data in a size-mutable, labeled data structure. Analogous to the Python Pandas DataFrame. 
- * 
- * @param data JSON, Array, Tensor. Block of data.
- * @param values ND-Array of values in the data. Specify if data is an array of arrays.
- * @param columns (Optional) Array of column names. If not specified and data is an array of array, use range index.
- * @param axes Array of data labels for both rows and columns.
- * @param name String (Optional). Name of the data object.
- * 
- * @returns NDframe
- */
-export default class  NDframe {
-    constructor(data, values = null, columns = null, axes = null, name = '') {
-        this.data = data;
-        this.values = values
-        this.columns = columns
-        this.axes = axes
-        this.name = name
-    }
-
+export default class NDframe {
     /**
-         * Return a sequence of axis dimension along row and columns
-         * @returns Array list
-         */
-    get shape() {
-        return null
-    }
-
-
-    /**
-         * Return a values in the data in tensor format
-         * @returns Tensor Arrays
-         */
-    get values() {
-        return null
-    }
-
-
-    /**
-     * Sets the value of the data
-     * @param values Array, Object to assign to the data
+     * N-Dimensiona data structure. Stores multi-dimensional 
+     * data in a size-mutable, labeled data structure. Analogous to the Python Pandas DataFrame. 
+     * 
+     * @param data JSON, Array, Tensor. Block of data.
+     * @param columns (Optional) Array of column names. If not specified and data is an array of array, use range index.
+     * @param axes Array of data labels for both rows and columns.
+     * @param name String (Optional). Name of the data object.
+     * 
+     * @returns NDframe
      */
-    set values(values) {
+
+    constructor(data, columns, name) {
+        this.name = name
+        if (Array.isArray(data)) {
+            this.data = tf.tensor(data)
+
+            if (this.ndim == 1) {
+                //series array
+                if (columns == undefined) {
+                    this.columns = "0"
+                } else {
+                    this.columns = columns
+                }
+
+                this.axes = {
+                    "index": [...Array(this.data.arraySync().length).keys()],
+                    "columns": this.columns
+                }
+
+            } else {
+                //2D or more array
+                //check if columns lenght matches the shape of the data
+                if (columns == undefined) {
+                    //asign integer numbers
+                    this.columns = [...Array(this.data.shape[1]).keys()]
+                } else {
+                    if (columns.length == this.data.shape[1]) {
+                        this.columns = columns
+                    } else {
+                        throw `Column lenght mismatch. You provided a column of lenght ${this.columns.length} but data has lenght of ${this.data.shape}`
+                    }
+                }
+
+                this.axes = {
+                    "index": [...Array(this.data.shape[0]).keys()],
+                    "columns": this.columns
+                }
+            }
+        }
 
     }
 
 
     /**
-         * Return binary size of the data
-         * @returns String
-         */
+     * Return dimension of the tensor object
+     * @returns Integer
+     */
+    get ndim() {
+        return this.data.shape.length
+    }
+
+
+    /**
+     * Return a sequence of axis dimension along row and columns
+     * @returns Array list
+     */
+    get shape() {
+        if (this.ndim == 1) {
+            return 1
+        } else {
+            return this.data.shape
+        }
+    }
+
+
+
+    /**
+     * Return a values in the data as arrays
+     * @returns Array
+     */
+    get values() {
+        return this.data.arraySync()
+    }
+
+    /**
+     * Return the column names of the data
+     * @returns Array of strings
+     */
+    get column_names(){
+        return this.columns
+    }
+
+
+    /**
+     * Return binary size of the data
+     * @returns String
+     */
     get size() {
-        return null
+        return this.data.size
     }
 
 
