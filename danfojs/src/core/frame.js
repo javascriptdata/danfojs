@@ -1,15 +1,18 @@
 import Ndframe from "./generic"
 import * as tf from '@tensorflow/tfjs'
-import remove from "./utils"
+import {remove} from "./utils"
 
 
 
 /**
  * DataFrame object. A 2D frame object that stores data in structured tabular format
+ * @param kwargs Object,(Optional Configuration Object)
+  *              columns: Array of column names. If not specified and data is an array of array, use range index.
+  * @returns DataFrame data structure
  */
 export class DataFrame extends Ndframe {
-    constructor(data, columns, name) {
-        super(data, columns, name);
+    constructor(data, kwargs) {
+        super(data, kwargs);
     }
 
 
