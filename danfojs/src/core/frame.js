@@ -1,6 +1,6 @@
 import Ndframe from "./generic"
 import * as tf from '@tensorflow/tfjs'
-import {remove} from "./utils"
+import { remove } from "./utils"
 
 
 
@@ -43,59 +43,51 @@ export class DataFrame extends Ndframe {
 
     /**
      * Drop a row or a column base on the axis specified
-     * @param {*} prop 
+     * @param {*} val 
      * @param {*} axis 
      * @param {*} inplace 
      */
-    drop(prop, axis,inplace=false){
+    drop(val, kwargs = { axis: 0, inplace: false }) {
 
-        if(axis == 1){
-            let index = this.columns.indexOf(prop);
+        if (kwargs['axis'] == 1) {
+            const index = this.columns.indexOf(val);
+            const values = this.values
 
-            if(index == -1){
-                throw new Error(`column ${prop} does not exist`)
+            if (index == -1) {
+                throw new Error(`column ${val} does not exist`)
             }
 
-            const values = this.values()
-
-            let new_data = values.map(function(arr){
-
-                    let new_arr = remove(arr,index);
-                    return new_arr;
+            let new_data = values.map(function (element) {
+                let new_arr = remove(element, index);
+                return new_arr;
             });
 
-            if(!inplace){
-                columns = remove(this.columns,index);
-                return new DataFrame(data=new_data, columns=columns)
-            }else{
-                this.columns = remove(this.columns,index);
-                this.data    = tf.tensor(new_data);
+            if (!kwargs['inplace']) {
+                let columns = remove(this.columns, index);
+                return new DataFrame(new_data, { columns: columns })
+            } else {
+                this.columns = remove(this.columns, index);
+                this.data = tf.tensor(new_data);
             }
 
-        }
-        else{
-            
-            let axes = this.axes
-            let isIndex = axes["index"].includes(prop);
+        } else {
 
-            if(isIndex){
-                var index = prop;
-            }
-            else{
+            const axes = this.axes
+            const isIndex = axes["index"].includes(val);
+            const values = this.values
 
+            if (isIndex) {
+                var index = val;
+            } else {
                 throw new Error("Index does not exist")
             }
 
-            const values = this.values()
+            let new_data = remove(values, index);
 
-            let new_data = remove(values,index);
-
-            
-            if(!inplace){
-                
-                return new DataFrame(data=new_data, columns=this.columns)
-            }else{
-                this.data    = tf.tensor(new_data);
+            if (!kwargs['inplace']) {
+                return new DataFrame(new_data, { columns: this.columns })
+            } else {
+                this.data = tf.tensor(new_data);
             }
         }
     }
@@ -107,7 +99,7 @@ export class DataFrame extends Ndframe {
      * @param column_list
      * @return Array list
      */
-    loc(row_list,colum_list){}
+    loc(row_list, colum_list) { }
 
     /**
      * Access a dataframe element using row and column index
@@ -115,7 +107,7 @@ export class DataFrame extends Ndframe {
      * @param colum_indexes
      * @return Array_list
      */
-    iloc(row_indexes, colum_indexes){}
+    iloc(row_indexes, colum_indexes) { }
 
     /**
      * Add a column to the dataframe
@@ -123,19 +115,19 @@ export class DataFrame extends Ndframe {
      * @param value
      * 
      */
-    addColum(col,value){}
+    addColum(col, value) { }
 
     /**
      * check if each row,col contains NaN
      * @return Array list (bool)
      */
-    isnan(){}
+    isnan() { }
 
     /**
      * Obtain index containing nan values
      * @return Array list (int)
      */
-    nanIndex(){}
+    nanIndex() { }
 
     /**
      * Group a col inrespect to another column
@@ -143,7 +135,7 @@ export class DataFrame extends Ndframe {
      * @param {*} col2 
      * @param {*} aggregate 
      */
-    groupby(col1,col2,aggregate){
+    groupby(col1, col2, aggregate) {
 
     }
 
@@ -154,7 +146,7 @@ export class DataFrame extends Ndframe {
      * @param {*} axis 
      * @return dataframe object
      */
-    static concatenate(df_list,axis){}
+    static concatenate(df_list, axis) { }
 
     /**
      * Query a dataframe base on the column and filter
@@ -163,18 +155,18 @@ export class DataFrame extends Ndframe {
      * @param {*} value 
      * @return Dataframe
      */
-    static query(column, operator,value){}
+    static query(column, operator, value) { }
 
     /**
      * Merge two or more dataframe base on keys
      */
-    static merge(){}
+    static merge() { }
 
     /**
      * create a one-hot encoder
      * @param {*} series a dataframe column
      * @return DataFrame
      */
-    static dummy(series){}
+    static dummy(series) { }
 
 }
