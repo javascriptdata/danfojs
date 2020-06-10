@@ -1,15 +1,15 @@
-export function remove(arr, index) {
-
-    let new_arr = arr.filter(function (val, i) {
-        return i != index;
-    });
-
-    return new_arr;
-}
-
 export class Utils {
-    // Returns if a value is a string
+    //remove an element from an array
+    remove(arr, index) {
 
+        let new_arr = arr.filter(function (val, i) {
+            return i != index;
+        });
+
+        return new_arr;
+    }
+
+    // Returns if a value is a string
     isString(value) {
         return typeof value === 'string' || value instanceof String;
     }

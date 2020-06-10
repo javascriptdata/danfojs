@@ -1,7 +1,7 @@
 import Ndframe from "./generic"
 import * as tf from '@tensorflow/tfjs-node'
-import { remove } from "./utils"
-
+import  {Utils} from "./utils"
+const utils = new Utils
 
 
 /**
@@ -44,15 +44,15 @@ export class DataFrame extends Ndframe {
             }
 
             let new_data = values.map(function (element) {
-                let new_arr = remove(element, index);
+                let new_arr = utils.remove(element, index);
                 return new_arr;
             });
 
             if (!kwargs['inplace']) {
-                let columns = remove(this.columns, index);
+                let columns = utils.remove(this.columns, index);
                 return new DataFrame(new_data, { columns: columns })
             } else {
-                this.columns = remove(this.columns, index);
+                this.columns = utils.remove(this.columns, index);
                 this.data = tf.tensor(new_data);
             }
 
@@ -68,7 +68,7 @@ export class DataFrame extends Ndframe {
                 throw new Error("Index does not exist")
             }
 
-            let new_data = remove(values, index);
+            let new_data = utils.remove(values, index);
 
             if (!kwargs['inplace']) {
                 return new DataFrame(new_data, { columns: this.columns })
