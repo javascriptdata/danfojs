@@ -2,7 +2,7 @@
  * Reads data file from different format and convert to DataFrame object
  */
 
-import * as tf from '@tensorflow/tfjs'
+import * as tf from '@tensorflow/tfjs-node'
 
 /**
  * Reads a CSV file from local or remote storage

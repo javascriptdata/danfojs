@@ -1,4 +1,3 @@
-// import * as tf from '@tensorflow/tfjs';
 import { assert } from "chai";
 import NDframe from '../../src/core/generic';
 

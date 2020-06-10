@@ -1,5 +1,5 @@
 import Ndframe from "./generic"
-import * as tf from '@tensorflow/tfjs'
+import * as tf from '@tensorflow/tfjs-node'
 import { remove } from "./utils"
 
 
@@ -17,35 +17,21 @@ export class DataFrame extends Ndframe {
 
 
     /**
-         * Prints data to formatted table in console or a specified div container in the browser
-         * @param data Data to format in console
-         * @param container HTML Div id to plot table
-         */
+     * Prints data to formatted table in console or a specified div container in the browser
+    * @param data Data to format in console
+    * @param container HTML Div id to plot table
+    */
     get to_string() {
         return null
     }
 
-    // /**
-    //  * Return a sequence of axis dimension along row and columns
-    //  * @returns Array list
-    //  */
-    // get columns() {
-    //     return null
-    // }
-
-    // /**
-    //      * Return a sequence of axis dimension along row and columns
-    //      * @returns Array list
-    //      */
-    // set columns(cols) {
-
-    // }
 
     /**
      * Drop a row or a column base on the axis specified
      * @param {*} val 
-     * @param {*} axis 
-     * @param {*} inplace 
+     * @param {*} kwargs Object (Optional) configures the drop function.
+     *             axis: row=0, columns=1
+     *             inplace: specify whether to drop the row/column with/without creating a new DataFrame
      */
     drop(val, kwargs = { axis: 0, inplace: false }) {
 
