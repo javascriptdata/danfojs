@@ -27,10 +27,10 @@ export default class NDframe {
                     this.columns = columns
                 }
 
-                this.axes = {
-                    "index": [...Array(this.data.arraySync().length).keys()],
-                    "columns": this.columns
-                }
+                // this.axes = {
+                //     "index": [...Array(this.data.arraySync().length).keys()],
+                //     "columns": this.columns
+                // }
 
             } else {
                 //2D or more array
@@ -46,10 +46,10 @@ export default class NDframe {
                     }
                 }
 
-                this.axes = {
-                    "index": [...Array(this.data.shape[0]).keys()],
-                    "columns": this.columns
-                }
+                // this.axes = {
+                //     "index": [...Array(this.data.shape[0]).keys()],
+                //     "columns": this.columns
+                // }
             }
         }
 
@@ -64,6 +64,17 @@ export default class NDframe {
         return this.data.shape.length
     }
 
+     /**
+     * returns an object of index and columns
+     * @return object
+     */
+    get axes() {
+        let axes = {
+            "index": [...Array(this.data.shape[0]).keys()],
+            "columns": this.columns
+        }
+        return axes
+    }
 
     /**
      * Return a sequence of axis dimension along row and columns

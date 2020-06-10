@@ -1,5 +1,6 @@
 import Ndframe from "./generic"
-// import * as tf from '@tensorflow/tfjs'
+import * as tf from '@tensorflow/tfjs'
+import remove from "./utils"
 
 
 
@@ -21,28 +22,81 @@ export class DataFrame extends Ndframe {
         return null
     }
 
+    // /**
+    //  * Return a sequence of axis dimension along row and columns
+    //  * @returns Array list
+    //  */
+    // get columns() {
+    //     return null
+    // }
+
+    // /**
+    //      * Return a sequence of axis dimension along row and columns
+    //      * @returns Array list
+    //      */
+    // set columns(cols) {
+
+    // }
+
     /**
-     * Return a sequence of axis dimension along row and columns
-     * @returns Array list
+     * Drop a row or a column base on the axis specified
+     * @param {*} prop 
+     * @param {*} axis 
+     * @param {*} inplace 
      */
-    get columns() {
-        return null
+    drop(prop, axis,inplace=false){
+
+        if(axis == 1){
+            let index = this.columns.indexOf(prop);
+
+            if(index == -1){
+                throw new Error(`column ${prop} does not exist`)
+            }
+
+            const values = this.values()
+
+            let new_data = values.map(function(arr){
+
+                    let new_arr = remove(arr,index);
+                    return new_arr;
+            });
+
+            if(!inplace){
+                columns = remove(this.columns,index);
+                return new DataFrame(data=new_data, columns=columns)
+            }else{
+                this.columns = remove(this.columns,index);
+                this.data    = tf.tensor(new_data);
+            }
+
+        }
+        else{
+            
+            let axes = this.axes
+            let isIndex = axes["index"].includes(prop);
+
+            if(isIndex){
+                var index = prop;
+            }
+            else{
+
+                throw new Error("Index does not exist")
+            }
+
+            const values = this.values()
+
+            let new_data = remove(values,index);
+
+            
+            if(!inplace){
+                
+                return new DataFrame(data=new_data, columns=this.columns)
+            }else{
+                this.data    = tf.tensor(new_data);
+            }
+        }
     }
 
-    /**
-         * Return a sequence of axis dimension along row and columns
-         * @returns Array list
-         */
-    set columns(cols) {
-
-    }
-
-    /**
-     * Drop column or index base on the one specified
-     * @param prop can either be an index or a column to dorp
-     * @return Array list
-     */
-    drop(prop){}
 
     /**
      * Access a dataframe element using the columns name
