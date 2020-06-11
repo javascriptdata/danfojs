@@ -97,10 +97,10 @@ describe("NDframe", function () {
     })
 
     describe("to_string", function () {
-        it("Print data as table in console", function () {
+        it("Print data as string in console", function () {
             let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }]
             let ndframe = new NDframe(data)
-            console.log(ndframe.to_string)
+            assert.isString(ndframe.to_string)
         })
     })
 })
