@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.read_csv = void 0;
 
-var tf = _interopRequireWildcard(require("@tensorflow/tfjs"));
+var tf = _interopRequireWildcard(require("@tensorflow/tfjs-node"));
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 

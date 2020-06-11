@@ -28,7 +28,7 @@ describe("NDframe", function () {
         it("prints the default assigned column names in 2D frame", function () {
             let data = [["Boy", 20], ["Girl", 25]]
             let ndframe = new NDframe(data)
-            assert.deepEqual(ndframe.column_names, [0,1])
+            assert.deepEqual(ndframe.column_names, [0, 1])
         })
         it("prints the assigned column names", function () {
             let data = [["Boy", 20], ["Girl", 25]]
@@ -74,7 +74,7 @@ describe("NDframe", function () {
         it("prints the shape of a 1D frame created from an Object", function () {
             let data = [{ alpha: "A", count: 1 }]
             let ndframe = new NDframe(data)
-            assert.deepEqual(ndframe.shape, [1,2])
+            assert.deepEqual(ndframe.shape, [1, 2])
         })
 
         it("prints the size of a frame created from an Object", function () {
@@ -93,6 +93,14 @@ describe("NDframe", function () {
             let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }]
             let ndframe = new NDframe(data)
             assert.deepEqual(ndframe.values, [["A", "1"], ["B", "2"]])
+        })
+    })
+
+    describe("to_string", function () {
+        it("Print data as table in console", function () {
+            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }]
+            let ndframe = new NDframe(data)
+            console.log(ndframe.to_string)
         })
     })
 })
