@@ -80,20 +80,154 @@ export class DataFrame extends Ndframe {
 
 
     /**
-     * Access a dataframe element using the columns name
-     * @param row_list 
-     * @param column_list
-     * @return Array list
+     * Obtain the defined the set of row and column index to obtain
+     * @param {} kwargs object {rows:Array, columns:Array of column name} 
+     * @return DataFrame data stucture
      */
-    loc(row_list, colum_list) { }
+    loc(kwargs){
 
+        if(kwargs.hasOwnProperty("rows")){
+            if(Array.isArray(kwargs["rows"])){
+                
+                var rows = kwargs["rows"];
+            }else{
+                throw new Error("rows must be a list")
+            }    
+        }else{
+                throw new Error("Kwargs keywords are {rows, columns}")
+        }
+
+        if(kwargs.hasOwnProperty("columns")){
+            if(Array.isArray(kwargs["columns"])){
+                var columns = kwargs["columns"];
+            }else{
+                throw new Error("columns must be a list")
+            }    
+        }else{
+                throw new Error("Kwargs keywords are {rows, columns}")
+        }
+
+        let data_values = this.values;
+
+        let axes  = this.axes
+
+        let new_data = [];
+        for(var index=0;index < rows.length;index++){
+                let row_val = rows[index]
+                let max_rowIndex = data_values.length -1
+
+                if(row_val > max_rowIndex){
+                    throw new Error(`row index ${row_val} is bigger than ${max_rowIndex}`);
+                }
+
+                
+                let value = data_values[row_val]
+                let row_data = []
+                
+                for(var i in columns){
+                    
+                    let col_index = axes["columns"].indexOf(columns[i]);
+
+                    if(col_index == -1){
+                        throw new Error(`Column ${columns[i]} does not exist`);
+                    }
+
+                    let val_tensor = tf.tensor(value);
+                    let tensor_elem = val_tensor.slice([col_index],[1]).arraySync()[0]
+
+                    row_data.push(tensor_elem);
+                }
+
+                new_data.push(row_data);
+                    
+            }
+
+        let df_columns = {"columns":columns}
+        let df   = new DataFrame(new_data,df_columns);
+
+        return df;
+
+    }
     /**
      * Access a dataframe element using row and column index
-     * @param row_indexes 
-     * @param colum_indexes
-     * @return Array_list
+     * @param {*} kwargs object {rows:Array, columns:Array of column index} 
+     * @return DataFrame data stucture
      */
-    iloc(row_indexes, colum_indexes) { }
+    iloc(kwargs){
+        if(kwargs.hasOwnProperty("rows")){
+            if(Array.isArray(kwargs["rows"])){
+                
+                var rows = kwargs["rows"];
+                console.log(rows);
+            }else{
+                throw new Error("rows must be a list")
+            }    
+        }else{
+                throw new Error("Kwargs keywords are {rows, columns}")
+        }
+
+        if(kwargs.hasOwnProperty("columns")){
+            if(Array.isArray(kwargs["columns"])){
+                var columns = kwargs["columns"];
+            }else{
+                throw new Error("columns must be a list")
+            }    
+        }else{
+                throw new Error("Kwargs keywords are {rows, columns}")
+        }
+
+        let data_values = this.values;
+
+        let axes  = this.axes
+        
+        let new_data = [];
+        
+        for(var index=0;index < rows.length;index++){
+                let row_val = rows[index]
+                let max_rowIndex = data_values.length -1
+
+                if(row_val > max_rowIndex){
+                    throw new Error(`row index ${row_val} is bigger than ${max_rowIndex}`);
+                }
+
+                
+                let value = data_values[row_val]
+                
+
+                let row_data = []
+                
+                for(var i in columns){
+                    
+                    
+                    let col_index = columns[i];
+                    
+                    let max_colIndex = axes["columns"].length -1
+
+                    if(col_index > max_colIndex){
+                        throw new Error(`column index ${col_index} is bigger than ${max_colIndex}`);
+                    }
+                    
+                    let val_tensor = tf.tensor(value);
+                    let tensor_elem = val_tensor.slice([col_index],[1]).arraySync()[0]
+
+                    row_data.push(tensor_elem);
+                }
+
+                new_data.push(row_data);
+                    
+        }
+        
+        let column_name = []
+        for(var i in columns){
+            column_name.push(axes["columns"][i]);
+        }
+        
+        let df_columns = {"columns":column_name}
+        let df   = new DataFrame(new_data,df_columns);
+
+        return df;
+
+    }
 
     /**
      * Add a column to the dataframe
