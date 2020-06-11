@@ -157,5 +157,44 @@ export default class NDframe {
         return this.data.size
     }
 
+    /**
+    * Prints data to formatted table in console or a specified div container in the browser
+   * @param {} Data to format in console
+   * @param {} container HTML Div id to plot table
+   */
+    get to_string() {
+        let global_string = "  |"
+
+        this.columns.map((val) => {
+            global_string += `  ${val} |`
+        })
+
+        global_string += "\n"
+        global_string += "---".repeat(this.columns.length * 2) + "\n"
+
+        let col_str = ""
+        this.values.forEach((val, i) => {
+            col_str += ` ${i}|`
+            val.forEach((element) => {
+                col_str += `  ${element} |`
+            })
+            col_str += "\n"
+        })
+        global_string += col_str
+        return global_string
+
+        // let temp_obj = []
+        // let result;
+        // this.values.map((row) => {
+        //     result = row.reduce(function (result, field, index) {
+        //         result[this.column_names[index]] = field;
+        //         return result;
+        //     }, {})
+        //     temp_obj.push(result)
+        // })
+
+        // console.table(temp_obj);
+    }
+
 
 }
