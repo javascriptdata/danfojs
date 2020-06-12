@@ -160,40 +160,16 @@ export default class NDframe {
 
 
     /**
-    * Format NDFrame in table form
-    * @param {config} Configuration object
-    * @returns {String} string representation of NDFrame
+    * Overrides default string representation of NDFrame
     */
-
     toString() {
-
+        let data = this.values
+        data.unshift(this.columns) //Adds the column names to values before printing
+        return table(data)
     }
 
-    to_string(config = {}) {
-        //     let col_names = this.column_names
-        //     if (config['head']) {
-        //         //print first (config['rows']) in NDFrame
-        //         let data = this.values.slice(0, config['rows'])
-        //         data.unshift(col_names)
-        //         return table(data)
 
-        //     } else if (config['head'] == false) {
-        //         //print last (config['rows']) in NDFrame
-        //         let data = this.values.slice(this.shape[0] - config['rows'])
-        //         data.unshift(col_names)
-        //         return table(data)
-        //     } else if (config['sample'] == true) {
-        //         //returns a random config[sample] number of elements
-
-        //     } else {
-        //         //print all values in NDFrame
-        //         let data = this.values
-        //         data.unshift(col_names)
-        //         return table(data)
-        //     }
-        // }
-
-    }
+}
 
 
     //         // let temp_obj = []
@@ -207,4 +183,3 @@ export default class NDframe {
     //         // })
 
     //         // console.table(temp_obj);
-}
