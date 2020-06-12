@@ -1,6 +1,6 @@
 import Ndframe from "./generic"
 import * as tf from '@tensorflow/tfjs-node'
-import  {Utils} from "./utils"
+import { Utils } from "./utils"
 const utils = new Utils
 
 
@@ -14,8 +14,6 @@ export class DataFrame extends Ndframe {
     constructor(data, kwargs) {
         super(data, kwargs);
     }
-
-
 
     /**
      * Drop a row or a column base on the axis specified
@@ -75,66 +73,66 @@ export class DataFrame extends Ndframe {
      * @param {} kwargs object {rows:Array, columns:Array of column name} 
      * @return DataFrame data stucture
      */
-    loc(kwargs){
+    loc(kwargs) {
 
-        if(kwargs.hasOwnProperty("rows")){
-            if(Array.isArray(kwargs["rows"])){
-                
+        if (kwargs.hasOwnProperty("rows")) {
+            if (Array.isArray(kwargs["rows"])) {
+
                 var rows = kwargs["rows"];
-            }else{
+            } else {
                 throw new Error("rows must be a list")
-            }    
-        }else{
-                throw new Error("Kwargs keywords are {rows, columns}")
+            }
+        } else {
+            throw new Error("Kwargs keywords are {rows, columns}")
         }
 
-        if(kwargs.hasOwnProperty("columns")){
-            if(Array.isArray(kwargs["columns"])){
+        if (kwargs.hasOwnProperty("columns")) {
+            if (Array.isArray(kwargs["columns"])) {
                 var columns = kwargs["columns"];
-            }else{
+            } else {
                 throw new Error("columns must be a list")
-            }    
-        }else{
-                throw new Error("Kwargs keywords are {rows, columns}")
+            }
+        } else {
+            throw new Error("Kwargs keywords are {rows, columns}")
         }
 
         let data_values = this.values;
 
-        let axes  = this.axes
+        let axes = this.axes
 
         let new_data = [];
-        for(var index=0;index < rows.length;index++){
-                let row_val = rows[index]
-                let max_rowIndex = data_values.length -1
+        for (var index = 0; index < rows.length; index++) {
+            let row_val = rows[index]
+            let max_rowIndex = data_values.length - 1
 
-                if(row_val > max_rowIndex){
-                    throw new Error(`row index ${row_val} is bigger than ${max_rowIndex}`);
-                }
-
-                
-                let value = data_values[row_val]
-                let row_data = []
-                
-                for(var i in columns){
-                    
-                    let col_index = axes["columns"].indexOf(columns[i]);
-
-                    if(col_index == -1){
-                        throw new Error(`Column ${columns[i]} does not exist`);
-                    }
-
-                    let val_tensor = tf.tensor(value);
-                    let tensor_elem = val_tensor.slice([col_index],[1]).arraySync()[0]
-
-                    row_data.push(tensor_elem);
-                }
-
-                new_data.push(row_data);
-                    
+            if (row_val > max_rowIndex) {
+                throw new Error(`row index ${row_val} is bigger than ${max_rowIndex}`);
             }
 
-        let df_columns = {"columns":columns}
-        let df   = new DataFrame(new_data,df_columns);
+
+            let value = data_values[row_val]
+            let row_data = []
+
+            for (var i in columns) {
+
+                let col_index = axes["columns"].indexOf(columns[i]);
+
+                if (col_index == -1) {
+                    throw new Error(`Column ${columns[i]} does not exist`);
+                }
+
+                let val_tensor = tf.tensor(value);
+                let tensor_elem = val_tensor.slice([col_index], [1]).arraySync()[0]
+
+                row_data.push(tensor_elem);
+            }
+
+            new_data.push(row_data);
+
+        }
+
+        let df_columns = { "columns": columns }
+        let df = new DataFrame(new_data, df_columns);
 
         return df;
 
@@ -144,81 +142,128 @@ export class DataFrame extends Ndframe {
      * @param {*} kwargs object {rows:Array, columns:Array of column index} 
      * @return DataFrame data stucture
      */
-    iloc(kwargs){
-        if(kwargs.hasOwnProperty("rows")){
-            if(Array.isArray(kwargs["rows"])){
-                
+    iloc(kwargs) {
+        if (kwargs.hasOwnProperty("rows")) {
+            if (Array.isArray(kwargs["rows"])) {
+
                 var rows = kwargs["rows"];
                 console.log(rows);
-            }else{
+            } else {
                 throw new Error("rows must be a list")
-            }    
-        }else{
-                throw new Error("Kwargs keywords are {rows, columns}")
+            }
+        } else {
+            throw new Error("Kwargs keywords are {rows, columns}")
         }
 
-        if(kwargs.hasOwnProperty("columns")){
-            if(Array.isArray(kwargs["columns"])){
+        if (kwargs.hasOwnProperty("columns")) {
+            if (Array.isArray(kwargs["columns"])) {
                 var columns = kwargs["columns"];
-            }else{
+            } else {
                 throw new Error("columns must be a list")
-            }    
-        }else{
-                throw new Error("Kwargs keywords are {rows, columns}")
+            }
+        } else {
+            throw new Error("Kwargs keywords are {rows, columns}")
         }
 
         let data_values = this.values;
 
-        let axes  = this.axes
-        
+        let axes = this.axes
+
         let new_data = [];
-        
-        for(var index=0;index < rows.length;index++){
-                let row_val = rows[index]
-                let max_rowIndex = data_values.length -1
 
-                if(row_val > max_rowIndex){
-                    throw new Error(`row index ${row_val} is bigger than ${max_rowIndex}`);
+        for (var index = 0; index < rows.length; index++) {
+            let row_val = rows[index]
+            let max_rowIndex = data_values.length - 1
+
+            if (row_val > max_rowIndex) {
+                throw new Error(`row index ${row_val} is bigger than ${max_rowIndex}`);
+            }
+
+
+            let value = data_values[row_val]
+
+
+            let row_data = []
+
+            for (var i in columns) {
+
+
+                let col_index = columns[i];
+
+                let max_colIndex = axes["columns"].length - 1
+
+                if (col_index > max_colIndex) {
+                    throw new Error(`column index ${col_index} is bigger than ${max_colIndex}`);
                 }
 
-                
-                let value = data_values[row_val]
-                
+                let val_tensor = tf.tensor(value);
+                let tensor_elem = val_tensor.slice([col_index], [1]).arraySync()[0]
 
-                let row_data = []
-                
-                for(var i in columns){
-                    
-                    
-                    let col_index = columns[i];
-                    
-                    let max_colIndex = axes["columns"].length -1
+                row_data.push(tensor_elem);
+            }
 
-                    if(col_index > max_colIndex){
-                        throw new Error(`column index ${col_index} is bigger than ${max_colIndex}`);
-                    }
-                    
-                    let val_tensor = tf.tensor(value);
-                    let tensor_elem = val_tensor.slice([col_index],[1]).arraySync()[0]
+            new_data.push(row_data);
 
-                    row_data.push(tensor_elem);
-                }
-
-                new_data.push(row_data);
-                    
         }
-        
+
         let column_name = []
-        for(var i in columns){
+        for (var i in columns) {
             column_name.push(axes["columns"][i]);
         }
-        
-        let df_columns = {"columns":column_name}
-        let df   = new DataFrame(new_data,df_columns);
+
+        let df_columns = { "columns": column_name }
+        let df = new DataFrame(new_data, df_columns);
 
         return df;
 
     }
+
+    /**
+    * Prints the first n values in a dataframe
+    * @param {rows}  
+    */
+    head(rows = 5) {
+        if (rows > this.values.length || rows < 1) {
+            //return all values
+            rows = this.values.length
+            let config = { columns: this.column_names }
+            return new DataFrame(this.values, config)
+        } else {
+            //Creates a new dataframe with first [rows]
+            let config = { columns: this.column_names }
+            let data = this.values.slice(0, rows)
+            return new DataFrame(data, config)
+        }
+
+    }
+
+    /**
+    * Prints the last n values in a dataframe
+    * @param {rows}  
+    */
+    tail(rows = 5) {
+        if (rows > this.values.length || rows < 1) {
+            //return all values
+            rows = this.values.length
+            let config = { columns: this.column_names }
+            return new DataFrame(this.values, config)
+        } else {
+            //Creates a new dataframe with last [rows]
+            let config = { columns: this.column_names }
+            let data = this.values.slice(this.values.length - rows)
+            return new DataFrame(data, config)
+        }
+
+    }
+
+    /**
+    * Prints the last n values in a dataframe
+    * @param {rows}  
+    */
+    sample(rows = 5) {
+        
+    }
+
 
     /**
      * Add a column to the dataframe

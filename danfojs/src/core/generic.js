@@ -1,5 +1,5 @@
 import * as tf from '@tensorflow/tfjs-node'
-import { table, createStream } from 'table'
+import { table } from 'table'
 import { Utils } from './utils'
 const utils = new Utils()
 
@@ -158,21 +158,45 @@ export default class NDframe {
         return this.data.size
     }
 
+
     /**
     * Format NDFrame in table form
+    * @param {config} Configuration object
     * @returns {String} string representation of NDFrame
     */
-    get to_string() {
-        let data = this.values
-        let col_names = this.column_names
-        data.unshift(col_names)
-        return table(data)
+
+    toString() {
+
     }
 
-}
+    to_string(config = {}) {
+        //     let col_names = this.column_names
+        //     if (config['head']) {
+        //         //print first (config['rows']) in NDFrame
+        //         let data = this.values.slice(0, config['rows'])
+        //         data.unshift(col_names)
+        //         return table(data)
+
+        //     } else if (config['head'] == false) {
+        //         //print last (config['rows']) in NDFrame
+        //         let data = this.values.slice(this.shape[0] - config['rows'])
+        //         data.unshift(col_names)
+        //         return table(data)
+        //     } else if (config['sample'] == true) {
+        //         //returns a random config[sample] number of elements
+
+        //     } else {
+        //         //print all values in NDFrame
+        //         let data = this.values
+        //         data.unshift(col_names)
+        //         return table(data)
+        //     }
+        // }
+
+    }
 
 
- //         // let temp_obj = []
+    //         // let temp_obj = []
     //         // let result;
     //         // this.values.map((row) => {
     //         //     result = row.reduce(function (result, field, index) {
@@ -183,4 +207,4 @@ export default class NDframe {
     //         // })
 
     //         // console.table(temp_obj);
-    //     }
+}
