@@ -67,68 +67,91 @@ export class DataFrame extends Ndframe {
         }
     }
 
+    /**
+     * Obtain the defined the set of row and column index 
+     * @param {*} kwargs object {rows:Array, columns:Array of column name, type: ["iloc","loc"]} 
+     * @return Array
+     */
+    __indexLoc(kwargs){
+        if(Object.prototype.hasOwnProperty.call(kwargs, "rows")){
+            if(Array.isArray(kwargs["rows"])){
+                
+                var rows = kwargs["rows"];
+            }else{
+                throw new Error("rows must be a list")
+            }    
+        }else{
+                throw new Error("Kwargs keywords are {rows, columns}")
+        }
+
+        if(Object.prototype.hasOwnProperty.call(kwargs, "columns")){
+            if(Array.isArray(kwargs["columns"])){
+                var columns = kwargs["columns"];
+            }else{
+                throw new Error("columns must be a list")
+            }    
+        }else{
+                throw new Error("Kwargs keywords are {rows, columns}")
+        }
+
+        let data_values = this.values;
+
+        let axes  = this.axes
+
+        let new_data = [];
+        for(var index=0;index < rows.length;index++){
+                let row_val = rows[index]
+                let max_rowIndex = data_values.length -1
+
+                if(row_val > max_rowIndex){
+                    throw new Error(`row index ${row_val} is bigger than ${max_rowIndex}`);
+                }
+
+                
+                let value = data_values[row_val]
+                let row_data = []
+                
+                for(var i in columns){
+                    
+                    if(kwargs["type"] == "loc"){
+                        var col_index = axes["columns"].indexOf(columns[i]);
+
+                        if(col_index == -1){
+                            throw new Error(`Column ${columns[i]} does not exist`);
+                        }
+                    }else{
+                        var col_index = columns[i];
+                        let max_colIndex = axes["columns"].length -1
+
+                        if(col_index > max_colIndex){
+                            throw new Error(`column index ${col_index} is bigger than ${max_colIndex}`);
+                        }
+                    }
+                    let val_tensor = tf.tensor(value);
+                    let tensor_elem = val_tensor.slice([col_index],[1]).arraySync()[0]
+
+                    row_data.push(tensor_elem);
+                }
+
+                new_data.push(row_data);
+                    
+            }
+
+        return new_data;
+    }
+
+
 
     /**
-     * Obtain the defined the set of row and column index to obtain
+     * Obtain the defined the set of row and column index 
      * @param {} kwargs object {rows:Array, columns:Array of column name} 
      * @return DataFrame data stucture
      */
     loc(kwargs) {
 
-        if (Object.prototype.hasOwnProperty.call(kwargs, "rows")) {
-            if (Array.isArray(kwargs["rows"])) {
-                var rows = kwargs["rows"];
-            } else {
-                throw new Error("rows must be a list")
-            }
-        } else {
-            throw new Error("Kwargs keywords are {rows, columns}")
-        }
-
-        if (Object.prototype.hasOwnProperty.call(kwargs, "columns")) {
-            if (Array.isArray(kwargs["columns"])) {
-                var columns = kwargs["columns"];
-            } else {
-                throw new Error("columns must be a list")
-            }
-        } else {
-            throw new Error("Kwargs keywords are {rows, columns}")
-        }
-
-        let data_values = this.values;
-        let axes = this.axes
-        let new_data = [];
-
-        for (var index = 0; index < rows.length; index++) {
-            let row_val = rows[index]
-            let max_rowIndex = data_values.length - 1
-
-            if (row_val > max_rowIndex) {
-                throw new Error(`row index ${row_val} is bigger than ${max_rowIndex}`);
-            }
-
-            let value = data_values[row_val]
-            let row_data = []
-
-            for (var i in columns) {
-
-                let col_index = axes["columns"].indexOf(columns[i]);
-
-                if (col_index == -1) {
-                    throw new Error(`Column ${columns[i]} does not exist`);
-                }
-
-                let val_tensor = tf.tensor(value);
-                let tensor_elem = val_tensor.slice([col_index], [1]).arraySync()[0]
-
-                row_data.push(tensor_elem);
-            }
-
-            new_data.push(row_data);
-
-        }
-
-        let df_columns = { "columns": columns }
+        kwargs["type"] = "loc"
+        let new_data = this.__indexLoc(kwargs);
+        let df_columns = { "columns": kwargs["columns"] }
         let df = new DataFrame(new_data, df_columns);
 
         return df;
@@ -143,69 +166,11 @@ export class DataFrame extends Ndframe {
      */
     iloc(kwargs) {
 
-        if (Object.prototype.hasOwnProperty.call(kwargs, "rows")) {
-            if (Array.isArray(kwargs["rows"])) {
-
-                var rows = kwargs["rows"];
-                console.log(rows);
-            } else {
-                throw new Error("rows must be a list")
-            }
-        } else {
-            throw new Error("Kwargs keywords are {rows, columns}")
-        }
-
-        if (Object.prototype.hasOwnProperty.call(kwargs, "columns")) {
-            if (Array.isArray(kwargs["columns"])) {
-                var columns = kwargs["columns"];
-            } else {
-                throw new Error("columns must be a list")
-            }
-        } else {
-            throw new Error("Kwargs keywords are {rows, columns}")
-        }
-
-        let data_values = this.values;
-
-        let axes = this.axes
-
-        let new_data = [];
-
-        for (var index = 0; index < rows.length; index++) {
-            let row_val = rows[index]
-            let max_rowIndex = data_values.length - 1
-
-            if (row_val > max_rowIndex) {
-                throw new Error(`row index ${row_val} is bigger than ${max_rowIndex}`);
-            }
-
-
-            let value = data_values[row_val]
-
-
-            let row_data = []
-
-            for (var i in columns) {
-
-
-                let col_index = columns[i];
-
-                let max_colIndex = axes["columns"].length - 1
-
-                if (col_index > max_colIndex) {
-                    throw new Error(`column index ${col_index} is bigger than ${max_colIndex}`);
-                }
-
-                let val_tensor = tf.tensor(value);
-                let tensor_elem = val_tensor.slice([col_index], [1]).arraySync()[0]
-
-                row_data.push(tensor_elem);
-            }
-
-            new_data.push(row_data);
-
-        }
-
+        kwargs["type"] = "iloc";
+        
+        let new_data = this.__indexLoc(kwargs);
+        let columns = kwargs["columns"];
+        let axes  = this.axes
         let column_name = []
         columns.map((col) => {
             column_name.push(axes["columns"][col]);
@@ -310,7 +275,7 @@ export class DataFrame extends Ndframe {
      * @param {*} value 
      * @return Dataframe
      */
-    static query(column, operator, value) { }
+    query(column, operator, value) { }
 
     /**
      * Merge two or more dataframe base on keys
