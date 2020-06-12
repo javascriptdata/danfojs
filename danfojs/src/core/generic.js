@@ -1,4 +1,5 @@
 import * as tf from '@tensorflow/tfjs-node'
+import { table, createStream } from 'table'
 import { Utils } from './utils'
 const utils = new Utils()
 
@@ -7,8 +8,8 @@ export default class NDframe {
      * N-Dimensiona data structure. Stores multi-dimensional 
      * data in a size-mutable, labeled data structure. Analogous to the Python Pandas DataFrame. 
      * 
-     * @param data JSON, Array, Tensor. Block of data.
-     * @param kwargs Object,(Optional Configuration Object)
+     * @param {data} JSON, Array, Tensor. Block of data.
+     * @param {kwargs} Object,(Optional Configuration Object)
      *                 columns: Array of column names. If not specified and data is an array of array, use range index.
      *      
      * @returns NDframe
@@ -93,8 +94,8 @@ export default class NDframe {
 
 
     /**
-     * Return dimension of the tensor object
-     * @returns Integer
+     * Gets dimension of the NDFrame
+     * @returns {Integer} dimension of NDFrame
      */
     get ndim() {
         return this.data.shape.length
@@ -103,8 +104,8 @@ export default class NDframe {
 
 
     /**
-    * returns an object of index and columns
-    * @return object
+    * Gets values for index and columns
+    * @return {Object} axes configuration for index and columns of NDFrame
     */
     get axes() {
         let axes = {
@@ -117,8 +118,8 @@ export default class NDframe {
 
 
     /**
-     * Return a sequence of axis dimension along row and columns
-     * @returns Array list
+     * Gets a sequence of axis dimension along row and columns
+     * @returns {Array} the shape of the NDFrame
      */
     get shape() {
         if (this.ndim == 1) {
@@ -131,8 +132,8 @@ export default class NDframe {
 
 
     /**
-     * Return a values in the data as arrays
-     * @returns Array
+     * Gets the values in the NDFrame
+     * @returns {Array} Arrays of arrays of data instances
      */
     get values() {
         return this.data.arraySync()
@@ -141,8 +142,8 @@ export default class NDframe {
 
 
     /**
-     * Return the column names of the data
-     * @returns Array of strings
+     * Gets the column names of the data
+     * @returns {Array} strings of column names
      */
     get column_names() {
         return this.columns
@@ -150,51 +151,36 @@ export default class NDframe {
 
 
     /**
-     * Return binary size of the data
-     * @returns String
+     * Gets binary size of the NDFrame
+     * @returns {String} size of the NDFrame
      */
     get size() {
         return this.data.size
     }
 
     /**
-    * Prints data to formatted table in console or a specified div container in the browser
-   * @param {} Data to format in console
-   * @param {} container HTML Div id to plot table
-   */
+    * Format NDFrame in table form
+    * @returns {String} string representation of NDFrame
+    */
     get to_string() {
-        let global_string = "  |"
-
-        this.columns.map((val) => {
-            global_string += `  ${val} |`
-        })
-
-        global_string += "\n"
-        global_string += "---".repeat(this.columns.length * 2) + "\n"
-
-        let col_str = ""
-        this.values.forEach((val, i) => {
-            col_str += ` ${i}|`
-            val.forEach((element) => {
-                col_str += `  ${element} |`
-            })
-            col_str += "\n"
-        })
-        global_string += col_str
-        return global_string
-
-        // let temp_obj = []
-        // let result;
-        // this.values.map((row) => {
-        //     result = row.reduce(function (result, field, index) {
-        //         result[this.column_names[index]] = field;
-        //         return result;
-        //     }, {})
-        //     temp_obj.push(result)
-        // })
-
-        // console.table(temp_obj);
+        let data = this.values
+        let col_names = this.column_names
+        data.unshift(col_names)
+        return table(data)
     }
 
-
 }
+
+
+ //         // let temp_obj = []
+    //         // let result;
+    //         // this.values.map((row) => {
+    //         //     result = row.reduce(function (result, field, index) {
+    //         //         result[this.column_names[index]] = field;
+    //         //         return result;
+    //         //     }, {})
+    //         //     temp_obj.push(result)
+    //         // })
+
+    //         // console.table(temp_obj);
+    //     }

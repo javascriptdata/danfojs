@@ -98,7 +98,18 @@ describe("NDframe", function () {
 
     describe("to_string", function () {
         it("Print data as string in console", function () {
-            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }]
+            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
+            let ndframe = new NDframe(data)
+            assert.isString(ndframe.to_string)
+        })
+    })
+    describe("to_string", function () {
+        it("Print data in streaming pattern to console", function () {
+            let data = [{ alpha: "A", count: 1}, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }
+                , { alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 },
+            { alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 },
+            { alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 },
+            { alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
             let ndframe = new NDframe(data)
             assert.isString(ndframe.to_string)
         })
