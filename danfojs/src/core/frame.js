@@ -17,8 +17,8 @@ export class DataFrame extends Ndframe {
 
     /**
      * Drop a row or a column base on the axis specified
-     * @param {*} val 
-     * @param {*} kwargs Object (Optional) configures the drop function.
+     * @param {val} String name of row or column to drop
+     * @param {kwargs} Object (Optional configuration object
      *             axis: row=0, columns=1
      *             inplace: specify whether to drop the row/column with/without creating a new DataFrame
      */
@@ -75,9 +75,8 @@ export class DataFrame extends Ndframe {
      */
     loc(kwargs) {
 
-        if (kwargs.hasOwnProperty("rows")) {
+        if (Object.prototype.hasOwnProperty.call(kwargs, "rows")) {
             if (Array.isArray(kwargs["rows"])) {
-
                 var rows = kwargs["rows"];
             } else {
                 throw new Error("rows must be a list")
@@ -86,7 +85,7 @@ export class DataFrame extends Ndframe {
             throw new Error("Kwargs keywords are {rows, columns}")
         }
 
-        if (kwargs.hasOwnProperty("columns")) {
+        if (Object.prototype.hasOwnProperty.call(kwargs, "columns")) {
             if (Array.isArray(kwargs["columns"])) {
                 var columns = kwargs["columns"];
             } else {
@@ -97,10 +96,9 @@ export class DataFrame extends Ndframe {
         }
 
         let data_values = this.values;
-
         let axes = this.axes
-
         let new_data = [];
+
         for (var index = 0; index < rows.length; index++) {
             let row_val = rows[index]
             let max_rowIndex = data_values.length - 1
@@ -108,7 +106,6 @@ export class DataFrame extends Ndframe {
             if (row_val > max_rowIndex) {
                 throw new Error(`row index ${row_val} is bigger than ${max_rowIndex}`);
             }
-
 
             let value = data_values[row_val]
             let row_data = []
@@ -137,13 +134,16 @@ export class DataFrame extends Ndframe {
         return df;
 
     }
+
+
     /**
      * Access a dataframe element using row and column index
      * @param {*} kwargs object {rows:Array, columns:Array of column index} 
      * @return DataFrame data stucture
      */
     iloc(kwargs) {
-        if (kwargs.hasOwnProperty("rows")) {
+
+        if (Object.prototype.hasOwnProperty.call(kwargs, "rows")) {
             if (Array.isArray(kwargs["rows"])) {
 
                 var rows = kwargs["rows"];
@@ -155,7 +155,7 @@ export class DataFrame extends Ndframe {
             throw new Error("Kwargs keywords are {rows, columns}")
         }
 
-        if (kwargs.hasOwnProperty("columns")) {
+        if (Object.prototype.hasOwnProperty.call(kwargs, "columns")) {
             if (Array.isArray(kwargs["columns"])) {
                 var columns = kwargs["columns"];
             } else {
@@ -207,16 +207,15 @@ export class DataFrame extends Ndframe {
         }
 
         let column_name = []
-        for (var i in columns) {
-            column_name.push(axes["columns"][i]);
-        }
-
+        columns.map((col) => {
+            column_name.push(axes["columns"][col]);
+        })
         let df_columns = { "columns": column_name }
         let df = new DataFrame(new_data, df_columns);
-
         return df;
 
     }
+    
 
     /**
     * Prints the first n values in a dataframe
