@@ -269,13 +269,73 @@ export class DataFrame extends Ndframe {
     static concatenate(df_list, axis) { }
 
     /**
-     * Query a dataframe base on the column and filter
-     * @param {*} column 
-     * @param {*} operator 
-     * @param {*} value 
-     * @return Dataframe
+     * fetch rows containing a column value
+     * @param {} kwargs {column: cloumn name[string], operator: string, value: string| int} 
      */
-    query(column, operator, value) { }
+    query(kwargs) {
+        let operators = [
+            ">",
+            "<",
+            "<=",
+            ">=",
+            "=="
+        ]
+
+        if(Object.prototype.hasOwnProperty.call(kwargs, "column")){
+            
+            let axes = this.axes
+            if(axes["columns"].includes(kwargs["column"])){
+
+                var column_index = axes["columns"].indexOf(kwargs["column"]);
+            }else{
+                throw new Error(`column ${kwargs["column"]} does not exist`);
+            }
+        }else{
+            throw new Error("specify the column");
+        }
+
+        if(Object.prototype.hasOwnProperty.call(kwargs, "operator")){
+
+            if(operators.includes(kwargs["operator"])){
+                
+                var operator = kwargs["operator"];
+            }
+            else{
+                throw new Error(` ${kwargs["operator"]} is not identified`);
+            }
+        }else{
+            throw new Error("specify operator");
+        }
+
+        if(Object.prototype.hasOwnProperty.call(kwargs, "value")){
+            var value = kwargs["value"]
+
+        }else{
+            throw new Error("specify value");
+        }
+
+        let data = this.values
+
+        let new_data = []
+
+        for(var i=0;i< data.length;i++){
+                let val = data[i]
+                let tensor_data = tf.tensor(val);
+                let tensor_elem = tensor_data.slice([column_index],[1]).arraySync()[0]
+
+                if(eval(`${tensor_elem}${operator}${value}`)){
+                    //e.g "2 > 5 filter"
+                    new_data.push(val);
+                }
+       
+                
+        };
+
+        let columns  = this.axes["columns"]
+        let new_df = new DataFrame(new_data, {"columns":columns})
+
+        return new_df;
+     }
 
     /**
      * Merge two or more dataframe base on keys
