@@ -27,7 +27,6 @@ export default class NDframe {
     }
 
 
-
     __read_array(data) {
         this.data = tf.tensor(data)
         if (this.ndim == 1) {
@@ -170,16 +169,3 @@ export default class NDframe {
 
 
 }
-
-
-    //         // let temp_obj = []
-    //         // let result;
-    //         // this.values.map((row) => {
-    //         //     result = row.reduce(function (result, field, index) {
-    //         //         result[this.column_names[index]] = field;
-    //         //         return result;
-    //         //     }, {})
-    //         //     temp_obj.push(result)
-    //         // })
-
-    //         // console.table(temp_obj);

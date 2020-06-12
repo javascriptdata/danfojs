@@ -6,7 +6,7 @@ const utils = new Utils
 
 /**
  * DataFrame object. A 2D frame object that stores data in structured tabular format
- * @param kwargs Object,(Optional Configuration Object)
+ * @param {kwargs} Object,(Optional Configuration Object)
   *              columns: Array of column names. If not specified and data is an array of array, use range index.
   * @returns DataFrame data structure
  */
@@ -261,7 +261,7 @@ export class DataFrame extends Ndframe {
     * @param {rows}  
     */
     sample(rows = 5) {
-        
+
     }
 
 
