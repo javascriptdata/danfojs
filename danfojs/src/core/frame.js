@@ -75,10 +75,30 @@ export class DataFrame extends Ndframe {
      * @return Array
      */
     __indexLoc(kwargs) {
+        let rows = null;
+        let columns = null;
+        let isColumnSplit = false;
         if (Object.prototype.hasOwnProperty.call(kwargs, "rows")) { //check if the object has the key
             if (Array.isArray(kwargs["rows"])) {
 
-                var rows = kwargs["rows"];
+                if(kwargs["rows"].length ==1 && typeof kwargs["rows"][0] == "string"){
+                    //console.log("here", kwargs["rows"].length)
+                    if(kwargs["rows"][0].includes(":")){
+                        
+                        let row_split = kwargs["rows"][0].split(":")
+                        let start   = parseInt(row_split[0]);
+                        let end     = parseInt(row_split[1]);
+
+                        if(typeof start == "number" && typeof end == "number"){
+                            rows = utils.range(start,end);
+                        }
+                        
+                    }else{
+                        throw new Error("numbers in string must be separated by ':'")
+                    }
+                }else{
+                    rows = kwargs["rows"];
+                }
             } else {
                 throw new Error("rows must be a list")
             }
@@ -88,7 +108,37 @@ export class DataFrame extends Ndframe {
 
         if (Object.prototype.hasOwnProperty.call(kwargs, "columns")) {
             if (Array.isArray(kwargs["columns"])) {
-                var columns = kwargs["columns"];
+                if(kwargs["columns"].length ==1 && typeof kwargs["columns"][0] == "string"){
+
+                    if(kwargs["columns"][0].includes(":")){
+                        
+                        let row_split = kwargs["columns"][0].split(":")
+                        let start, end;
+
+                        if(kwargs["type"] =="iloc"){
+                            start   = parseInt(row_split[0]);
+                            end     = parseInt(row_split[1]);
+                        }else{
+                            let axes = this.axes["columns"]
+                            
+                            start = parseInt(axes.indexOf(row_split[0]));
+                            end   = parseInt(axes.indexOf(row_split[1]));
+                        }
+                        console.log(start,end)
+
+                        if(typeof start == "number" && typeof end == "number"){
+                            
+                            columns = utils.range(start,end);
+                            isColumnSplit = true;
+                        }
+                        
+                    }else{
+                        throw new Error("numbers in string must be separated by ':'")
+                    }
+                }else{
+                    columns = kwargs["columns"];
+                }
+
             } else {
                 throw new Error("columns must be a list")
             }
@@ -113,7 +163,7 @@ export class DataFrame extends Ndframe {
 
             for (var i in columns) {
                 var col_index;
-                if (kwargs["type"] == "loc") {
+                if (kwargs["type"] == "loc" && !isColumnSplit) {
                     col_index = axes["columns"].indexOf(columns[i]); //obtain the column index
 
                     if (col_index == -1) {
@@ -136,9 +186,18 @@ export class DataFrame extends Ndframe {
 
         }
 
-        return new_data;
-    }
+        let column_names = []
+        if(kwargs["type"] == "iloc" || isColumnSplit){
+            let axes = this.axes
+            columns.map((col) => {
+                column_names.push(axes["columns"][col]);
+            })
+        }else{
+            column_names = columns
+        }
 
+        return [new_data, column_names];
+    }
 
 
     /**
@@ -149,8 +208,8 @@ export class DataFrame extends Ndframe {
     loc(kwargs) {
 
         kwargs["type"] = "loc"
-        let new_data = this.__indexLoc(kwargs);
-        let df_columns = { "columns": kwargs["columns"] }
+        let [new_data,columns] = this.__indexLoc(kwargs);
+        let df_columns = { "columns": columns}
         let df = new DataFrame(new_data, df_columns);
 
         return df;
@@ -167,14 +226,9 @@ export class DataFrame extends Ndframe {
 
         kwargs["type"] = "iloc";
 
-        let new_data = this.__indexLoc(kwargs);
-        let columns = kwargs["columns"];
-        let axes = this.axes
-        let column_name = []
-        columns.map((col) => {
-            column_name.push(axes["columns"][col]);
-        })
-        let df_columns = { "columns": column_name }
+        let [new_data,columns] = this.__indexLoc(kwargs);
+        let df_columns = { "columns": columns }
+        // console.log(new_data)
         let df = new DataFrame(new_data, df_columns);
         return df;
 

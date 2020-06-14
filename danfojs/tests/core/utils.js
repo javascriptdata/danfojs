@@ -33,5 +33,13 @@ describe("Utils Functions", function () {
         assert.isFalse(utils.sample_from_iter(data, 3) === utils.sample_from_iter(data, 3))
 
     })
+    it("Generate number betwee two set of values", function () {
+        
+        let start = 0;
+        let end = 5;
+        let data = [0,1,2,3,4,5]
+        assert.deepEqual(utils.range(0,5),data);
+    })
+
 
 })

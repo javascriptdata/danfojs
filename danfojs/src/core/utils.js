@@ -1,3 +1,5 @@
+import * as tf from '@tensorflow/tfjs-node'
+
 export class Utils {
     //remove an element from an array
     remove(arr, index) {
@@ -97,6 +99,12 @@ export class Utils {
             // eslint-disable-next-line no-undef
             return Array.prototype.map.call(selected, i => population[i]);
         }
+    }
+    //generate integers between two set of numbers
+    range(start, end){
+
+        let value = tf.linspace(start, end, (end -start)+1).arraySync();
+        return value;
     }
 }
 

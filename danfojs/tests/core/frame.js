@@ -157,7 +157,40 @@ describe("DataFrame", function () {
 
             assert.deepEqual(col_df.values, col_data)
 
+        });
+        it("check data after row and column slice", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+
+            let col_df = df.loc({ "rows": ["0:2"], "columns": ["B:C"] })
+            let col_data = [[2, 3],[5,6],[30,40]]
+            
+            assert.deepEqual(col_df.values, col_data)
+
         })
+        it("check data after row slice", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+
+            let col_df = df.loc({ "rows": ["0:2"], "columns": ["B","C"] })
+            let col_data = [[2, 3],[5,6],[30,40]]
+            
+            assert.deepEqual(col_df.values, col_data)
+
+        })
+        it("check data after column slice", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+
+            let col_df = df.loc({ "rows": [0,1], "columns": ["A:C"] })
+            let col_data = [[1,2,3],[4,5,6]]
+            assert.deepEqual(col_df.values, col_data)
+
+        })
+
 
     });
 
@@ -209,7 +242,40 @@ describe("DataFrame", function () {
 
             let col_df = df.iloc({ "rows": [1], "columns": [1, 2] })
             let col_data = [[5, 6],]
+            
+            assert.deepEqual(col_df.values, col_data)
 
+        })
+        it("check data after row and column slice", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+
+            let col_df = df.iloc({ "rows": ["0:2"], "columns": ["1:2"] })
+            let col_data = [[2, 3],[5,6],[30,40]]
+            
+            assert.deepEqual(col_df.values, col_data)
+
+        })
+        it("check data after row slice", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+
+            let col_df = df.iloc({ "rows": ["0:2"], "columns": [1,2] })
+            let col_data = [[2, 3],[5,6],[30,40]]
+            
+            assert.deepEqual(col_df.values, col_data)
+
+        })
+        it("check data after column slice", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+
+            let col_df = df.iloc({ "rows": [0,1,2], "columns": ["1:2"] })
+            let col_data = [[2, 3],[5,6],[30,40]]
+            console.log(col_df.values)
             assert.deepEqual(col_df.values, col_data)
 
         })
