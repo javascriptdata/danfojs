@@ -270,7 +270,7 @@ export class DataFrame extends Ndframe {
 
     /**
      * fetch rows containing a column value
-     * @param {} kwargs {column: cloumn name[string], operator: string, value: string| int} 
+     * @param {} kwargs {column: column name[string], operator: string, value: string| int} 
      */
     query(kwargs) {
         let operators = [
