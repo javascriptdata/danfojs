@@ -75,7 +75,7 @@ export class DataFrame extends Ndframe {
      * @return Array
      */
     __indexLoc(kwargs) {
-        if (Object.prototype.hasOwnProperty.call(kwargs, "rows")) {
+        if (Object.prototype.hasOwnProperty.call(kwargs, "rows")) { //check if the object has the key
             if (Array.isArray(kwargs["rows"])) {
 
                 var rows = kwargs["rows"];
@@ -98,13 +98,13 @@ export class DataFrame extends Ndframe {
 
         let data_values = this.values;
         let axes = this.axes
-        let new_data = [];
+        let new_data = []; // store the data from the for loop
 
         for (var index = 0; index < rows.length; index++) {
             let row_val = rows[index]
-            let max_rowIndex = data_values.length - 1
+            let max_rowIndex = data_values.length - 1 //obtain the maximum row index
 
-            if (row_val > max_rowIndex) {
+            if (row_val > max_rowIndex) { //check if the input row index is greater than the maximum row index
                 throw new Error(`row index ${row_val} is bigger than ${max_rowIndex}`);
             }
 
@@ -114,25 +114,25 @@ export class DataFrame extends Ndframe {
             for (var i in columns) {
                 var col_index;
                 if (kwargs["type"] == "loc") {
-                    col_index = axes["columns"].indexOf(columns[i]);
+                    col_index = axes["columns"].indexOf(columns[i]); //obtain the column index
 
                     if (col_index == -1) {
                         throw new Error(`Column ${columns[i]} does not exist`);
                     }
                 } else {
                     col_index = columns[i];
-                    let max_colIndex = axes["columns"].length - 1
+                    let max_colIndex = axes["columns"].length - 1; //assign the maximum column index to a value
 
                     if (col_index > max_colIndex) {
                         throw new Error(`column index ${col_index} is bigger than ${max_colIndex}`);
                     }
                 }
-                let val_tensor = tf.tensor(value);
-                let tensor_elem = val_tensor.slice([col_index], [1]).arraySync()[0]
-                row_data.push(tensor_elem);
+                
+                let elem = value[col_index]; //obtain the element at the column index
+                row_data.push(elem);
             }
 
-            new_data.push(row_data);
+            new_data.push(row_data); //store the data for each row in the new_data
 
         }
 
@@ -241,6 +241,7 @@ export class DataFrame extends Ndframe {
      * @param {} kwargs {column: coumn name[string], operator: string, value: string| int} 
      */
     query(kwargs) {
+        //define the set of operators to be used
         let operators = [
             ">",
             "<",
@@ -287,18 +288,18 @@ export class DataFrame extends Ndframe {
         let new_data = []
 
         for (var i = 0; i < data.length; i++) {
-            let val = data[i]
-            let tensor_data = tf.tensor(val);
-            let tensor_elem = tensor_data.slice([column_index], [1]).arraySync()[0]
+            let data_value = data[i]
+            
+            let elem = data_value[column_index]
 
-            if (eval(`${tensor_elem}${operator}${value}`)) {
-                //e.g "2 > 5 filter"
-                new_data.push(val);
+            //use eval function for easy operation
+            //eval() takes in a string expression e.g eval('2>5')
+            if (eval(`${elem}${operator}${value}`)) {
+                new_data.push(data_value);
             }
 
 
         }
-
         let columns = this.axes["columns"]
         let new_df = new DataFrame(new_data, { "columns": columns })
 
