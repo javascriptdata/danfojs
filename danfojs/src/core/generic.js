@@ -110,7 +110,7 @@ export default class NDframe {
     */
     get axes() {
         let axes = {
-            "index": [...Array(this.data_tensor.shape[0]).keys()],
+            "index": [...Array(this.data.length - 1).keys()],
             "columns": this.columns
         }
         return axes

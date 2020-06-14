@@ -31,7 +31,8 @@ class NDframe {
   }
 
   __read_array(data) {
-    this.data = tf.tensor(data);
+    this.data = data;
+    this.data_tensor = tf.tensor(data);
 
     if (this.ndim == 1) {
       if (this.kwargs['columns'] == undefined) {
@@ -41,12 +42,12 @@ class NDframe {
       }
     } else {
       if (this.kwargs['columns'] == undefined) {
-        this.columns = [...Array(this.data.shape[0]).keys()];
+        this.columns = [...Array(this.data_tensor.shape[0]).keys()];
       } else {
-        if (this.kwargs['columns'].length == this.data.shape[1]) {
+        if (this.kwargs['columns'].length == this.data_tensor.shape[1]) {
           this.columns = this.kwargs['columns'];
         } else {
-          throw `Column length mismatch. You provided a column of length ${this.kwargs['columns'].length} but data has lenght of ${this.data.shape[1]}`;
+          throw `Column length mismatch. You provided a column of length ${this.kwargs['columns'].length} but data has lenght of ${this.data_tensor.shape[1]}`;
         }
       }
     }
@@ -57,7 +58,8 @@ class NDframe {
     data.forEach(item => {
       data_arr.push(Object.values(item));
     });
-    this.data = tf.tensor(data_arr);
+    this.data = data_arr;
+    this.data_tensor = tf.tensor(data_arr);
     this.kwargs['columns'] = Object.keys(Object.values(data)[0]);
 
     if (this.ndim == 1) {
@@ -68,24 +70,24 @@ class NDframe {
       }
     } else {
       if (this.kwargs['columns'] == undefined) {
-        this.columns = [...Array(this.data.shape[0]).keys()];
+        this.columns = [...Array(this.data_tensor.shape[0]).keys()];
       } else {
-        if (this.kwargs['columns'].length == this.data.shape[1]) {
+        if (this.kwargs['columns'].length == this.data_tensor.shape[1]) {
           this.columns = this.kwargs['columns'];
         } else {
-          throw `Column lenght mismatch. You provided a column of lenght ${this.kwargs['columns'].length} but data has column length of ${this.data.shape[1]}`;
+          throw `Column lenght mismatch. You provided a column of lenght ${this.kwargs['columns'].length} but data has column length of ${this.data_tensor.shape[1]}`;
         }
       }
     }
   }
 
   get ndim() {
-    return this.data.shape.length;
+    return this.data_tensor.shape.length;
   }
 
   get axes() {
     let axes = {
-      "index": [...Array(this.data.shape[0]).keys()],
+      "index": [...Array(this.data.length - 1).keys()],
       "columns": this.columns
     };
     return axes;
@@ -95,12 +97,12 @@ class NDframe {
     if (this.ndim == 1) {
       return 1;
     } else {
-      return this.data.shape;
+      return this.data_tensor.shape;
     }
   }
 
   get values() {
-    return this.data.arraySync();
+    return this.data;
   }
 
   get column_names() {
@@ -108,7 +110,7 @@ class NDframe {
   }
 
   get size() {
-    return this.data.size;
+    return this.data_tensor.size;
   }
 
   toString() {

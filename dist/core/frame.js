@@ -33,7 +33,7 @@ class DataFrame extends _generic.default {
       const values = this.values;
 
       if (index == -1) {
-        throw new Error(`column ${val} does not exist`);
+        throw new Error(`column "${val}" does not exist`);
       }
 
       let new_data = values.map(function (element) {
@@ -48,7 +48,8 @@ class DataFrame extends _generic.default {
         });
       } else {
         this.columns = utils.remove(this.columns, index);
-        this.data = tf.tensor(new_data);
+        this.data_tensor = tf.tensor(new_data);
+        this.data = new_data;
       }
     } else {
       const axes = this.axes;
@@ -68,7 +69,8 @@ class DataFrame extends _generic.default {
           columns: this.columns
         });
       } else {
-        this.data = tf.tensor(new_data);
+        this.data_tensor = tf.tensor(new_data);
+        this.data = new_data;
       }
     }
   }

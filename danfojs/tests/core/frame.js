@@ -14,7 +14,7 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            assert.throws(function () { df.drop("D", { axis: 1, inplace: false }) }, Error, "column D does not exist");
+            assert.throws(function () { df.drop("D", { axis: 1, inplace: false }) }, Error, 'column "D" does not exist');
         })
 
         it("drop a column inplace", function () {

@@ -29,7 +29,7 @@ export class DataFrame extends Ndframe {
             const values = this.values
 
             if (index == -1) {
-                throw new Error(`column ${val} does not exist`)
+                throw new Error(`column "${val}" does not exist`)
             }
 
             let new_data = values.map(function (element) {
@@ -143,7 +143,7 @@ export class DataFrame extends Ndframe {
 
     /**
      * Obtain the defined the set of row and column index 
-     * @param {} kwargs object {rows:Array, columns:Array of column name} 
+     * @param {} kwargs object {rows: Array of index, columns: Array of column name(s)} 
      * @return DataFrame data stucture
      */
     loc(kwargs) {
@@ -160,7 +160,7 @@ export class DataFrame extends Ndframe {
 
     /**
      * Access a dataframe element using row and column index
-     * @param {*} kwargs object {rows:Array, columns:Array of column index} 
+     * @param {*} kwargs object {rows: Array of index, columns: Array of column index}  
      * @return DataFrame data stucture
      */
     iloc(kwargs) {
