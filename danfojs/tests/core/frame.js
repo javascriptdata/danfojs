@@ -97,6 +97,16 @@ describe("DataFrame", function () {
         })
     })
 
+    describe("sample", function () {
+        it("Samples n number of random elements from a DataFrame", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78], [100, 200, 300]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            console.log(df.sample(3).head() + "")
+            assert.deepEqual(df.sample(2).shape, [2,3])
+        })
+    })
+
     describe("loc", function () {
 
         it("throw error for wrong column name", function () {
@@ -192,51 +202,51 @@ describe("DataFrame", function () {
 
     });
 
-    describe("query",function(){
+    describe("query", function () {
 
-        it("Get the DataFrame containing rows with the filtered column",function(){
-
-            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-            let cols = ["A", "B", "C"]
-            let df = new DataFrame(data, { columns: cols })
-            let query_df = df.query({"column":"B","operator":">=","value":5})
-            let query_data = [ [ 4, 5, 6 ], [ 20, 30, 40 ], [ 39, 89, 78 ] ]
-            assert.deepEqual(query_df.values,query_data)
-        });
-        it("Print Error for value key not specified",function(){
+        it("Get the DataFrame containing rows with the filtered column", function () {
 
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-        
-            assert.throws(function () { df.query({"column":"B","operator":">="}) }, Error, "specify value");
+            let query_df = df.query({ "column": "B", "operator": ">=", "value": 5 })
+            let query_data = [[4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            assert.deepEqual(query_df.values, query_data)
         });
-        it("Print Error for operator key not specified",function(){
+        it("Print Error for value key not specified", function () {
 
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-        
-            assert.throws(function () { df.query({"column":"B","value":5}) }, Error, "specify operator");
-        });
 
-        it("Print Error for column key not specified",function(){
-
-            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-            let cols = ["A", "B", "C"]
-            let df = new DataFrame(data, { columns: cols })
-        
-            assert.throws(function () { df.query({"operator":">=","value":5}) }, Error, "specify the column");
+            assert.throws(function () { df.query({ "column": "B", "operator": ">=" }) }, Error, "specify value");
         });
-        it("Print Error for column name not in dataframe",function(){
+        it("Print Error for operator key not specified", function () {
 
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-        
-            assert.throws(function () { df.query({"column":"D","operator":">=","value":5}) }, Error, "column D does not exist");
+
+            assert.throws(function () { df.query({ "column": "B", "value": 5 }) }, Error, "specify operator");
         });
-        
+
+        it("Print Error for column key not specified", function () {
+
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+
+            assert.throws(function () { df.query({ "operator": ">=", "value": 5 }) }, Error, "specify the column");
+        });
+        it("Print Error for column name not in dataframe", function () {
+
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+
+            assert.throws(function () { df.query({ "column": "D", "operator": ">=", "value": 5 }) }, Error, "column D does not exist");
+        });
+
     });
 
 });
