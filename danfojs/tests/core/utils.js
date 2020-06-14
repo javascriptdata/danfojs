@@ -16,10 +16,22 @@ describe("Utils Functions", function () {
         let arr = [1, 2, 3, 4]
         assert.isTrue(utils.isNumber(arr[0]))
     })
-    it("Checks if variable is an object", function () {
-        let arr = [{ "name": "John", "age": 28 },
-                    { "name": "Mark", "age": 12 }]
-        assert.isTrue(utils.isObject(arr[0]))
+    it("Checks if value is null", function () {
+        let val = null
+        let val2 = 1
+        assert.isTrue(utils.isNull(val))
+        assert.isFalse(utils.isNull(val2))
+    })
+
+    it("Checks if value is undefined", function () {
+        let arr;
+        assert.isTrue(utils.isUndefined(arr))
+    })
+    it("random sample n elements from array", function () {
+        let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78], [100, 200, 300]]
+        assert.isFalse(utils.sample_from_iter(data, 2) == utils.sample_from_iter(data, 2))
+        assert.isFalse(utils.sample_from_iter(data, 3) === utils.sample_from_iter(data, 3))
+
     })
 
 })

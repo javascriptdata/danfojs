@@ -34,10 +34,10 @@ export class Utils {
         return typeof value === 'undefined';
     }
 
-    // Returns if a value is a boolean
-    isBoolean(value) {
-        return typeof value === 'boolean';
-    }
+    // // Returns if a value is a boolean
+    // isBoolean(value) {
+    //     return typeof value === 'boolean';
+    // }
 
     /**
      * Optimized version of random sampling from an array, as implemented in Python

@@ -238,45 +238,6 @@ export class DataFrame extends Ndframe {
 
 
     /**
-     * Add a column to the dataframe
-     * @param col 
-     * @param value
-     * 
-     */
-    addColum(col, value) { }
-
-    /**
-     * check if each row,col contains NaN
-     * @return Array list (bool)
-     */
-    isnan() { }
-
-    /**
-     * Obtain index containing nan values
-     * @return Array list (int)
-     */
-    nanIndex() { }
-
-    /**
-     * Group a col inrespect to another column
-     * @param {group} col1 
-     * @param {*} col2 
-     * @param {*} aggregate 
-     */
-    groupby(col1, col2, aggregate) {
-
-    }
-
-    /**
-     * Join two or more dataframe together base on their
-     * axis
-     * @param {*} df_list
-     * @param {*} axis 
-     * @return dataframe object
-     */
-    static concatenate(df_list, axis) { }
-
-    /**
      * fetch rows containing a column value
      * @param {} kwargs {column: coumn name[string], operator: string, value: string| int} 
      */
@@ -345,16 +306,56 @@ export class DataFrame extends Ndframe {
         return new_df;
     }
 
-    /**
-     * Merge two or more dataframe base on keys
-     */
-    static merge() { }
+    // /**
+    //  * Add a column to the dataframe
+    //  * @param col 
+    //  * @param value
+    //  * 
+    //  */
+    // addColum(col, value) { }
 
-    /**
-     * create a one-hot encoder
-     * @param {*} series a dataframe column
-     * @return DataFrame
-     */
-    static dummy(series) { }
+    // /**
+    //  * check if each row,col contains NaN
+    //  * @return Array list (bool)
+    //  */
+    // isnan() { }
+
+    // /**
+    //  * Obtain index containing nan values
+    //  * @return Array list (int)
+    //  */
+    // nanIndex() { }
+
+    // /**
+    //  * Group a col inrespect to another column
+    //  * @param {group} col1 
+    //  * @param {*} col2 
+    //  * @param {*} aggregate 
+    //  */
+    // groupby(col1, col2, aggregate) {
+
+    // }
+
+    // /**
+    //  * Join two or more dataframe together base on their
+    //  * axis
+    //  * @param {*} df_list
+    //  * @param {*} axis 
+    //  * @return dataframe object
+    //  */
+    // static concatenate(df_list, axis) { }
+
+
+    // /**
+    //  * Merge two or more dataframe base on keys
+    //  */
+    // static merge() { }
+
+    // /**
+    //  * create a one-hot encoder
+    //  * @param {*} series a dataframe column
+    //  * @return DataFrame
+    //  */
+    // static dummy(series) { }
 
 }
