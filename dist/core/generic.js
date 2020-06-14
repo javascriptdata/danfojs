@@ -7,6 +7,8 @@ exports.default = void 0;
 
 var tf = _interopRequireWildcard(require("@tensorflow/tfjs-node"));
 
+var _table = require("table");
+
 var _utils = require("./utils");
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
@@ -109,23 +111,10 @@ class NDframe {
     return this.data.size;
   }
 
-  get to_string() {
-    let global_string = "  |";
-    this.columns.map(val => {
-      global_string += `  ${val} |`;
-    });
-    global_string += "\n";
-    global_string += "---".repeat(this.columns.length * 2) + "\n";
-    let col_str = "";
-    this.values.forEach((val, i) => {
-      col_str += ` ${i}|`;
-      val.forEach(element => {
-        col_str += `  ${element} |`;
-      });
-      col_str += "\n";
-    });
-    global_string += col_str;
-    return global_string;
+  toString() {
+    let data = this.values;
+    data.unshift(this.columns);
+    return (0, _table.table)(data);
   }
 
 }

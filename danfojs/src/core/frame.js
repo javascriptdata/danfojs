@@ -42,7 +42,8 @@ export class DataFrame extends Ndframe {
                 return new DataFrame(new_data, { columns: columns })
             } else {
                 this.columns = utils.remove(this.columns, index);
-                this.data = tf.tensor(new_data);
+                this.data_tensor = tf.tensor(new_data);
+                this.data = new_data
             }
 
         } else {
@@ -62,7 +63,8 @@ export class DataFrame extends Ndframe {
             if (!kwargs['inplace']) {
                 return new DataFrame(new_data, { columns: this.columns })
             } else {
-                this.data = tf.tensor(new_data);
+                this.data_tensor = tf.tensor(new_data);
+                this.data = new_data
             }
         }
     }
@@ -95,10 +97,9 @@ export class DataFrame extends Ndframe {
         }
 
         let data_values = this.values;
-
         let axes = this.axes
-
         let new_data = [];
+
         for (var index = 0; index < rows.length; index++) {
             let row_val = rows[index]
             let max_rowIndex = data_values.length - 1
@@ -107,20 +108,19 @@ export class DataFrame extends Ndframe {
                 throw new Error(`row index ${row_val} is bigger than ${max_rowIndex}`);
             }
 
-
             let value = data_values[row_val]
             let row_data = []
 
             for (var i in columns) {
-
+                var col_index;
                 if (kwargs["type"] == "loc") {
-                    var col_index = axes["columns"].indexOf(columns[i]);
+                    col_index = axes["columns"].indexOf(columns[i]);
 
                     if (col_index == -1) {
                         throw new Error(`Column ${columns[i]} does not exist`);
                     }
                 } else {
-                    var col_index = columns[i];
+                    col_index = columns[i];
                     let max_colIndex = axes["columns"].length - 1
 
                     if (col_index > max_colIndex) {
@@ -129,7 +129,6 @@ export class DataFrame extends Ndframe {
                 }
                 let val_tensor = tf.tensor(value);
                 let tensor_elem = val_tensor.slice([col_index], [1]).arraySync()[0]
-
                 row_data.push(tensor_elem);
             }
 

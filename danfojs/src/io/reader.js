@@ -1,7 +1,7 @@
 /**
  * Reads data file from different format and convert to DataFrame object
  */
-import {DataFrame} from '../core/frame'
+// import {DataFrame} from '../core/frame'
 import * as tf from '@tensorflow/tfjs-node'
 
 /**

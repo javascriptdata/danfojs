@@ -92,7 +92,7 @@ describe("NDframe", function () {
         it("prints the values of a frame created from an Object", function () {
             let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }]
             let ndframe = new NDframe(data)
-            assert.deepEqual(ndframe.values, [["A", "1"], ["B", "2"]])
+            assert.deepEqual(ndframe.values, [["A", 1], ["B", 2]])
         })
     })
 
