@@ -11,11 +11,14 @@ var _table = require("table");
 
 var _utils = require("./utils");
 
+var _config = require("../config/config");
+
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 const utils = new _utils.Utils();
+const config = new _config.Configs();
 
 class NDframe {
   constructor(data, kwargs = {}) {
@@ -115,8 +118,21 @@ class NDframe {
 
   toString() {
     let data = this.values;
+    let table_width = config.get_width;
+    let table_truncate = config.get_truncate;
+    let table_config = {};
+
+    for (let index = 0; index < this.columns.length; index++) {
+      table_config[index] = {
+        width: table_width,
+        truncate: table_truncate
+      };
+    }
+
     data.unshift(this.columns);
-    return (0, _table.table)(data);
+    return (0, _table.table)(data, {
+      columns: table_config
+    });
   }
 
 }
