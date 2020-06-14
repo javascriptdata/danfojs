@@ -1,7 +1,13 @@
 import * as tf from '@tensorflow/tfjs-node'
 import { table } from 'table'
 import { Utils } from './utils'
+import { Configs } from '../config/config'
+
 const utils = new Utils()
+const config = new Configs()  //package wide configuration object
+
+
+
 
 export default class NDframe {
     /**
@@ -151,7 +157,7 @@ export default class NDframe {
     }
 
 
-    /**
+    /*
      * Gets binary size of the NDFrame
      * @returns {String} size of the NDFrame
      */
@@ -165,8 +171,15 @@ export default class NDframe {
     */
     toString() {
         let data = this.values
+        let table_width = config.get_width
+        let table_truncate = config.get_truncate
+        let table_config = {}
+        for (let index = 0; index < this.columns.length; index++) {
+            table_config[index] = { width: table_width, truncate: table_truncate }
+        }
+
         data.unshift(this.columns) //Adds the column names to values before printing
-        return table(data)
+        return table(data, { columns: table_config })
     }
 
 

@@ -12,5 +12,16 @@ describe("read_csv", async function () {
         const num_of_columns = (df.column_names).length
         assert.equal(num_of_columns, 13)
     })
+
+    it("reads a csv file from source from local disk", async function () {
+        const csvUrl =
+            'file:///home/dsn/personal/opensource/danfojs/danfojs/data/all_brand_df.csv';
+
+        const df = await read_csv(csvUrl)
+        const num_of_columns = (df.column_names).length
+        console.log(df.head() + "")
+        assert.equal(num_of_columns, 12)
+    })
 })
+
 

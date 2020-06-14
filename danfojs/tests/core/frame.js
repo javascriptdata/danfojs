@@ -102,21 +102,18 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78], [100, 200, 300]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            console.log(df.sample(3).head() + "")
             assert.deepEqual(df.sample(2).shape, [2, 3])
         })
         it("Return all values if n of sample is greater than lenght of Dataframe", function () {
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78], [100, 200, 300]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            // console.log(df.sample(6).head() + "")
             assert.deepEqual(df.sample(6).shape, [5, 3])
         })
         it("Return all values if n of sample is less than 1", function () {
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78], [100, 200, 300]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            // console.log(df.sample(6).head() + "")
             assert.deepEqual(df.sample(-1).shape, [5, 3])
         })
     })
@@ -275,7 +272,6 @@ describe("DataFrame", function () {
 
             let col_df = df.iloc({ "rows": [0,1,2], "columns": ["1:2"] })
             let col_data = [[2, 3],[5,6],[30,40]]
-            console.log(col_df.values)
             assert.deepEqual(col_df.values, col_data)
 
         })
