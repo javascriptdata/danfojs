@@ -325,4 +325,51 @@ describe("DataFrame", function () {
 
     });
 
+    describe("addColumn",function(){
+        it("Print the data, after a new column is added ",function(){
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+
+            let new_col = [1,2,3,4]
+
+            df.addColumn({"column":"D","value":new_col});
+
+            let new_data = [[1, 2, 3, 1], [4, 5, 6, 2], [20, 30, 40, 3], [39, 89, 78, 4]];
+
+            assert.deepEqual(df.values, new_data);
+        });
+        it("Print the Dataframe column names, after a new column is added ",function(){
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+
+            let new_col = [1,2,3,4]
+
+            df.addColumn({"column":"D","value":new_col});
+
+            let new_column = ["A","B","C","D"]
+
+            assert.deepEqual(df.column_names, new_column);
+        });
+        it("Print Error for column name not in keyword passed", function () {
+
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let new_col = [1,2,3,4]
+
+            assert.throws(function () { df.addColumn({"value":new_col}); }, Error, "column name not specified");
+        });
+        it("Check if new column value length is the same with Dataframe length", function () {
+
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let new_col = [1,2,3]
+
+            assert.throws(function () { df.addColumn({"column":"D","value":new_col}); }, Error, "Array length 3 not equal to 4");
+        });
+    });
+
 });

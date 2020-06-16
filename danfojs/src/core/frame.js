@@ -360,13 +360,47 @@ export class DataFrame extends Ndframe {
         return new_df;
     }
 
-    // /**
-    //  * Add a column to the dataframe
-    //  * @param col 
-    //  * @param value
-    //  * 
-    //  */
-    // addColum(col, value) { }
+    __inObject(object,key, message){
+
+        if(!Object.prototype.hasOwnProperty.call(object, key)){
+            throw new Error(message);
+        }
+    }
+
+    /**
+     * Add a column to the dataframe
+     * @param {kwargs} Object keys[columns [string] and value[Array]]
+     * 
+     */
+    addColumn(kwargs){
+
+        let data_length = this.shape[0]
+
+        this.__inObject(kwargs,"column","column name not specified");
+        this.__inObject(kwargs,"value","column value not specified");
+
+        let value = kwargs["value"]
+        let column_name = kwargs["column"]
+
+        if( value.length != data_length ){
+            throw new Error(`Array length ${value.length} not equal to ${data_length}`);
+        }
+        
+
+        let data = this.values
+        let new_data = []
+
+        data.map(function(val,index){
+
+            let new_val = val.slice()
+            new_val.push(value[index])
+            new_data.push(new_val);
+        });
+
+        this.data = new_data;
+        this.data_tensor = tf.tensor(new_data)
+        this.columns.push(column_name);
+    }
 
     // /**
     //  * check if each row,col contains NaN
