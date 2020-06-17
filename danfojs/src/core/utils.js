@@ -107,6 +107,18 @@ export class Utils {
         let value = tf.linspace(start, end, (end -start)+1).arraySync();
         return value;
     }
+
+    unique(data){
+        let unique = new Set()
+    
+        data.map(function(val){
+            unique.add(val[0]);
+        });
+    
+        let unique_array = Array.from(unique)
+    
+        return unique_array;
+    }
 }
 
 

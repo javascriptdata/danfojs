@@ -1,6 +1,7 @@
 import Ndframe from "./generic"
 import * as tf from '@tensorflow/tfjs-node'
 import { Utils } from "./utils"
+import GroupBy from "./groupby"
 const utils = new Utils
 
 
@@ -108,9 +109,7 @@ export class DataFrame extends Ndframe {
 
         if (Object.prototype.hasOwnProperty.call(kwargs, "columns")) {
             if (Array.isArray(kwargs["columns"])) {
-                if(kwargs["columns"].length ==1 && typeof kwargs["columns"][0] == "string"){
-
-                    if(kwargs["columns"][0].includes(":")){
+                if(kwargs["columns"].length ==1 && kwargs["columns"][0].includes(":")){
                         
                         let row_split = kwargs["columns"][0].split(":")
                         let start, end;
@@ -124,7 +123,7 @@ export class DataFrame extends Ndframe {
                             start = parseInt(axes.indexOf(row_split[0]));
                             end   = parseInt(axes.indexOf(row_split[1]));
                         }
-                        console.log(start,end)
+                        // console.log(start,end)
 
                         if(typeof start == "number" && typeof end == "number"){
                             
@@ -132,9 +131,6 @@ export class DataFrame extends Ndframe {
                             isColumnSplit = true;
                         }
                         
-                    }else{
-                        throw new Error("numbers in string must be separated by ':'")
-                    }
                 }else{
                     columns = kwargs["columns"];
                 }
@@ -400,6 +396,75 @@ export class DataFrame extends Ndframe {
         this.data = new_data;
         this.data_tensor = tf.tensor(new_data)
         this.columns.push(column_name);
+    }
+    
+    /**
+     * 
+     * @param {col}  col is a list of column with maximum length of two
+     */
+    groupby(col){
+
+        let len = this.shape[0] - 1
+        
+        let column_names = this.column_names
+        let col_dict = {};
+        let key_column = null;
+
+        if(col.length == 2){
+
+            if(column_names.includes(col[0])){
+                var [data1,col_name1] = this.__indexLoc({"rows":[`0:${len}`],"columns":[`${col[0]}`],"type":"loc"});
+
+                
+            }
+            else{
+                throw new Error(`column ${col[0]} does not exist`);
+            }
+            if(column_names.includes(col[1])){
+                var [data2,col_name2] = this.__indexLoc({"rows":[`0:${len}`],"columns":[`${col[1]}`],"type":"loc"});
+            }
+            else{
+                throw new Error(`column ${col[1]} does not exist`);
+            }
+
+            key_column = [col[0], col[1]]
+            var column_1_Unique = utils.unique(data1);
+            var column_2_unique = utils.unique(data2);
+
+            for(var i=0;i< column_1_Unique.length; i++){
+
+                let col_value = column_1_Unique[i]
+                col_dict[col_value] = {}
+
+                for(var j=0; j < column_2_unique.length; j++){
+                    let col2_value = column_2_unique[j];
+                    col_dict[col_value][col2_value] = [];
+                }
+            }
+
+        }else{
+            
+            if(column_names.includes(col[0])){
+                var [data1,col_name1] = this.__indexLoc({"rows":[`0:${len}`],"columns":[`${col[0]}`],"type":"loc"});
+                // console.log(data1)
+            }
+            else{
+                throw new Error(`column ${col[0]} does not exist`);
+            }
+            key_column = [col[0]];
+
+            var column_Unique = utils.unique(data1);
+
+            for(var i=0; i < column_Unique.length; i++){
+                let col_value = column_Unique[i];
+                col_dict[col_value] = [];
+            }
+        }
+
+
+        let groups = new GroupBy(col_dict,key_column,this.values, column_names)
+           
+        return groups.group();
     }
 
     // /**

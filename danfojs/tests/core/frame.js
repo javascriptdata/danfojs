@@ -372,4 +372,24 @@ describe("DataFrame", function () {
         });
     });
 
+    describe("groupby",function(){
+        it("Check group by column data", function () {
+
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let group_df = df.groupby(["A"]);
+
+            let group_dict = {
+                '1': [ [ 1, 2, 3 ]],
+                '4': [ [ 4, 5, 6 ] ],
+                '20': [ [ 20, 30, 40 ] ],
+                '39': [ [ 39, 89, 78 ] ]
+              }
+
+            assert.deepEqual(group_df,group_dict);
+        });
+
+    });
+
 });
