@@ -1,5 +1,7 @@
 import {DataFrame} from "./frame"
+import { Utils } from "./utils"
 
+const utils = new Utils
 module.exports = class GroupBy {
 
     constructor(col_dict,key_col, data, column_name) {
@@ -46,7 +48,6 @@ module.exports = class GroupBy {
 
                 for(var key2 in this.col_dict){
                     let data = this.col_dict[key][key2]; 
-                    console.log(this.column_name);
                     this.data_tensors[key][key2] = new DataFrame(data=data)
                 }
             }
@@ -73,14 +74,41 @@ module.exports = class GroupBy {
             }
         
         }
-        // console.log(this.data_tensors);
-        return this.col_dict;
+        
+        return this;
 
     }
 
     col(){}
 
-    get_groups(){}
+    /**
+     * returns dataframe of a group
+     * @param {*} key [Array] 
+     */
+    get_groups(key){
+
+        if(this.key_col.length ==2){
+
+            if(key.length == 2){
+                let key1 = key[0]
+                let key2 = key[1];
+
+                utils.inObject(this.data_tensors,key1, `Key Error: ${key1} not in object`)
+                return this.data_tensors[key1][key2];
+            }
+            else{ throw new Error("specify the two group by column") }
+        }
+        else if(this.key_col.length ==1){ 
+
+            if(key.length ==1){
+
+                utils.inObject(this.data_tensors,key[0], `Key Error: ${key[0]} not in object`)
+                return this.data_tensors[key[0]];
+            }
+            else{ throw new Error("specify the one group by column") }
+        }
+        return this.data_tensors[key]
+    }
 
 
 }

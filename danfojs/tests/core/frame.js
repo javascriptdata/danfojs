@@ -387,7 +387,17 @@ describe("DataFrame", function () {
                 '39': [ [ 39, 89, 78 ] ]
               }
 
-            assert.deepEqual(group_df,group_dict);
+            assert.deepEqual(group_df.col_dict,group_dict);
+        });
+        it("Obtain the DataFrame of one of the group", function () {
+
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let group_df = df.groupby(["A"]);
+            let new_data =  [ [ 1, 2, 3 ]]
+
+            assert.deepEqual(group_df.get_groups([1]).values,new_data);
         });
 
     });

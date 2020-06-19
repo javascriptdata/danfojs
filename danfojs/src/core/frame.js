@@ -372,8 +372,8 @@ export class DataFrame extends Ndframe {
 
         let data_length = this.shape[0]
 
-        this.__inObject(kwargs,"column","column name not specified");
-        this.__inObject(kwargs,"value","column value not specified");
+        utils.inObject(kwargs,"column","column name not specified");
+        utils.inObject(kwargs,"value","column value not specified");
 
         let value = kwargs["value"]
         let column_name = kwargs["column"]
@@ -462,9 +462,9 @@ export class DataFrame extends Ndframe {
         }
 
 
-        let groups = new GroupBy(col_dict,key_column,this.values, column_names)
+        let groups = new GroupBy(col_dict,key_column,this.values, column_names).group();
            
-        return groups.group();
+        return groups;
     }
 
     // /**

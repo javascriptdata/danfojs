@@ -119,6 +119,13 @@ export class Utils {
     
         return unique_array;
     }
+    
+    inObject(object,key, message){
+
+        if(!Object.prototype.hasOwnProperty.call(object, key)){
+            throw new Error(message);
+        }
+    }
 }
 
 
