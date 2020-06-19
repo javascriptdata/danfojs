@@ -373,7 +373,7 @@ describe("DataFrame", function () {
     });
 
     describe("groupby",function(){
-        it("Check group by column data", function () {
+        it("Check group by One column data", function () {
 
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
             let cols = ["A", "B", "C"]
@@ -398,6 +398,32 @@ describe("DataFrame", function () {
             let new_data =  [ [ 1, 2, 3 ]]
 
             assert.deepEqual(group_df.get_groups([1]).values,new_data);
+        });
+        it("Check group by Two column data", function () {
+
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let group_df = df.groupby(["A","B"]);
+            let new_data =  {
+                '1': { '2': [ [ 1, 2, 3 ] ], '5': [], '30': [], '89': [] },
+                '4': { '2': [], '5': [ [4, 5, 6] ], '30': [], '89': [] },
+                '20': { '2': [], '5': [], '30': [ [20, 30, 40] ], '89': [] },
+                '39': { '2': [], '5': [], '30': [], '89': [ [39, 89, 78] ] }
+              }
+
+            assert.deepEqual(group_df.col_dict,new_data);
+        });
+
+        it("Obtain the DataFrame of one of the group, grouped by two column", function () {
+
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let group_df = df.groupby(["A","B"]);
+            let new_data =  [ [ 1, 2, 3 ]]
+
+            assert.deepEqual(group_df.get_groups([1,2]).values,new_data);
         });
 
     });

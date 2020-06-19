@@ -21,7 +21,6 @@ module.exports = class GroupBy {
             
             for(var i=0; i < this.data.length; i++){
                 
-                console.log(this.key_col)
                 let col1_index = this.column_name.indexOf(this.key_col[0]);
                 let col2_index = this.column_name.indexOf(this.key_col[1]);
 
@@ -30,12 +29,10 @@ module.exports = class GroupBy {
                 let col1_value = value[col1_index];
                 let col2_value = value[col2_index];
 
-                // console.log(col1_index,col2_index);
 
                 if(Object.prototype.hasOwnProperty.call(this.col_dict, col1_value)){
                     if(Object.prototype.hasOwnProperty.call(this.col_dict[col1_value], col2_value)){
 
-                        // console.log(value)
                         this.col_dict[col1_value][col2_value].push(value);
                     }
 
@@ -46,9 +43,19 @@ module.exports = class GroupBy {
             for(var key in this.col_dict){
                 this.data_tensors[key] = {}
 
-                for(var key2 in this.col_dict){
+                for(var key2 in this.col_dict[key]){
+                    
                     let data = this.col_dict[key][key2]; 
-                    this.data_tensors[key][key2] = new DataFrame(data=data)
+                    
+                    if(data.length ==0){
+                        let length = this.data[0].length
+                        let filled_data = new Array(length).fill(null)
+                        this.data_tensors[key][key2] = new DataFrame(data=[filled_data],{ columns:this.column_name})
+                    }
+                    else{
+                        this.data_tensors[key][key2] = new DataFrame(data=data,{ columns:this.column_name})
+                    }
+                    
                 }
             }
         }else{
