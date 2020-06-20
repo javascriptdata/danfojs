@@ -48,9 +48,7 @@ module.exports = class GroupBy {
                     let data = this.col_dict[key][key2]; 
                     
                     if(data.length ==0){
-                        let length = this.data[0].length
-                        let filled_data = new Array(length).fill(null)
-                        this.data_tensors[key][key2] = new DataFrame(data=[filled_data],{ columns:this.column_name})
+                        delete this.col_dict[key][key2]; //delete the empty key.
                     }
                     else{
                         this.data_tensors[key][key2] = new DataFrame(data=data,{ columns:this.column_name})
