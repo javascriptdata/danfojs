@@ -428,4 +428,18 @@ describe("DataFrame", function () {
 
     });
 
+    describe("column", function(){
+
+        it("Obtain a column from a dataframe",function(){
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let col_data = df.column("A")
+
+            let rslt_data = [ 1, 4, 20, 39]
+
+            assert.deepEqual(col_data.arraySync(), rslt_data);
+        })
+    });
+
 });

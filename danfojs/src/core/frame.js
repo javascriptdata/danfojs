@@ -467,6 +467,34 @@ export class DataFrame extends Ndframe {
         return groups;
     }
 
+    /**
+     * Return a sequence of axis dimension along row and columns
+     * @params col_name: the name of a column in the database.
+     * @returns tensor of shape 1
+     */
+    column(col_name) {
+
+        let kwargs = {};
+        let len = this.shape[0] - 1
+        kwargs["rows"] = [`0:${len}`]
+        
+        if(!this.columns.includes(col_name)){
+            throw new Error(`column ${col_name} does not exist`);
+        }
+
+        kwargs["columns"] = [col_name]
+        kwargs["type"] = "loc"
+        let [new_data, columns] = this.__indexLoc(kwargs);
+
+        let data_reshape = []
+        for(let i=0;i<new_data.length;i++){
+            let value = new_data[i][0];
+            data_reshape.push(value);
+        }
+        return tf.tensor(data_reshape);
+    }
+
+
     // /**
     //  * check if each row,col contains NaN
     //  * @return Array list (bool)
