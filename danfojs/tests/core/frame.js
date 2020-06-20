@@ -426,6 +426,50 @@ describe("DataFrame", function () {
             assert.deepEqual(group_df.get_groups([1,2]).values,new_data);
         });
 
+        it("Count column in group", function () {
+
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let group_df = df.groupby(["A","B"]);
+            let new_data =  {
+                '1': { '2': 1 },
+                '4': { '5': 1},
+                '20': {'30': 1},
+                '39': { '89': 1 }
+              }
+
+            assert.deepEqual(group_df.col("C").count(),new_data);
+        });
+        it("sum column element in group", function () {
+
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let group_df = df.groupby(["A","B"]);
+            let new_data =  {
+                '1': { '2': 3},
+                '4': { '5': 6},
+                '20': {'30': 40},
+                '39': { '89': 78 }
+              }
+
+            assert.deepEqual(group_df.col("C").sum(),new_data);
+        });
+
+        it("sum column element group by one column", function () {
+
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let group_df = df.groupby(["A"]);
+           
+            let new_data =  { '1': 3, '4': 6, '20': 40, '39': 78 }
+
+            assert.deepEqual(group_df.col("C").sum(),new_data);
+        });
+
+
     });
 
     describe("column", function(){

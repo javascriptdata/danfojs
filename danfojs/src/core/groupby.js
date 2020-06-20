@@ -84,7 +84,92 @@ module.exports = class GroupBy {
 
     }
 
-    col(){}
+    /**
+     * obtain the column for each group
+     * @params col_name
+     * @return Groupby class
+     */
+    col(col_name){
+
+        if(!this.column_name.includes(col_name)){
+            throw new Error(`Column ${col_name} does not exist in groups`)
+        }
+
+        if(this.key_col.length ==2){
+
+            this.group_col = {}
+
+            for(var key1 in this.data_tensors){
+
+                this.group_col[key1]  = {}
+                for(var key2 in this.data_tensors[key1]){
+
+                    let data = this.data_tensors[key1][key2].column(col_name)
+                    this.group_col[key1][key2] = data
+                }
+            }
+        }
+        else{
+
+            this.group_col = {}
+
+            for(var key1 in this.data_tensors){
+
+                let data = this.data_tensors[key1].column(col_name)
+                this.group_col[key1] = data
+            }
+        }
+
+        return this;
+    }
+
+    /**
+     * Basic root of all column arithemetic in groups
+     * @param operation [String]
+     */
+    arithemetic(operation){
+
+        if(this.key_col.length ==2){
+
+            let count_group = {}
+
+            for(var key1 in this.group_col){
+
+                count_group[key1]  = {}
+                for(var key2 in this.group_col[key1]){
+
+                    let data = eval(`this.group_col[key1][key2].${operation}`)
+                    count_group[key1][key2] = data
+                }
+            }
+            return count_group
+            
+        }else{
+            let count_group = {}
+
+            for(var key1 in this.group_col){            
+                let data = eval(`this.group_col[key1].${operation}`)
+                count_group[key1] = data
+            }
+
+            return count_group
+        }
+
+
+    }
+
+    count(){
+
+        let value = this.arithemetic("shape[0]");
+        return value;
+    }
+
+    sum(){
+        let value = this.arithemetic("sum().arraySync()")
+        return value
+    }
+
+
 
     /**
      * returns dataframe of a group
