@@ -16,13 +16,15 @@ export default class NDframe {
      * 
      * @param {data} Array, JSON, Tensor. Block of data.
      * @param {kwargs} Object,(Optional Configuration Object)
-     *                 {columns: Array of column names. If not specified and data is an array of array, use range index.}
+     *                 {columns: Array of column names. If not specified and data is an array of array, use range index.
+ *                      dtypes: Data types of the columns }
      *      
      * @returns NDframe
      */
 
     constructor(data, kwargs = {}) {
         this.kwargs = kwargs
+
         if (utils.isObject(data[0])) { //check the type of the first object in the data
             this.__read_object(data)
         } else if (Array.isArray(data[0]) || utils.isNumber(data[0]) || utils.isString(data[0])) {
@@ -34,8 +36,9 @@ export default class NDframe {
 
 
     __read_array(data) {
-        this.data = data //Defualt array data
+        this.data = data //Defualt array data in row format
         this.data_tensor = tf.tensor(data) //data saved as tensors
+
         if (this.ndim == 1) {
             //series array
             if (this.kwargs['columns'] == undefined) {
@@ -58,6 +61,12 @@ export default class NDframe {
                 }
             }
 
+            if (utils.keyInObject(this.kwargs, 'dtypes')) {
+                this.__set_col_types(this.kwargs['dtypes'], false)
+            } else {
+                //infer dtypes
+                this.__set_col_types(null, true)
+            }
         }
     }
 
@@ -69,7 +78,7 @@ export default class NDframe {
             data_arr.push(Object.values(item))
 
         });
-        this.data = data_arr //default array data
+        this.data = data_arr //default array data in row format
         this.data_tensor = tf.tensor(data_arr) //data saved as tensors
         this.kwargs['columns'] = Object.keys(Object.values(data)[0]) //get names of the column from the first entry
 
@@ -95,7 +104,54 @@ export default class NDframe {
                 }
             }
 
+            //saves array data in column form for easy access
+            if (utils.keyInObject(this.kwargs, 'dtypes')) {
+                this.__set_col_types(this.kwargs['dtypes'], false)
+            } else {
+                //infer dtypes
+                this.__set_col_types(null, true)
+            }
         }
+    }
+
+
+    __set_col_types(dtypes, infer) {
+        //set data type for each column in an NDFrame
+        const __supported_dtypes = ['float', "int", 'string', 'datetime']
+
+        if (infer) {
+            //saves array data in column form for easy access
+            this.col_data = utils.__get_col_values(this.data)
+            this.col_types = utils.__get_t(this.col_data)
+        } else {
+            if (Array.isArray(dtypes) && dtypes.length == this.columns.length) {
+                dtypes.map((type, indx) => {
+                    if (!__supported_dtypes.includes(type)) {
+                        throw new Error(`dtype error: dtype specified at index ${indx} is not supported`)
+                    }
+                })
+                this.col_types = dtypes
+            }
+        }
+    }
+
+    /**
+        * Returns the data types in the DataFrame 
+        * @return {Array} list of data types for each column
+        */
+    get dtypes() {
+        // let col_data = utils.get_col_values(this.data)
+        // this.col_types = utils.__get_t(col_data)
+        return this.col_types
+    }
+
+
+    /**
+     * Returns the data types in the DataFrame 
+     * @return {Array} list of data types for each column
+     */
+    astype(dtype) {
+        this.__set_col_types(dtype, false)
     }
 
 
@@ -135,7 +191,6 @@ export default class NDframe {
             return this.data_tensor.shape
         }
     }
-
 
 
     /**

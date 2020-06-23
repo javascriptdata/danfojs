@@ -103,4 +103,37 @@ describe("NDframe", function () {
             assert.isString(df + "")
         })
     })
+
+    describe("dtype", function () {
+        it("Returns dtype set during creation of NDFrame from an Object", function () {
+            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }]
+            let options = { dtypes: ['string', 'int'] }
+            let ndframe = new NDframe(data, options)
+            assert.deepEqual(ndframe.dtypes, ['string', 'int'])
+        })
+        it("Returns dtype set during creation of NDFrame from an Array", function () {
+            let data = [["Alice", 2, 3.0], ["Boy", 5, 6.1], ["Girl", 30, 40], [39, 89, 78.2]]
+            let cols = ["Name", "Count", "Score"]
+            let options = { columns: cols, dtypes: ['string', 'int', 'float'] }
+            let ndframe = new NDframe(data, options)
+            assert.deepEqual(ndframe.dtypes, ["string", "int", "float"])
+        })
+
+        it("Returns dtype automatically inferred from NDFrame", function () {
+            let data = [["Alice", 2, 3.0], ["Boy", 5, 6.1], ["Girl", 30, 40], [39, 89, 78.2]]
+            let cols = ["Name", "Count", "Score"]
+            let options = { columns: cols }
+            let ndframe = new NDframe(data, options)
+            assert.deepEqual(ndframe.dtypes, ["string", "float", "float"])
+        })
+
+        it("Sets the dtype of an NDFrame", function () {
+            let data = [["Alice", 2, 3.0], ["Boy", 5, 6.1], ["Girl", 30, 40], [39, 89, 78.2]]
+            let cols = ["Name", "Count", "Score"]
+            let options = { columns: cols }
+            let ndframe = new NDframe(data, options)
+            ndframe.astype(["string", "int", "float"])
+            assert.deepEqual(ndframe.dtypes, ["string", "int", "float"])
+        })
+    })
 })

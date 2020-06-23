@@ -1,4 +1,9 @@
 import * as tf from '@tensorflow/tfjs-node'
+import { Configs } from '../config/config'
+import { utils } from 'mocha';
+
+
+const config = new Configs()
 
 export class Utils {
     //remove an element from an array
@@ -100,12 +105,74 @@ export class Utils {
             return Array.prototype.map.call(selected, i => population[i]);
         }
     }
-    
-    //generate integers between two set of numbers
-    range(start, end){
 
-        let value = tf.linspace(start, end, (end -start)+1).arraySync();
+    //generate integers between two set of numbers
+    range(start, end) {
+
+        let value = tf.linspace(start, end, (end - start) + 1).arraySync();
         return value;
+    }
+
+    //check if key is in object
+    keyInObject(object, key) {
+        if (Object.prototype.hasOwnProperty.call(object, key)) {
+            return true
+        } else {
+            return false
+        }
+    }
+
+    //retreives the column wise value from an array
+    __get_col_values(data) {
+        let row_len = data.length
+        let cols_len = data[0].length
+        var cols_arr = []
+        for (var i = 0; i <= cols_len - 1; i++) {
+            let temp_col = []
+            for (let j = 0; j < row_len; j++) {
+                temp_col.push(data[j][i])
+            }
+            cols_arr.push(temp_col)
+        }
+        return cols_arr
+
+    }
+
+
+    //infer types from an array of array
+    __get_t(arr) {
+        const dtypes = []
+        let lim;
+        if (arr[0].length < config.get_dtype_test_lim) {
+            lim = arr[0].length - 1
+        }else{
+            lim = config.get_dtype_test_lim - 1
+        }
+
+
+        arr.forEach((ele) => {
+            let num_tracker = []
+            ele.forEach((ele, indx) => {
+                let count = indx
+                if (typeof (ele) == 'number') {
+                    num_tracker.push("true")
+                } else {
+                    num_tracker.push("false")
+                }
+
+                if (count == lim) {
+                    if (num_tracker.includes("false")) {
+                        dtypes.push("string")
+                    } else {
+                        dtypes.push("float")
+                    }
+
+                }
+            })
+
+        });
+
+        return dtypes
     }
 }
 

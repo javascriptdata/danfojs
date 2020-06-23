@@ -1,7 +1,10 @@
 import Ndframe from "./generic"
 import * as tf from '@tensorflow/tfjs-node'
 import { Utils } from "./utils"
+// import { Configs } from '../config/config'
+
 const utils = new Utils
+// const config = new Configs()
 
 
 /**
@@ -12,15 +15,18 @@ const utils = new Utils
  */
 export class DataFrame extends Ndframe {
     constructor(data, kwargs) {
-        super(data, kwargs);
+        super(data, kwargs)
+       
     }
+
 
     /**
      * Drop a row or a column base on the axis specified
      * @param {val} String name of row or column to drop
      * @param {kwargs} Object (Optional configuration object
-     *             axis: row=0, columns=1
-     *             inplace: specify whether to drop the row/column with/without creating a new DataFrame
+     *             {axis: row=0, columns=1
+     *             inplace: specify whether to drop the row/column with/without creating a new DataFrame}
+     *            
      */
     drop(val, kwargs = { axis: 0, inplace: false }) {
 
@@ -81,22 +87,22 @@ export class DataFrame extends Ndframe {
         if (Object.prototype.hasOwnProperty.call(kwargs, "rows")) { //check if the object has the key
             if (Array.isArray(kwargs["rows"])) {
 
-                if(kwargs["rows"].length ==1 && typeof kwargs["rows"][0] == "string"){
+                if (kwargs["rows"].length == 1 && typeof kwargs["rows"][0] == "string") {
                     //console.log("here", kwargs["rows"].length)
-                    if(kwargs["rows"][0].includes(":")){
-                        
-                        let row_split = kwargs["rows"][0].split(":")
-                        let start   = parseInt(row_split[0]);
-                        let end     = parseInt(row_split[1]);
+                    if (kwargs["rows"][0].includes(":")) {
 
-                        if(typeof start == "number" && typeof end == "number"){
-                            rows = utils.range(start,end);
+                        let row_split = kwargs["rows"][0].split(":")
+                        let start = parseInt(row_split[0]);
+                        let end = parseInt(row_split[1]);
+
+                        if (typeof start == "number" && typeof end == "number") {
+                            rows = utils.range(start, end);
                         }
-                        
-                    }else{
+
+                    } else {
                         throw new Error("numbers in string must be separated by ':'")
                     }
-                }else{
+                } else {
                     rows = kwargs["rows"];
                 }
             } else {
@@ -108,34 +114,34 @@ export class DataFrame extends Ndframe {
 
         if (Object.prototype.hasOwnProperty.call(kwargs, "columns")) {
             if (Array.isArray(kwargs["columns"])) {
-                if(kwargs["columns"].length ==1 && typeof kwargs["columns"][0] == "string"){
+                if (kwargs["columns"].length == 1 && typeof kwargs["columns"][0] == "string") {
 
-                    if(kwargs["columns"][0].includes(":")){
-                        
+                    if (kwargs["columns"][0].includes(":")) {
+
                         let row_split = kwargs["columns"][0].split(":")
                         let start, end;
 
-                        if(kwargs["type"] =="iloc"){
-                            start   = parseInt(row_split[0]);
-                            end     = parseInt(row_split[1]);
-                        }else{
+                        if (kwargs["type"] == "iloc") {
+                            start = parseInt(row_split[0]);
+                            end = parseInt(row_split[1]);
+                        } else {
                             let axes = this.axes["columns"]
-                            
-                            start = parseInt(axes.indexOf(row_split[0]));
-                            end   = parseInt(axes.indexOf(row_split[1]));
-                        }
-                        console.log(start,end)
 
-                        if(typeof start == "number" && typeof end == "number"){
-                            
-                            columns = utils.range(start,end);
+                            start = parseInt(axes.indexOf(row_split[0]));
+                            end = parseInt(axes.indexOf(row_split[1]));
+                        }
+                        console.log(start, end)
+
+                        if (typeof start == "number" && typeof end == "number") {
+
+                            columns = utils.range(start, end);
                             isColumnSplit = true;
                         }
-                        
-                    }else{
+
+                    } else {
                         throw new Error("numbers in string must be separated by ':'")
                     }
-                }else{
+                } else {
                     columns = kwargs["columns"];
                 }
 
@@ -177,7 +183,7 @@ export class DataFrame extends Ndframe {
                         throw new Error(`column index ${col_index} is bigger than ${max_colIndex}`);
                     }
                 }
-                
+
                 let elem = value[col_index]; //obtain the element at the column index
                 row_data.push(elem);
             }
@@ -187,12 +193,12 @@ export class DataFrame extends Ndframe {
         }
 
         let column_names = []
-        if(kwargs["type"] == "iloc" || isColumnSplit){
+        if (kwargs["type"] == "iloc" || isColumnSplit) {
             let axes = this.axes
             columns.map((col) => {
                 column_names.push(axes["columns"][col]);
             })
-        }else{
+        } else {
             column_names = columns
         }
 
@@ -208,8 +214,8 @@ export class DataFrame extends Ndframe {
     loc(kwargs) {
 
         kwargs["type"] = "loc"
-        let [new_data,columns] = this.__indexLoc(kwargs);
-        let df_columns = { "columns": columns}
+        let [new_data, columns] = this.__indexLoc(kwargs);
+        let df_columns = { "columns": columns }
         let df = new DataFrame(new_data, df_columns);
 
         return df;
@@ -226,7 +232,7 @@ export class DataFrame extends Ndframe {
 
         kwargs["type"] = "iloc";
 
-        let [new_data,columns] = this.__indexLoc(kwargs);
+        let [new_data, columns] = this.__indexLoc(kwargs);
         let df_columns = { "columns": columns }
         // console.log(new_data)
         let df = new DataFrame(new_data, df_columns);
@@ -343,7 +349,7 @@ export class DataFrame extends Ndframe {
 
         for (var i = 0; i < data.length; i++) {
             let data_value = data[i]
-            
+
             let elem = data_value[column_index]
 
             //use eval function for easy operation
@@ -360,37 +366,38 @@ export class DataFrame extends Ndframe {
         return new_df;
     }
 
-    __inObject(object,key, message){
+    __inObject(object, key, message) {
 
-        if(!Object.prototype.hasOwnProperty.call(object, key)){
+        if (!Object.prototype.hasOwnProperty.call(object, key)) {
             throw new Error(message);
         }
     }
 
+
     /**
-     * Add a column to the dataframe
+     * Add a column with values to the dataframe
      * @param {kwargs} Object keys[columns [string] and value[Array]]
      * 
      */
-    addColumn(kwargs){
+    addColumn(kwargs) {
 
         let data_length = this.shape[0]
 
-        this.__inObject(kwargs,"column","column name not specified");
-        this.__inObject(kwargs,"value","column value not specified");
+        this.__inObject(kwargs, "column", "column name not specified");
+        this.__inObject(kwargs, "value", "column value not specified");
 
         let value = kwargs["value"]
         let column_name = kwargs["column"]
 
-        if( value.length != data_length ){
+        if (value.length != data_length) {
             throw new Error(`Array length ${value.length} not equal to ${data_length}`);
         }
-        
+
 
         let data = this.values
         let new_data = []
 
-        data.map(function(val,index){
+        data.map(function (val, index) {
 
             let new_val = val.slice()
             new_val.push(value[index])
@@ -402,17 +409,24 @@ export class DataFrame extends Ndframe {
         this.columns.push(column_name);
     }
 
+
+
+
+
+
     // /**
     //  * check if each row,col contains NaN
     //  * @return Array list (bool)
     //  */
     // isnan() { }
 
+
     // /**
     //  * Obtain index containing nan values
     //  * @return Array list (int)
     //  */
     // nanIndex() { }
+
 
     // /**
     //  * Group a col inrespect to another column
@@ -423,6 +437,7 @@ export class DataFrame extends Ndframe {
     // groupby(col1, col2, aggregate) {
 
     // }
+
 
     // /**
     //  * Join two or more dataframe together base on their
