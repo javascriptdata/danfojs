@@ -50,13 +50,13 @@ export class GroupBy {
                         delete this.col_dict[key][key2]; //delete the empty key.
                     }
                     else{
-                        this.data_tensors[key][key2] = new DataFrame(data=data,{ columns:this.column_name})
+                        this.data_tensors[key][key2] = new DataFrame(data,{ columns:this.column_name})
                     }
                     
                 }
             }
         }else{
-            for(var i=0; i < this.data.length; i++){
+            for(let i=0; i < this.data.length; i++){
 
                 let col1_index = this.column_name.indexOf(this.key_col[0]);
         
@@ -70,10 +70,10 @@ export class GroupBy {
 
                 }
             }
-            for(var key in this.col_dict){
+            for(let key in this.col_dict){
                 let data = this.col_dict[key]
                 
-                this.data_tensors[key] = new DataFrame(data=data,{ columns:this.column_name})
+                this.data_tensors[key] = new DataFrame(data,{ columns:this.column_name})
                 
             }
         
@@ -112,7 +112,7 @@ export class GroupBy {
 
             this.group_col = {}
 
-            for(var key1 in this.data_tensors){
+            for(let key1 in this.data_tensors){
 
                 let data = this.data_tensors[key1].column(col_name)
                 this.group_col[key1] = data
@@ -146,7 +146,7 @@ export class GroupBy {
         }else{
             let count_group = {}
 
-            for(var key1 in this.group_col){            
+            for(let key1 in this.group_col){            
                 let data = eval(`this.group_col[key1].${operation}`)
                 count_group[key1] = data
             }

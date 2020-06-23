@@ -463,7 +463,7 @@ export class DataFrame extends Ndframe {
 
             var column_Unique = utils.__unique(data1);
 
-            for (var i = 0; i < column_Unique.length; i++) {
+            for (let i = 0; i < column_Unique.length; i++) {
                 let col_value = column_Unique[i];
                 col_dict[col_value] = [];
             }
