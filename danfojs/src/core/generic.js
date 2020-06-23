@@ -27,12 +27,12 @@ export default class NDframe {
 
         if (utils.__is_1D_array(data)) {
             this.series = true
-            this.__read_array([data])
+            this.__read_array(data)
         } else {
             this.series = false
             if (utils.__is_object(data[0])) { //check the type of the first object in the data
                 this.__read_object(data)
-            } else if (Array.isArray(data[0]) || utils.__is_number(data[0]) || utils.__is_tring(data[0])) {
+            } else if (Array.isArray(data[0]) || utils.__is_number(data[0]) || utils.__is_string(data[0])) {
                 this.__read_array(data)
             } else {
                 throw "File format not supported for now"
@@ -148,6 +148,7 @@ export default class NDframe {
                         throw new Error(`dtype error: dtype specified at index ${indx} is not supported`)
                     }
                 })
+                this.col_data = utils.__get_col_values(this.data)
                 this.col_types = dtypes
             }
         }

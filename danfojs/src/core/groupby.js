@@ -1,9 +1,8 @@
 import {DataFrame} from "./frame"
 import { Utils } from "./utils"
-
 const utils = new Utils
-module.exports = class GroupBy {
 
+export class GroupBy {
     constructor(col_dict,key_col, data, column_name) {
         
         this.key_col = key_col;
@@ -183,7 +182,7 @@ module.exports = class GroupBy {
                 let key1 = key[0]
                 let key2 = key[1];
 
-                utils.inObject(this.data_tensors,key1, `Key Error: ${key1} not in object`)
+                utils.__is_object(this.data_tensors,key1, `Key Error: ${key1} not in object`)
                 return this.data_tensors[key1][key2];
             }
             else{ throw new Error("specify the two group by column") }
@@ -192,7 +191,7 @@ module.exports = class GroupBy {
 
             if(key.length ==1){
 
-                utils.inObject(this.data_tensors,key[0], `Key Error: ${key[0]} not in object`)
+                utils.__is_object(this.data_tensors,key[0], `Key Error: ${key[0]} not in object`)
                 return this.data_tensors[key[0]];
             }
             else{ throw new Error("specify the one group by column") }

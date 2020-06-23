@@ -1,7 +1,7 @@
-import Ndframe from "./generic"
-import * as tf from '@tensorflow/tfjs-node'
-import { Utils } from "./utils"
-const utils = new Utils
+// import * as tf from '@tensorflow/tfjs-node'
+// import { Utils } from "./utils"
+import NDframe from "./generic"
+// const utils = new Utils
 // const config = new Configs()
 
 
@@ -15,7 +15,7 @@ const utils = new Utils
  * 
  * @returns DataFrame data structure
  */
-export class Series {
+export class Series extends NDframe{
     constructor(data, kwargs){ 
         super(data, kwargs)
     }

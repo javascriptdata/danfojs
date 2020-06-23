@@ -471,16 +471,29 @@ describe("DataFrame", function () {
     });
 
     describe("column", function(){
-
+        it("Obtain a column from a dataframe created from object",function(){
+            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
+            let options = { columns: ["Gender", "count"] }
+            let df = new DataFrame(data, options)
+            let col_data = df.column("count")
+            let rslt_data = [1,2,3]
+            assert.deepEqual(col_data.values, rslt_data);
+        })
         it("Obtain a column from a dataframe",function(){
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            let col_data = df.column("A")
+            let col_data = df.column("C")
 
-            let rslt_data = [ 1, 4, 20, 39]
+            let rslt_data = [3,6,40,78]
+            assert.deepEqual(col_data.values, rslt_data);
+        })
+        it("Throw Error for wrong column",function(){
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            assert.throws(()=>{df.column("D")},Error,"column D does not exist")
 
-            assert.deepEqual(col_data.arraySync(), rslt_data);
         })
     });
 

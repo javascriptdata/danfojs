@@ -1,7 +1,9 @@
 import Ndframe from "./generic"
+import {Series} from "./series"
 import * as tf from '@tensorflow/tfjs-node'
 import { Utils } from "./utils"
-import GroupBy from "./groupby"
+import {GroupBy} from "./groupby"
+
 const utils = new Utils
 // const config = new Configs()
 
@@ -16,7 +18,7 @@ const utils = new Utils
 export class DataFrame extends Ndframe {
     constructor(data, kwargs) {
         super(data, kwargs)
-       
+
     }
 
 
@@ -132,11 +134,11 @@ export class DataFrame extends Ndframe {
                         }
                         // console.log(start,end)
 
-                            columns = utils.__range(start, end);
-                            isColumnSplit = true;
-                        }
-                        
-                }else{
+                        columns = utils.__range(start, end);
+                        isColumnSplit = true;
+                    }
+
+                } else {
                     columns = kwargs["columns"];
                 }
 
@@ -378,8 +380,8 @@ export class DataFrame extends Ndframe {
 
         let data_length = this.shape[0]
 
-        utils.__in_object(kwargs,"column","column name not specified");
-        utils.__in_object(kwargs,"value","column value not specified");
+        utils.__in_object(kwargs, "column", "column name not specified");
+        utils.__in_object(kwargs, "value", "column value not specified");
 
         let value = kwargs["value"]
         let column_name = kwargs["column"]
@@ -403,33 +405,33 @@ export class DataFrame extends Ndframe {
         this.data_tensor = tf.tensor(new_data)
         this.columns.push(column_name);
     }
-    
+
     /**
      * 
      * @param {col}  col is a list of column with maximum length of two
      */
-    groupby(col){
+    groupby(col) {
 
         let len = this.shape[0] - 1
-        
+
         let column_names = this.column_names
         let col_dict = {};
         let key_column = null;
 
-        if(col.length == 2){
+        if (col.length == 2) {
 
-            if(column_names.includes(col[0])){
-                var [data1,col_name1] = this.__indexLoc({"rows":[`0:${len}`],"columns":[`${col[0]}`],"type":"loc"});
+            if (column_names.includes(col[0])) {
+                var [data1, col_name1] = this.__indexLoc({ "rows": [`0:${len}`], "columns": [`${col[0]}`], "type": "loc" });
 
-                
+
             }
-            else{
+            else {
                 throw new Error(`column ${col[0]} does not exist`);
             }
-            if(column_names.includes(col[1])){
-                var [data2,col_name2] = this.__indexLoc({"rows":[`0:${len}`],"columns":[`${col[1]}`],"type":"loc"});
+            if (column_names.includes(col[1])) {
+                var [data2, col_name2] = this.__indexLoc({ "rows": [`0:${len}`], "columns": [`${col[1]}`], "type": "loc" });
             }
-            else{
+            else {
                 throw new Error(`column ${col[1]} does not exist`);
             }
 
@@ -437,75 +439,62 @@ export class DataFrame extends Ndframe {
             var column_1_Unique = utils.__unique(data1);
             var column_2_unique = utils.__unique(data2);
 
-            for(var i=0;i< column_1_Unique.length; i++){
+            for (var i = 0; i < column_1_Unique.length; i++) {
 
                 let col_value = column_1_Unique[i]
                 col_dict[col_value] = {}
 
-                for(var j=0; j < column_2_unique.length; j++){
+                for (var j = 0; j < column_2_unique.length; j++) {
                     let col2_value = column_2_unique[j];
                     col_dict[col_value][col2_value] = [];
                 }
             }
 
-        }else{
-            
-            if(column_names.includes(col[0])){
-                var [data1,col_name1] = this.__indexLoc({"rows":[`0:${len}`],"columns":[`${col[0]}`],"type":"loc"});
+        } else {
+
+            if (column_names.includes(col[0])) {
+                var [data1, col_name1] = this.__indexLoc({ "rows": [`0:${len}`], "columns": [`${col[0]}`], "type": "loc" });
                 // console.log(data1)
             }
-            else{
+            else {
                 throw new Error(`column ${col[0]} does not exist`);
             }
             key_column = [col[0]];
 
             var column_Unique = utils.__unique(data1);
 
-            for(var i=0; i < column_Unique.length; i++){
+            for (var i = 0; i < column_Unique.length; i++) {
                 let col_value = column_Unique[i];
                 col_dict[col_value] = [];
             }
         }
 
 
-        let groups = new GroupBy(col_dict,key_column,this.values, column_names).group();
-           
+        let groups = new GroupBy(col_dict, key_column, this.values, column_names).group();
+
         return groups;
     }
 
-    
+
+
+
     /**
      * Return a sequence of axis dimension along row and columns
      * @params col_name: the name of a column in the database.
      * @returns tensor of shape 1
      */
     column(col_name) {
-
-        let kwargs = {};
-        let len = this.shape[0] - 1
-        kwargs["rows"] = [`0:${len}`]
-        
-        if(!this.columns.includes(col_name)){
+        if (!this.columns.includes(col_name)) {
             throw new Error(`column ${col_name} does not exist`);
         }
+        let col_indx_objs = utils.__arr_to_obj(this.columns)
+        let indx = col_indx_objs[col_name]
+        let data = this.col_data[indx]
+        let dtype = this.dtypes[indx]
 
-        kwargs["columns"] = [col_name]
-        kwargs["type"] = "loc"
-        let [new_data, columns] = this.__indexLoc(kwargs);
+        return new Series(data,{columns: col_name, dtypes: dtype})
 
-        let data_reshape = []
-        for(let i=0;i<new_data.length;i++){
-            let value = new_data[i][0];
-            data_reshape.push(value);
-        }
-        return tf.tensor(data_reshape);
     }
-
-
-
-
-
-
 
     // /**
     //  * check if each row,col contains NaN

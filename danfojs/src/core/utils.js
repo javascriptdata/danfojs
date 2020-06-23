@@ -223,12 +223,22 @@ export class Utils {
         }
     }
 
+    //check if a array is 1D
     __is_1D_array(arr) {
         if ((typeof (arr[0]) == "number") || (typeof (arr[0]) == "string")) {
             return true
         } else {
             return false
         }
+    }
+
+    //converts an array to object with index as value
+    __arr_to_obj(arr) {
+        let arr_map = {}
+        arr.forEach((ele, i) => {
+            arr_map[ele] = i
+        })
+        return arr_map
     }
 }
 
