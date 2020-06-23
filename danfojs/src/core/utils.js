@@ -16,34 +16,33 @@ export class Utils {
     }
 
     // Returns if a value is a string
-    isString(value) {
+    __is_string(value) {
         return typeof value === 'string' || value instanceof String;
     }
 
     // Returns if a value is really a number
-    isNumber(value) {
+    __is_number(value) {
         return typeof value === 'number' && isFinite(value);
     }
 
     // Returns if a value is an object
-    isObject(value) {
+    __is_object(value) {
         return value && typeof value === 'object' && value.constructor === Object;
     }
 
+
     // Returns if a value is null
-    isNull(value) {
+    __is_null(value) {
         return value === null;
     }
 
     // Returns if a value is undefined
-    isUndefined(value) {
+    __is_undefined(value) {
         return typeof value === 'undefined';
     }
 
-    // // Returns if a value is a boolean
-    // isBoolean(value) {
-    //     return typeof value === 'boolean';
-    // }
+
+
 
     /**
      * Optimized version of random sampling from an array, as implemented in Python
@@ -79,7 +78,7 @@ export class Utils {
      * @param {*} num The number of elements to sample randomly
      */
     // Chooses k unique random elements from array.
-    sample_from_iter(array, k, destructive) {
+    __sample_from_iter(array, k, destructive) {
         var n = array.length;
 
         if (k < 0 || k > n)
@@ -106,14 +105,14 @@ export class Utils {
     }
 
     //generate integers between two set of numbers
-    range(start, end) {
+    __range(start, end) {
 
         let value = tf.linspace(start, end, (end - start) + 1).arraySync();
         return value;
     }
 
     //check if key is in object
-    keyInObject(object, key) {
+    __key_in_object(object, key) {
         if (Object.prototype.hasOwnProperty.call(object, key)) {
             return true
         } else {
@@ -140,18 +139,16 @@ export class Utils {
 
     //infer types from an array of array
     __get_t(arr) {
-        const dtypes = []
-        let lim;
-        if (arr[0].length < config.get_dtype_test_lim) {
-            lim = arr[0].length - 1
-        } else {
-            lim = config.get_dtype_test_lim - 1
-        }
-
-
-        arr.forEach((ele) => {
+        if (this.__is_1D_array(arr)) {
+            const dtypes = []
             let num_tracker = []
-            ele.forEach((ele, indx) => {
+            let lim;
+            if (arr.length < config.get_dtype_test_lim) {
+                lim = arr.length - 1
+            } else {
+                lim = config.get_dtype_test_lim - 1
+            }
+            arr.forEach((ele, indx) => {
                 let count = indx
                 if (typeof (ele) == 'number') {
                     num_tracker.push("true")
@@ -169,13 +166,44 @@ export class Utils {
                 }
             })
 
-        });
+            return dtypes
 
-        return dtypes
+        } else {
+            const dtypes = []
+            let lim;
+            if (arr[0].length < config.get_dtype_test_lim) {
+                lim = arr[0].length - 1
+            } else {
+                lim = config.get_dtype_test_lim - 1
+            }
+            arr.forEach((ele) => {
+                let num_tracker = []
+                ele.forEach((ele, indx) => {
+                    let count = indx
+                    if (typeof (ele) == 'number') {
+                        num_tracker.push("true")
+                    } else {
+                        num_tracker.push("false")
+                    }
+
+                    if (count == lim) {
+                        if (num_tracker.includes("false")) {
+                            dtypes.push("string")
+                        } else {
+                            dtypes.push("float")
+                        }
+
+                    }
+                })
+
+            });
+
+            return dtypes
+        }
     }
 
 
-    unique(data) {
+    __unique(data) {
         let unique = new Set()
 
         data.map(function (val) {
@@ -188,10 +216,18 @@ export class Utils {
     }
 
     //second version of In object
-    inObject(object, key, message) {
+    __in_object(object, key, message) {
 
         if (!Object.prototype.hasOwnProperty.call(object, key)) {
             throw new Error(message);
+        }
+    }
+
+    __is_1D_array(arr) {
+        if ((typeof (arr[0]) == "number") || (typeof (arr[0]) == "string")) {
+            return true
+        } else {
+            return false
         }
     }
 }

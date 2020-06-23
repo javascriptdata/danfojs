@@ -12,7 +12,7 @@ describe("NDframe", function () {
         it("prints the default assigned column name in a series", function () {
             let data = ["Boy", 20, 25]
             let ndframe = new NDframe(data)
-            assert.deepEqual(ndframe.column_names, "0")
+            assert.deepEqual(ndframe.column_names, ["0"])
         })
         it("prints the assigned column name in a series", function () {
             let data = ["Boy", 20, 25]
@@ -61,6 +61,7 @@ describe("NDframe", function () {
     })
 
     describe("NDframe Created from JavaScript Object", function () {
+
         it("prints the shape of a 2D frame created from an Object", function () {
             let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
             let ndframe = new NDframe(data)
@@ -105,13 +106,50 @@ describe("NDframe", function () {
     })
 
     describe("dtype", function () {
-        it("Returns dtype set during creation of NDFrame from an Object", function () {
+        it("Returns int dtype set during creation of 1DFrame (Series) from an Object", function () {
+            let data = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+            let options = { dtypes: ['int'] }
+            let ndframe = new NDframe(data, options)
+            assert.deepEqual(ndframe.dtypes, ['int'])
+        })
+
+        it("Returns string dtype set during creation of 1DFrame (Series) from an Array", function () {
+            let data = ["Alice", "Yemi", "Rising", "Mark"]
+            let options = { dtypes: ['string'] }
+            let ndframe = new NDframe(data, options)
+            assert.deepEqual(ndframe.dtypes, ["string"])
+        })
+
+        it("Returns string dtype automatically inferred from 1DFrame (Series)", function () {
+            let data = ["Alice", "Yemi", "Rising", "Mark"]
+            let options = { columns: 'Names' }
+            let ndframe = new NDframe(data, options)
+            assert.deepEqual(ndframe.dtypes, ["string"])
+        })
+
+        it("Returns float dtype automatically inferred from 1DFrame (Series)", function () {
+            let data = [20,30,20.4,20]
+            let options = { columns: 'Size' }
+            let ndframe = new NDframe(data, options)
+            assert.deepEqual(ndframe.dtypes, ["float"])
+        })
+
+        it("Sets the dtype of an 1DFrame (Series)", function () {
+            let data = [20,30,20,20]
+            let cols = ["Score"]
+            let options = { columns: cols }
+            let ndframe = new NDframe(data, options)
+            ndframe.astype(["int"])
+            assert.deepEqual(ndframe.dtypes, ["int"])
+        })
+
+        it("Returns dtype set during creation of 2DFrame from an Object", function () {
             let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }]
             let options = { dtypes: ['string', 'int'] }
             let ndframe = new NDframe(data, options)
             assert.deepEqual(ndframe.dtypes, ['string', 'int'])
         })
-        it("Returns dtype set during creation of NDFrame from an Array", function () {
+        it("Returns dtype set during creation of 2DFrame from an Array", function () {
             let data = [["Alice", 2, 3.0], ["Boy", 5, 6.1], ["Girl", 30, 40], [39, 89, 78.2]]
             let cols = ["Name", "Count", "Score"]
             let options = { columns: cols, dtypes: ['string', 'int', 'float'] }
@@ -119,7 +157,7 @@ describe("NDframe", function () {
             assert.deepEqual(ndframe.dtypes, ["string", "int", "float"])
         })
 
-        it("Returns dtype automatically inferred from NDFrame", function () {
+        it("Returns dtype automatically inferred from 2DFrame", function () {
             let data = [["Alice", 2, 3.0], ["Boy", 5, 6.1], ["Girl", 30, 40], [39, 89, 78.2]]
             let cols = ["Name", "Count", "Score"]
             let options = { columns: cols }
@@ -127,7 +165,7 @@ describe("NDframe", function () {
             assert.deepEqual(ndframe.dtypes, ["string", "float", "float"])
         })
 
-        it("Sets the dtype of an NDFrame", function () {
+        it("Sets the dtype of an 2DFrame", function () {
             let data = [["Alice", 2, 3.0], ["Boy", 5, 6.1], ["Girl", 30, 40], [39, 89, 78.2]]
             let cols = ["Name", "Count", "Score"]
             let options = { columns: cols }

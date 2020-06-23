@@ -25,26 +25,40 @@ export default class NDframe {
     constructor(data, kwargs = {}) {
         this.kwargs = kwargs
 
-        if (utils.isObject(data[0])) { //check the type of the first object in the data
-            this.__read_object(data)
-        } else if (Array.isArray(data[0]) || utils.isNumber(data[0]) || utils.isString(data[0])) {
-            this.__read_array(data)
+        if (utils.__is_1D_array(data)) {
+            this.series = true
+            this.__read_array([data])
         } else {
-            throw "File format not supported for now"
+            this.series = false
+            if (utils.__is_object(data[0])) { //check the type of the first object in the data
+                this.__read_object(data)
+            } else if (Array.isArray(data[0]) || utils.__is_number(data[0]) || utils.__is_tring(data[0])) {
+                this.__read_array(data)
+            } else {
+                throw "File format not supported for now"
+            }
         }
+
     }
 
 
     __read_array(data) {
         this.data = data //Defualt array data in row format
-        this.data_tensor = tf.tensor(data) //data saved as tensors
+        this.data_tensor = tf.tensor(data) //data saved as tensors TODO: INfer type befor saving as tensor
 
         if (this.ndim == 1) {
             //series array
-            if (this.kwargs['columns'] == undefined) {
-                this.columns = "0"
+            if (!utils.__key_in_object(this.kwargs, 'columns')) {
+                this.columns = ["0"]
             } else {
                 this.columns = this.kwargs['columns']
+            }
+
+            if (utils.__key_in_object(this.kwargs, 'dtypes')) {
+                this.__set_col_types(this.kwargs['dtypes'], false)
+            } else {
+                //infer dtypes
+                this.__set_col_types(null, true)
             }
 
         } else {
@@ -61,7 +75,7 @@ export default class NDframe {
                 }
             }
 
-            if (utils.keyInObject(this.kwargs, 'dtypes')) {
+            if (utils.__key_in_object(this.kwargs, 'dtypes')) {
                 this.__set_col_types(this.kwargs['dtypes'], false)
             } else {
                 //infer dtypes
@@ -85,7 +99,7 @@ export default class NDframe {
         if (this.ndim == 1) {
             //series array
             if (this.kwargs['columns'] == undefined) {
-                this.columns = "0"
+                this.columns = ["0"]
             } else {
                 this.columns = this.kwargs['columns']
             }
@@ -105,7 +119,7 @@ export default class NDframe {
             }
 
             //saves array data in column form for easy access
-            if (utils.keyInObject(this.kwargs, 'dtypes')) {
+            if (utils.__key_in_object(this.kwargs, 'dtypes')) {
                 this.__set_col_types(this.kwargs['dtypes'], false)
             } else {
                 //infer dtypes
@@ -121,8 +135,12 @@ export default class NDframe {
 
         if (infer) {
             //saves array data in column form for easy access
-            this.col_data = utils.__get_col_values(this.data)
-            this.col_types = utils.__get_t(this.col_data)
+            if (this.series) {
+                this.col_types = utils.__get_t(this.values)
+            } else {
+                this.col_data = utils.__get_col_values(this.data)
+                this.col_types = utils.__get_t(this.col_data)
+            }
         } else {
             if (Array.isArray(dtypes) && dtypes.length == this.columns.length) {
                 dtypes.map((type, indx) => {
@@ -161,9 +179,12 @@ export default class NDframe {
      * @returns {Integer} dimension of NDFrame
      */
     get ndim() {
-        return this.data_tensor.shape.length
+        if (this.series) {
+            return 1
+        } else {
+            return this.data_tensor.shape.length
+        }
     }
-
 
 
     /**
@@ -185,8 +206,8 @@ export default class NDframe {
      * @returns {Array} the shape of the NDFrame
      */
     get shape() {
-        if (this.ndim == 1) {
-            return 1
+        if (this.series) {
+            return [1]
         } else {
             return this.data_tensor.shape
         }

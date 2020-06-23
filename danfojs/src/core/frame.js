@@ -8,7 +8,8 @@ const utils = new Utils
 
 /**
  * DataFrame object. A 2D frame object that stores data in structured tabular format
- * @param {kwargs} Object {columns: Array of column names}
+ * @param {data} data, JSON, Array of structured data
+ * @param {kwargs} Object {columns: Array of column names, dtypes: string of data types present in dataset.}
  * 
  * @returns DataFrame data structure
  */
@@ -95,7 +96,7 @@ export class DataFrame extends Ndframe {
                         let end = parseInt(row_split[1]);
 
                         if (typeof start == "number" && typeof end == "number") {
-                            rows = utils.range(start, end);
+                            rows = utils.__range(start, end);
                         }
 
                     } else {
@@ -131,7 +132,7 @@ export class DataFrame extends Ndframe {
                         }
                         // console.log(start,end)
 
-                            columns = utils.range(start, end);
+                            columns = utils.__range(start, end);
                             isColumnSplit = true;
                         }
                         
@@ -283,7 +284,7 @@ export class DataFrame extends Ndframe {
         } else {
             //Creates a new dataframe with last [rows]
             let config = { columns: this.column_names }
-            let sampled_arr = utils.sample_from_iter(this.values, num)
+            let sampled_arr = utils.__sample_from_iter(this.values, num)
             return new DataFrame(sampled_arr, config)
 
         }
@@ -360,12 +361,12 @@ export class DataFrame extends Ndframe {
         return new_df;
     }
 
-    __inObject(object, key, message) {
+    // __inObject(object, key, message) {
 
-        if (!Object.prototype.hasOwnProperty.call(object, key)) {
-            throw new Error(message);
-        }
-    }
+    //     if (!Object.prototype.hasOwnProperty.call(object, key)) {
+    //         throw new Error(message);
+    //     }
+    // }
 
 
     /**
@@ -377,8 +378,8 @@ export class DataFrame extends Ndframe {
 
         let data_length = this.shape[0]
 
-        utils.inObject(kwargs,"column","column name not specified");
-        utils.inObject(kwargs,"value","column value not specified");
+        utils.__in_object(kwargs,"column","column name not specified");
+        utils.__in_object(kwargs,"value","column value not specified");
 
         let value = kwargs["value"]
         let column_name = kwargs["column"]
@@ -433,8 +434,8 @@ export class DataFrame extends Ndframe {
             }
 
             key_column = [col[0], col[1]]
-            var column_1_Unique = utils.unique(data1);
-            var column_2_unique = utils.unique(data2);
+            var column_1_Unique = utils.__unique(data1);
+            var column_2_unique = utils.__unique(data2);
 
             for(var i=0;i< column_1_Unique.length; i++){
 
@@ -458,7 +459,7 @@ export class DataFrame extends Ndframe {
             }
             key_column = [col[0]];
 
-            var column_Unique = utils.unique(data1);
+            var column_Unique = utils.__unique(data1);
 
             for(var i=0; i < column_Unique.length; i++){
                 let col_value = column_Unique[i];
@@ -472,6 +473,7 @@ export class DataFrame extends Ndframe {
         return groups;
     }
 
+    
     /**
      * Return a sequence of axis dimension along row and columns
      * @params col_name: the name of a column in the database.
