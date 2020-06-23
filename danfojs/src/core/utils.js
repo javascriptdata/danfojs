@@ -1,6 +1,5 @@
 import * as tf from '@tensorflow/tfjs-node'
 import { Configs } from '../config/config'
-import { utils } from 'mocha';
 
 
 const config = new Configs()
@@ -145,7 +144,7 @@ export class Utils {
         let lim;
         if (arr[0].length < config.get_dtype_test_lim) {
             lim = arr[0].length - 1
-        }else{
+        } else {
             lim = config.get_dtype_test_lim - 1
         }
 
@@ -173,6 +172,27 @@ export class Utils {
         });
 
         return dtypes
+    }
+
+
+    unique(data) {
+        let unique = new Set()
+
+        data.map(function (val) {
+            unique.add(val[0]);
+        });
+
+        let unique_array = Array.from(unique)
+
+        return unique_array;
+    }
+
+    //second version of In object
+    inObject(object, key, message) {
+
+        if (!Object.prototype.hasOwnProperty.call(object, key)) {
+            throw new Error(message);
+        }
     }
 }
 
