@@ -89,22 +89,22 @@ export class DataFrame extends Ndframe {
         if (Object.prototype.hasOwnProperty.call(kwargs, "rows")) { //check if the object has the key
             if (Array.isArray(kwargs["rows"])) {
 
-                if (kwargs["rows"].length == 1 && typeof kwargs["rows"][0] == "string") {
+                if(kwargs["rows"].length ==1 && typeof kwargs["rows"][0] == "string"){
                     //console.log("here", kwargs["rows"].length)
-                    if (kwargs["rows"][0].includes(":")) {
-
+                    if(kwargs["rows"][0].includes(":")){
+                        
                         let row_split = kwargs["rows"][0].split(":")
-                        let start = parseInt(row_split[0]);
-                        let end = parseInt(row_split[1]);
+                        let start   = parseInt(row_split[0]);
+                        let end     = parseInt(row_split[1]);
 
-                        if (typeof start == "number" && typeof end == "number") {
-                            rows = utils.__range(start, end);
+                        if(typeof start == "number" && typeof end == "number"){
+                            rows = utils.__range(start,end);
                         }
-
-                    } else {
+                        
+                    }else{
                         throw new Error("numbers in string must be separated by ':'")
                     }
-                } else {
+                }else{
                     rows = kwargs["rows"];
                 }
             } else {
@@ -116,29 +116,29 @@ export class DataFrame extends Ndframe {
 
         if (Object.prototype.hasOwnProperty.call(kwargs, "columns")) {
             if (Array.isArray(kwargs["columns"])) {
-                if (kwargs["columns"].length == 1 && typeof kwargs["columns"][0] == "string") {
-
-                    if (kwargs["columns"][0].includes(":")) {
-
+                if(kwargs["columns"].length ==1 && kwargs["columns"][0].includes(":")){
+                        
                         let row_split = kwargs["columns"][0].split(":")
                         let start, end;
 
-                        if (kwargs["type"] == "iloc") {
-                            start = parseInt(row_split[0]);
-                            end = parseInt(row_split[1]);
-                        } else {
+                        if(kwargs["type"] =="iloc"){
+                            start   = parseInt(row_split[0]);
+                            end     = parseInt(row_split[1]);
+                        }else{
                             let axes = this.axes["columns"]
-
+                            
                             start = parseInt(axes.indexOf(row_split[0]));
-                            end = parseInt(axes.indexOf(row_split[1]));
+                            end   = parseInt(axes.indexOf(row_split[1]));
                         }
                         // console.log(start,end)
 
-                        columns = utils.__range(start, end);
-                        isColumnSplit = true;
-                    }
-
-                } else {
+                        if(typeof start == "number" && typeof end == "number"){
+                            
+                            columns = utils.__range(start,end);
+                            isColumnSplit = true;
+                        }
+                        
+                }else{
                     columns = kwargs["columns"];
                 }
 
@@ -180,7 +180,7 @@ export class DataFrame extends Ndframe {
                         throw new Error(`column index ${col_index} is bigger than ${max_colIndex}`);
                     }
                 }
-
+                
                 let elem = value[col_index]; //obtain the element at the column index
                 row_data.push(elem);
             }
@@ -190,18 +190,17 @@ export class DataFrame extends Ndframe {
         }
 
         let column_names = []
-        if (kwargs["type"] == "iloc" || isColumnSplit) {
+        if(kwargs["type"] == "iloc" || isColumnSplit){
             let axes = this.axes
             columns.map((col) => {
                 column_names.push(axes["columns"][col]);
             })
-        } else {
+        }else{
             column_names = columns
         }
 
         return [new_data, column_names];
     }
-
 
     /**
      * Obtain the defined the set of row and column index 
