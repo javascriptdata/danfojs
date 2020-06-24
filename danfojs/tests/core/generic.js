@@ -108,9 +108,9 @@ describe("NDframe", function () {
     describe("dtype", function () {
         it("Returns int dtype set during creation of 1DFrame (Series) from an Object", function () {
             let data = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-            let options = { dtypes: ['int'] }
+            let options = { dtypes: ['int32'] }
             let ndframe = new NDframe(data, options)
-            assert.deepEqual(ndframe.dtypes, ['int'])
+            assert.deepEqual(ndframe.dtypes, ['int32'])
         })
 
         it("Returns string dtype set during creation of 1DFrame (Series) from an Array", function () {
@@ -131,13 +131,13 @@ describe("NDframe", function () {
             let data = [20, 30, 20, 20]
             let options = { columns: 'Size' }
             let ndframe = new NDframe(data, options)
-            assert.deepEqual(ndframe.dtypes, ["int"])
+            assert.deepEqual(ndframe.dtypes, ["int32"])
         })
         it("Returns float dtype automatically inferred from 1DFrame (Series)", function () {
             let data = [20.1, 30.4, 20.2, 4.23, 20.1]
             let options = { columns: 'Size' }
             let ndframe = new NDframe(data, options)
-            assert.deepEqual(ndframe.dtypes, ["float"])
+            assert.deepEqual(ndframe.dtypes, ["float32"])
         })
 
         it("Sets the dtype of an 1DFrame (Series)", function () {
@@ -145,22 +145,22 @@ describe("NDframe", function () {
             let cols = ["Score"]
             let options = { columns: cols }
             let ndframe = new NDframe(data, options)
-            ndframe.astype(["int"])
-            assert.deepEqual(ndframe.dtypes, ["int"])
+            ndframe.astype(["int32"])
+            assert.deepEqual(ndframe.dtypes, ["int32"])
         })
 
         it("Returns dtype set during creation of 2DFrame from an Object", function () {
             let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }]
-            let options = { dtypes: ['string', 'int'] }
+            let options = { dtypes: ['string', 'int32'] }
             let ndframe = new NDframe(data, options)
-            assert.deepEqual(ndframe.dtypes, ['string', 'int'])
+            assert.deepEqual(ndframe.dtypes, ['string', 'int32'])
         })
         it("Returns dtype set during creation of 2DFrame from an Array", function () {
             let data = [["Alice", 2, 3.0], ["Boy", 5, 6.1], ["Girl", 30, 40], [39, 89, 78.2]]
             let cols = ["Name", "Count", "Score"]
-            let options = { columns: cols, dtypes: ['string', 'int', 'float'] }
+            let options = { columns: cols, dtypes: ['string', 'int32', 'float32'] }
             let ndframe = new NDframe(data, options)
-            assert.deepEqual(ndframe.dtypes, ["string", "int", "float"])
+            assert.deepEqual(ndframe.dtypes, ["string", "int32", "float32"])
         })
 
         it("Returns dtype automatically inferred from 2DFrame", function () {
@@ -168,7 +168,7 @@ describe("NDframe", function () {
             let cols = ["Name", "Count", "Score"]
             let options = { columns: cols }
             let ndframe = new NDframe(data, options)
-            assert.deepEqual(ndframe.dtypes, ["string", "int", "float"])
+            assert.deepEqual(ndframe.dtypes, ["string", "int32", "float32"])
         })
 
         it("Sets the dtype of an 2DFrame", function () {
@@ -176,8 +176,8 @@ describe("NDframe", function () {
             let cols = ["Name", "Count", "Score"]
             let options = { columns: cols }
             let ndframe = new NDframe(data, options)
-            ndframe.astype(["string", "int", "float"])
-            assert.deepEqual(ndframe.dtypes, ["string", "int", "float"])
+            ndframe.astype(["string", "int32", "float32"])
+            assert.deepEqual(ndframe.dtypes, ["string", "int32", "float32"])
         })
     })
 })

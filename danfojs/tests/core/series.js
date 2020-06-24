@@ -62,10 +62,10 @@ describe("Series", function () {
     describe("add", function () {
         it("Return Addition of series with another series", function () {
             let data = [1, 2, 3, 4, 5, 6]
-            let data2 = [30, 40, 39, 1, 2]
+            let data2 = [30, 40, 39, 1, 2, 1]
             let sf = new Series(data)
             let sf2 = new Series(data2)
-            assert.deepEqual(sf.add(sf2).values, [31, 42, 43, 6, 8])
+            assert.deepEqual(sf.add(sf2).values, [31, 42, 42, 5, 7, 7])
         })
         it("Return Addition of series with a single value (Broadcasting)", function () {
             let data = [1, 2, 3, 4, 5]
@@ -77,16 +77,18 @@ describe("Series", function () {
             let data2 = ["A", "B", "C", "d"]
             let sf = new Series(data)
             let sf2 = new Series(data2)
-            assert.deepEqual(() => { sf.add(sf2) }, Error, "dtype Error: Cannot add float type to string")
+            assert.throws(() => { sf.add(sf2) }, Error, "Argument 'x' passed to 'cast' must be numeric tensor, but got string tensor")
         })
         it("Throws length error if series lenght mixmatch", function () {
             let data = [1, 2, 3, 4]
             let data2 = [1, 2, 3, 4, 5, 6]
             let sf = new Series(data)
             let sf2 = new Series(data2)
-            assert.deepEqual(() => { sf.add(sf2) }, Error, "Length Error: Cannot add Series with different lenghts")
+            assert.throws(() => { sf.add(sf2) }, Error, " Incompatible shapes: [4] vs. [6]")
         })
 
     })
+
+
 
 })

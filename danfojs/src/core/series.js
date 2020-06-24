@@ -1,4 +1,4 @@
-// import * as tf from '@tensorflow/tfjs-node'
+import * as tf from '@tensorflow/tfjs-node'
 import { Utils } from "./utils"
 import NDframe from "./generic"
 const utils = new Utils
@@ -80,19 +80,23 @@ export class Series extends NDframe {
     * Equivalent to series + other
     * @param {rows}  
     */
-    // add(other) {
-    //     if (utils.__is_number(other)) {
-    //         //broadcast addition
-    //     } else {
-    //         if (this.__check_series_op_compactibility) {
-    //             //Perform addition
-    //             // let type = 
-                
-    //         } else {
-    //             //pass
-    //         }
-    //     }
-    // }
+    add(other) {
+        if (utils.__is_number(other)) {
+            //broadcast addition
+            let dtype = this.dtypes[0]
+            let tensor1 = tf.tensor(this.values).asType(dtype)
+            let sum = tensor1.add(other).arraySync()
+            return new Series(sum, { columns: this.column_names, dtypes: dtype })
+        } else {
+            if (this.__check_series_op_compactibility) {
+                let dtype = this.dtypes[0]
+                let tensor1 = tf.tensor(this.values).asType(dtype)
+                let tensor2 = tf.tensor(other.values).asType(dtype)
+                let sum = tensor1.add(tensor2).arraySync()
+                return new Series(sum, { columns: this.column_names, dtypes: dtype })
+            }
+        }
+    }
 
     //check two series is compatible for an mathematical operation
     __check_series_op_compactibility(other) {
@@ -109,6 +113,7 @@ export class Series extends NDframe {
             throw Error(`dtype Error: Cannot add ${other.dtypes[0]} type to ${this.dtypes[0]}`)
         }
 
+        return true
     }
 
 

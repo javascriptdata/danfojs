@@ -171,9 +171,9 @@ export class Utils {
 
                 if (count == lim) {
                     if (int_tracker.every(Boolean)) {
-                        dtypes.push("int")
+                        dtypes.push("int32")
                     } else if (float_tracker.every(Boolean)) {
-                        dtypes.push("float")
+                        dtypes.push("float32")
                     } else {
                         dtypes.push("string")
                     }
@@ -216,9 +216,9 @@ export class Utils {
 
                     if (count == lim) {
                         if (int_tracker.every(Boolean)) {
-                            dtypes.push("int")
+                            dtypes.push("int32")
                         } else if (float_tracker.every(Boolean)) {
-                            dtypes.push("float")
+                            dtypes.push("float32")
                         } else {
                             dtypes.push("string")
                         }
