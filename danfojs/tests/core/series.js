@@ -95,7 +95,7 @@ describe("Series", function () {
             let data2 = [1, 2, 3, 4, 5, 6]
             let sf1 = new Series(data1)
             let sf2 = new Series(data2)
-            assert.deepEqual(sf1.sub(sf2).values, [29, 38, 36, -3, -3, -1])
+            assert.deepEqual(sf1.sub(sf2).values, [29, 38, 36, -3, -3, -5])
         })
         it("Return Subtraction of series with a single value (Broadcasting)", function () {
             let data = [1, 2, 3, 4, 5]
@@ -115,6 +115,67 @@ describe("Series", function () {
             let sf = new Series(data)
             let sf2 = new Series(data2)
             assert.throws(() => { sf.sub(sf2) }, Error, " Incompatible shapes: [4] vs. [6]")
+        })
+
+    })
+
+
+    describe("mul", function () {
+        it("Return multiplication of series with another series", function () {
+            let data1 = [30, 40, 3, 5]
+            let data2 = [1, 2, 3, 4]
+            let sf1 = new Series(data1)
+            let sf2 = new Series(data2)
+            assert.deepEqual(sf1.mul(sf2).values, [30, 80, 9, 20])
+        })
+        it("Return multiplication of series with a single value (Broadcasting)", function () {
+            let data = [1, 2, 3, 4, 5]
+            let sf = new Series(data)
+            assert.deepEqual(sf.mul(1).values, [1, 2, 3, 4, 5])
+        })
+        it("Throws type error on multiplication of string type", function () {
+            let data = [1, 2, 3, 4]
+            let data2 = ["A", "B", "C", "d"]
+            let sf = new Series(data)
+            let sf2 = new Series(data2)
+            assert.throws(() => { sf.mul(sf2) }, Error, "Argument 'x' passed to 'cast' must be numeric tensor, but got string tensor")
+        })
+        it("Throws length error if series lenght mixmatch", function () {
+            let data = [1, 2, 3, 4]
+            let data2 = [1, 2, 3, 4, 5, 6]
+            let sf = new Series(data)
+            let sf2 = new Series(data2)
+            assert.throws(() => { sf.mul(sf2) }, Error, "Operands could not be broadcast together with shapes 4 and 6")
+        })
+
+    })
+
+    describe("mul", function () {
+        it("Return multiplication of series with another series", function () {
+            let data1 = [30, 40, 3, 5]
+            let data2 = [1, 2, 3, 4]
+            let sf1 = new Series(data1)
+            let sf2 = new Series(data2)
+            assert.deepEqual(sf1.mul(sf2).values, [30, 80, 9, 20])
+        })
+        it("Return multiplication of series with a single value (Broadcasting)", function () {
+            let data = [1, 2, 3, 4, 5]
+            let sf = new Series(data)
+            assert.deepEqual(sf.mul(1).values, [1, 2, 3, 4, 5])
+        })
+        it("Throws type error on multiplication of string type", function () {
+            let data = [1, 2, 3, 4]
+            let data2 = ["A", "B", "C", "d"]
+            let sf = new Series(data)
+            let sf2 = new Series(data2)
+            assert.throws(() => { sf.mul(sf2) }, Error, "Argument 'x' passed to 'cast' must be numeric tensor, but got string tensor")
+        })
+        it("Throws length error if series lenght mixmatch", function () {
+            let data = [1, 2, 3, 4]
+            let data2 = [1, 2, 3, 4, 5, 6]
+            let sf = new Series(data)
+            let sf2 = new Series(data2)
+            assert.throws(() => { sf.mul(sf2) }, Error, "Operands could not be broadcast together with shapes 4 and 6")
         })
 
     })
