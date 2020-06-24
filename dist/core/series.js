@@ -5,9 +5,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Series = void 0;
 
-class Series {
-  print(val) {
-    console.log(`Printing In Series${val}`);
+var _generic = _interopRequireDefault(require("./generic"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class Series extends _generic.default {
+  constructor(data, kwargs) {
+    super(data, kwargs);
   }
 
 }

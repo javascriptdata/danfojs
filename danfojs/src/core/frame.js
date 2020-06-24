@@ -421,6 +421,7 @@ export class DataFrame extends Ndframe {
         if (col.length == 2) {
 
             if (column_names.includes(col[0])) {
+                // eslint-disable-next-line no-unused-vars
                 var [data1, col_name1] = this.__indexLoc({ "rows": [`0:${len}`], "columns": [`${col[0]}`], "type": "loc" });
 
 
@@ -429,6 +430,7 @@ export class DataFrame extends Ndframe {
                 throw new Error(`column ${col[0]} does not exist`);
             }
             if (column_names.includes(col[1])) {
+                // eslint-disable-next-line no-unused-vars
                 var [data2, col_name2] = this.__indexLoc({ "rows": [`0:${len}`], "columns": [`${col[1]}`], "type": "loc" });
             }
             else {
@@ -453,6 +455,7 @@ export class DataFrame extends Ndframe {
         } else {
 
             if (column_names.includes(col[0])) {
+                // eslint-disable-next-line no-redeclare
                 var [data1, col_name1] = this.__indexLoc({ "rows": [`0:${len}`], "columns": [`${col[0]}`], "type": "loc" });
                 // console.log(data1)
             }

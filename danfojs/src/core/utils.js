@@ -141,7 +141,10 @@ export class Utils {
     __get_t(arr) {
         if (this.__is_1D_array(arr)) {
             const dtypes = []
-            let num_tracker = []
+            let int_tracker = []
+            let float_tracker = []
+            let string_tracker = []
+
             let lim;
             if (arr.length < config.get_dtype_test_lim) {
                 lim = arr.length - 1
@@ -151,16 +154,28 @@ export class Utils {
             arr.forEach((ele, indx) => {
                 let count = indx
                 if (typeof (ele) == 'number') {
-                    num_tracker.push("true")
+                    if (ele.toString().includes(".")) {
+                        float_tracker.push(true)
+                        int_tracker.push(false)
+                        string_tracker.push(false)
+                    } else {
+                        float_tracker.push(false)
+                        int_tracker.push(true)
+                        string_tracker.push(false)
+                    }
                 } else {
-                    num_tracker.push("false")
+                    float_tracker.push(false)
+                    int_tracker.push(false)
+                    string_tracker.push(true)
                 }
 
                 if (count == lim) {
-                    if (num_tracker.includes("false")) {
-                        dtypes.push("string")
-                    } else {
+                    if (int_tracker.every(Boolean)) {
+                        dtypes.push("int")
+                    } else if (float_tracker.every(Boolean)) {
                         dtypes.push("float")
+                    } else {
+                        dtypes.push("string")
                     }
 
                 }
@@ -177,20 +192,35 @@ export class Utils {
                 lim = config.get_dtype_test_lim - 1
             }
             arr.forEach((ele) => {
-                let num_tracker = []
+                let int_tracker = []
+                let float_tracker = []
+                let string_tracker = []
+
                 ele.forEach((ele, indx) => {
                     let count = indx
                     if (typeof (ele) == 'number') {
-                        num_tracker.push("true")
+                        if (ele.toString().includes(".")) {
+                            float_tracker.push(true)
+                            string_tracker.push(false)
+                            int_tracker.push(false)
+                        } else {
+                            int_tracker.push(true)
+                            string_tracker.push(false)
+                            float_tracker.push(false)
+                        }
                     } else {
-                        num_tracker.push("false")
+                        string_tracker.push(true)
+                        float_tracker.push(false)
+                        int_tracker.push(false)
                     }
 
                     if (count == lim) {
-                        if (num_tracker.includes("false")) {
-                            dtypes.push("string")
-                        } else {
+                        if (int_tracker.every(Boolean)) {
+                            dtypes.push("int")
+                        } else if (float_tracker.every(Boolean)) {
                             dtypes.push("float")
+                        } else {
+                            dtypes.push("string")
                         }
 
                     }

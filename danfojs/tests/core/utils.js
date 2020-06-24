@@ -50,9 +50,35 @@ describe("Utils Functions", function () {
     })
 
     describe("get_t", function () {
-        it("Returns the data type present in an array", function () {
-            let data = [[ 'Alice', 'Boy', 'Girl', 39 ],[ 2, 5, 30, 89 ],[ 3, 6.1, 40, 78.2 ]]
-            let result = ['string', 'float', 'float']
+        it("Returns string type present in an 1D array", function () {
+            let data = ['Alice', 'Boy', 'Girl', "39"]
+            let result = ['string']
+            assert.deepEqual(utils.__get_t(data), result)
+        })
+        it("Returns float type present in an 1D array", function () {
+            let data = [1.1, 2.1, 3.2, 4.4]
+            let result = ['float']
+            assert.deepEqual(utils.__get_t(data), result)
+        })
+        it("Returns int type present in an 1D array", function () {
+            let data = [1, 2, 3, 45]
+            let result = ['int']
+            assert.deepEqual(utils.__get_t(data), result)
+        })
+        it("Returns string when there's a mixture of int and float in a 1D array", function () {
+            let data = [1, 2.1, 3, 45]
+            let result = ['string']
+            assert.deepEqual(utils.__get_t(data), result)
+        })
+
+        it("Returns the data type present in an 2D array", function () {
+            let data = [['Alice', 'Boy', 'Girl', "39"], [2, 5, 30, 89], [3.1, 6.1, 40.1, 78.2]]
+            let result = ['string', 'int', 'float']
+            assert.deepEqual(utils.__get_t(data), result)
+        })
+        it("Returns the string dtype when there's a mixture of dtyoes in a 2D array", function () {
+            let data = [['Alice', 'Boy', 'Girl', 21], [2, 5, 30, "hey"], [3, 6, 40.1, 78.2]]
+            let result = ['string', 'string', 'string']
             assert.deepEqual(utils.__get_t(data), result)
         })
     })

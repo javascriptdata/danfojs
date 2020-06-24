@@ -7,9 +7,13 @@ exports.DataFrame = void 0;
 
 var _generic = _interopRequireDefault(require("./generic"));
 
+var _series = require("./series");
+
 var tf = _interopRequireWildcard(require("@tensorflow/tfjs-node"));
 
 var _utils = require("./utils");
+
+var _groupby = require("./groupby");
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
@@ -89,7 +93,7 @@ class DataFrame extends _generic.default {
             let end = parseInt(row_split[1]);
 
             if (typeof start == "number" && typeof end == "number") {
-              rows = utils.range(start, end);
+              rows = utils.__range(start, end);
             }
           } else {
             throw new Error("numbers in string must be separated by ':'");
@@ -120,14 +124,8 @@ class DataFrame extends _generic.default {
               end = parseInt(axes.indexOf(row_split[1]));
             }
 
-            console.log(start, end);
-
-            if (typeof start == "number" && typeof end == "number") {
-              columns = utils.range(start, end);
-              isColumnSplit = true;
-            }
-          } else {
-            throw new Error("numbers in string must be separated by ':'");
+            columns = utils.__range(start, end);
+            isColumnSplit = true;
           }
         } else {
           columns = kwargs["columns"];
@@ -257,7 +255,9 @@ class DataFrame extends _generic.default {
       let config = {
         columns: this.column_names
       };
-      let sampled_arr = utils.sample_from_iter(this.values, num);
+
+      let sampled_arr = utils.__sample_from_iter(this.values, num);
+
       return new DataFrame(sampled_arr, config);
     }
   }
@@ -310,6 +310,115 @@ class DataFrame extends _generic.default {
       "columns": columns
     });
     return new_df;
+  }
+
+  addColumn(kwargs) {
+    let data_length = this.shape[0];
+
+    utils.__in_object(kwargs, "column", "column name not specified");
+
+    utils.__in_object(kwargs, "value", "column value not specified");
+
+    let value = kwargs["value"];
+    let column_name = kwargs["column"];
+
+    if (value.length != data_length) {
+      throw new Error(`Array length ${value.length} not equal to ${data_length}`);
+    }
+
+    let data = this.values;
+    let new_data = [];
+    data.map(function (val, index) {
+      let new_val = val.slice();
+      new_val.push(value[index]);
+      new_data.push(new_val);
+    });
+    this.data = new_data;
+    this.data_tensor = tf.tensor(new_data);
+    this.columns.push(column_name);
+  }
+
+  groupby(col) {
+    let len = this.shape[0] - 1;
+    let column_names = this.column_names;
+    let col_dict = {};
+    let key_column = null;
+
+    if (col.length == 2) {
+      if (column_names.includes(col[0])) {
+        var [data1, col_name1] = this.__indexLoc({
+          "rows": [`0:${len}`],
+          "columns": [`${col[0]}`],
+          "type": "loc"
+        });
+      } else {
+        throw new Error(`column ${col[0]} does not exist`);
+      }
+
+      if (column_names.includes(col[1])) {
+        var [data2, col_name2] = this.__indexLoc({
+          "rows": [`0:${len}`],
+          "columns": [`${col[1]}`],
+          "type": "loc"
+        });
+      } else {
+        throw new Error(`column ${col[1]} does not exist`);
+      }
+
+      key_column = [col[0], col[1]];
+
+      var column_1_Unique = utils.__unique(data1);
+
+      var column_2_unique = utils.__unique(data2);
+
+      for (var i = 0; i < column_1_Unique.length; i++) {
+        let col_value = column_1_Unique[i];
+        col_dict[col_value] = {};
+
+        for (var j = 0; j < column_2_unique.length; j++) {
+          let col2_value = column_2_unique[j];
+          col_dict[col_value][col2_value] = [];
+        }
+      }
+    } else {
+      if (column_names.includes(col[0])) {
+        var [data1, col_name1] = this.__indexLoc({
+          "rows": [`0:${len}`],
+          "columns": [`${col[0]}`],
+          "type": "loc"
+        });
+      } else {
+        throw new Error(`column ${col[0]} does not exist`);
+      }
+
+      key_column = [col[0]];
+
+      var column_Unique = utils.__unique(data1);
+
+      for (let i = 0; i < column_Unique.length; i++) {
+        let col_value = column_Unique[i];
+        col_dict[col_value] = [];
+      }
+    }
+
+    let groups = new _groupby.GroupBy(col_dict, key_column, this.values, column_names).group();
+    return groups;
+  }
+
+  column(col_name) {
+    if (!this.columns.includes(col_name)) {
+      throw new Error(`column ${col_name} does not exist`);
+    }
+
+    let col_indx_objs = utils.__arr_to_obj(this.columns);
+
+    let indx = col_indx_objs[col_name];
+    let data = this.col_data[indx];
+    let dtype = this.dtypes[indx];
+    return new _series.Series(data, {
+      columns: col_name,
+      dtypes: dtype
+    });
   }
 
 }
