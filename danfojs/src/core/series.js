@@ -149,7 +149,7 @@ export class Series extends NDframe {
     * Equivalent to series / other
     *  @param {other} Series, Number to divide with.
     */
-    div(other, round=true) {
+    div(other, round = true) {
         if (utils.__is_number(other)) {
             //broadcast addition
             let dtype = this.dtypes[0]
@@ -181,23 +181,26 @@ export class Series extends NDframe {
     * This is equivalent to the method numpy.sum.
     *  @returns {Number}, sum of values in Series
     */
-   sum(){
-    if(this.dtypes[0] == "string"){
-        throw Error("dtype error: String data type does not support sum operation")
+    sum() {
+        if (this.dtypes[0] == "string") {
+            throw Error("dtype error: String data type does not support sum operation")
+        }
+        let temp_sum = tf.tensor(this.values).asType(this.dtypes[0]).sum().arraySync()
+        return temp_sum
     }
-    let temp_sum = tf.tensor(this.values).asType(this.dtypes[0]).sum().arraySync()
-    return temp_sum
-   }
 
 
-   /**
-    * Return the sum of the values in a series.
-    * This is equivalent to the method numpy.sum.
-    *  @returns {Number}, sum of values in Series
-    */
-   count(){
-       
-   }
+    /**
+     * Return the sum of the values in a series.
+     * This is equivalent to the method numpy.sum.
+     *  @returns {Number}, sum of values in Series
+     */
+    count() {
+        if (!this.series) {
+            throw Error("property error: Object must be a series")
+        }
+        return utils.__count_nan(this.values)
+    }
 
 
 

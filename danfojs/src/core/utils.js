@@ -272,7 +272,7 @@ export class Utils {
     }
 
     //count the null values present in an array
-    __count_nan(arr) {
+    __count_nan(arr, val = true) {
         let null_count = 0
         let val_count = 0
         arr.map(ele => {
@@ -282,6 +282,11 @@ export class Utils {
                 val_count = val_count + 1
             }
         })
+        if (val) {
+            return val_count
+        } else {
+            return null_count
+        }
     }
 }
 

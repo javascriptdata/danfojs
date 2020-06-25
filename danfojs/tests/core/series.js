@@ -219,12 +219,12 @@ describe("Series", function () {
         it("Returns the count of non NaN values in a int Series", function () {
             let data = [20, 30, NaN, 2, NaN, 30, 21]
             let sf = new Series(data)
-            assert.deepEqual(sf.count(), 3)
+            assert.deepEqual(sf.count(), 5)
         })
         it("Returns the count of non NaN values in a float Series", function () {
             let data = [20.1, 30.4, NaN, 2.1, NaN, 30.0, 21.3]
             let sf = new Series(data)
-            assert.deepEqual(sf.count(), 3)
+            assert.deepEqual(sf.count(), 5)
         })
     })
 
