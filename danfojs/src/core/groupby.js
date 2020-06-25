@@ -2,6 +2,14 @@ import {DataFrame} from "./frame"
 import { Utils } from "./utils"
 const utils = new Utils
 
+/**
+ * The class performs all groupby operation on a dataframe
+ * involveing all aggregate funciton
+ * @param {col_dict} col_dict Object of unique keys in the group by column
+ * @param {key_col} key_col Array contains the column names
+ * @param {data} Array the dataframe data
+ * @param {column_name} Array of all column name in the dataframe.
+ */
 export class GroupBy {
     constructor(col_dict,key_col, data, column_name) {
         
@@ -9,13 +17,18 @@ export class GroupBy {
         this.col_dict = col_dict;
         this.data  = data;
         this.column_name = column_name;
-        this.data_tensors = {}
+        this.data_tensors = {} //store the tensor version of the groupby data
 
     }
 
+    /**
+     * Group the dataframe by the column by
+     * creating an object to store the grouping
+     * @returns Groupby data structure 
+     */
     group(){
 
-        if(this.key_col.length ==2){
+        if(this.key_col.length ==2){ //check if the dataframe is group by two columns
 
             
             for(var i=0; i < this.data.length; i++){
@@ -85,7 +98,7 @@ export class GroupBy {
 
     /**
      * obtain the column for each group
-     * @params col_name
+     * @param {col_name} col_name String name of a column
      * @return Groupby class
      */
     col(col_name){
@@ -124,7 +137,7 @@ export class GroupBy {
 
     /**
      * Basic root of all column arithemetic in groups
-     * @param operation [String]
+     * @param {operation} operatioin String 
      */
     arithemetic(operation){
 
