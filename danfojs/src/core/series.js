@@ -126,23 +126,54 @@ export class Series extends NDframe {
     * Equivalent to series * other
     *  @param {other} Series, Number to multiply with.
     */
-   mul(other) {
-    if (utils.__is_number(other)) {
-        //broadcast addition
-        let dtype = this.dtypes[0]
-        let tensor1 = tf.tensor(this.values).asType(dtype)
-        let temp = tensor1.mul(other).arraySync()
-        return new Series(temp, { columns: this.column_names, dtypes: dtype })
-    } else {
-        if (this.__check_series_op_compactibility) {
+    mul(other) {
+        if (utils.__is_number(other)) {
+            //broadcast addition
             let dtype = this.dtypes[0]
             let tensor1 = tf.tensor(this.values).asType(dtype)
-            let tensor2 = tf.tensor(other.values).asType(dtype)
-            let temp = tensor1.mul(tensor2).arraySync()
+            let temp = tensor1.mul(other).arraySync()
             return new Series(temp, { columns: this.column_names, dtypes: dtype })
+        } else {
+            if (this.__check_series_op_compactibility) {
+                let dtype = this.dtypes[0]
+                let tensor1 = tf.tensor(this.values).asType(dtype)
+                let tensor2 = tf.tensor(other.values).asType(dtype)
+                let temp = tensor1.mul(tensor2).arraySync()
+                return new Series(temp, { columns: this.column_names, dtypes: dtype })
+            }
         }
     }
-}
+
+    /**
+    * Return division of series and other, element-wise (binary operator div).
+    * Equivalent to series / other
+    *  @param {other} Series, Number to divide with.
+    */
+    div(other, round=true) {
+        if (utils.__is_number(other)) {
+            //broadcast addition
+            let dtype = this.dtypes[0]
+            let tensor1 = tf.tensor(this.values).asType(dtype)
+            let result = tensor1.div(other)
+            dtype = result.dtype //dtype is subject to change after division
+            return new Series(result.arraySync(), { columns: this.column_names, dtypes: dtype })
+        } else {
+            if (this.__check_series_op_compactibility) {
+                let dtype;
+                //Check if caller needs a float division
+                if (round) {
+                    dtype = "float32"
+                } else {
+                    dtype = "int32"
+                }
+                let tensor1 = tf.tensor(this.values).asType(dtype)
+                let tensor2 = tf.tensor(other.values).asType(dtype)
+                let result = tensor1.div(tensor2)
+                dtype = result.dtype //dtype is subject to change after division
+                return new Series(result.arraySync(), { columns: this.column_names, dtypes: dtype })
+            }
+        }
+    }
 
 
 

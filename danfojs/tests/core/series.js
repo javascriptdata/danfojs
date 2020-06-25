@@ -150,20 +150,27 @@ describe("Series", function () {
 
     })
 
-    describe("mul", function () {
-        it("Return multiplication of series with another series", function () {
+    describe("div", function () {
+        it("Return float division of series with another series", function () {
             let data1 = [30, 40, 3, 5]
             let data2 = [1, 2, 3, 4]
             let sf1 = new Series(data1)
             let sf2 = new Series(data2)
-            assert.deepEqual(sf1.mul(sf2).values, [30, 80, 9, 20])
+            assert.deepEqual(sf1.div(sf2).values, [30, 20, 1, 1.25])
         })
-        it("Return multiplication of series with a single value (Broadcasting)", function () {
-            let data = [1, 2, 3, 4, 5]
+        it("Return integer division of series with another series", function () {
+            let data1 = [30, 40, 3, 5]
+            let data2 = [1, 2, 3, 4]
+            let sf1 = new Series(data1)
+            let sf2 = new Series(data2)
+            assert.deepEqual(sf1.div(sf2, false).values, [30, 20, 1, 1])
+        })
+        it("Return division of series with a single value (Broadcasting)", function () {
+            let data = [10, 2, 3, 90]
             let sf = new Series(data)
-            assert.deepEqual(sf.mul(1).values, [1, 2, 3, 4, 5])
+            assert.deepEqual(sf.div(2).values, [5, 1, 1.5, 45])
         })
-        it("Throws type error on multiplication of string type", function () {
+        it("Throws type error on division of string type", function () {
             let data = [1, 2, 3, 4]
             let data2 = ["A", "B", "C", "d"]
             let sf = new Series(data)
