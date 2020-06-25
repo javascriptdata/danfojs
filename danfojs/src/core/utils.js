@@ -270,6 +270,19 @@ export class Utils {
         })
         return arr_map
     }
+
+    //count the null values present in an array
+    __count_nan(arr) {
+        let null_count = 0
+        let val_count = 0
+        arr.map(ele => {
+            if (Number.isNaN(ele)) {
+                null_count = null_count + 1
+            } else {
+                val_count = val_count + 1
+            }
+        })
+    }
 }
 
 

@@ -176,6 +176,30 @@ export class Series extends NDframe {
     }
 
 
+    /**
+    * Return the sum of the values in a series.
+    * This is equivalent to the method numpy.sum.
+    *  @returns {Number}, sum of values in Series
+    */
+   sum(){
+    if(this.dtypes[0] == "string"){
+        throw Error("dtype error: String data type does not support sum operation")
+    }
+    let temp_sum = tf.tensor(this.values).asType(this.dtypes[0]).sum().arraySync()
+    return temp_sum
+   }
+
+
+   /**
+    * Return the sum of the values in a series.
+    * This is equivalent to the method numpy.sum.
+    *  @returns {Number}, sum of values in Series
+    */
+   count(){
+       
+   }
+
+
 
 
     //check two series is compatible for an mathematical operation

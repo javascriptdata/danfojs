@@ -187,4 +187,45 @@ describe("Series", function () {
 
     })
 
+    describe("sum", function () {
+        it("Return sum of int values in a series", function () {
+            let data1 = [30, 40, 3, 5]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.sum(), 78)
+        })
+        it("Return sum of float values in a series", function () {
+            let data1 = [30.1, 40.2, 3.1, 5.1]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.sum(), 78.5)
+        })
+        it("Throws error on addition of string Series", function () {
+            let data1 = ["boy", "gitl", "woman", "man"]
+            let sf = new Series(data1)
+            assert.throws(() => { sf.sum() }, Error, "dtype error: String data type does not support sum operation")
+        })
+    })
+
+    describe("count", function () {
+        it("Returns the count of non NaN values in a string Series", function () {
+            let data = ["boy", "gitl", "woman", NaN]
+            let sf = new Series(data)
+            assert.deepEqual(sf.count(), 3)
+        })
+        it("Returns the count of non NaN values in a string Series", function () {
+            let data = ["boy", "gitl", "woman", "Man"]
+            let sf = new Series(data)
+            assert.deepEqual(sf.count(), 4)
+        })
+        it("Returns the count of non NaN values in a int Series", function () {
+            let data = [20, 30, NaN, 2, NaN, 30, 21]
+            let sf = new Series(data)
+            assert.deepEqual(sf.count(), 3)
+        })
+        it("Returns the count of non NaN values in a float Series", function () {
+            let data = [20.1, 30.4, NaN, 2.1, NaN, 30.0, 21.3]
+            let sf = new Series(data)
+            assert.deepEqual(sf.count(), 3)
+        })
+    })
+
 })
