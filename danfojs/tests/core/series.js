@@ -187,45 +187,45 @@ describe("Series", function () {
 
     })
 
-    describe("sum", function () {
-        it("Return sum of int values in a series", function () {
-            let data1 = [30, 40, 3, 5]
-            let sf = new Series(data1)
-            assert.deepEqual(sf.sum(), 78)
+    describe("pow", function () {
+        it("Return Exponetial power of series with another series", function () {
+            let data1 = [2, 3, 4, 5]
+            let data2 = [1, 2, 3, 0]
+            let sf1 = new Series(data1)
+            let sf2 = new Series(data2)
+            assert.deepEqual(sf1.pow(sf2).values, [2, 9, 64, 1])
         })
-        it("Return sum of float values in a series", function () {
-            let data1 = [30.1, 40.2, 3.1, 5.1]
-            let sf = new Series(data1)
-            assert.deepEqual(sf.sum(), 78.5)
+        it("Return Exponetial power of series with a single value (Broadcasting)", function () {
+            let data = [1, 2, 3, 4, 5]
+            let sf = new Series(data)
+            assert.deepEqual(sf.pow(2).values, [1, 4, 9, 16, 25])
         })
-        it("Throws error on addition of string Series", function () {
-            let data1 = ["boy", "gitl", "woman", "man"]
-            let sf = new Series(data1)
-            assert.throws(() => { sf.sum() }, Error, "dtype error: String data type does not support sum operation")
-        })
+
     })
 
-    describe("count", function () {
-        it("Returns the count of non NaN values in a string Series", function () {
-            let data = ["boy", "gitl", "woman", NaN]
-            let sf = new Series(data)
-            assert.deepEqual(sf.count(), 3)
+    describe("mod", function () {
+        it("Return modulo of series with another float series", function () {
+            let data1 = [2, 30, 4, 5]
+            let data2 = [1.1, 2.2, 3.3, 2.4]
+            let sf1 = new Series(data1)
+            let sf2 = new Series(data2)
+            let expected = [0.8999999761581421, 1.3999993801116943, 0.7000000476837158, 0.19999980926513672]
+            assert.deepEqual(sf1.mod(sf2).values, expected)
         })
-        it("Returns the count of non NaN values in a string Series", function () {
-            let data = ["boy", "gitl", "woman", "Man"]
-            let sf = new Series(data)
-            assert.deepEqual(sf.count(), 4)
+        it("Return modulo of series with another int series", function () {
+            let data1 = [2, 30, 4, 5]
+            let data2 = [1, 2, 3, 1]
+            let sf1 = new Series(data1)
+            let sf2 = new Series(data2)
+            assert.deepEqual(sf1.mod(sf2).values, [0, 0, 1, 0])
         })
-        it("Returns the count of non NaN values in a int Series", function () {
-            let data = [20, 30, NaN, 2, NaN, 30, 21]
+        it("Return modulo power of series with a single value (Broadcasting)", function () {
+            let data = [1, 2, 3, 4, 5]
             let sf = new Series(data)
-            assert.deepEqual(sf.count(), 5)
+            assert.deepEqual(sf.mod(2).values, [1, 0, 1, 0, 1])
         })
-        it("Returns the count of non NaN values in a float Series", function () {
-            let data = [20.1, 30.4, NaN, 2.1, NaN, 30.0, 21.3]
-            let sf = new Series(data)
-            assert.deepEqual(sf.count(), 5)
-        })
+
     })
 
+   
 })
