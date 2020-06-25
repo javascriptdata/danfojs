@@ -484,7 +484,6 @@ describe("DataFrame", function () {
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
             let col_data = df.column("C")
-
             let rslt_data = [3,6,40,78]
             assert.deepEqual(col_data.values, rslt_data);
         })

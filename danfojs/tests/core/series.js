@@ -187,8 +187,140 @@ describe("Series", function () {
 
     })
 
-    describe("sum", function () {
-        it("Return sum of int values in a series", function () {
+    describe("pow", function () {
+        it("Return Exponetial power of series with another series", function () {
+            let data1 = [2, 3, 4, 5]
+            let data2 = [1, 2, 3, 0]
+            let sf1 = new Series(data1)
+            let sf2 = new Series(data2)
+            assert.deepEqual(sf1.pow(sf2).values, [2, 9, 64, 1])
+        })
+        it("Return Exponetial power of series with a single value (Broadcasting)", function () {
+            let data = [1, 2, 3, 4, 5]
+            let sf = new Series(data)
+            assert.deepEqual(sf.pow(2).values, [1, 4, 9, 16, 25])
+        })
+
+    })
+
+    describe("mod", function () {
+        it("Return modulo of series with another float series", function () {
+            let data1 = [2, 30, 4, 5]
+            let data2 = [1.1, 2.2, 3.3, 2.4]
+            let sf1 = new Series(data1)
+            let sf2 = new Series(data2)
+            let expected = [0.8999999761581421, 1.3999993801116943, 0.7000000476837158, 0.19999980926513672]
+            assert.deepEqual(sf1.mod(sf2).values, expected)
+        })
+        it("Return modulo of series with another int series", function () {
+            let data1 = [2, 30, 4, 5]
+            let data2 = [1, 2, 3, 1]
+            let sf1 = new Series(data1)
+            let sf2 = new Series(data2)
+            assert.deepEqual(sf1.mod(sf2).values, [0, 0, 1, 0])
+        })
+        it("Return modulo power of series with a single value (Broadcasting)", function () {
+            let data = [1, 2, 3, 4, 5]
+            let sf = new Series(data)
+            assert.deepEqual(sf.mod(2).values, [1, 0, 1, 0, 1])
+        })
+
+    })
+
+    describe("mean", function () {
+        it("Computes the mean of elements across of a int series", function () {
+            let data1 = [30, 40, 3, 5]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.mean(), 78)
+        })
+        it("Computes the mean of elements across of a float series", function () {
+            let data1 = [30.1, 40.2, 3.1, 5.1]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.mean(), 78.5)
+        })
+
+    })
+
+    describe("median", function () {
+        it("Computes the median value of elements across int Series", function () {
+            let data1 = [30, 40, 3, 5]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.median(), 78)
+        })
+        it("Computes the median value of elements across float Series", function () {
+            let data1 = [30.1, 40.2, 3.1, 5.1]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.median(), 78.5)
+        })
+
+    })
+
+    describe("mode", function () {
+        it("Computes the modal value of elements across int Series", function () {
+            let data1 = [30, 40, 3, 5]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.mode(), 78)
+        })
+        it("Computes the modal value of elements across int Series", function () {
+            let data1 = [30.1, 40.2, 3.1, 5.1]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.mode(), 78.5)
+        })
+
+    })
+
+    describe("min", function () {
+        it("Computes the minimum of elements across an Int Series", function () {
+            let data1 = [30, 40, 3, 5]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.min(), 78)
+        })
+        it("Computes the minimum of elements across an float Series", function () {
+            let data1 = [30.1, 40.2, 3.1, 5.1]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.min(), 78.5)
+        })
+
+    })
+
+    describe("max", function () {
+        it("Computes the maximum of elements across dimensions of a Series", function () {
+            let data1 = [30, 40, 3, 5]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.sum(), 78)
+        })
+        it("Return sum of float values in a series", function () {
+            let data1 = [30.1, 40.2, 3.1, 5.1]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.sum(), 78.5)
+        })
+        it("Throws error on addition of string Series", function () {
+            let data1 = ["boy", "gitl", "woman", "man"]
+            let sf = new Series(data1)
+            assert.throws(() => { sf.sum() }, Error, "dtype error: String data type does not support sum operation")
+        })
+    })
+
+    describe("maximum", function () {
+        it("Returns the max of a and b (a > b ? a : b) element-wise. Supports broadcasting.", function () {
+            let data1 = [30, 40, 3, 5]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.sum(), 78)
+        })
+        it("Return sum of float values in a series", function () {
+            let data1 = [30.1, 40.2, 3.1, 5.1]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.sum(), 78.5)
+        })
+        it("Throws error on addition of string Series", function () {
+            let data1 = ["boy", "gitl", "woman", "man"]
+            let sf = new Series(data1)
+            assert.throws(() => { sf.sum() }, Error, "dtype error: String data type does not support sum operation")
+        })
+    })
+
+    describe("minimum", function () {
+        it("Returns the min of a and b (a < b ? a : b) element-wise. Supports broadcasting.", function () {
             let data1 = [30, 40, 3, 5]
             let sf = new Series(data1)
             assert.deepEqual(sf.sum(), 78)
@@ -227,5 +359,7 @@ describe("Series", function () {
             assert.deepEqual(sf.count(), 5)
         })
     })
+
+
 
 })

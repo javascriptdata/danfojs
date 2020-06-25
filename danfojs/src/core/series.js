@@ -22,7 +22,8 @@ export class Series extends NDframe {
 
     /**
     * Prints the first n values in a Series
-    * @param {rows}  
+    * @param {rows}  Number of rows to return
+    * @returns {Series}
     */
     head(rows = 5) {
         if (rows > this.values.length || rows < 1) {
@@ -41,7 +42,8 @@ export class Series extends NDframe {
 
     /**
     * Prints the last n values in a Series
-    * @param {rows}  
+    * @param {rows} NUmber of rows to return
+    * @returns {Series}
     */
     tail(rows = 5) {
         if (rows > this.values.length || rows < 1) {
@@ -60,6 +62,7 @@ export class Series extends NDframe {
     /**
     * Gets [num] number of random rows in a Series
     * @param {rows}  
+    * @returns {Series}
     */
     sample(num = 1) {
         if (num > this.values.length || num < 1) {
@@ -78,7 +81,8 @@ export class Series extends NDframe {
     /**
     * Return Addition of series and other, element-wise (binary operator add).
     * Equivalent to series + other
-    * @param {other} Series, Number of add  
+    * @param {other} Series or Number to add  
+    * @returns {Series}
     */
     add(other) {
         if (utils.__is_number(other)) {
@@ -102,6 +106,7 @@ export class Series extends NDframe {
     * Returns the subtraction between a series and other, element-wise (binary operator subtraction).
     * Equivalent to series - other
     * @param {other} Series, Number to subtract
+    * @returns {Series}
     */
     sub(other) {
         if (utils.__is_number(other)) {
@@ -125,6 +130,7 @@ export class Series extends NDframe {
     * Return Multiplication of series and other, element-wise (binary operator mul).
     * Equivalent to series * other
     *  @param {other} Series, Number to multiply with.
+    * @returns {Series}
     */
     mul(other) {
         if (utils.__is_number(other)) {
@@ -148,6 +154,7 @@ export class Series extends NDframe {
     * Return division of series and other, element-wise (binary operator div).
     * Equivalent to series / other
     *  @param {other} Series, Number to divide with.
+    * @returns {Series}
     */
     div(other, round = true) {
         if (utils.__is_number(other)) {
@@ -171,6 +178,55 @@ export class Series extends NDframe {
                 let result = tensor1.div(tensor2)
                 dtype = result.dtype //dtype is subject to change after division
                 return new Series(result.arraySync(), { columns: this.column_names, dtypes: dtype })
+            }
+        }
+    }
+
+    /**
+    * Return Exponential power of series and other, element-wise (binary operator pow).
+    * Equivalent to series ** other
+    *  @param {other} Series, Number to multiply with.
+    */
+    pow(other) {
+        if (utils.__is_number(other)) {
+            //broadcast addition
+            let dtype = this.dtypes[0]
+            let tensor1 = tf.tensor(this.values).asType(dtype)
+            let temp = tensor1.pow(other).arraySync()
+            return new Series(temp, { columns: this.column_names, dtypes: dtype })
+        } else {
+            if (this.__check_series_op_compactibility) {
+                let dtype1 = this.dtypes[0]
+                let dtype2 = other.dtypes[0]
+                let tensor1 = tf.tensor(this.values).asType(dtype1)
+                let tensor2 = tf.tensor(other.values).asType(dtype2)
+                let temp = tensor1.pow(tensor2)
+                return new Series(temp.arraySync(), { columns: this.column_names, dtypes: temp.dtype })
+            }
+        }
+    }
+
+    /**
+    * Return Modulo of series and other, element-wise (binary operator mod).
+    * Equivalent to series % other
+    *  @param {other} Series, Number
+    * @returns {Series} 
+    */
+    mod(other) {
+        if (utils.__is_number(other)) {
+            //broadcast addition
+            let dtype = this.dtypes[0]
+            let tensor1 = tf.tensor(this.values).asType(dtype)
+            let temp = tensor1.mod(other).arraySync()
+            return new Series(temp, { columns: this.column_names, dtypes: dtype })
+        } else {
+            if (this.__check_series_op_compactibility) {
+                let dtype1 = this.dtypes[0]
+                let dtype2 = other.dtypes[0]
+                let tensor1 = tf.tensor(this.values).asType(dtype1)
+                let tensor2 = tf.tensor(other.values).asType(dtype2)
+                let temp = tensor1.mod(tensor2)
+                return new Series(temp.arraySync(), { columns: this.column_names, dtypes: temp.dtype })
             }
         }
     }
