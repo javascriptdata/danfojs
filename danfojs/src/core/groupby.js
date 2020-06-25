@@ -172,12 +172,12 @@ export class GroupBy {
 
     count(){
 
-        let value = this.arithemetic("shape[0]");
+        let value = this.arithemetic("count()");
         return value;
     }
 
     sum(){
-        let value = this.arithemetic("sum().arraySync()")
+        let value = this.arithemetic("sum()")
         return value
     }
 

@@ -497,4 +497,13 @@ describe("DataFrame", function () {
         })
     });
 
+    describe("DateTime", function(){
+
+        it("Print out DateTime Structure",function(){
+
+            console.log("heree", DataFrame.DateTime("C"));
+        })
+
+    });
+
 });

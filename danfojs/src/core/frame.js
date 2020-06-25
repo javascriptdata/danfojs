@@ -498,6 +498,17 @@ export class DataFrame extends Ndframe {
 
     }
 
+    /**
+     * generate a datetime from a column of date string
+     * @param {kwargs} kwargs object {data: [array of string], format: String} 
+     * @return DateTime data structure
+     */
+    static DateTime(kwargs){
+
+
+        return "ok"
+    }
+
     // /**
     //  * check if each row,col contains NaN
     //  * @return Array list (bool)
