@@ -501,7 +501,7 @@ export class DataFrame extends Ndframe {
      * @param {kwargs} kwargs object {data: [array of string], format: String} 
      * @return DateTime data structure
      */
-    static DateTime(kwargs){
+    static to_datetime(kwargs){
 
 
         return "ok"

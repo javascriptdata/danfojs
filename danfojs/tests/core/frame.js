@@ -500,7 +500,7 @@ describe("DataFrame", function () {
 
         it("Print out DateTime Structure",function(){
 
-            console.log("heree", DataFrame.DateTime("C"));
+            console.log("heree", DataFrame.to_datetime({"data":[1,2,3,4],"format":"%y%m%d"}));
         })
 
     });
