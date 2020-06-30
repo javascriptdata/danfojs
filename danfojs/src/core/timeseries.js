@@ -29,6 +29,8 @@ export class TimeSeries {
             "d": 2,
             "-": 1,
         }
+
+        this.__in_format = ["%Y-m-d%","%d-m-Y%","%d-m-Y H%M%S%"]
         
     }
 
@@ -37,9 +39,45 @@ export class TimeSeries {
      */
     preprocessed(){
 
-        let format = this.generate_format()
-        console.log(format)
-        return this.__apply_format(this.data[0],format);
+        let format_values = null;
+        if(this.format){
+            format_values = this.generate_format()
+        }
+        
+        this.date_list = []
+
+        for(let i=0;i<this.data.length;i++){
+
+            let date_string = this.data[i]
+
+            if(this.format && !this.__in_format.includes(this.format)){
+
+                let format_dateString = this.__apply_format(date_string,format_values)
+                let valueDate = new Date(format_dateString)
+
+                this.__is_validDate(valueDate)
+
+                this.date_list.push(valueDate);
+                
+            }
+            else if(this.is_timestamp(date_string)){
+
+                let string2int = parseInt(date_string)
+                let valueDate = new Date(string2int);
+
+                this.__is_validDate(valueDate);
+                this.date_list.push(valueDate);
+            }
+            else{
+                let valueDate = new Date(date_string);
+
+                this.__is_validDate(valueDate);
+                this.date_list.push(valueDate);
+            }
+        }
+
+        return this.date_list;
+        
     }
 
     /**
@@ -78,7 +116,9 @@ export class TimeSeries {
         return date_string
 
     }
-
+    /**
+     * @description convert format string to their respective value.
+     */
     generate_format(){
 
         let format_list = this.format.split("")
@@ -95,6 +135,35 @@ export class TimeSeries {
 
         return format_value
     }
+
+    /**
+     * @description check if a string is a timestamp
+     * @param {date_string} date_string [string] 
+     */
+    is_timestamp(date_string){
+
+        let string2int = parseInt(date_string);
+        let int2string = String(string2int);
+
+        console.log(string2int)
+        if(isNaN(string2int) || (int2string.length < date_string.length)){
+            return false
+        }else{
+            return true
+        }
+    }
+
+    /**
+     * @description check if a date instance returns Invalid date
+     * @param {date_instance} instance of new Date()
+     */
+    __is_validDate(date_instance){
+
+        if(date_instance.toDateString() == "Invalid Date"){
+            throw new Error("Invalid date, the date format not recognise");
+        }
+    }
+    
 
     /**
      * @description obtain the month in a date.
