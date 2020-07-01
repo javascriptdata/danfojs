@@ -30,7 +30,10 @@ export class TimeSeries {
             "-": 1,
         }
 
-        this.__in_format = ["%Y-m-d%","%d-m-Y%","%d-m-Y H%M%S%"]
+        this.__in_format = ["%Y-m-d%","%m-d-Y%","%m-d-Y H%M%S%"]
+
+        this.__monthName = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        this.__weekName  = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
         
     }
 
@@ -76,7 +79,7 @@ export class TimeSeries {
             }
         }
 
-        return this.date_list;
+        // return this.date_list;
         
     }
 
@@ -145,7 +148,6 @@ export class TimeSeries {
         let string2int = parseInt(date_string);
         let int2string = String(string2int);
 
-        console.log(string2int)
         if(isNaN(string2int) || (int2string.length < date_string.length)){
             return false
         }else{
@@ -164,22 +166,110 @@ export class TimeSeries {
         }
     }
     
+    /**
+     * @description abstract all date operations
+     * @param {*} callback [FUNCTION]
+     * @return series
+     */
+    __date_ops(callback){
+
+        let data = this.date_list.map(function(date_instance){
+
+            return callback(date_instance);
+        });
+
+        let series = new Series(data= data);
+
+        return series;
+    }
 
     /**
      * @description obtain the month in a date.
      * @return Series
      */
-    month(){}
+    month(){
+
+        let series = this.__date_ops(function(date_instance){
+            return date_instance.getMonth();
+        });
+
+        return series
+    }
 
     /**
      * @return Series 
      */
-    hour(){}
+    hour(){
+        let series = this.__date_ops(function(date_instance){
+            return date_instance.getHour();
+        });
+
+        return series
+    }
 
     /**
      * @return Series
      */
-    day(){}
+    day(){
+        let series = this.__date_ops(function(date_instance){
+            return date_instance.getDay();
+        });
+
+        return series
+    }
+
+    /**
+     * @description generate year frome date instance
+     * @return Series
+     */
+    year(){
+
+        let series = this.__date_ops(function(date_instance){
+            return date_instance.getFullYear();
+        });
+
+        return series
+    }
+
+    /**
+     * @description generate month name
+     * @return Series
+     */
+    month_name(){
+
+        let self = this
+        let series = this.__date_ops(function(date_instance){
+            return self.__monthName[date_instance.getMonth()];
+        });
+
+        return series
+    }
+
+    /**
+     * @description generate days of the week
+     * @return Series
+     */
+    weekdays(){
+        let self = this
+        let series = this.__date_ops(function(date_instance){
+            return self.__weekName[date_instance.getDay()];
+        });
+
+        return series
+    }
+
+    /**
+     * @description day of the month
+     * @return Series
+     */
+    monthday(){
+        let series = this.__date_ops(function(date_instance){
+            return date_instance.getDate();
+        });
+
+        return series
+    }
+
 
 
 
