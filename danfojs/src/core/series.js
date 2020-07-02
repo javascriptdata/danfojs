@@ -233,6 +233,45 @@ export class Series extends NDframe {
 
 
     /**
+    * Returns the mean of elements in Series
+    * @returns {Series} 
+    */
+    mean() {
+        if (this.dtypes[0] == "string") {
+            throw Error("dtype error: String data type does not support mean operation")
+        }
+        let mean = tf.tensor(this.values).asType(this.dtypes[0]).mean().arraySync()
+        return mean
+    }
+
+    /**
+    * Returns the median of elements in Series
+    * @returns {Series} 
+    */
+    median() {
+        if (this.dtypes[0] == "string") {
+            throw Error("dtype error: String data type does not support mean operation")
+        }
+        let values = this.values
+        let median = utils.__median(values)
+        return median
+    }
+
+    /**
+    * Returns the modal value of elements in Series
+    * @returns {Series} 
+    */
+    mode() {
+        if (this.dtypes[0] == "string") {
+            throw Error("dtype error: String data type does not support mean operation")
+        }
+        let values = this.values
+        let mode = utils.__mode(values)
+        return mode
+    }
+
+
+    /**
     * Return the sum of the values in a series.
     * This is equivalent to the method numpy.sum.
     *  @returns {Number}, sum of values in Series
@@ -247,9 +286,8 @@ export class Series extends NDframe {
 
 
     /**
-     * Return the sum of the values in a series.
-     * This is equivalent to the method numpy.sum.
-     *  @returns {Number}, sum of values in Series
+     * Return number of non-null elements in a Series
+     *  @returns {Number}, Count of non-null values
      */
     count() {
         if (!this.series) {

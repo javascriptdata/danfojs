@@ -288,6 +288,43 @@ export class Utils {
             return null_count
         }
     }
+
+    //computes the median of an array
+    __median(arr) {
+        const sorted = arr.slice().sort((a, b) => a - b);
+        const middle = Math.floor(sorted.length / 2);
+
+        if (sorted.length % 2 === 0) {
+            return (sorted[middle - 1] + sorted[middle]) / 2;
+        }
+
+        return sorted[middle];
+
+    }
+
+    //computes the mode(s) of an array
+    __mode(arr) {
+        var modes = [], count = [], i, maxIndex = 0;
+
+        arr.map(val => {
+            count[val] = (count[val] || 0) + 1;
+            if (count[val] > maxIndex) {
+                maxIndex = count[val];
+            }
+        })
+
+
+        for (i in count)
+            if (this.__key_in_object(count, i)) {
+                if (count[i] === maxIndex) {
+                    modes.push(Number(i));
+                }
+            }
+
+
+        return modes;
+
+    }
 }
 
 
