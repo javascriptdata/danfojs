@@ -27,7 +27,7 @@ export class Series extends NDframe {
         * Returns a Series in Tensorflow's tensor format
         * @returns {1D tensor}
         */
-    tensor() {        
+    tensor() {
         return tf.tensor(this.values).asType(this.dtypes[0])
     }
 
@@ -98,17 +98,12 @@ export class Series extends NDframe {
     add(other) {
         if (utils.__is_number(other)) {
             //broadcast addition
-            let dtype = this.dtypes[0]
-            let tensor1 = tf.tensor(this.values).asType(dtype)
-            let sum = tensor1.add(other).arraySync()
-            return new Series(sum, { columns: this.column_names, dtypes: dtype })
+            let sum = this.tensor().add(other).arraySync()
+            return new Series(sum, { columns: this.column_names })
         } else {
             if (this.__check_series_op_compactibility) {
-                let dtype = this.dtypes[0]
-                let tensor1 = tf.tensor(this.values).asType(dtype)
-                let tensor2 = tf.tensor(other.values).asType(dtype)
-                let sum = tensor1.add(tensor2).arraySync()
-                return new Series(sum, { columns: this.column_names, dtypes: dtype })
+                let sum = this.tensor().add(other.tensor()).arraySync()
+                return new Series(sum, { columns: this.column_names })
             }
         }
     }
@@ -121,21 +116,17 @@ export class Series extends NDframe {
     */
     sub(other) {
         if (utils.__is_number(other)) {
-            //broadcast addition
-            let dtype = this.dtypes[0]
-            let tensor1 = tf.tensor(this.values).asType(dtype)
-            let temp = tensor1.sub(other).arraySync()
-            return new Series(temp, { columns: this.column_names, dtypes: dtype })
+            let sub = this.tensor().sub(other).arraySync()
+            return new Series(sub, { columns: this.column_names })
         } else {
             if (this.__check_series_op_compactibility) {
-                let dtype = this.dtypes[0]
-                let tensor1 = tf.tensor(this.values).asType(dtype)
-                let tensor2 = tf.tensor(other.values).asType(dtype)
-                let temp = tensor1.sub(tensor2).arraySync()
-                return new Series(temp, { columns: this.column_names, dtypes: dtype })
+                let sub = this.tensor().sub(other.tensor()).arraySync()
+                return new Series(sub, { columns: this.column_names })
             }
         }
     }
+
+
 
     /**
     * Return Multiplication of series and other, element-wise (binary operator mul).
@@ -145,21 +136,17 @@ export class Series extends NDframe {
     */
     mul(other) {
         if (utils.__is_number(other)) {
-            //broadcast addition
-            let dtype = this.dtypes[0]
-            let tensor1 = tf.tensor(this.values).asType(dtype)
-            let temp = tensor1.mul(other).arraySync()
-            return new Series(temp, { columns: this.column_names, dtypes: dtype })
+            let mul = this.tensor().mul(other).arraySync()
+            return new Series(mul, { columns: this.column_names })
         } else {
             if (this.__check_series_op_compactibility) {
-                let dtype = this.dtypes[0]
-                let tensor1 = tf.tensor(this.values).asType(dtype)
-                let tensor2 = tf.tensor(other.values).asType(dtype)
-                let temp = tensor1.mul(tensor2).arraySync()
-                return new Series(temp, { columns: this.column_names, dtypes: dtype })
+                let mul = this.tensor().mul(other.tensor()).arraySync()
+                return new Series(mul, { columns: this.column_names })
             }
         }
     }
+
+
 
     /**
     * Return division of series and other, element-wise (binary operator div).
@@ -170,11 +157,8 @@ export class Series extends NDframe {
     div(other, round = true) {
         if (utils.__is_number(other)) {
             //broadcast addition
-            let dtype = this.dtypes[0]
-            let tensor1 = tf.tensor(this.values).asType(dtype)
-            let result = tensor1.div(other)
-            dtype = result.dtype //dtype is subject to change after division
-            return new Series(result.arraySync(), { columns: this.column_names, dtypes: dtype })
+            let div_result = this.tensor().div(other)
+            return new Series(div_result.arraySync(), { columns: this.column_names, dtypes: div_result.dtype })
         } else {
             if (this.__check_series_op_compactibility) {
                 let dtype;
@@ -184,8 +168,8 @@ export class Series extends NDframe {
                 } else {
                     dtype = "int32"
                 }
-                let tensor1 = tf.tensor(this.values).asType(dtype)
-                let tensor2 = tf.tensor(other.values).asType(dtype)
+                let tensor1 = this.tensor().asType(dtype)
+                let tensor2 = other.tensor().asType(dtype)
                 let result = tensor1.div(tensor2)
                 dtype = result.dtype //dtype is subject to change after division
                 return new Series(result.arraySync(), { columns: this.column_names, dtypes: dtype })
@@ -201,18 +185,12 @@ export class Series extends NDframe {
     pow(other) {
         if (utils.__is_number(other)) {
             //broadcast addition
-            let dtype = this.dtypes[0]
-            let tensor1 = tf.tensor(this.values).asType(dtype)
-            let temp = tensor1.pow(other).arraySync()
-            return new Series(temp, { columns: this.column_names, dtypes: dtype })
+            let pow_result = this.tensor().pow(other).arraySync()
+            return new Series(pow_result, { columns: this.column_names })
         } else {
             if (this.__check_series_op_compactibility) {
-                let dtype1 = this.dtypes[0]
-                let dtype2 = other.dtypes[0]
-                let tensor1 = tf.tensor(this.values).asType(dtype1)
-                let tensor2 = tf.tensor(other.values).asType(dtype2)
-                let temp = tensor1.pow(tensor2)
-                return new Series(temp.arraySync(), { columns: this.column_names, dtypes: temp.dtype })
+                let pow_result = this.tensor().pow(other.tensor()).arraySync()
+                return new Series(pow_result, { columns: this.column_names })
             }
         }
     }
@@ -226,18 +204,12 @@ export class Series extends NDframe {
     mod(other) {
         if (utils.__is_number(other)) {
             //broadcast addition
-            let dtype = this.dtypes[0]
-            let tensor1 = tf.tensor(this.values).asType(dtype)
-            let temp = tensor1.mod(other).arraySync()
-            return new Series(temp, { columns: this.column_names, dtypes: dtype })
+            let mod_result = this.tensor().mod(other).arraySync()
+            return new Series(mod_result, { columns: this.column_names })
         } else {
             if (this.__check_series_op_compactibility) {
-                let dtype1 = this.dtypes[0]
-                let dtype2 = other.dtypes[0]
-                let tensor1 = tf.tensor(this.values).asType(dtype1)
-                let tensor2 = tf.tensor(other.values).asType(dtype2)
-                let temp = tensor1.mod(tensor2)
-                return new Series(temp.arraySync(), { columns: this.column_names, dtypes: temp.dtype })
+                let mod_result = this.tensor().mod(other.tensor()).arraySync()
+                return new Series(mod_result, { columns: this.column_names })
             }
         }
     }
@@ -251,7 +223,7 @@ export class Series extends NDframe {
         if (this.dtypes[0] == "string") {
             throw Error("dtype error: String data type does not support mean operation")
         }
-        let mean = tf.tensor(this.values).asType(this.dtypes[0]).mean().arraySync()
+        let mean = this.tensor().mean().arraySync()
         return mean
     }
 
