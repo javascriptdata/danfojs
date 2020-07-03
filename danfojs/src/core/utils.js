@@ -153,7 +153,7 @@ export class Utils {
             }
             arr.forEach((ele, indx) => {
                 let count = indx
-                if (typeof (ele) == 'number') {
+                if (!isNaN(Number(ele))) {
                     if (ele.toString().includes(".")) {
                         float_tracker.push(true)
                         int_tracker.push(false)
@@ -170,14 +170,16 @@ export class Utils {
                 }
 
                 if (count == lim) {
-                    if (int_tracker.every(Boolean)) {
-                        dtypes.push("int32")
-                    } else if (float_tracker.every(Boolean)) {
+                    //if atleast one string appears return string dtype
+                    const even = (element) => element == true;
+                    if (string_tracker.some(even)) {
+                        dtypes.push("string")
+                    } else if (float_tracker.some(even)) {
                         dtypes.push("float32")
                     } else {
-                        dtypes.push("string")
-                    }
+                        dtypes.push("int32")
 
+                    }
                 }
             })
 
@@ -198,7 +200,7 @@ export class Utils {
 
                 ele.forEach((ele, indx) => {
                     let count = indx
-                    if (typeof (ele) == 'number') {
+                    if (!isNaN(Number(ele))) {
                         if (ele.toString().includes(".")) {
                             float_tracker.push(true)
                             string_tracker.push(false)
@@ -215,14 +217,16 @@ export class Utils {
                     }
 
                     if (count == lim) {
-                        if (int_tracker.every(Boolean)) {
-                            dtypes.push("int32")
-                        } else if (float_tracker.every(Boolean)) {
+                        //if atleast one string appears return string dtype
+                        const even = (element) => element == true;
+                        if (string_tracker.some(even)) {
+                            dtypes.push("string")
+                        } else if (float_tracker.some(even)) {
                             dtypes.push("float32")
                         } else {
-                            dtypes.push("string")
-                        }
+                            dtypes.push("int32")
 
+                        }
                     }
                 })
 

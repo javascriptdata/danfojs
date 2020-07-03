@@ -1,7 +1,29 @@
 import { assert } from "chai"
 import { Series } from '../../src/core/series'
+import * as tf from '@tensorflow/tfjs-node'
+
 
 describe("Series", function () {
+
+    describe("tensor", function () {
+        it("Returns the tensor object of a Series", function () {
+            let data = [1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78]
+            let sf = new Series(data)
+            assert.deepEqual(sf.tensor().dtype, 'int32')
+        })
+        it("Returns the float dtype of a tensor object", function () {
+            let data = [1.1, 2.2, 3, 4.1, 5, 620, 30.1, 40, 39, 89, 78]
+            let sf = new Series(data)
+            assert.deepEqual(sf.tensor().dtype, 'float32')
+        })
+        it("Compares a tensor returned from a Series to Tensorflow's tensor", function () {
+            let data = [1.1, 2.2, 3, 4.1, 5, 620, 30.1, 40, 39, 89, 78]
+            let sf = new Series(data)
+            let tf_data = tf.tensor(data)
+            assert.deepEqual(sf.tensor().arraySync(), tf_data.arraySync())
+        })
+    })
+
     describe("head", function () {
         it("Gets the first n rows in a Series", function () {
             let data = [1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78]
@@ -275,15 +297,15 @@ describe("Series", function () {
     })
 
     describe("min", function () {
-        it("Computes the minimum of elements across an Int Series", function () {
-            let data1 = [30, 40, 3, 5]
-            let sf = new Series(data1)
-            assert.deepEqual(sf.min(), 78)
+        it("Returns the single smallest elementin a Series", function () {
+            let data = [30, 40, 3, 5]
+            let sf = new Series(data)
+            assert.deepEqual(sf.min(), 3)
         })
         it("Computes the minimum of elements across an float Series", function () {
             let data1 = [30.1, 40.2, 3.1, 5.1]
             let sf = new Series(data1)
-            assert.deepEqual(sf.min(), 78.5)
+            assert.deepEqual(sf.min(), 3.1)
         })
 
     })

@@ -216,7 +216,7 @@ export default class NDframe {
 
 
     /**
-     * Gets the values in the NDFrame
+     * Gets the values in the NDFrame in JS array
      * @returns {Array} Arrays of arrays of data instances
      */
     get values() {

@@ -20,6 +20,17 @@ export class Series extends NDframe {
         super(data, kwargs)
     }
 
+
+
+
+    /**
+        * Returns a Series in Tensorflow's tensor format
+        * @returns {1D tensor}
+        */
+    tensor() {        
+        return tf.tensor(this.values).asType(this.dtypes[0])
+    }
+
     /**
     * Prints the first n values in a Series
     * @param {rows}  Number of rows to return
@@ -244,6 +255,8 @@ export class Series extends NDframe {
         return mean
     }
 
+
+
     /**
     * Returns the median of elements in Series
     * @returns {Series} 
@@ -257,6 +270,8 @@ export class Series extends NDframe {
         return median
     }
 
+
+
     /**
     * Returns the modal value of elements in Series
     * @returns {Series} 
@@ -269,6 +284,20 @@ export class Series extends NDframe {
         let mode = utils.__mode(values)
         return mode
     }
+
+
+    // /**
+    // * Returns the modal value of elements in Series
+    // * @returns {Series} 
+    // */
+    // min() {
+    //     if (this.dtypes[0] == "string") {
+    //         throw Error("dtype error: String data type does not support mean operation")
+    //     }
+    //     let values = this.values
+    //     let min = utils.__mode(values)
+    //     return min
+
 
 
     /**
