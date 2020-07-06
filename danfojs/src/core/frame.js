@@ -3,6 +3,7 @@ import {Series} from "./series"
 import * as tf from '@tensorflow/tfjs-node'
 import { Utils } from "./utils"
 import {GroupBy} from "./groupby"
+import {TimeSeries} from "./timeseries"
 
 const utils = new Utils
 // const config = new Configs()
@@ -503,8 +504,10 @@ export class DataFrame extends Ndframe {
      */
     static to_datetime(kwargs){
 
-
-        return "ok"
+        let timeseries = new TimeSeries(kwargs); // parsed to date-time
+        timeseries.preprocessed() // generate date-time list
+        
+        return timeseries
     }
 
     // /**
@@ -519,17 +522,6 @@ export class DataFrame extends Ndframe {
     //  * @return Array list (int)
     //  */
     // nanIndex() { }
-
-
-    // /**
-    //  * Group a col inrespect to another column
-    //  * @param {group} col1 
-    //  * @param {*} col2 
-    //  * @param {*} aggregate 
-    //  */
-    // groupby(col1, col2, aggregate) {
-
-    // }
 
 
     // /**
