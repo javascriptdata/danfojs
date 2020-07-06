@@ -41,7 +41,7 @@ describe("Utils Functions", function () {
         assert.deepEqual(utils.__range(start, end), data);
     })
 
-    describe("get_col_values", function () {
+    describe("__get_col_values", function () {
         it("converts an array of rows to array of columns", function () {
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40]]
             let result = [[1, 4, 20], [2, 5, 30], [3, 6, 40]]
@@ -49,7 +49,7 @@ describe("Utils Functions", function () {
         })
     })
 
-    describe("get_t", function () {
+    describe("__get_t", function () {
         it("Returns string type present in an 1D array", function () {
             let data = ['Alice', 'Boy', 'Girl', "39"]
             let result = ['string']
@@ -65,9 +65,9 @@ describe("Utils Functions", function () {
             let result = ['int32']
             assert.deepEqual(utils.__get_t(data), result)
         })
-        it("Returns string when there's a mixture of int and float in a 1D array", function () {
+        it("Returns float when there's a mixture of int and float in a 1D array", function () {
             let data = [1, 2.1, 3, 45]
-            let result = ['string']
+            let result = ['float32']
             assert.deepEqual(utils.__get_t(data), result)
         })
 
@@ -78,8 +78,31 @@ describe("Utils Functions", function () {
         })
         it("Returns the string dtype when there's a mixture of dtyoes in a 2D array", function () {
             let data = [['Alice', 'Boy', 'Girl', 21], [2, 5, 30, "hey"], [3, 6, 40.1, 78.2]]
-            let result = ['string', 'string', 'string']
+            let result = ['string', 'string', 'float32']
             assert.deepEqual(utils.__get_t(data), result)
+        })
+    })
+
+
+    describe("__median", function () {
+        it("Gets the median value of an even array", function () {
+            let data = [100, 2, 3, 20, 30, 40]
+            assert.deepEqual(utils.__median(data), 25)
+        })
+        it("Gets the median value of an odd array", function () {
+            let data = [1, 30, 20, 50, 40]
+            assert.deepEqual(utils.__median(data), 30)
+        })
+    })
+
+    describe("__mode", function () {
+        it("Gets the modal value(s) of an array", function () {
+            let data = [100, 2, 3, 20, 20, 40]
+            assert.deepEqual(utils.__mode(data), [20])
+        })
+        it("Returns the multi-modal values of an array", function () {
+            let data = [100, 2, 3, 20, 20, 40, 4, 4, 4, 20]
+            assert.deepEqual(utils.__mode(data), [4, 20])
         })
     })
 

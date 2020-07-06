@@ -153,7 +153,7 @@ export class Utils {
             }
             arr.forEach((ele, indx) => {
                 let count = indx
-                if (typeof (ele) == 'number') {
+                if (!isNaN(Number(ele))) {
                     if (ele.toString().includes(".")) {
                         float_tracker.push(true)
                         int_tracker.push(false)
@@ -170,14 +170,16 @@ export class Utils {
                 }
 
                 if (count == lim) {
-                    if (int_tracker.every(Boolean)) {
-                        dtypes.push("int32")
-                    } else if (float_tracker.every(Boolean)) {
+                    //if atleast one string appears return string dtype
+                    const even = (element) => element == true;
+                    if (string_tracker.some(even)) {
+                        dtypes.push("string")
+                    } else if (float_tracker.some(even)) {
                         dtypes.push("float32")
                     } else {
-                        dtypes.push("string")
-                    }
+                        dtypes.push("int32")
 
+                    }
                 }
             })
 
@@ -198,7 +200,7 @@ export class Utils {
 
                 ele.forEach((ele, indx) => {
                     let count = indx
-                    if (typeof (ele) == 'number') {
+                    if (!isNaN(Number(ele))) {
                         if (ele.toString().includes(".")) {
                             float_tracker.push(true)
                             string_tracker.push(false)
@@ -215,14 +217,16 @@ export class Utils {
                     }
 
                     if (count == lim) {
-                        if (int_tracker.every(Boolean)) {
-                            dtypes.push("int32")
-                        } else if (float_tracker.every(Boolean)) {
+                        //if atleast one string appears return string dtype
+                        const even = (element) => element == true;
+                        if (string_tracker.some(even)) {
+                            dtypes.push("string")
+                        } else if (float_tracker.some(even)) {
                             dtypes.push("float32")
                         } else {
-                            dtypes.push("string")
-                        }
+                            dtypes.push("int32")
 
+                        }
                     }
                 })
 
@@ -287,6 +291,43 @@ export class Utils {
         } else {
             return null_count
         }
+    }
+
+    //computes the median of an array
+    __median(arr) {
+        const sorted = arr.slice().sort((a, b) => a - b);
+        const middle = Math.floor(sorted.length / 2);
+
+        if (sorted.length % 2 === 0) {
+            return (sorted[middle - 1] + sorted[middle]) / 2;
+        }
+
+        return sorted[middle];
+
+    }
+
+    //computes the mode(s) of an array
+    __mode(arr) {
+        var modes = [], count = [], i, maxIndex = 0;
+
+        arr.map(val => {
+            count[val] = (count[val] || 0) + 1;
+            if (count[val] > maxIndex) {
+                maxIndex = count[val];
+            }
+        })
+
+
+        for (i in count)
+            if (this.__key_in_object(count, i)) {
+                if (count[i] === maxIndex) {
+                    modes.push(Number(i));
+                }
+            }
+
+
+        return modes;
+
     }
 }
 
