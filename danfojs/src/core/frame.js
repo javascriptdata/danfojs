@@ -632,10 +632,12 @@ export class DataFrame extends Ndframe {
                     }
                 }
             }
-            console.log(data);
+            
+            let df = new DataFrame(data,{columns:columns}); //convert to dataframe
+            return df;
         }
         else{
-
+            //concatenate base on axis 0 
             let columns = [];
 
             for(let key in df_list){
@@ -693,7 +695,8 @@ export class DataFrame extends Ndframe {
                 
             }
 
-            console.log(data);
+            let df = new DataFrame(data,{columns:columns});
+            return df;
 
         }
 
