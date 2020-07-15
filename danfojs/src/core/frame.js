@@ -533,8 +533,8 @@ export class DataFrame extends Ndframe {
     static concat(kwargs) {
 
         // check if keys exist in kwargs
-        utils.__in_object(kwargs,"df_list")
-        utils.__in_object(kwargs,"axis")
+        utils.__in_object(kwargs,"df_list","df_list not found: specify the list of dataframe")
+        utils.__in_object(kwargs,"axis","axis not found: specify the axis")
 
         let df_list =null; //set the df_list to null
         let axis = null; // set axis to null
@@ -703,10 +703,113 @@ export class DataFrame extends Ndframe {
      }
 
 
-    // /**
-    //  * Merge two or more dataframe base on keys
-    //  */
-    // static merge() { }
+    /**
+     * Merge two or more dataframe base on keys
+     * @param {kwargs} keys: left, right, on, how
+     */
+    static merge(kwargs) {
+
+        // check if keys exist in kwargs
+        utils.__in_object(kwargs,"left")
+        utils.__in_object(kwargs,"right")
+        utils.__in_object(kwargs,"on")
+        utils.__in_object(kwargs,"how")
+
+        let left = null;
+        let right = null;
+        let on = null;
+        let how = null;
+
+        let how_keys = ["outer","inner","left","right"]
+
+        if((kwargs["left"] instanceof DataFrame) && (kwargs["right"] instanceof DataFrame)){
+            left = kwargs["left"]
+            right = kwargs["right"]
+        }
+        else{
+            throw new Error("The left and right key value must be a dataFrame")
+        }
+
+        if(Array.isArray(kwargs["on"])){
+            on = kwargs["on"]
+        }
+        else{
+            throw new Error("key 'on' must be a list")
+        }
+
+        if(how_keys.includes(kwargs["how"])){
+
+            how = kwargs["how"]
+        }else{
+            throw new Error(`${kwargs["how"]} specify in keyword how is not recognise`);
+        }
+
+
+        let columns = []
+        let left_col_index = []
+        let right_col_index = []
+
+        for(let i=0; i< on.length; i++){
+
+                if(left.columns.includes(on[i]) && right.columns.includes(on[i])){
+
+                    let left_index = left.columns.indexOf(on[i]);
+                    let right_index = right.columns.indexOf(on[i]) 
+
+                    left_col_index.push(left_index);
+                    right_col_index.push(right_index);
+                }
+        }
+
+        let left_key_dict = {}
+        let right_key_dict = {}
+
+        let left_values = left.values
+        let right_values = right.values
+
+        for(let i=0;i < left_values.length; i++){
+
+            let left_value = left_values[i]
+            let right_value = right_values[i]
+
+            let right_key_comb = ""
+            let left_key_comb = ""
+
+            for(let j=0; j < left_col_index.length; j++){
+                    let index = left_col_index[j]
+
+                    left_key_comb += left_value[index]
+            }
+
+            if(utils.__key_in_object(left_key_dict,left_key_comb)){
+                left_key_dict[left_key_comb].push(left_value)
+            }else{
+                left_key_dict[left_key_comb] = [left_value] 
+            }
+            
+            for(let j=0; j < right_col_index.length; j++){
+                let index = right_col_index[j]
+
+                right_key_comb += right_value[index]
+            }
+
+            let right_value_filter = right_value.filter(function(val,index){
+                    return !right_col_index.includes(index)
+            });
+
+            if(utils.__key_in_object(right_key_dict,right_key_comb)){
+                right_key_dict[right_key_comb].push(right_value_filter)
+            }else{
+                right_key_dict[right_key_comb] = [right_value_filter] 
+            }
+
+        }
+        
+        console.log(right_key_dict,left_key_dict);
+
+        
+
+    }
 
     // /**
     //  * create a one-hot encoder
