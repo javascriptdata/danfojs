@@ -567,7 +567,7 @@ describe("DataFrame", function () {
                          ['K1','K0','C2','D2'],['K2','K0','C3','D3']]
 
             let colum1 = ['Key1','Key2','A','B']
-            let colum2 = ['Key1','Key2','C','D']
+            let colum2 = ['Key1','Key2','A','D']
 
             let df1 = new DataFrame(data,{columns: colum1})
             let df2 = new DataFrame(data2,{columns:colum2})

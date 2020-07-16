@@ -745,7 +745,6 @@ export class DataFrame extends Ndframe {
         }
 
 
-        let columns = []
         let left_col_index = []
         let right_col_index = []
 
@@ -767,6 +766,12 @@ export class DataFrame extends Ndframe {
         let left_values = left.values
         let right_values = right.values
 
+        /**
+         * Create a dictionary for both left and right  dataframe
+         containing the key combination of columns used as keys, and
+         the value of such keys combination are the rows having this
+         keys combination.
+         */
         for(let i=0;i < left_values.length; i++){
 
             let left_value = left_values[i]
@@ -778,19 +783,23 @@ export class DataFrame extends Ndframe {
             for(let j=0; j < left_col_index.length; j++){
                     let index = left_col_index[j]
 
-                    left_key_comb += left_value[index]
+                    left_key_comb += `_${left_value[index]}`
             }
 
+            let left_value_filter = left_value.filter(function(val,index){
+                return !left_col_index.includes(index)
+            });
+
             if(utils.__key_in_object(left_key_dict,left_key_comb)){
-                left_key_dict[left_key_comb].push(left_value)
+                left_key_dict[left_key_comb].push(left_value_filter)
             }else{
-                left_key_dict[left_key_comb] = [left_value] 
+                left_key_dict[left_key_comb] = [left_value_filter] 
             }
             
             for(let j=0; j < right_col_index.length; j++){
                 let index = right_col_index[j]
 
-                right_key_comb += right_value[index]
+                right_key_comb += `_${right_value[index]}`
             }
 
             let right_value_filter = right_value.filter(function(val,index){
@@ -807,7 +816,114 @@ export class DataFrame extends Ndframe {
         
         console.log(right_key_dict,left_key_dict);
 
-        
+        //check duplicate column and if exist rename the column
+        let left_col = left.columns.filter((val,index)=>{
+            return !left_col_index.includes(index)
+        });
+
+        let right_col = right.columns.filter((val,index)=>{
+            return !right_col_index.includes(index)
+        });
+
+        let columns = [...on]
+        let column_duplicate = {}
+
+        let temp_column = [...left_col]
+        temp_column.push(...right_col);
+
+        for(let i=0; i< temp_column.length; i++){
+
+            let col = temp_column[i]
+            if(utils.__key_in_object(column_duplicate,col)){
+
+                let col_name = `${col}_${column_duplicate[col]}`
+                columns.push(col_name)
+
+                column_duplicate[col] += 1
+            }else{
+                columns.push(col)
+                column_duplicate[col] = 1
+            }
+        }
+
+        //perform the 'how' operations
+        let data = []
+        if(how =="outer"){
+            let keys = Object.keys(left_key_dict)
+
+            keys.push(...Object.keys(right_key_dict))
+
+            keys = Array.from(new Set(keys))
+
+            for(let i=0;i < keys.length; i++){
+                let key = keys[i]
+
+                let key_array = key.split("_").filter((val)=>{
+                    return val != ""
+                });
+
+                if(utils.__key_in_object(left_key_dict,key)){
+                    let left_row = left_key_dict[key]
+                    
+
+                    for(let left_i=0; left_i < left_row.length; left_i++){
+
+                        let left_row_row = left_row[left_i]
+
+                        if(utils.__key_in_object(right_key_dict,key)){
+
+                            let right_row = right_key_dict[key]
+
+                            for(let r_i=0; r_i < right_row.length; r_i++){
+
+                                let right_row_row = right_row[r_i];
+                                
+
+                                let inner_data = key_array.slice(0)
+                                inner_data.push(...left_row_row)
+                                inner_data.push(...right_row_row);
+
+                                
+                        
+                                data.push(inner_data);
+                            }
+                        }else{
+                            let nan_array = Array(right_col.length);
+                            
+                            for(let i=0; i< right_col.length; i++){
+                                nan_array[i] = "NaN"
+                            }
+
+                            let inner_data =key_array.slice(0)
+                            inner_data.push(...left_row_row)
+                            inner_data.push(...nan_array);
+                            data.push(inner_data);
+                        }
+                    }
+                }else{
+
+                   let right_row = right_key_dict[key]
+
+                   for(let i=0;i < right_row.length; i++){
+
+                        let right_row_row = right_row[i];
+
+                        let nan_array = Array(left_col.length);
+
+                        for(let j=0; j < nan_array.length; j++){
+                            nan_array[j] = "NaN"
+                        }
+
+                        let inner_data = key_array.slice(0)
+                        inner_data.push(...nan_array)
+                        inner_data.push(...right_row_row)
+                        data.push(inner_data);
+                   }
+                }
+            }
+
+        }
+        console.log(data, columns)
 
     }
 
