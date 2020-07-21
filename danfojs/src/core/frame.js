@@ -268,9 +268,12 @@ export class DataFrame extends Ndframe {
             return new DataFrame(this.values, config)
         } else {
             //Creates a new dataframe with last [rows]
-            let config = { columns: this.column_names }
             let data = this.values.slice(this.values.length - rows)
-            return new DataFrame(data, config)
+            let indx = this.index.slice(this.values.length - rows)
+            let config = { columns: this.column_names }
+            let df = new DataFrame(data, config)
+            df.set_index(indx)
+            return df
         }
 
     }

@@ -44,7 +44,9 @@ export default class NDframe {
 
     __read_array(data) {
         this.data = data //Defualt array data in row format
-        this.data_tensor = tf.tensor(data) //data saved as tensors TODO: INfer type befor saving as tensor
+        this.data_tensor = tf.tensor(data) //data saved as tensors TODO: INfer type before saving as tensor
+        this.index_arr = [...Array(this.data_tensor.shape[0]).keys()]   //set index
+
 
         if (this.ndim == 1) {
             //series array
@@ -80,8 +82,6 @@ export default class NDframe {
                 //infer dtypes
                 this.__set_col_types(null, true)
             }
-            //set index
-            this.index_arr = [...Array(this.data_tensor.shape[0]).keys()]
         }
     }
 
@@ -96,6 +96,8 @@ export default class NDframe {
         this.data = data_arr //default array data in row format
         this.data_tensor = tf.tensor(data_arr) //data saved as tensors
         this.kwargs['columns'] = Object.keys(Object.values(data)[0]) //get names of the column from the first entry
+        this.index_arr = [...Array(this.data_tensor.shape[0]).keys()]     //set index
+
 
         if (this.ndim == 1) {
             //series array
@@ -283,6 +285,8 @@ export default class NDframe {
 
         if (this.values.length > max_row) {
             data = this.values.slice(0, max_row)
+        }else{
+            data = this.values
         }
 
         for (let index = 0; index < this.columns.length; index++) {

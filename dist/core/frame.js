@@ -241,11 +241,14 @@ class DataFrame extends _generic.default {
       };
       return new DataFrame(this.values, config);
     } else {
+      let data = this.values.slice(this.values.length - rows);
+      let indx = this.index.slice(this.values.length - rows);
       let config = {
         columns: this.column_names
       };
-      let data = this.values.slice(this.values.length - rows);
-      return new DataFrame(data, config);
+      let df = new DataFrame(data, config);
+      df.set_index(indx);
+      return df;
     }
   }
 

@@ -44,6 +44,7 @@ class NDframe {
   __read_array(data) {
     this.data = data;
     this.data_tensor = tf.tensor(data);
+    this.index_arr = [...Array(this.data_tensor.shape[0]).keys()];
 
     if (this.ndim == 1) {
       if (!utils.__key_in_object(this.kwargs, 'columns')) {
@@ -73,8 +74,6 @@ class NDframe {
       } else {
         this.__set_col_types(null, true);
       }
-
-      this.index_arr = [...Array(this.data_tensor.shape[0]).keys()];
     }
   }
 
@@ -86,6 +85,7 @@ class NDframe {
     this.data = data_arr;
     this.data_tensor = tf.tensor(data_arr);
     this.kwargs['columns'] = Object.keys(Object.values(data)[0]);
+    this.index_arr = [...Array(this.data_tensor.shape[0]).keys()];
 
     if (this.ndim == 1) {
       if (this.kwargs['columns'] == undefined) {
@@ -165,6 +165,18 @@ class NDframe {
     return this.index_arr;
   }
 
+  set_index(labels) {
+    if (!Array.isArray(labels)) {
+      throw Error("Value Error: index must be an array");
+    }
+
+    if (labels.length > this.index.length || labels.length < this.index.length) {
+      throw Error("Value Error: length of labels must match row shape of data");
+    }
+
+    this.index_arr = labels;
+  }
+
   get shape() {
     if (this.series) {
       return [1];
@@ -197,6 +209,8 @@ class NDframe {
 
     if (this.values.length > max_row) {
       data = this.values.slice(0, max_row);
+    } else {
+      data = this.values;
     }
 
     for (let index = 0; index < this.columns.length; index++) {
