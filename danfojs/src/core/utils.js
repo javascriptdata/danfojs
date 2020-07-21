@@ -329,6 +329,20 @@ export class Utils {
         return modes;
 
     }
+
+    //round elements of an array to ndp
+    __round(arr, dp = 2) {
+        if (dp < 0) {
+            dp = 1
+        }
+        let new_arr = []
+        arr.map(val => {
+            new_arr.push(Number(val.toFixed(dp)))
+        })
+
+        return new_arr
+
+    }
 }
 
 

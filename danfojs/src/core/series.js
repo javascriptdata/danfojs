@@ -235,7 +235,7 @@ export class Series extends NDframe {
     */
     median() {
         if (this.dtypes[0] == "string") {
-            throw Error("dtype error: String data type does not support mean operation")
+            throw Error("dtype error: String data type does not support median operation")
         }
         let values = this.values
         let median = utils.__median(values)
@@ -246,11 +246,11 @@ export class Series extends NDframe {
 
     /**
     * Returns the modal value of elements in Series
-    * @returns {Series} 
+    * @returns {Number} 
     */
     mode() {
         if (this.dtypes[0] == "string") {
-            throw Error("dtype error: String data type does not support mean operation")
+            throw Error("dtype error: String data type does not support mode operation")
         }
         let values = this.values
         let mode = utils.__mode(values)
@@ -258,18 +258,33 @@ export class Series extends NDframe {
     }
 
 
-    // /**
-    // * Returns the modal value of elements in Series
-    // * @returns {Series} 
-    // */
-    // min() {
-    //     if (this.dtypes[0] == "string") {
-    //         throw Error("dtype error: String data type does not support mean operation")
-    //     }
-    //     let values = this.values
-    //     let min = utils.__mode(values)
-    //     return min
+    /**
+    * Returns the minimum value in a Series
+    * @returns {Number} 
+    */
+    min() {
+        if (this.dtypes[0] == "string") {
+            throw Error("dtype error: String data type does not support min operation")
+        }
+        let values = this.values
+        let min = tf.min(values).arraySync()
+        return min
 
+    }
+
+    /**
+    * Returns the maximum value in a Series
+    * @returns {Number} 
+    */
+    max() {
+        if (this.dtypes[0] == "string") {
+            throw Error("dtype error: String data type does not support max operation")
+        }
+        let values = this.values
+        let max = tf.max(values).arraySync()
+        return max
+
+    }
 
 
     /**
@@ -298,6 +313,66 @@ export class Series extends NDframe {
     }
 
 
+    /**
+    * Return maximum of series and other, element-wise (binary operator div).
+    *  @param {other} Series, Numbers to check maximum against
+    * @returns {Series}
+    */
+    maximum(other) {
+        if (utils.__is_number(other)) {
+            //broadcast addition
+            let max_result = this.tensor().maximum(other)
+            return new Series(max_result.arraySync(), { columns: this.column_names, dtypes: max_result.dtype })
+        } else {
+            if (this.__check_series_op_compactibility) {
+                let tensor1 = this.tensor()
+                let tensor2 = other.tensor()
+                let result = tensor1.maximum(tensor2)
+                return new Series(result.arraySync(), { columns: this.column_names })
+            }
+        }
+    }
+
+    /**
+    * Return maximum of series and other, element-wise (binary operator div).
+    *  @param {other} Series, Numbers to check maximum against
+    * @returns {Series}
+    */
+    minimum(other) {
+        if (utils.__is_number(other)) {
+            //broadcast addition
+            let max_result = this.tensor().minimum(other)
+            return new Series(max_result.arraySync(), { columns: this.column_names, dtypes: max_result.dtype })
+        } else {
+            if (this.__check_series_op_compactibility) {
+                let tensor1 = this.tensor()
+                let tensor2 = other.tensor()
+                let result = tensor1.minimum(tensor2).arraySync()
+                return new Series(result, { columns: this.column_names })
+            }
+        }
+    }
+
+    /**
+    * Return maximum of series and other, element-wise (binary operator div).
+    *  @param {dp} Number, Numbers of Decimal places to round to
+    * @returns {Series}
+    */
+    round(dp) {
+        if (utils.__is_undefined(dp)){
+            //use tensorflow round function to roound to the nearest whole number
+            let result = tf.round(this.tensor())
+            return new Series(result.arraySync(), {columns: this.column_names})
+
+        }else{
+            let result = utils.__round(this.values, dp)
+            return new Series(result, {columns: this.column_names})
+
+        }
+
+    }
+
+
 
 
     //check two series is compatible for an mathematical operation
@@ -306,13 +381,13 @@ export class Series extends NDframe {
             throw Error("param [other] must be a Series or a single value that can be broadcasted")
         }
         if (other.values.length != this.values.length) {
-            throw Error("Length Error: Cannot add Series with different lenghts")
+            throw Error("Shape Error: Series shape do not match")
         }
         if (this.dtypes[0] != 'float' || this.dtypes[0] != 'int') {
-            throw Error(`dtype Error: Cannot add ${this.dtypes[0]} type to ${other.dtypes[0]}`)
+            throw Error(`dtype Error: Cannot perform operation on type ${this.dtypes[0]} with type ${other.dtypes[0]}`)
         }
         if (other.dtypes[0] != 'float' || other.dtypes[0] != 'int') {
-            throw Error(`dtype Error: Cannot add ${other.dtypes[0]} type to ${this.dtypes[0]}`)
+            throw Error(`dtype Error: Cannot perform operation on type ${other.dtypes[0]} with type ${this.dtypes[0]}`)
         }
 
         return true

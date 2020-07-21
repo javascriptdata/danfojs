@@ -106,4 +106,17 @@ describe("Utils Functions", function () {
         })
     })
 
+    describe("__round", function () {
+        it("round elements in array to 1 dp", function () {
+            let data = [10.01, 2.2, 3.11, 20.505, 20.22, 40.0909]
+            assert.deepEqual(utils.__round(data, 1), [10.0, 2.2, 3.1, 20.5, 20.2, 40.1])
+        })
+        it("round elements in array to 2 dp", function () {
+            let data = [10.019, 2.2099, 3.1145, 20.506, 20.22, 40.0909]
+            assert.deepEqual(utils.__round(data, 2), [10.02, 2.21, 3.11, 20.51, 20.22, 40.09])
+        })
+    })
+
+
+
 })

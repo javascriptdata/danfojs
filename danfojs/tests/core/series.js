@@ -303,9 +303,9 @@ describe("Series", function () {
             assert.deepEqual(sf.min(), 3)
         })
         it("Computes the minimum of elements across an float Series", function () {
-            let data1 = [30.1, 40.2, 3.1, 5.1]
-            let sf = new Series(data1)
-            assert.deepEqual(sf.min(), 3.1)
+            let data1 = [30.1, 40.2, 3.12, 5.1]
+            let sf = new Series(data1, { dtypes: ['float32'] })
+            assert.deepEqual(Number((sf.min()).toFixed(2)), 3.12)
         })
 
     })
@@ -314,54 +314,62 @@ describe("Series", function () {
         it("Computes the maximum of elements across dimensions of a Series", function () {
             let data1 = [30, 40, 3, 5]
             let sf = new Series(data1)
-            assert.deepEqual(sf.max(), 78)
+            assert.deepEqual(sf.max(), 40)
         })
         it("Return sum of float values in a series", function () {
-            let data1 = [30.1, 40.2, 3.1, 5.1]
+            let data1 = [30.1, 40.21, 3.1, 5.1]
             let sf = new Series(data1)
-            assert.deepEqual(sf.max(), 78.5)
+            assert.deepEqual(Number((sf.max()).toFixed(2)), 40.21)
         })
         it("Throws error on addition of string Series", function () {
             let data1 = ["boy", "gitl", "woman", "man"]
             let sf = new Series(data1)
-            assert.throws(() => { sf.max() }, Error, "dtype error: String data type does not support sum operation")
+            assert.throws(() => { sf.max() }, Error, "dtype error: String data type does not support max operation")
         })
     })
 
     describe("maximum", function () {
         it("Returns the max of a and b (a > b ? a : b) element-wise. Supports broadcasting.", function () {
             let data1 = [30, 40, 3, 5]
-            let sf = new Series(data1)
-            assert.deepEqual(sf.maximum(), 78)
+            let data2 = [10, 41, 2, 0]
+            let sf1 = new Series(data1)
+            let sf2 = new Series(data2)
+            assert.deepEqual(sf1.maximum(sf2).values, [30, 41, 3, 5])
         })
-        it("Return sum of float values in a series", function () {
-            let data1 = [30.1, 40.2, 3.1, 5.1]
-            let sf = new Series(data1)
-            assert.deepEqual(sf.maximum(), 78.5)
-        })
-        it("Throws error on addition of string Series", function () {
-            let data1 = ["boy", "gitl", "woman", "man"]
-            let sf = new Series(data1)
-            assert.throws(() => { sf.maximum() }, Error, "dtype error: String data type does not support sum operation")
+        // it("Return sum of float values in a series", function () {
+        //     let data1 = [30.1, 40.2, 3.1, 5.1]
+        //     let data2 = [10, 41, 2, 0]
+        //     let sf = new Series(data1)
+        //     let sf2 = new Series(data2)
+
+        //     assert.deepEqual(sf.maximum(sf2).values, )
+        // })
+        it("Throws error on checking maximum of incompatible Series", function () {
+            let data1 = [30, 40, 3, 5]
+            let data2 = [10, 41, 2]
+            let sf1 = new Series(data1)
+            let sf2 = new Series(data2)
+            assert.throws(() => { sf1.maximum(sf2) }, Error, "Operands could not be broadcast together with shapes 4 and 3")
         })
     })
 
     describe("minimum", function () {
         it("Returns the min of a and b (a < b ? a : b) element-wise. Supports broadcasting.", function () {
             let data1 = [30, 40, 3, 5]
-            let sf = new Series(data1)
-            assert.deepEqual(sf.minimum(), 78)
+            let data2 = [10, 41, 2, 0]
+            let sf1 = new Series(data1)
+            let sf2 = new Series(data2)
+            assert.deepEqual(sf1.minimum(sf2).values, [10, 40, 2, 0])
+
         })
-        it("Return sum of float values in a series", function () {
-            let data1 = [30.1, 40.2, 3.1, 5.1]
-            let sf = new Series(data1)
-            assert.deepEqual(sf.minimum(), 78.5)
-        })
-        it("Throws error on addition of string Series", function () {
-            let data1 = ["boy", "gitl", "woman", "man"]
-            let sf = new Series(data1)
-            assert.throws(() => { sf.minimum() }, Error, "dtype error: String data type does not support sum operation")
-        })
+        // it("Return sum of float values in a series", function () {
+        //     let data1 = [30.1, 40.9, 3, 5]
+        //     let data2 = [10.2, 41, 2, 0]
+        //     let sf1 = new Series(data1)
+        //     let sf2 = new Series(data2)
+        //     assert.deepEqual(sf1.minimum(sf2).values, [30, 41, 3, 5])
+
+        // })
     })
 
     describe("count", function () {
@@ -384,6 +392,24 @@ describe("Series", function () {
             let data = [20.1, 30.4, NaN, 2.1, NaN, 30.0, 21.3]
             let sf = new Series(data)
             assert.deepEqual(sf.count(), 5)
+        })
+    })
+
+    describe("round", function () {
+        it("Rounds elements in a Series to nearest whole number", function () {
+            let data1 = [30.21091, 40.190901, 3.564, 5.0212]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.round().values, [30, 40, 4, 5])
+        })
+        it("Rounds elements in a Series to 1dp", function () {
+            let data1 = [30.21091, 40.190901, 3.564, 5.0212]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.round(1).values, [30.2, 40.2, 3.6, 5.0])
+        })
+        it("Rounds elements in a Series to 2dp", function () {
+            let data1 = [30.2191, 40.190901, 3.564, 5.0212]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.round(2).values, [30.22, 40.19, 3.56, 5.02])
         })
     })
 
