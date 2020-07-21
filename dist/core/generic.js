@@ -59,7 +59,7 @@ class NDframe {
       }
     } else {
       if (!utils.__key_in_object(this.kwargs, 'columns')) {
-        this.columns = [...Array(this.data_tensor.shape[1]).keys()];
+        this.columns = [...Array(this.data_tensor.shape[0]).keys()];
       } else {
         if (this.kwargs['columns'].length == Number(this.data_tensor.shape[1])) {
           this.columns = this.kwargs['columns'];
@@ -73,6 +73,8 @@ class NDframe {
       } else {
         this.__set_col_types(null, true);
       }
+
+      this.index_arr = [...Array(this.data_tensor.shape[0]).keys()];
     }
   }
 
@@ -107,6 +109,8 @@ class NDframe {
       } else {
         this.__set_col_types(null, true);
       }
+
+      this.index_arr = [...Array(this.data_tensor.shape[0]).keys()];
     }
   }
 
@@ -157,6 +161,10 @@ class NDframe {
     return axes;
   }
 
+  get index() {
+    return this.index_arr;
+  }
+
   get shape() {
     if (this.series) {
       return [1];
@@ -178,10 +186,18 @@ class NDframe {
   }
 
   toString() {
-    let data = this.values;
     let table_width = config.get_width;
     let table_truncate = config.get_truncate;
+    let max_row = config.get_max_row;
+    let data;
+    let data_arr = [];
+    let header = [""].concat(this.columns);
     let table_config = {};
+    let idx = this.index;
+
+    if (this.values.length > max_row) {
+      data = this.values.slice(0, max_row);
+    }
 
     for (let index = 0; index < this.columns.length; index++) {
       table_config[index] = {
@@ -190,8 +206,11 @@ class NDframe {
       };
     }
 
-    data.unshift(this.columns);
-    return (0, _table.table)(data, {
+    data.map((val, i) => {
+      data_arr.push([idx[i]].concat(val));
+    });
+    data_arr.unshift(header);
+    return (0, _table.table)(data_arr, {
       columns: table_config
     });
   }

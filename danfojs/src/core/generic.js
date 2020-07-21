@@ -65,7 +65,7 @@ export default class NDframe {
             //2D or more array
             if (!utils.__key_in_object(this.kwargs, 'columns')) {
                 //asign integer numbers
-                this.columns = [...Array(this.data_tensor.shape[1]).keys()]
+                this.columns = [...Array(this.data_tensor.shape[0]).keys()]
             } else {
                 if (this.kwargs['columns'].length == Number(this.data_tensor.shape[1])) {
                     this.columns = this.kwargs['columns']
@@ -80,6 +80,8 @@ export default class NDframe {
                 //infer dtypes
                 this.__set_col_types(null, true)
             }
+            //set index
+            this.index_arr = [...Array(this.data_tensor.shape[0]).keys()]
         }
     }
 
@@ -123,6 +125,9 @@ export default class NDframe {
                 //infer dtypes
                 this.__set_col_types(null, true)
             }
+
+            //set index
+            this.index_arr = [...Array(this.data_tensor.shape[0]).keys()]
         }
     }
 
@@ -198,6 +203,28 @@ export default class NDframe {
         return axes
     }
 
+    /**
+    * Gets values for index and columns
+    * @return {Object} axes configuration for index and columns of NDFrame
+    */
+    get index() {
+        return this.index_arr
+    }
+
+    /**
+    * Gets values for index and columns
+    * @return {Object} axes configuration for index and columns of NDFrame
+    */
+    set_index(labels) {
+        if (!Array.isArray(labels)){
+            throw Error("Value Error: index must be an array")
+        }
+        if (labels.length > this.index.length || labels.length < this.index.length){
+            throw Error("Value Error: length of labels must match row shape of data")
+        }
+        this.index_arr = labels
+    }
+
 
 
     /**
@@ -245,16 +272,28 @@ export default class NDframe {
     * Overrides default string representation of NDFrame
     */
     toString() {
-        let data = this.values
         let table_width = config.get_width
         let table_truncate = config.get_truncate
+        let max_row = config.get_max_row
+        let data;
+        let data_arr = []
+        let header = [""].concat(this.columns)
         let table_config = {}
+        let idx = this.index
+
+        if (this.values.length > max_row) {
+            data = this.values.slice(0, max_row)
+        }
+
         for (let index = 0; index < this.columns.length; index++) {
             table_config[index] = { width: table_width, truncate: table_truncate }
         }
 
-        data.unshift(this.columns) //Adds the column names to values before printing
-        return table(data, { columns: table_config })
+        data.map((val, i) => {
+            data_arr.push([idx[i]].concat(val))
+        })
+        data_arr.unshift(header) //Adds the column names to values before printing
+        return table(data_arr, { columns: table_config })
     }
 
 
