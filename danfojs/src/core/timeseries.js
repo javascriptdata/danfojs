@@ -178,6 +178,7 @@ export class TimeSeries {
             return callback(date_instance);
         });
 
+        // eslint-disable-next-line no-self-assign
         let series = new Series(data= data);
 
         return series;

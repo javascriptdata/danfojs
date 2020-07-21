@@ -58,10 +58,10 @@ class NDframe {
         this.__set_col_types(null, true);
       }
     } else {
-      if (this.kwargs['columns'] == undefined) {
-        this.columns = [...Array(this.data_tensor.shape[0]).keys()];
+      if (!utils.__key_in_object(this.kwargs, 'columns')) {
+        this.columns = [...Array(this.data_tensor.shape[1]).keys()];
       } else {
-        if (this.kwargs['columns'].length == this.data_tensor.shape[1]) {
+        if (this.kwargs['columns'].length == Number(this.data_tensor.shape[1])) {
           this.columns = this.kwargs['columns'];
         } else {
           throw `Column length mismatch. You provided a column of length ${this.kwargs['columns'].length} but data has lenght of ${this.data_tensor.shape[1]}`;
@@ -92,10 +92,10 @@ class NDframe {
         this.columns = this.kwargs['columns'];
       }
     } else {
-      if (this.kwargs['columns'] == undefined) {
+      if (!utils.__key_in_object(this.kwargs, 'columns')) {
         this.columns = [...Array(this.data_tensor.shape[0]).keys()];
       } else {
-        if (this.kwargs['columns'].length == this.data_tensor.shape[1]) {
+        if (this.kwargs['columns'].length == Number(this.data_tensor.shape[1])) {
           this.columns = this.kwargs['columns'];
         } else {
           throw `Column lenght mismatch. You provided a column of lenght ${this.kwargs['columns'].length} but data has column length of ${this.data_tensor.shape[1]}`;
@@ -111,7 +111,7 @@ class NDframe {
   }
 
   __set_col_types(dtypes, infer) {
-    const __supported_dtypes = ['float', "int", 'string', 'datetime'];
+    const __supported_dtypes = ['float32', "int32", 'string', 'datetime'];
 
     if (infer) {
       if (this.series) {

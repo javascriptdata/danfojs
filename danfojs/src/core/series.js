@@ -21,8 +21,6 @@ export class Series extends NDframe {
     }
 
 
-
-
     /**
         * Returns a Series in Tensorflow's tensor format
         * @returns {1D tensor}
@@ -359,19 +357,44 @@ export class Series extends NDframe {
     * @returns {Series}
     */
     round(dp) {
-        if (utils.__is_undefined(dp)){
+        if (utils.__is_undefined(dp)) {
             //use tensorflow round function to roound to the nearest whole number
             let result = tf.round(this.tensor())
-            return new Series(result.arraySync(), {columns: this.column_names})
+            return new Series(result.arraySync(), { columns: this.column_names })
 
-        }else{
+        } else {
             let result = utils.__round(this.values, dp)
-            return new Series(result, {columns: this.column_names})
+            return new Series(result, { columns: this.column_names })
 
         }
 
     }
 
+
+    /**
+    * Sort a Series in ascending or descending order by some criterion.
+    *  @param {dp} Number, Numbers of Decimal places to round to
+    * @returns {Series}
+    */
+    sort_values(ascending = true, inplace = false) {
+        console.log(this.axes['index']);
+        let result = this.values.sort(function (a, b) { return a - b })
+        if (ascending) {
+            if (inplace) {
+                return new Series(result, { columns: this.column_names })
+            } else {
+                this.values = result
+            }
+        } else {
+            result = result.reverse()
+            if (inplace) {
+                return new Series(result, { columns: this.column_names })
+            } else {
+                this.values = result
+            }
+
+        }
+    }
 
 
 
@@ -394,5 +417,17 @@ export class Series extends NDframe {
     }
 
 
+    /**
+    * Overrides default string representation of NDFrame
+    */
+    // toString() {
+    //     let data = this.values
+    //     let table_truncate = 10
+    //     let table_config = {}
+        
+    //     data.unshift(this.columns) //Adds the column names to values before printing
+    //     return table(data, { columns: table_config })
+    // }
 
 }
+

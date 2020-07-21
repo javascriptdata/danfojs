@@ -63,12 +63,11 @@ export default class NDframe {
 
         } else {
             //2D or more array
-            //check if columns lenght matches the shape of the data
-            if (this.kwargs['columns'] == undefined) {
+            if (!utils.__key_in_object(this.kwargs, 'columns')) {
                 //asign integer numbers
-                this.columns = [...Array(this.data_tensor.shape[0]).keys()]
+                this.columns = [...Array(this.data_tensor.shape[1]).keys()]
             } else {
-                if (this.kwargs['columns'].length == this.data_tensor.shape[1]) {
+                if (this.kwargs['columns'].length == Number(this.data_tensor.shape[1])) {
                     this.columns = this.kwargs['columns']
                 } else {
                     throw `Column length mismatch. You provided a column of length ${this.kwargs['columns'].length} but data has lenght of ${this.data_tensor.shape[1]}`
@@ -106,12 +105,11 @@ export default class NDframe {
 
         } else {
             //2D or more array
-            //check if columns lenght matches the shape of the data
-            if (this.kwargs['columns'] == undefined) {
+            if (!utils.__key_in_object(this.kwargs, 'columns')) {
                 //asign integer numbers
                 this.columns = [...Array(this.data_tensor.shape[0]).keys()] //use 0 because we are testing lenght from an Object
             } else {
-                if (this.kwargs['columns'].length == this.data_tensor.shape[1]) {
+                if (this.kwargs['columns'].length == Number(this.data_tensor.shape[1])) {
                     this.columns = this.kwargs['columns']
                 } else {
                     throw `Column lenght mismatch. You provided a column of lenght ${this.kwargs['columns'].length} but data has column length of ${this.data_tensor.shape[1]}`

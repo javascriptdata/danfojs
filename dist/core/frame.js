@@ -15,6 +15,10 @@ var _utils = require("./utils");
 
 var _groupby = require("./groupby");
 
+var _timeseries = require("./timeseries");
+
+var _merge = require("./merge");
+
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
@@ -110,20 +114,20 @@ class DataFrame extends _generic.default {
 
     if (Object.prototype.hasOwnProperty.call(kwargs, "columns")) {
       if (Array.isArray(kwargs["columns"])) {
-        if (kwargs["columns"].length == 1 && typeof kwargs["columns"][0] == "string") {
-          if (kwargs["columns"][0].includes(":")) {
-            let row_split = kwargs["columns"][0].split(":");
-            let start, end;
+        if (kwargs["columns"].length == 1 && kwargs["columns"][0].includes(":")) {
+          let row_split = kwargs["columns"][0].split(":");
+          let start, end;
 
-            if (kwargs["type"] == "iloc") {
-              start = parseInt(row_split[0]);
-              end = parseInt(row_split[1]);
-            } else {
-              let axes = this.axes["columns"];
-              start = parseInt(axes.indexOf(row_split[0]));
-              end = parseInt(axes.indexOf(row_split[1]));
-            }
+          if (kwargs["type"] == "iloc") {
+            start = parseInt(row_split[0]);
+            end = parseInt(row_split[1]);
+          } else {
+            let axes = this.axes["columns"];
+            start = parseInt(axes.indexOf(row_split[0]));
+            end = parseInt(axes.indexOf(row_split[1]));
+          }
 
+          if (typeof start == "number" && typeof end == "number") {
             columns = utils.__range(start, end);
             isColumnSplit = true;
           }
@@ -414,11 +418,165 @@ class DataFrame extends _generic.default {
 
     let indx = col_indx_objs[col_name];
     let data = this.col_data[indx];
-    let dtype = this.dtypes[indx];
     return new _series.Series(data, {
-      columns: col_name,
-      dtypes: dtype
+      columns: col_name
     });
+  }
+
+  static to_datetime(kwargs) {
+    let timeseries = new _timeseries.TimeSeries(kwargs);
+    timeseries.preprocessed();
+    return timeseries;
+  }
+
+  static concat(kwargs) {
+    utils.__in_object(kwargs, "df_list", "df_list not found: specify the list of dataframe");
+
+    utils.__in_object(kwargs, "axis", "axis not found: specify the axis");
+
+    let df_list = null;
+    let axis = null;
+
+    if (Array.isArray(kwargs["df_list"])) {
+      df_list = kwargs["df_list"];
+    } else {
+      throw new Error("df_list must be an Array of dataFrame");
+    }
+
+    if (typeof kwargs["axis"] === "number") {
+      if (kwargs["axis"] == 0 || kwargs["axis"] == 1) {
+        axis = kwargs["axis"];
+      } else {
+        throw new Error("Invalid axis: axis must be 0 or 1");
+      }
+    } else {
+      throw new Error("axis must be a number");
+    }
+
+    let df_object = Object.assign({}, df_list);
+
+    if (axis == 1) {
+      let columns = [];
+      let duplicate_col_count = {};
+      let max_length = 0;
+
+      for (let key in df_object) {
+        let column = df_object[key].columns;
+        let length = df_object[key].values.length;
+
+        if (length > max_length) {
+          max_length = length;
+        }
+
+        for (let index in column) {
+          let col_name = column[index];
+
+          if (col_name in duplicate_col_count) {
+            let count = duplicate_col_count[col_name];
+            let name = `${col_name}_${count + 1}`;
+            columns.push(name);
+            duplicate_col_count[col_name] = count + 1;
+          } else {
+            columns.push(col_name);
+            duplicate_col_count[col_name] = 1;
+          }
+        }
+      }
+
+      let data = new Array(max_length);
+
+      for (let key in df_list) {
+        let values = df_list[key].values;
+
+        for (let index = 0; index < values.length; index++) {
+          let val = values[index];
+
+          if (typeof data[index] === "undefined") {
+            data[index] = val;
+          } else {
+            data[index].push(...val);
+          }
+        }
+
+        if (values.length < max_length) {
+          let column_length = df_list[key].columns.length;
+          let null_array = Array(column_length);
+
+          for (let col = 0; col < column_length; col++) {
+            null_array[col] = "NaN";
+          }
+
+          if (typeof data[max_length - 1] === "undefined") {
+            data[max_length - 1] = null_array;
+          } else {
+            data[max_length - 1].push(...null_array);
+          }
+        }
+      }
+
+      let df = new DataFrame(data, {
+        columns: columns
+      });
+      return df;
+    } else {
+      let columns = [];
+
+      for (let key in df_list) {
+        let column = df_list[key].columns;
+        columns.push(...column);
+      }
+
+      let column_set = new Set(columns);
+      columns = Array.from(column_set);
+      let data = [];
+
+      for (let key in df_list) {
+        let value = df_list[key].values;
+        let df_columns = df_list[key].columns;
+        let not_exist = [];
+
+        for (let col_index in columns) {
+          let col_name = columns[col_index];
+          let is_index = df_columns.indexOf(col_name);
+
+          if (is_index == -1) {
+            not_exist.push(col_name);
+          }
+        }
+
+        if (not_exist.length > 0) {
+          for (let i = 0; i < value.length; i++) {
+            let row_value = value[i];
+            let new_arr = Array(columns.length);
+
+            for (let j = 0; j < columns.length; j++) {
+              let col_name = columns[j];
+
+              if (not_exist.includes(col_name)) {
+                new_arr[j] = "NaN";
+              } else {
+                let index = df_columns.indexOf(col_name);
+                new_arr[j] = row_value[index];
+              }
+            }
+
+            data.push(new_arr);
+          }
+        } else {
+          data.push(...value);
+        }
+      }
+
+      let df = new DataFrame(data, {
+        columns: columns
+      });
+      return df;
+    }
+  }
+
+  static merge(kwargs) {
+    let merge = new _merge.Merge(kwargs);
+    return merge;
   }
 
 }

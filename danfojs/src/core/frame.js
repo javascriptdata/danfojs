@@ -656,7 +656,7 @@ export class DataFrame extends Ndframe {
 
                 let value = df_list[key].values
 
-                let col_length = value[0].length
+                // let col_length = value[0].length
 
                 let df_columns = df_list[key].columns
                     

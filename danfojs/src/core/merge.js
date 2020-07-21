@@ -141,6 +141,7 @@ export class Merge {
             break;
         }
 
+        // eslint-disable-next-line no-self-assign
         let df = new DataFrame(data=data,{columns: this.columns})
 
         return df
