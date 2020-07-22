@@ -479,4 +479,27 @@ describe("Series", function () {
         })
     })
 
+    describe("Map", function(){
+
+        it("map series element to object keys", function(){
+            let sf = new Series([1,2,3,4])
+            let map = {1:"ok",2:"okie",3:"frit",4:"gop"}
+
+            let rslt = ["ok", "okie", "frit","gop"]
+            
+            assert.deepEqual(sf.map(map), rslt)
+        });
+
+        it("map series element to a function statement", function(){
+            let sf = new Series([1,2,3,4])
+            let func_map = (x)=>{
+                return x +1
+            }
+
+            let rslt = [2,3,4,5]
+            
+            assert.deepEqual(sf.map(func_map), rslt)
+        });
+    });
+
 })

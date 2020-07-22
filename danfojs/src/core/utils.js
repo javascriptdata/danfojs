@@ -343,6 +343,12 @@ export class Utils {
         return new_arr
 
     }
+
+    //check a variable is a function
+    __is_function(variable){
+
+        return typeof variable == "function"
+    }
 }
 
 

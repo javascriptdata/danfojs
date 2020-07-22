@@ -1,6 +1,7 @@
 import * as tf from '@tensorflow/tfjs-node'
 import { Utils } from "./utils"
 import NDframe from "./generic"
+import { util } from '@tensorflow/tfjs-node'
 
 const utils = new Utils
 // const config = new Configs()
@@ -461,6 +462,37 @@ export class Series extends NDframe {
         }
 
         return true
+    }
+
+    /**
+     * map all the element in a column to a variable
+     * @param{callable} callable can either be a funtion or an object
+     * @return return an array
+     */
+    map(callable){
+
+        let is_callable = utils.__is_function(callable);
+
+        let data = this.data.map((val)=>{
+
+            if(is_callable){
+                return callable(val)
+            }
+            else{
+                
+                if(utils.__is_object(callable)){
+
+                    if(utils.__key_in_object(callable,val)){
+                        return callable[val];
+                    }else{
+                        return "NaN"
+                    }
+                }else{
+                    throw new Error("callable must either be a function or an object")
+                }
+            }
+        });
+        return data
     }
 
 }
