@@ -2,12 +2,12 @@ import { assert } from "chai";
 import NDframe from '../../src/core/generic';
 
 
-describe("NDframe", function () {
+describe("Generic (NDFrame)", function () {
     describe("NDframe Created from Array", function () {
         it("prints the shape of a 1D array", function () {
             let data = [1, 2, 3, "Boy", "Girl"]
             let ndframe = new NDframe(data)
-            assert.equal(ndframe.shape, 1)
+            assert.deepEqual(ndframe.shape, [5,1])
         })
         it("prints the default assigned column name in a series", function () {
             let data = ["Boy", 20, 25]

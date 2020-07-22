@@ -235,7 +235,7 @@ export default class NDframe {
      */
     get shape() {
         if (this.series) {
-            return [1]
+            return [this.values.length, 1]
         } else {
             return this.data_tensor.shape
         }

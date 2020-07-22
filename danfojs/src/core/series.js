@@ -1,6 +1,7 @@
 import * as tf from '@tensorflow/tfjs-node'
 import { Utils } from "./utils"
 import NDframe from "./generic"
+import { util } from 'chai'
 const utils = new Utils
 // const config = new Configs()
 
@@ -25,9 +26,11 @@ export class Series extends NDframe {
         * Returns a Series in Tensorflow's tensor format
         * @returns {1D tensor}
         */
-    tensor() {
+    get tensor() {
         return tf.tensor(this.values).asType(this.dtypes[0])
     }
+
+
 
     /**
     * Prints the first n values in a Series
@@ -96,11 +99,11 @@ export class Series extends NDframe {
     add(other) {
         if (utils.__is_number(other)) {
             //broadcast addition
-            let sum = this.tensor().add(other).arraySync()
+            let sum = this.tensor.add(other).arraySync()
             return new Series(sum, { columns: this.column_names })
         } else {
             if (this.__check_series_op_compactibility) {
-                let sum = this.tensor().add(other.tensor()).arraySync()
+                let sum = this.tensor.add(other.tensor).arraySync()
                 return new Series(sum, { columns: this.column_names })
             }
         }
@@ -114,11 +117,11 @@ export class Series extends NDframe {
     */
     sub(other) {
         if (utils.__is_number(other)) {
-            let sub = this.tensor().sub(other).arraySync()
+            let sub = this.tensor.sub(other).arraySync()
             return new Series(sub, { columns: this.column_names })
         } else {
             if (this.__check_series_op_compactibility) {
-                let sub = this.tensor().sub(other.tensor()).arraySync()
+                let sub = this.tensor.sub(other.tensor).arraySync()
                 return new Series(sub, { columns: this.column_names })
             }
         }
@@ -134,11 +137,11 @@ export class Series extends NDframe {
     */
     mul(other) {
         if (utils.__is_number(other)) {
-            let mul = this.tensor().mul(other).arraySync()
+            let mul = this.tensor.mul(other).arraySync()
             return new Series(mul, { columns: this.column_names })
         } else {
             if (this.__check_series_op_compactibility) {
-                let mul = this.tensor().mul(other.tensor()).arraySync()
+                let mul = this.tensor.mul(other.tensor).arraySync()
                 return new Series(mul, { columns: this.column_names })
             }
         }
@@ -155,7 +158,7 @@ export class Series extends NDframe {
     div(other, round = true) {
         if (utils.__is_number(other)) {
             //broadcast addition
-            let div_result = this.tensor().div(other)
+            let div_result = this.tensor.div(other)
             return new Series(div_result.arraySync(), { columns: this.column_names, dtypes: div_result.dtype })
         } else {
             if (this.__check_series_op_compactibility) {
@@ -166,8 +169,8 @@ export class Series extends NDframe {
                 } else {
                     dtype = "int32"
                 }
-                let tensor1 = this.tensor().asType(dtype)
-                let tensor2 = other.tensor().asType(dtype)
+                let tensor1 = this.tensor.asType(dtype)
+                let tensor2 = other.tensor.asType(dtype)
                 let result = tensor1.div(tensor2)
                 dtype = result.dtype //dtype is subject to change after division
                 return new Series(result.arraySync(), { columns: this.column_names, dtypes: dtype })
@@ -183,11 +186,11 @@ export class Series extends NDframe {
     pow(other) {
         if (utils.__is_number(other)) {
             //broadcast addition
-            let pow_result = this.tensor().pow(other).arraySync()
+            let pow_result = this.tensor.pow(other).arraySync()
             return new Series(pow_result, { columns: this.column_names })
         } else {
             if (this.__check_series_op_compactibility) {
-                let pow_result = this.tensor().pow(other.tensor()).arraySync()
+                let pow_result = this.tensor.pow(other.tensor).arraySync()
                 return new Series(pow_result, { columns: this.column_names })
             }
         }
@@ -202,11 +205,11 @@ export class Series extends NDframe {
     mod(other) {
         if (utils.__is_number(other)) {
             //broadcast addition
-            let mod_result = this.tensor().mod(other).arraySync()
+            let mod_result = this.tensor.mod(other).arraySync()
             return new Series(mod_result, { columns: this.column_names })
         } else {
             if (this.__check_series_op_compactibility) {
-                let mod_result = this.tensor().mod(other.tensor()).arraySync()
+                let mod_result = this.tensor.mod(other.tensor).arraySync()
                 return new Series(mod_result, { columns: this.column_names })
             }
         }
@@ -221,7 +224,7 @@ export class Series extends NDframe {
         if (this.dtypes[0] == "string") {
             throw Error("dtype error: String data type does not support mean operation")
         }
-        let mean = this.tensor().mean().arraySync()
+        let mean = this.tensor.mean().arraySync()
         return mean
     }
 
@@ -319,12 +322,12 @@ export class Series extends NDframe {
     maximum(other) {
         if (utils.__is_number(other)) {
             //broadcast addition
-            let max_result = this.tensor().maximum(other)
+            let max_result = this.tensor.maximum(other)
             return new Series(max_result.arraySync(), { columns: this.column_names, dtypes: max_result.dtype })
         } else {
             if (this.__check_series_op_compactibility) {
-                let tensor1 = this.tensor()
-                let tensor2 = other.tensor()
+                let tensor1 = this.tensor
+                let tensor2 = other.tensor
                 let result = tensor1.maximum(tensor2)
                 return new Series(result.arraySync(), { columns: this.column_names })
             }
@@ -339,12 +342,12 @@ export class Series extends NDframe {
     minimum(other) {
         if (utils.__is_number(other)) {
             //broadcast addition
-            let max_result = this.tensor().minimum(other)
+            let max_result = this.tensor.minimum(other)
             return new Series(max_result.arraySync(), { columns: this.column_names, dtypes: max_result.dtype })
         } else {
             if (this.__check_series_op_compactibility) {
-                let tensor1 = this.tensor()
-                let tensor2 = other.tensor()
+                let tensor1 = this.tensor
+                let tensor2 = other.tensor
                 let result = tensor1.minimum(tensor2).arraySync()
                 return new Series(result, { columns: this.column_names })
             }
@@ -359,7 +362,7 @@ export class Series extends NDframe {
     round(dp) {
         if (utils.__is_undefined(dp)) {
             //use tensorflow round function to roound to the nearest whole number
-            let result = tf.round(this.tensor())
+            let result = tf.round(this.tensor)
             return new Series(result.arraySync(), { columns: this.column_names })
 
         } else {
@@ -373,26 +376,52 @@ export class Series extends NDframe {
 
     /**
     * Sort a Series in ascending or descending order by some criterion.
-    *  @param {dp} Number, Numbers of Decimal places to round to
+    *  @param {kwargs} Object, {ascending (Bool): Whether to return sorted values in ascending order or not,
+    *                           inplace (Bool): Whether to perform sorting on the original Series or not}
     * @returns {Series}
     */
-    sort_values(ascending = true, inplace = false) {
-        console.log(this.axes['index']);
-        let result = this.values.sort(function (a, b) { return a - b })
-        if (ascending) {
-            if (inplace) {
-                return new Series(result, { columns: this.column_names })
-            } else {
-                this.values = result
-            }
+    sort_values(kwargs = {}) {
+        
+        let options = {}
+        if (utils.__key_in_object(kwargs, 'ascending')) {
+            options['ascending'] = kwargs["ascending"]
         } else {
-            result = result.reverse()
-            if (inplace) {
-                return new Series(result, { columns: this.column_names })
-            } else {
-                this.values = result
-            }
+            options['ascending'] = true
+        }
 
+        if (utils.__key_in_object(kwargs, 'inplace')) {
+            options['inplace'] = kwargs["inplace"]
+        } else {
+            options['inplace'] = false
+        }
+
+
+        let sorted_arr = []
+        let sorted_idx = []
+        let arr_tensor = tf.clone(this.tensor)
+        let arr_obj = [...this.values]
+
+        for (let i = 0; i < this.shape[0]; i++) {
+            let min_idx = arr_tensor.argMin().arraySync()
+            sorted_arr.push(this.values[min_idx])
+            sorted_idx.push(this.index[min_idx])
+            arr_obj[min_idx] = NaN  //replace with NaN string
+            arr_tensor = tf.tensor(arr_obj) 
+        }
+
+        if (!options['ascending']){
+            sorted_arr = sorted_arr.reverse() 
+            sorted_idx = sorted_idx.reverse()
+        }
+
+        if(options['inplace']){
+            this.data = sorted_arr
+            this.set_index(sorted_idx)
+            return null
+        }else{
+            let sf = new Series(sorted_arr, {columns: this.column_names})
+            sf.set_index(sorted_idx)
+            return sf
         }
     }
 
@@ -424,7 +453,7 @@ export class Series extends NDframe {
     //     let data = this.values
     //     let table_truncate = 10
     //     let table_config = {}
-        
+
     //     data.unshift(this.columns) //Adds the column names to values before printing
     //     return table(data, { columns: table_config })
     // }

@@ -9,18 +9,18 @@ describe("Series", function () {
         it("Returns the tensor object of a Series", function () {
             let data = [1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78]
             let sf = new Series(data)
-            assert.deepEqual(sf.tensor().dtype, 'int32')
+            assert.deepEqual(sf.tensor.dtype, 'int32')
         })
         it("Returns the float dtype of a tensor object", function () {
             let data = [1.1, 2.2, 3, 4.1, 5, 620, 30.1, 40, 39, 89, 78]
             let sf = new Series(data)
-            assert.deepEqual(sf.tensor().dtype, 'float32')
+            assert.deepEqual(sf.tensor.dtype, 'float32')
         })
         it("Compares a tensor returned from a Series to Tensorflow's tensor", function () {
             let data = [1.1, 2.2, 3, 4.1, 5, 620, 30.1, 40, 39, 89, 78]
             let sf = new Series(data)
             let tf_data = tf.tensor(data)
-            assert.deepEqual(sf.tensor().arraySync(), tf_data.arraySync())
+            assert.deepEqual(sf.tensor.arraySync(), tf_data.arraySync())
         })
     })
 
@@ -410,6 +410,45 @@ describe("Series", function () {
             let data1 = [30.2191, 40.190901, 3.564, 5.0212]
             let sf = new Series(data1)
             assert.deepEqual(sf.round(2).values, [30.22, 40.19, 3.56, 5.02])
+        })
+    })
+
+    describe("sort_values", function () {
+        it("Sort values in a Series in ascending order (not inplace)", function () {
+            let sf = new Series([20, 30, 1, 2, 4, 57, 89, 0, 4])
+            let result = [0, 1, 2, 4, 4, 20, 30, 57, 89]
+            let sorted_sf = sf.sort_values()
+            assert.deepEqual(sorted_sf.values, result)
+        })
+        it("confirms that sort_values in ascending order does not happen inplace", function () {
+            let sf = new Series([20, 30, 1, 2, 4, 57, 89, 0, 4])
+            let result = [0, 1, 2, 4, 4, 20, 30, 57, 89]
+            sf.sort_values({ "inplace": true })
+            assert.deepEqual(sf.values, result)
+        })
+        it("Sort values in a Series in Descending order", function () {
+            let sf = new Series([20, 30, 1, 2, 4, 57, 89, 0, 4])
+            let result = [89, 57, 30, 20, 4, 4, 2, 1, 0]
+            let sorted_sf = sf.sort_values({ "ascending": false })
+            assert.deepEqual(sorted_sf.values, result)
+        })
+        it("confirms that sort_values in descending order happens inplace", function () {
+            let sf = new Series([20, 30, 1, 2, 4, 57, 89, 0, 4])
+            let result = [89, 57, 30, 20, 4, 4, 2, 1, 0]
+            sf.sort_values({ "ascending": false, "inplace": true})
+            assert.deepEqual(sf.values, result)
+        })
+        it("Confirms that series index is sorted in ascending order (not in inplace)", function () {
+            let sf = new Series([20, 30, 1, 2, 4, 57, 89, 0, 4])
+            let result = [7, 2, 3, 4, 8, 0, 1, 5, 6]
+            let sorted_sf = sf.sort_values()
+            assert.deepEqual(sorted_sf.index, result)
+        })
+        it("Confirms that series index is sorted in descending order (not in inplace)", function () {
+            let sf = new Series([20, 30, 1, 2, 4, 57, 89, 0, 4])
+            let result = [6, 5, 1, 0, 8, 4, 3, 2, 7]
+            let sorted_sf = sf.sort_values({ "ascending": false })
+            assert.deepEqual(sorted_sf.index, result)
         })
     })
 
