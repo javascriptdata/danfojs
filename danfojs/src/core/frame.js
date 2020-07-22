@@ -127,12 +127,11 @@ export class DataFrame extends Ndframe {
                             start   = parseInt(row_split[0]);
                             end     = parseInt(row_split[1]);
                         }else{
-                            let axes = this.axes["columns"]
                             
-                            start = parseInt(axes.indexOf(row_split[0]));
-                            end   = parseInt(axes.indexOf(row_split[1]));
+                            start = parseInt(this.columns.indexOf(row_split[0]));
+                            end   = parseInt(this.columns.indexOf(row_split[1]));
                         }
-                        // console.log(start,end)
+                        
 
                         if(typeof start == "number" && typeof end == "number"){
                             
@@ -152,7 +151,6 @@ export class DataFrame extends Ndframe {
         }
 
         let data_values = this.values;
-        let axes = this.axes
         let new_data = []; // store the data from the for loop
 
         for (var index = 0; index < rows.length; index++) {
@@ -169,14 +167,14 @@ export class DataFrame extends Ndframe {
             for (var i in columns) {
                 var col_index;
                 if (kwargs["type"] == "loc" && !isColumnSplit) {
-                    col_index = axes["columns"].indexOf(columns[i]); //obtain the column index
+                    col_index = this.columns.indexOf(columns[i]); //obtain the column index
 
                     if (col_index == -1) {
                         throw new Error(`Column ${columns[i]} does not exist`);
                     }
                 } else {
                     col_index = columns[i];
-                    let max_colIndex = axes["columns"].length - 1; //assign the maximum column index to a value
+                    let max_colIndex = this.columns.length - 1; //assign the maximum column index to a value
 
                     if (col_index > max_colIndex) {
                         throw new Error(`column index ${col_index} is bigger than ${max_colIndex}`);
@@ -195,7 +193,7 @@ export class DataFrame extends Ndframe {
         if(kwargs["type"] == "iloc" || isColumnSplit){
             let axes = this.axes
             columns.map((col) => {
-                column_names.push(axes["columns"][col]);
+                column_names.push(this.columns[col]);
             })
         }else{
             column_names = columns
@@ -313,10 +311,10 @@ export class DataFrame extends Ndframe {
 
         if (Object.prototype.hasOwnProperty.call(kwargs, "column")) {
 
-            let axes = this.axes
-            if (axes["columns"].includes(kwargs["column"])) {
+            
+            if (this.columns.includes(kwargs["column"])) {
 
-                var column_index = axes["columns"].indexOf(kwargs["column"]);
+                var column_index = this.columns.indexOf(kwargs["column"]);
             } else {
                 throw new Error(`column ${kwargs["column"]} does not exist`);
             }
@@ -361,7 +359,7 @@ export class DataFrame extends Ndframe {
 
 
         }
-        let columns = this.axes["columns"]
+        let columns = this.columns
         let new_df = new DataFrame(new_data, { "columns": columns })
 
         return new_df;
