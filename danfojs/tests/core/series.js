@@ -450,6 +450,10 @@ describe("Series", function () {
             let sorted_sf = sf.sort_values({ "ascending": false })
             assert.deepEqual(sorted_sf.index, result)
         })
+        it("Throws error on sorting of string", function(){
+            let sf = new Series(["boy", "man", "girl"])
+            assert.throws(() => { sf.sort_values() }, Error, "Dtype Error: cannot sort Series of type string")
+        })
     })
 
 

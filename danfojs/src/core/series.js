@@ -381,7 +381,10 @@ export class Series extends NDframe {
     * @returns {Series}
     */
     sort_values(kwargs = {}) {
-        
+
+        if (this.dtypes[0] == 'string'){
+            throw Error("Dtype Error: cannot sort Series of type string")
+        }
         let options = {}
         if (utils.__key_in_object(kwargs, 'ascending')) {
             options['ascending'] = kwargs["ascending"]
