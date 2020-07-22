@@ -435,7 +435,7 @@ describe("Series", function () {
         it("confirms that sort_values in descending order happens inplace", function () {
             let sf = new Series([20, 30, 1, 2, 4, 57, 89, 0, 4])
             let result = [89, 57, 30, 20, 4, 4, 2, 1, 0]
-            sf.sort_values({ "ascending": false, "inplace": true})
+            sf.sort_values({ "ascending": false, "inplace": true })
             assert.deepEqual(sf.values, result)
         })
         it("Confirms that series index is sorted in ascending order (not in inplace)", function () {
@@ -450,11 +450,33 @@ describe("Series", function () {
             let sorted_sf = sf.sort_values({ "ascending": false })
             assert.deepEqual(sorted_sf.index, result)
         })
-        it("Throws error on sorting of string", function(){
+        it("Throws error on sorting of string", function () {
             let sf = new Series(["boy", "man", "girl"])
             assert.throws(() => { sf.sort_values() }, Error, "Dtype Error: cannot sort Series of type string")
         })
     })
 
+    describe("copy", function () {
+        it("Checks if copied values are the same as the first one", function () {
+            let sf = new Series([30.21091, 40.190901, 3.564, 5.0212])
+            let sf_copy = sf.copy()
+            assert.deepEqual(sf.values, sf_copy.values)
+        })
+        it("Checks if copied index are the same", function () {
+            let sf = new Series([30.21091, 40.190901, 3.564, 5.0212])
+            sf.set_index(["a", "b", "c", "d"])
+            let sf_copy = sf.copy()
+            assert.deepEqual(sf.index, sf_copy.index)
+        })
+        it("Checks if copied dtype is the same", function () {
+            let sf = new Series([30.21091, 40.190901, 3.564, 5.0212])
+            sf.round()
+            sf.astype(['int32'])
+            let sf_copy = sf.copy()
+            assert.deepEqual(sf.dtypes[0], sf_copy.dtypes[0])
+            assert.deepEqual(sf.values, sf_copy.values)
+
+        })
+    })
 
 })

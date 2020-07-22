@@ -159,7 +159,7 @@ export class Series extends NDframe {
         if (utils.__is_number(other)) {
             //broadcast addition
             let div_result = this.tensor.div(other)
-            return new Series(div_result.arraySync(), { columns: this.column_names, dtypes: div_result.dtype })
+            return new Series(div_result.arraySync(), { columns: this.column_names, dtypes: [div_result.dtype] })
         } else {
             if (this.__check_series_op_compactibility) {
                 let dtype;
@@ -173,7 +173,8 @@ export class Series extends NDframe {
                 let tensor2 = other.tensor.asType(dtype)
                 let result = tensor1.div(tensor2)
                 dtype = result.dtype //dtype is subject to change after division
-                return new Series(result.arraySync(), { columns: this.column_names, dtypes: dtype })
+                console.log(dtype);
+                return new Series(result.arraySync(), { columns: this.column_names, dtypes: [dtype] })
             }
         }
     }
@@ -354,6 +355,7 @@ export class Series extends NDframe {
         }
     }
 
+
     /**
     * Return maximum of series and other, element-wise (binary operator div).
     *  @param {dp} Number, Numbers of Decimal places to round to
@@ -382,7 +384,7 @@ export class Series extends NDframe {
     */
     sort_values(kwargs = {}) {
 
-        if (this.dtypes[0] == 'string'){
+        if (this.dtypes[0] == 'string') {
             throw Error("Dtype Error: cannot sort Series of type string")
         }
         let options = {}
@@ -409,24 +411,37 @@ export class Series extends NDframe {
             sorted_arr.push(this.values[min_idx])
             sorted_idx.push(this.index[min_idx])
             arr_obj[min_idx] = NaN  //replace with NaN string
-            arr_tensor = tf.tensor(arr_obj) 
+            arr_tensor = tf.tensor(arr_obj)
         }
 
-        if (!options['ascending']){
-            sorted_arr = sorted_arr.reverse() 
+        if (!options['ascending']) {
+            sorted_arr = sorted_arr.reverse()
             sorted_idx = sorted_idx.reverse()
         }
 
-        if(options['inplace']){
+        if (options['inplace']) {
             this.data = sorted_arr
             this.set_index(sorted_idx)
             return null
-        }else{
-            let sf = new Series(sorted_arr, {columns: this.column_names})
+        } else {
+            let sf = new Series(sorted_arr, { columns: this.column_names })
             sf.set_index(sorted_idx)
             return sf
         }
     }
+
+
+    /**
+   * Make a copy of this object’s indices and data
+   * @returns {Series}
+   */
+    copy() {
+        let sf = new Series([...this.values], {columns: [...this.column_names]})
+        sf.set_index([...this.index])
+        sf.astype([...this.dtypes], false)
+        return sf
+    }
+
 
 
 
@@ -447,19 +462,6 @@ export class Series extends NDframe {
 
         return true
     }
-
-
-    /**
-    * Overrides default string representation of NDFrame
-    */
-    // toString() {
-    //     let data = this.values
-    //     let table_truncate = 10
-    //     let table_config = {}
-
-    //     data.unshift(this.columns) //Adds the column names to values before printing
-    //     return table(data, { columns: table_config })
-    // }
 
 }
 

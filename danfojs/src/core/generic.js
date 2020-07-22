@@ -155,6 +155,9 @@ export default class NDframe {
                 })
                 this.col_data = utils.__get_col_values(this.data)
                 this.col_types = dtypes
+            }else{
+                throw new Error(`dtypes: lenght mismatch. Specified dtype has a lenght
+                 of ${dtypes.length} but NDframe has ${this.column_names.length} number of columns` )
             }
         }
     }
@@ -171,11 +174,11 @@ export default class NDframe {
 
 
     /**
-     * Returns the data types in the DataFrame 
-     * @return {Array} list of data types for each column
+     * Sets the data types of an NDFrame 
+     * @return {Array} list of data type for each column
      */
-    astype(dtype) {
-        this.__set_col_types(dtype, false)
+    astype(dtypes) {
+        this.__set_col_types(dtypes, false)
     }
 
 
