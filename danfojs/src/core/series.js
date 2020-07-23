@@ -495,5 +495,25 @@ export class Series extends NDframe {
         return data
     }
 
+    /**
+     * The apply function is similar to the map function
+     * just that it only takes in a function
+     * @param {callable} callable [FUNCTION]
+     * @return Array
+     */
+    apply(callable){
+        let is_callable = utils.__is_function(callable);
+
+        if(!is_callable){
+            throw new Error("the arguement most be a function")
+        }
+
+        let data = this.data.map((val)=>{
+
+            return callable(val)
+        });
+        return data
+    }
+
 }
 
