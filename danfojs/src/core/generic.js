@@ -155,9 +155,9 @@ export default class NDframe {
                 })
                 this.col_data = utils.__get_col_values(this.data)
                 this.col_types = dtypes
-            }else{
+            } else {
                 throw new Error(`dtypes: lenght mismatch. Specified dtype has a lenght
-                 of ${dtypes.length} but NDframe has ${this.column_names.length} number of columns` )
+                 of ${dtypes.length} but NDframe has ${this.column_names.length} number of columns`)
             }
         }
     }
@@ -209,25 +209,33 @@ export default class NDframe {
     }
 
     /**
-    * Gets values for index and columns
-    * @return {Object} axes configuration for index and columns of NDFrame
+    * Gets index of the NDframe
+    * @return {Array} array of index from series
     */
     get index() {
         return this.index_arr
     }
 
     /**
-    * Gets values for index and columns
-    * @return {Object} axes configuration for index and columns of NDFrame
+    * Sets index of the NDFrame
     */
-    set_index(labels) {
-        if (!Array.isArray(labels)){
+    __set_index(labels) {
+        if (!Array.isArray(labels)) {
             throw Error("Value Error: index must be an array")
         }
-        if (labels.length > this.index.length || labels.length < this.index.length){
+        if (labels.length > this.index.length || labels.length < this.index.length) {
             throw Error("Value Error: length of labels must match row shape of data")
         }
         this.index_arr = labels
+        
+    }
+
+    /**
+    * Generate a new index for NDFrame.
+    */
+    __reset_index() {
+        let new_idx = [...Array(this.values.length).keys()]
+        this.index_arr = new_idx
     }
 
 
@@ -288,7 +296,7 @@ export default class NDframe {
 
         if (this.values.length > max_row) {
             data = this.values.slice(0, max_row)
-        }else{
+        } else {
             data = this.values
         }
 

@@ -110,20 +110,21 @@ describe("Generic (NDFrame)", function () {
         })
     })
 
-    describe("set_index", function () {
+    describe("__set_index", function () {
         it("sets the index of an NDframe", function () {
             let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
             let df = new NDframe(data)
-            df.set_index(["A", "B", "C"])
+            df.__set_index(["A", "B", "C"])
             assert.deepEqual(df.index, ["A", "B", "C"])
         })
         it("Returns the index of an NDframe created from an Array", function () {
             let data = [[12, 2, 20], [90, 5, 23], [45, 56, 70], [9, 10, 19]]
             let df = new NDframe(data)
-            df.set_index([10, 20, 30, 40])
+            df.__set_index([10, 20, 30, 40])
             assert.deepEqual(df.index, [10, 20, 30, 40])
         })
     })
+
 
     describe("dtype", function () {
         it("Returns int dtype set during creation of 1DFrame (Series) from an Object", function () {

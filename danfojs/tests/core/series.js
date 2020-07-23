@@ -464,7 +464,7 @@ describe("Series", function () {
         })
         it("Checks if copied index are the same", function () {
             let sf = new Series([30.21091, 40.190901, 3.564, 5.0212])
-            sf.set_index(["a", "b", "c", "d"])
+            sf = sf.set_index({ "index": ["a", "b", "c", "d"] })
             let sf_copy = sf.copy()
             assert.deepEqual(sf.index, sf_copy.index)
         })
@@ -479,39 +479,84 @@ describe("Series", function () {
         })
     })
 
-    describe("Map", function(){
+    describe("reset_index", function () {
+        it("resets the index of an Series", function () {
+            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
+            let df = new Series(data)
+            let df_new = df.set_index({ "index": ["one", "two", "three"] })
+            let df_reset = df_new.reset_index()
+            assert.deepEqual(df_reset.index, [0, 1, 2])
+        })
+        it("Reset the index of an Series created from an Array", function () {
+            let data = [1,2,3,4,5,6]
+            let df = new Series(data)
+            df.set_index({ "index": ["one", "two", "three", "four", "five", "six"], "inplace": true })
+            let df_new = df.reset_index()
+            assert.deepEqual(df_new.index, [0, 1, 2, 3, 4, 5])
+        })
+        it("checks that the original series changed after reseting new index inplace", function () {
+            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
+            let df = new Series(data)
+            df.reset_index({ "inplace": true })
+            assert.deepEqual(df.index, [0, 1, 2])
+        })
+    })
 
-        it("map series element to object keys", function(){
-            let sf = new Series([1,2,3,4])
-            let map = {1:"ok",2:"okie",3:"frit",4:"gop"}
+    describe("set_index", function () {
+        it("sets the index of an Series", function () {
+            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
+            let df = new Series(data)
+            let df_new = df.set_index({ "index": ["one", "two", "three"] })
+            assert.deepEqual(df_new.index, ["one", "two", "three"])
+            assert.notDeepEqual(df.index, df_new.index)
+        })
+        it("checks that the original series is not modified after setting new index not-inplace", function () {
+            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
+            let df = new Series(data)
+            let df_new = df.set_index({ "index": ["one", "two", "three"] })
+            assert.notDeepEqual(df.index, df_new.index)
+        })
+        it("sets the index of an Series inplace", function () {
+            let data = [12, 2, 20, 50]
+            let df = new Series(data)
+            df.set_index({ "index": ["one", "two", "three", "four"], "inplace": true })
+            assert.deepEqual(df.index, ["one", "two", "three", "four"])
+        })
+    })
 
-            let rslt = ["ok", "okie", "frit","gop"]
-            
+    describe("Map", function () {
+
+        it("map series element to object keys", function () {
+            let sf = new Series([1, 2, 3, 4])
+            let map = { 1: "ok", 2: "okie", 3: "frit", 4: "gop" }
+
+            let rslt = ["ok", "okie", "frit", "gop"]
+
             assert.deepEqual(sf.map(map), rslt)
         });
 
-        it("map series element to a function statement", function(){
-            let sf = new Series([1,2,3,4])
-            let func_map = (x)=>{
-                return x +1
+        it("map series element to a function statement", function () {
+            let sf = new Series([1, 2, 3, 4])
+            let func_map = (x) => {
+                return x + 1
             }
 
-            let rslt = [2,3,4,5]
-            
+            let rslt = [2, 3, 4, 5]
+
             assert.deepEqual(sf.map(func_map), rslt)
         });
     });
 
-    describe("Apply",function(){
+    describe("Apply", function () {
 
-        it("apply a function to a series element", function(){
-            let sf = new Series([1,2,3,4,5,6,7,8])
+        it("apply a function to a series element", function () {
+            let sf = new Series([1, 2, 3, 4, 5, 6, 7, 8])
 
-            let apply_func = (x)=>{
-                return x+x
+            let apply_func = (x) => {
+                return x + x
             }
 
-            let rslt = [2,4,6,8,10,12,14,16]
+            let rslt = [2, 4, 6, 8, 10, 12, 14, 16]
             assert.deepEqual(sf.apply(apply_func), rslt)
         });
     });

@@ -6,7 +6,7 @@ const utils = new Utils
  * @description Handle all datetime operations
  * @param {kwargs} Object {"data":[array of string], "format": string}
  */
-class TimeSeries {
+export class TimeSeries {
     constructor(kwargs) {
 
         utils.__in_object(kwargs, "data", "specify the data")

@@ -18,6 +18,7 @@ const utils = new Utils
  */
 export class Series extends NDframe {
     constructor(data, kwargs) {
+        //TODO: Check if passed array is 2D like [[1,2], [2,9]] and throw error
         super(data, kwargs)
     }
 
@@ -84,18 +85,18 @@ export class Series extends NDframe {
         } else {
             //Creates a new dataframe with last [rows]
             let config = { columns: this.column_names }
-            let sampled_index = utils.__randgen(num,0,this.shape[0]);
+            let sampled_index = utils.__randgen(num, 0, this.shape[0]);
 
             let sampled_arr = []
             let new_idx = []
 
             let self = this
-            sampled_index.map((val)=>{
-                    sampled_arr.push(self.values[val])
-                    new_idx.push(self.index[val])       
+            sampled_index.map((val) => {
+                sampled_arr.push(self.values[val])
+                new_idx.push(self.index[val])
             });
             let sf = new Series(sampled_arr, config)
-            sf.set_index(new_idx)
+            sf.__set_index(new_idx)
             return sf
 
         }
@@ -432,11 +433,11 @@ export class Series extends NDframe {
 
         if (options['inplace']) {
             this.data = sorted_arr
-            this.set_index(sorted_idx)
+            this.__set_index(sorted_idx)
             return null
         } else {
             let sf = new Series(sorted_arr, { columns: this.column_names })
-            sf.set_index(sorted_idx)
+            sf.__set_index(sorted_idx)
             return sf
         }
     }
@@ -447,11 +448,70 @@ export class Series extends NDframe {
    * @returns {Series}
    */
     copy() {
-        let sf = new Series([...this.values], {columns: [...this.column_names]})
-        sf.set_index([...this.index])
+        let sf = new Series([...this.values], { columns: [...this.column_names] })
+        sf.__set_index([...this.index])
         sf.astype([...this.dtypes], false)
         return sf
     }
+
+
+    /**
+    * Generate a new DataFrame or Series with the index reset.
+    * This is useful when the index needs to be treated as a column, 
+    * or when the index is meaningless and needs to be reset to the default before another operation.
+    * @param {kwargs} {inplace: Modify the Series in place (do not create a new object,
+    *                  drop: Just reset the index, without inserting it as a column in the new DataFrame.}
+    */
+    reset_index(kwargs = {}) {
+        let options = {}
+        if (utils.__key_in_object(kwargs, 'inplace')) {
+            options['inplace'] = kwargs['inplace']
+        } else {
+            options['inplace'] = false
+        }
+
+        if (options['inplace']) {
+            this.__reset_index()
+        } else {
+            let sf = this.copy()
+            sf.__reset_index()
+            return sf
+        }
+    }
+
+    /**
+    * Generate a new Series with the specified index.
+    * Set the Series index (row labels) using an array of the same length.
+    * @param {kwargs} {index: Array of new index values}
+    */
+    set_index(kwargs = {}) {
+        let options = {}
+        if (utils.__key_in_object(kwargs, 'index')) {
+            options['index'] = kwargs['index']
+        } else {
+            throw Error("Index ValueError: You must specify an array of index")
+        }
+
+        if (utils.__key_in_object(kwargs, 'inplace')) {
+            options['inplace'] = kwargs['inplace']
+        } else {
+            options['inplace'] = false
+        }
+
+        if (options['index'].length != this.index.length) {
+            throw Error(`Index LengthError: Lenght of new Index array ${options['index'].length} must match lenght of existing index ${this.index.length}`)
+        }
+
+        if (options['inplace']) {
+            this.index_arr = options['index']
+        } else {
+            let sf = this.copy()
+            sf.__set_index(options['index'])
+            return sf
+        }
+    }
+
+
 
 
 
@@ -479,25 +539,25 @@ export class Series extends NDframe {
      * @param{callable} callable can either be a funtion or an object
      * @return return an array
      */
-    map(callable){
+    map(callable) {
 
         let is_callable = utils.__is_function(callable);
 
-        let data = this.data.map((val)=>{
+        let data = this.data.map((val) => {
 
-            if(is_callable){
+            if (is_callable) {
                 return callable(val)
             }
-            else{
-                
-                if(utils.__is_object(callable)){
+            else {
 
-                    if(utils.__key_in_object(callable,val)){
+                if (utils.__is_object(callable)) {
+
+                    if (utils.__key_in_object(callable, val)) {
                         return callable[val];
-                    }else{
+                    } else {
                         return "NaN"
                     }
-                }else{
+                } else {
                     throw new Error("callable must either be a function or an object")
                 }
             }
@@ -511,14 +571,14 @@ export class Series extends NDframe {
      * @param {callable} callable [FUNCTION]
      * @return Array
      */
-    apply(callable){
+    apply(callable) {
         let is_callable = utils.__is_function(callable);
 
-        if(!is_callable){
+        if (!is_callable) {
             throw new Error("the arguement most be a function")
         }
 
-        let data = this.data.map((val)=>{
+        let data = this.data.map((val) => {
 
             return callable(val)
         });

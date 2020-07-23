@@ -270,7 +270,7 @@ export class DataFrame extends Ndframe {
             let indx = this.index.slice(this.values.length - rows)
             let config = { columns: this.column_names }
             let df = new DataFrame(data, config)
-            df.set_index(indx)
+            df.__set_index(indx)
             return df
         }
 

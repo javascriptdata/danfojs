@@ -1,5 +1,6 @@
 import { assert } from "chai"
 import { DataFrame } from '../../src/core/frame'
+import {to_date_time} from '../../src/core/timeseries'
 
 describe("DataFrame", function () {
 
@@ -502,7 +503,7 @@ describe("DataFrame", function () {
 
             let data = ["02Sep2019","03Sep2019","04Sep2019"]
     
-            let times = DataFrame.to_datetime({"data":data,"format":"%d%b%Y%"})
+            let times = to_date_time({"data":data,"format":"%d%b%Y%"})
 
             let new_data = [new Date("02-Sep-2019"), new Date("03-Sep-2019"), new Date("04-Sep-2019")]
 
