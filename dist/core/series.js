@@ -69,11 +69,11 @@ class Series extends _generic.default {
         columns: this.column_names
       };
 
-      let sampled_idx = utils.__sample_from_iter(utils.__range(0, this.shape[0]), num);
+      let sampled_idx = utils.__sample_from_iter(utils.__range(0, this.values.length - 1), num);
 
       console.log(sampled_idx);
-      let sampled_arr = [];
-      sampled_idx.map(val => {
+      var sampled_arr = [];
+      sampled_idx.forEach(val => {
         sampled_arr.push(this.values[val]);
       });
       console.log(sampled_arr);
