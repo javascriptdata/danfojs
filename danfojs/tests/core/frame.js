@@ -1,6 +1,6 @@
 import { assert } from "chai"
 import { DataFrame } from '../../src/core/frame'
-import {to_date_time} from '../../src/core/timeseries'
+// import {to_date_time} from '../../src/core/timeseries'
 
 describe("DataFrame", function () {
 
