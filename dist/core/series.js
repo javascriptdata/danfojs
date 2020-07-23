@@ -69,16 +69,18 @@ class Series extends _generic.default {
         columns: this.column_names
       };
 
-      let sampled_idx = utils.__sample_from_iter(utils.__range(0, this.values.length - 1), num);
+      let sampled_index = utils.__randgen(num, 0, this.shape[0]);
 
-      console.log(sampled_idx);
-      var sampled_arr = [];
-      sampled_idx.forEach(val => {
-        sampled_arr.push(this.values[val]);
+      let sampled_arr = [];
+      let new_idx = [];
+      let self = this;
+      sampled_index.map(val => {
+        sampled_arr.push(self.values[val]);
+        new_idx.push(self.index[val]);
       });
-      console.log(sampled_arr);
-      console.log(this.values);
-      return new Series(sampled_arr, config);
+      let sf = new Series(sampled_arr, config);
+      sf.set_index(new_idx);
+      return sf;
     }
   }
 
@@ -411,6 +413,19 @@ class Series extends _generic.default {
           throw new Error("callable must either be a function or an object");
         }
       }
+    });
+    return data;
+  }
+
+  apply(callable) {
+    let is_callable = utils.__is_function(callable);
+
+    if (!is_callable) {
+      throw new Error("the arguement most be a function");
+    }
+
+    let data = this.data.map(val => {
+      return callable(val);
     });
     return data;
   }

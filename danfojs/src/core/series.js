@@ -84,17 +84,19 @@ export class Series extends NDframe {
         } else {
             //Creates a new dataframe with last [rows]
             let config = { columns: this.column_names }
-            // let sampled_arr = utils.__sample_from_iter(this.values, num)
             let sampled_index = utils.__randgen(num,0,this.shape[0]);
 
             let sampled_arr = []
+            let new_idx = []
 
             let self = this
             sampled_index.map((val)=>{
                     sampled_arr.push(self.values[val])
+                    new_idx.push(self.index[val])       
             });
-
-            return new Series(sampled_arr, config)
+            let sf = new Series(sampled_arr, config)
+            sf.set_index(new_idx)
+            return sf
 
         }
     }
