@@ -1,2 +1,2 @@
-export { Series, DataFrame } from './core/index';
+export { Series, DataFrame, to_date_time } from './core/index';
 export {read_csv} from './io/reader'

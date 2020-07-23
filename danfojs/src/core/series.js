@@ -1,7 +1,6 @@
 import * as tf from '@tensorflow/tfjs-node'
 import { Utils } from "./utils"
 import NDframe from "./generic"
-import { util } from '@tensorflow/tfjs-node'
 
 const utils = new Utils
 // const config = new Configs()
@@ -77,15 +76,24 @@ export class Series extends NDframe {
     * @param {rows}  
     * @returns {Series}
     */
-    sample(num = 1) {
+    sample(num = 10) {
         if (num > this.values.length || num < 1) {
             //return all values
             let config = { columns: this.column_names }
             return new Series(this.values, config)
         } else {
             //Creates a new dataframe with last [rows]
-            let config = { columns: this.column_names }
-            let sampled_arr = utils.__sample_from_iter(this.values, num)
+            let config = { columns: this.column_names}
+            let sampled_idx = utils.__sample_from_iter(utils.__range(0, this.shape[0]), num)
+            // let sampled_idx = utils.__range(0,num - 1)
+
+            console.log(sampled_idx)
+            let sampled_arr = []
+            sampled_idx.map(val=>{
+                sampled_arr.push(this.values[val])
+            })
+            console.log(sampled_arr);
+            console.log(this.values);
             return new Series(sampled_arr, config)
 
         }

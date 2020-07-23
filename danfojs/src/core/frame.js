@@ -3,7 +3,7 @@ import {Series} from "./series"
 import * as tf from '@tensorflow/tfjs-node'
 import { Utils } from "./utils"
 import {GroupBy} from "./groupby"
-import {TimeSeries} from "./timeseries"
+// import {TimeSeries} from "./timeseries"
 import {Merge} from "./merge"
 
 const utils = new Utils
@@ -191,7 +191,7 @@ export class DataFrame extends Ndframe {
 
         let column_names = []
         if(kwargs["type"] == "iloc" || isColumnSplit){
-            let axes = this.axes
+            // let axes = this.axes
             columns.map((col) => {
                 column_names.push(this.columns[col]);
             })
@@ -404,6 +404,7 @@ export class DataFrame extends Ndframe {
         });
 
         this.data = new_data;
+        this.col_data = utils.__get_col_values(new_data)
         this.data_tensor = tf.tensor(new_data)
         this.columns.push(column_name);
     }
@@ -499,18 +500,18 @@ export class DataFrame extends Ndframe {
 
     }
 
-    /**
-     * generate a datetime from a column of date string
-     * @param {kwargs} kwargs object {data: [array of string], format: String} 
-     * @return DateTime data structure
-     */
-    static to_datetime(kwargs){
+    // /**
+    //  * generate a datetime from a column of date string
+    //  * @param {kwargs} kwargs object {data: [array of string], format: String} 
+    //  * @return DateTime data structure
+    //  */
+    // static to_datetime(kwargs){
 
-        let timeseries = new TimeSeries(kwargs); // parsed to date-time
-        timeseries.preprocessed() // generate date-time list
+    //     let timeseries = new TimeSeries(kwargs); // parsed to date-time
+    //     timeseries.preprocessed() // generate date-time list
         
-        return timeseries
-    }
+    //     return timeseries
+    // }
 
     // /**
     //  * check if each row,col contains NaN
@@ -724,3 +725,4 @@ export class DataFrame extends Ndframe {
     // static dummy(series) { }
 
 }
+

@@ -1,19 +1,19 @@
 import { Utils } from "./utils"
-import {Series} from "./series"
+import { Series } from "./series"
 const utils = new Utils
 /**
  * @class
  * @description Handle all datetime operations
  * @param {kwargs} Object {"data":[array of string], "format": string}
  */
-export class TimeSeries {
-    constructor(kwargs){
-        
-        utils.__in_object(kwargs,"data","specify the data")
+class TimeSeries {
+    constructor(kwargs) {
 
-        if( kwargs["data"] instanceof Series){
+        utils.__in_object(kwargs, "data", "specify the data")
+
+        if (kwargs["data"] instanceof Series) {
             this.data = kwargs["data"].values
-        }else{
+        } else {
             this.data = kwargs["data"]
         }
 
@@ -30,40 +30,40 @@ export class TimeSeries {
             "-": 1,
         }
 
-        this.__in_format = ["%Y-m-d%","%m-d-Y%","%m-d-Y H%M%S%"]
+        this.__in_format = ["%Y-m-d%", "%m-d-Y%", "%m-d-Y H%M%S%"]
 
-        this.__monthName = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-        this.__weekName  = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
-        
+        this.__monthName = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        this.__weekName = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+
     }
 
     /**
      * @description preprocessed the data into desirable  structure
      */
-    preprocessed(){
+    preprocessed() {
 
         let format_values = null;
-        if(this.format){
+        if (this.format) {
             format_values = this.generate_format()
         }
-        
+
         this.date_list = []
 
-        for(let i=0;i<this.data.length;i++){
+        for (let i = 0; i < this.data.length; i++) {
 
             let date_string = this.data[i]
 
-            if(this.format && !this.__in_format.includes(this.format)){
+            if (this.format && !this.__in_format.includes(this.format)) {
 
-                let format_dateString = this.__apply_format(date_string,format_values)
+                let format_dateString = this.__apply_format(date_string, format_values)
                 let valueDate = new Date(format_dateString)
 
                 this.__is_validDate(valueDate)
 
                 this.date_list.push(valueDate);
-                
+
             }
-            else if(this.is_timestamp(date_string)){
+            else if (this.is_timestamp(date_string)) {
 
                 let string2int = parseInt(date_string)
                 let valueDate = new Date(string2int);
@@ -71,7 +71,7 @@ export class TimeSeries {
                 this.__is_validDate(valueDate);
                 this.date_list.push(valueDate);
             }
-            else{
+            else {
                 let valueDate = new Date(date_string);
 
                 this.__is_validDate(valueDate);
@@ -80,37 +80,37 @@ export class TimeSeries {
         }
 
         // return this.date_list;
-        
+
     }
 
     /**
      * @description if format is given, apply the format on each element of the data
      * @return string
      */
-    __apply_format(elem,format){
+    __apply_format(elem, format) {
 
         let date_string = ""
 
         let temp_val = 0;
 
-        
-        for(let index in format){
+
+        for (let index in format) {
 
             let value = format[index];
 
-            if(index == 0){ 
-                date_string +=  elem.slice(0,value)
+            if (index == 0) {
+                date_string += elem.slice(0, value)
 
             }
-            else if(index > 4){
+            else if (index > 4) {
 
-                date_string += ":"+ elem.slice(temp_val,temp_val+value)
+                date_string += ":" + elem.slice(temp_val, temp_val + value)
             }
-            else if(index == 4){
-                date_string += " "+ elem.slice(temp_val,temp_val+value)
+            else if (index == 4) {
+                date_string += " " + elem.slice(temp_val, temp_val + value)
             }
-            else if(index > 0 && index <=2){
-                date_string += "-"+ elem.slice(temp_val,temp_val+value)
+            else if (index > 0 && index <= 2) {
+                date_string += "-" + elem.slice(temp_val, temp_val + value)
             }
 
             temp_val += value
@@ -122,16 +122,16 @@ export class TimeSeries {
     /**
      * @description convert format string to their respective value.
      */
-    generate_format(){
+    generate_format() {
 
         let format_list = this.format.split("")
-        
+
         let self = this;
-        let format_keys = format_list.filter(function(key){
+        let format_keys = format_list.filter(function (key) {
             return utils.__key_in_object(self.keys, key)
         });
 
-        let format_value = format_keys.map(function(val){
+        let format_value = format_keys.map(function (val) {
             return self.keys[val]
         })
 
@@ -143,14 +143,14 @@ export class TimeSeries {
      * @description check if a string is a timestamp
      * @param {date_string} date_string [string] 
      */
-    is_timestamp(date_string){
+    is_timestamp(date_string) {
 
         let string2int = parseInt(date_string);
         let int2string = String(string2int);
 
-        if(isNaN(string2int) || (int2string.length < date_string.length)){
+        if (isNaN(string2int) || (int2string.length < date_string.length)) {
             return false
-        }else{
+        } else {
             return true
         }
     }
@@ -159,27 +159,27 @@ export class TimeSeries {
      * @description check if a date instance returns Invalid date
      * @param {date_instance} instance of new Date()
      */
-    __is_validDate(date_instance){
+    __is_validDate(date_instance) {
 
-        if(date_instance.toDateString() == "Invalid Date"){
+        if (date_instance.toDateString() == "Invalid Date") {
             throw new Error("Invalid date, the date format not recognise");
         }
     }
-    
+
     /**
      * @description abstract all date operations
      * @param {*} callback [FUNCTION]
      * @return series
      */
-    __date_ops(callback){
+    __date_ops(callback) {
 
-        let data = this.date_list.map(function(date_instance){
+        let data = this.date_list.map(function (date_instance) {
 
             return callback(date_instance);
         });
 
         // eslint-disable-next-line no-self-assign
-        let series = new Series(data= data);
+        let series = new Series(data = data);
 
         return series;
     }
@@ -188,9 +188,9 @@ export class TimeSeries {
      * @description obtain the month in a date.
      * @return Series
      */
-    month(){
+    month() {
 
-        let series = this.__date_ops(function(date_instance){
+        let series = this.__date_ops(function (date_instance) {
             return date_instance.getMonth();
         });
 
@@ -200,8 +200,8 @@ export class TimeSeries {
     /**
      * @return Series 
      */
-    hour(){
-        let series = this.__date_ops(function(date_instance){
+    hour() {
+        let series = this.__date_ops(function (date_instance) {
             return date_instance.getHour();
         });
 
@@ -211,8 +211,8 @@ export class TimeSeries {
     /**
      * @return Series
      */
-    day(){
-        let series = this.__date_ops(function(date_instance){
+    day() {
+        let series = this.__date_ops(function (date_instance) {
             return date_instance.getDay();
         });
 
@@ -223,9 +223,9 @@ export class TimeSeries {
      * @description generate year frome date instance
      * @return Series
      */
-    year(){
+    year() {
 
-        let series = this.__date_ops(function(date_instance){
+        let series = this.__date_ops(function (date_instance) {
             return date_instance.getFullYear();
         });
 
@@ -236,10 +236,10 @@ export class TimeSeries {
      * @description generate month name
      * @return Series
      */
-    month_name(){
+    month_name() {
 
         let self = this
-        let series = this.__date_ops(function(date_instance){
+        let series = this.__date_ops(function (date_instance) {
             return self.__monthName[date_instance.getMonth()];
         });
 
@@ -250,9 +250,9 @@ export class TimeSeries {
      * @description generate days of the week
      * @return Series
      */
-    weekdays(){
+    weekdays() {
         let self = this
-        let series = this.__date_ops(function(date_instance){
+        let series = this.__date_ops(function (date_instance) {
             return self.__weekName[date_instance.getDay()];
         });
 
@@ -263,8 +263,8 @@ export class TimeSeries {
      * @description day of the month
      * @return Series
      */
-    monthday(){
-        let series = this.__date_ops(function(date_instance){
+    monthday() {
+        let series = this.__date_ops(function (date_instance) {
             return date_instance.getDate();
         });
 
@@ -272,7 +272,14 @@ export class TimeSeries {
     }
 
 
+}
 
 
+export const to_date_time = (kwargs)=>{
+
+    let timeseries = new TimeSeries(kwargs); // parsed to date-time
+    timeseries.preprocessed() // generate date-time list
+    
+    return timeseries
 
 }

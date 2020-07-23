@@ -15,6 +15,12 @@ Object.defineProperty(exports, "DataFrame", {
     return _index.DataFrame;
   }
 });
+Object.defineProperty(exports, "to_date_time", {
+  enumerable: true,
+  get: function () {
+    return _index.to_date_time;
+  }
+});
 Object.defineProperty(exports, "read_csv", {
   enumerable: true,
   get: function () {
