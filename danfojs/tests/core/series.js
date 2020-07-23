@@ -502,4 +502,18 @@ describe("Series", function () {
         });
     });
 
+    describe("Apply",function(){
+
+        it("apply a function to a series element", function(){
+            let sf = new Series([1,2,3,4,5,6,7,8])
+
+            let apply_func = (x)=>{
+                return x+x
+            }
+
+            let rslt = [2,4,6,8,10,12,14,16]
+            assert.deepEqual(sf.apply(apply_func), rslt)
+        });
+    });
+
 })

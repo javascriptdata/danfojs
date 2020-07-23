@@ -349,6 +349,36 @@ export class Utils {
 
         return typeof variable == "function"
     }
+
+    
+
+    //generate a random list
+    __randgen(num,start,end){
+
+        let gen_num  = []
+
+        //random int
+        function randi(a, b) { return Math.floor(Math.random() * (b - a) + a); }
+        
+        function recursive(val,arr){
+            if(!arr.includes(val)){
+                return val
+            }
+
+            val = randi(start, end);
+
+            recursive(val,arr);
+        }
+
+        for(let i=0; i< num; i++){
+
+            let gen_val = randi(start, end)
+            let recur_val = recursive(gen_val, gen_num);
+            gen_num.push(recur_val)
+        }
+
+        return gen_num;
+    }
 }
 
 
