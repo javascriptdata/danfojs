@@ -133,6 +133,9 @@ class NDframe {
         });
         this.col_data = utils.__get_col_values(this.data);
         this.col_types = dtypes;
+      } else {
+        throw new Error(`dtypes: lenght mismatch. Specified dtype has a lenght
+                 of ${dtypes.length} but NDframe has ${this.column_names.length} number of columns`);
       }
     }
   }
@@ -141,8 +144,8 @@ class NDframe {
     return this.col_types;
   }
 
-  astype(dtype) {
-    this.__set_col_types(dtype, false);
+  astype(dtypes) {
+    this.__set_col_types(dtypes, false);
   }
 
   get ndim() {
@@ -179,7 +182,7 @@ class NDframe {
 
   get shape() {
     if (this.series) {
-      return [1];
+      return [this.values.length, 1];
     } else {
       return this.data_tensor.shape;
     }

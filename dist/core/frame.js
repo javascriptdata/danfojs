@@ -15,8 +15,6 @@ var _utils = require("./utils");
 
 var _groupby = require("./groupby");
 
-var _timeseries = require("./timeseries");
-
 var _merge = require("./merge");
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
@@ -122,9 +120,8 @@ class DataFrame extends _generic.default {
             start = parseInt(row_split[0]);
             end = parseInt(row_split[1]);
           } else {
-            let axes = this.axes["columns"];
-            start = parseInt(axes.indexOf(row_split[0]));
-            end = parseInt(axes.indexOf(row_split[1]));
+            start = parseInt(this.columns.indexOf(row_split[0]));
+            end = parseInt(this.columns.indexOf(row_split[1]));
           }
 
           if (typeof start == "number" && typeof end == "number") {
@@ -142,7 +139,6 @@ class DataFrame extends _generic.default {
     }
 
     let data_values = this.values;
-    let axes = this.axes;
     let new_data = [];
 
     for (var index = 0; index < rows.length; index++) {
@@ -160,14 +156,14 @@ class DataFrame extends _generic.default {
         var col_index;
 
         if (kwargs["type"] == "loc" && !isColumnSplit) {
-          col_index = axes["columns"].indexOf(columns[i]);
+          col_index = this.columns.indexOf(columns[i]);
 
           if (col_index == -1) {
             throw new Error(`Column ${columns[i]} does not exist`);
           }
         } else {
           col_index = columns[i];
-          let max_colIndex = axes["columns"].length - 1;
+          let max_colIndex = this.columns.length - 1;
 
           if (col_index > max_colIndex) {
             throw new Error(`column index ${col_index} is bigger than ${max_colIndex}`);
@@ -184,9 +180,8 @@ class DataFrame extends _generic.default {
     let column_names = [];
 
     if (kwargs["type"] == "iloc" || isColumnSplit) {
-      let axes = this.axes;
       columns.map(col => {
-        column_names.push(axes["columns"][col]);
+        column_names.push(this.columns[col]);
       });
     } else {
       column_names = columns;
@@ -273,10 +268,8 @@ class DataFrame extends _generic.default {
     let operators = [">", "<", "<=", ">=", "=="];
 
     if (Object.prototype.hasOwnProperty.call(kwargs, "column")) {
-      let axes = this.axes;
-
-      if (axes["columns"].includes(kwargs["column"])) {
-        var column_index = axes["columns"].indexOf(kwargs["column"]);
+      if (this.columns.includes(kwargs["column"])) {
+        var column_index = this.columns.indexOf(kwargs["column"]);
       } else {
         throw new Error(`column ${kwargs["column"]} does not exist`);
       }
@@ -312,7 +305,7 @@ class DataFrame extends _generic.default {
       }
     }
 
-    let columns = this.axes["columns"];
+    let columns = this.columns;
     let new_df = new DataFrame(new_data, {
       "columns": columns
     });
@@ -341,6 +334,7 @@ class DataFrame extends _generic.default {
       new_data.push(new_val);
     });
     this.data = new_data;
+    this.col_data = utils.__get_col_values(new_data);
     this.data_tensor = tf.tensor(new_data);
     this.columns.push(column_name);
   }
@@ -424,12 +418,6 @@ class DataFrame extends _generic.default {
     return new _series.Series(data, {
       columns: col_name
     });
-  }
-
-  static to_datetime(kwargs) {
-    let timeseries = new _timeseries.TimeSeries(kwargs);
-    timeseries.preprocessed();
-    return timeseries;
   }
 
   static concat(kwargs) {
