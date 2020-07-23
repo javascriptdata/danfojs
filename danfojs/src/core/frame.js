@@ -496,7 +496,7 @@ export class DataFrame extends Ndframe {
         let col_indx_objs = utils.__arr_to_obj(this.columns)
         let indx = col_indx_objs[col_name]
         let data = this.col_data[indx]
-        return new Series(data,{columns: col_name})
+        return new Series(data,{columns: [col_name]})
 
     }
 

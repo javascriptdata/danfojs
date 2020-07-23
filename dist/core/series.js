@@ -79,7 +79,9 @@ class Series extends _generic.default {
         new_idx.push(self.index[val]);
       });
       let sf = new Series(sampled_arr, config);
-      sf.set_index(new_idx);
+
+      sf.__set_index(new_idx);
+
       return sf;
     }
   }
@@ -356,13 +358,17 @@ class Series extends _generic.default {
 
     if (options['inplace']) {
       this.data = sorted_arr;
-      this.set_index(sorted_idx);
+
+      this.__set_index(sorted_idx);
+
       return null;
     } else {
       let sf = new Series(sorted_arr, {
         columns: this.column_names
       });
-      sf.set_index(sorted_idx);
+
+      sf.__set_index(sorted_idx);
+
       return sf;
     }
   }
@@ -371,9 +377,61 @@ class Series extends _generic.default {
     let sf = new Series([...this.values], {
       columns: [...this.column_names]
     });
-    sf.set_index([...this.index]);
+
+    sf.__set_index([...this.index]);
+
     sf.astype([...this.dtypes], false);
     return sf;
+  }
+
+  reset_index(kwargs = {}) {
+    let options = {};
+
+    if (utils.__key_in_object(kwargs, 'inplace')) {
+      options['inplace'] = kwargs['inplace'];
+    } else {
+      options['inplace'] = false;
+    }
+
+    if (options['inplace']) {
+      this.__reset_index();
+    } else {
+      let sf = this.copy();
+
+      sf.__reset_index();
+
+      return sf;
+    }
+  }
+
+  set_index(kwargs = {}) {
+    let options = {};
+
+    if (utils.__key_in_object(kwargs, 'index')) {
+      options['index'] = kwargs['index'];
+    } else {
+      throw Error("Index ValueError: You must specify an array of index");
+    }
+
+    if (utils.__key_in_object(kwargs, 'inplace')) {
+      options['inplace'] = kwargs['inplace'];
+    } else {
+      options['inplace'] = false;
+    }
+
+    if (options['index'].length != this.index.length) {
+      throw Error(`Index LengthError: Lenght of new Index array ${options['index'].length} must match lenght of existing index ${this.index.length}`);
+    }
+
+    if (options['inplace']) {
+      this.index_arr = options['index'];
+    } else {
+      let sf = this.copy();
+
+      sf.__set_index(options['index']);
+
+      return sf;
+    }
   }
 
   __check_series_op_compactibility(other) {

@@ -168,7 +168,7 @@ class NDframe {
     return this.index_arr;
   }
 
-  set_index(labels) {
+  __set_index(labels) {
     if (!Array.isArray(labels)) {
       throw Error("Value Error: index must be an array");
     }
@@ -178,6 +178,11 @@ class NDframe {
     }
 
     this.index_arr = labels;
+  }
+
+  __reset_index() {
+    let new_idx = [...Array(this.values.length).keys()];
+    this.index_arr = new_idx;
   }
 
   get shape() {

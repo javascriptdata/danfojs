@@ -242,7 +242,9 @@ class DataFrame extends _generic.default {
         columns: this.column_names
       };
       let df = new DataFrame(data, config);
-      df.set_index(indx);
+
+      df.__set_index(indx);
+
       return df;
     }
   }
@@ -416,7 +418,7 @@ class DataFrame extends _generic.default {
     let indx = col_indx_objs[col_name];
     let data = this.col_data[indx];
     return new _series.Series(data, {
-      columns: col_name
+      columns: [col_name]
     });
   }
 
