@@ -496,21 +496,6 @@ describe("DataFrame", function () {
         })
     });
 
-    describe("DateTime", function(){
-
-        it("Print out DateTime Structure",function(){
-
-            let data = ["02Sep2019","03Sep2019","04Sep2019"]
-    
-            let times = DataFrame.to_datetime({"data":data,"format":"%d%b%Y%"})
-
-            let new_data = [new Date("02-Sep-2019"), new Date("03-Sep-2019"), new Date("04-Sep-2019")]
-
-            assert.deepEqual(times.date_list, new_data);
-        })
-
-    });
-
     describe("Concatenate",function(){
 
         it("Check the axis 0 concatenation",function(){
