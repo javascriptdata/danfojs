@@ -427,7 +427,6 @@ export class DataFrame extends Ndframe {
                 // eslint-disable-next-line no-unused-vars
                 var [data1, col_name1] = this.__indexLoc({ "rows": [`0:${len}`], "columns": [`${col[0]}`], "type": "loc" });
 
-
             }
             else {
                 throw new Error(`column ${col[0]} does not exist`);
