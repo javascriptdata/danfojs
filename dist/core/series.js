@@ -15,6 +15,8 @@ var _table = require("table");
 
 var _config = require("../config/config");
 
+var _mathjs = require("mathjs");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
@@ -327,6 +329,26 @@ class Series extends _generic.default {
         columns: this.column_names
       });
     }
+  }
+
+  std() {
+    if (this.dtypes[0] == "string") {
+      throw Error("dtype error: String data type does not support std operation");
+    }
+
+    let values = this.values;
+    let std_val = (0, _mathjs.std)(values);
+    return std_val;
+  }
+
+  var() {
+    if (this.dtypes[0] == "string") {
+      throw Error("dtype error: String data type does not support var operation");
+    }
+
+    let values = this.values;
+    let var_val = (0, _mathjs.variance)(values);
+    return var_val;
   }
 
   sort_values(kwargs = {}) {
