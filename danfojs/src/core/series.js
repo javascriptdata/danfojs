@@ -410,7 +410,7 @@ export class Series extends NDframe {
     }
 
     /**
-    *  Return unbiased variance over requested axis.
+    *  Return unbiased variance of Series.
     * @returns {Number}
     */
     var() {
@@ -480,7 +480,7 @@ export class Series extends NDframe {
 
 
     /**
-    * Make a copy of this object’s indices and data
+    * Make a new copy of Series 
     * @returns {Series}
     */
     copy() {
