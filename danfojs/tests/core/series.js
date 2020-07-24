@@ -328,6 +328,53 @@ describe("Series", function () {
         })
     })
 
+    describe("std", function () {
+        it("Computes the standard of elements in a int series", function () {
+            let data1 = [30, 40, 3, 5]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.std(), 19.5)
+        })
+        it("Computes the standard deviation of elements in a float series", function () {
+            let data1 = [30.1, 40.2, 3.1, 5.1]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.std(), 19.625)
+        })
+
+    })
+
+    describe("var", function () {
+        it("Computes the variance of elements in a int series", function () {
+            let data1 = [30, 40, 3, 5]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.var(), 19.5)
+        })
+        it("Computes the variance of elements in a float series", function () {
+            let data1 = [30.1, 40.2, 3.1, 5.1]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.var(), 19.625)
+        })
+
+    })
+
+    describe("describe", function () {
+        it("Computes the descriptive statistics on an int Series", function () {
+            let data1 = [10, 45, 56, 25, 23, 20 ,10]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.describe().values, [7, 27, 17.378147, 10, 23, 56, 302])
+        })
+        it("Computes the descriptive statistics on a float Series", function () {
+            let data1 = [30.1, 40.2, 3.1, 5.1]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.describe().values, [7, 27, 17.378147, 10, 23, 56, 302])
+        })
+        it("Computes the descriptive statistics on a float Series", function () {
+            let data1 = [30.1, 40.2, 3.1, 5.1]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.describe().index, ['count', 'mean', 'std', 'min', 'median', 'max' ,'variance'])
+        })
+
+    })
+
     describe("maximum", function () {
         it("Returns the max of a and b (a > b ? a : b) element-wise. Supports broadcasting.", function () {
             let data1 = [30, 40, 3, 5]

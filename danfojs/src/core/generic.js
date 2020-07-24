@@ -227,7 +227,7 @@ export default class NDframe {
             throw Error("Value Error: length of labels must match row shape of data")
         }
         this.index_arr = labels
-        
+
     }
 
     /**
@@ -282,32 +282,86 @@ export default class NDframe {
 
 
     /**
-    * Overrides default string representation of NDFrame
+    * Prints the data in a DataFrame as a grid of row and columns
     */
     toString() {
         let table_width = config.get_width
         let table_truncate = config.get_truncate
         let max_row = config.get_max_row
-        let data;
-        let data_arr = []
-        let header = [""].concat(this.columns)
-        let table_config = {}
-        let idx = this.index
+        let max_col_in_console = config.get_max_col_in_console
 
-        if (this.values.length > max_row) {
-            data = this.values.slice(0, max_row)
+        // let data;
+        let data_arr = []
+        let table_config = {}
+        // let idx = this.index
+        let col_len = this.columns.length
+        let row_len = this.values.length
+        let header = []
+
+        if (col_len > max_col_in_console) {
+            //truncate displayed columns to fit in the console
+            let first_4_cols = this.columns.slice(0, 4)
+            let last_3_cols = this.columns.slice(col_len - 4, col_len)
+            //join columns with truncate ellipse in the middle
+            header = [""].concat(first_4_cols).concat(["..."]).concat(last_3_cols)
+
+            let sub_idx, values_1, value_2
+
+            if (this.values.length > max_row) {
+                //slice Object to show a max of [max_rows]
+                let df_subset_1 = this.loc({ rows: [`0:${max_row}`], columns: first_4_cols })
+                let df_subset_2 = this.loc({ rows: [`0:${max_row}`], columns: last_3_cols })
+                sub_idx = df_subset_1.index
+                values_1 = df_subset_1.values
+                value_2 = df_subset_2.values
+            } else {
+                let df_subset_1 = this.loc({ rows: [`0:${row_len}`], columns: first_4_cols })
+                let df_subset_2 = this.loc({ rows: [`0:${row_len}`], columns: last_3_cols })
+                sub_idx = df_subset_1.index
+                values_1 = df_subset_1.values
+                value_2 = df_subset_2.values
+            }
+
+            // merge cols
+            sub_idx.map((val, i) => {
+                let row = [val].concat(values_1[i]).concat(["..."]).concat(value_2[i])
+                data_arr.push(row)
+            })
+
+
         } else {
-            data = this.values
+            //display all columns
+            header = [""].concat(this.columns)
+            console.log(header);
+            let idx, values;
+            if (this.values.length > max_row) {
+                //slice Object to show a max of [max_rows]
+                let data = this.loc({ rows: [`0:${max_row}`], columns: this.columns })
+                idx = data.index
+                values = data.values
+            } else {
+                let data = this.loc({ rows: [`0:${row_len}`], columns: this.columns })
+                idx = data.index
+                values = data.values
+            }
+
+            // merge cols
+            idx.map((val, i) => {
+                let row = [val].concat(values[i])
+                data_arr.push(row)
+            })
+            
+
         }
 
-        for (let index = 0; index < this.columns.length; index++) {
+        //set column width of all columns
+        table_config[0] = 10
+        for (let index = 1; index < header.length; index++) {
             table_config[index] = { width: table_width, truncate: table_truncate }
         }
 
-        data.map((val, i) => {
-            data_arr.push([idx[i]].concat(val))
-        })
         data_arr.unshift(header) //Adds the column names to values before printing
+        console.log(`\n Shape: (${this.shape}) \n`);
         return table(data_arr, { columns: table_config })
     }
 

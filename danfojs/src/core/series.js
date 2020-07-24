@@ -1,9 +1,14 @@
 import * as tf from '@tensorflow/tfjs-node'
 import { Utils } from "./utils"
 import NDframe from "./generic"
+import { table } from 'table'
+import { Configs } from '../config/config'
+
 
 const utils = new Utils
-// const config = new Configs()
+const config = new Configs()  //package wide configuration object
+
+import { std, variance } from 'mathjs'
 
 
 
@@ -67,7 +72,10 @@ export class Series extends NDframe {
             //Creates a new Series with last [rows]
             let config = { columns: this.column_names }
             let data = this.values.slice(this.values.length - rows)
-            return new Series(data, config)
+            let idx = this.index.slice(this.values.length - rows)
+            let sf = new Series(data, config)
+            sf.__set_index(idx)
+            return sf
         }
 
     }
@@ -369,7 +377,7 @@ export class Series extends NDframe {
 
 
     /**
-    * Return maximum of series and other, element-wise (binary operator div).
+    * Round each value in a Series to the given number of decimals.
     *  @param {dp} Number, Numbers of Decimal places to round to
     * @returns {Series}
     */
@@ -384,6 +392,34 @@ export class Series extends NDframe {
             return new Series(result, { columns: this.column_names })
 
         }
+
+    }
+
+    /**
+    * Return sample standard deviation over requested axis.
+    * @returns {Number}
+    */
+    std() {
+        if (this.dtypes[0] == "string") {
+            throw Error("dtype error: String data type does not support std operation")
+        }
+        let values = this.values
+        let std_val = std(values) //using math.js
+        return std_val
+
+    }
+
+    /**
+    *  Return unbiased variance over requested axis.
+    * @returns {Number}
+    */
+    var() {
+        if (this.dtypes[0] == "string") {
+            throw Error("dtype error: String data type does not support var operation")
+        }
+        let values = this.values
+        let var_val = variance(values) //using math.js
+        return var_val
 
     }
 
@@ -444,9 +480,9 @@ export class Series extends NDframe {
 
 
     /**
-   * Make a copy of this object’s indices and data
-   * @returns {Series}
-   */
+    * Make a copy of this object’s indices and data
+    * @returns {Series}
+    */
     copy() {
         let sf = new Series([...this.values], { columns: [...this.column_names] })
         sf.__set_index([...this.index])
@@ -454,6 +490,8 @@ export class Series extends NDframe {
         return sf
     }
 
+
+   
 
     /**
     * Generate a new DataFrame or Series with the index reset.
@@ -584,6 +622,45 @@ export class Series extends NDframe {
         });
         return data
     }
+
+
+    /**
+    * Prints the data in a Series as a grid of row and columns
+    */
+    toString() {
+        let table_width = config.get_width
+        let table_truncate = config.get_truncate
+        let max_row = config.get_max_row
+
+        // let data;
+        let data_arr = []
+        let table_config = {}
+
+        let header = [""].concat(this.columns)
+        let idx, data;
+
+        if (this.values.length > max_row) {
+            //slice Object to show a max of [max_rows]
+            data = this.values.slice(0, max_row)
+            idx = this.index.slice(0, max_row)
+        } else {
+            data = this.values
+            idx = this.index
+        }
+
+        idx.map((val, i) => {
+            let row = [val].concat(data[i])
+            data_arr.push(row)
+        })
+
+        //set column width of all columns
+        table_config[0] = 10
+        table_config[1] = { width: table_width, truncate: table_truncate }
+
+        data_arr.unshift(header) //Adds the column names to values before printing
+        return table(data_arr, { columns: table_config })
+    }
+
 
 }
 

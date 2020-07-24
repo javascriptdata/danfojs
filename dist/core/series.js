@@ -11,6 +11,10 @@ var _utils = require("./utils");
 
 var _generic = _interopRequireDefault(require("./generic"));
 
+var _table = require("table");
+
+var _config = require("../config/config");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
@@ -18,6 +22,7 @@ function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 const utils = new _utils.Utils();
+const config = new _config.Configs();
 
 class Series extends _generic.default {
   constructor(data, kwargs) {
@@ -54,7 +59,12 @@ class Series extends _generic.default {
         columns: this.column_names
       };
       let data = this.values.slice(this.values.length - rows);
-      return new Series(data, config);
+      let idx = this.index.slice(this.values.length - rows);
+      let sf = new Series(data, config);
+
+      sf.__set_index(idx);
+
+      return sf;
     }
   }
 
@@ -486,6 +496,38 @@ class Series extends _generic.default {
       return callable(val);
     });
     return data;
+  }
+
+  toString() {
+    let table_width = config.get_width;
+    let table_truncate = config.get_truncate;
+    let max_row = config.get_max_row;
+    let data_arr = [];
+    let table_config = {};
+    let header = [""].concat(this.columns);
+    let idx, data;
+
+    if (this.values.length > max_row) {
+      data = this.values.slice(0, max_row);
+      idx = this.index.slice(0, max_row);
+    } else {
+      data = this.values;
+      idx = this.index;
+    }
+
+    idx.map((val, i) => {
+      let row = [val].concat(data[i]);
+      data_arr.push(row);
+    });
+    table_config[0] = 10;
+    table_config[1] = {
+      width: table_width,
+      truncate: table_truncate
+    };
+    data_arr.unshift(header);
+    return (0, _table.table)(data_arr, {
+      columns: table_config
+    });
   }
 
 }
