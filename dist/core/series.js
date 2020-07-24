@@ -15,6 +15,8 @@ var _table = require("table");
 
 var _config = require("../config/config");
 
+var _mathjs = require("mathjs");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
@@ -329,6 +331,26 @@ class Series extends _generic.default {
     }
   }
 
+  std() {
+    if (this.dtypes[0] == "string") {
+      throw Error("dtype error: String data type does not support std operation");
+    }
+
+    let values = this.values;
+    let std_val = (0, _mathjs.std)(values);
+    return std_val;
+  }
+
+  var() {
+    if (this.dtypes[0] == "string") {
+      throw Error("dtype error: String data type does not support var operation");
+    }
+
+    let values = this.values;
+    let var_val = (0, _mathjs.variance)(values);
+    return var_val;
+  }
+
   sort_values(kwargs = {}) {
     if (this.dtypes[0] == 'string') {
       throw Error("Dtype Error: cannot sort Series of type string");
@@ -392,6 +414,29 @@ class Series extends _generic.default {
 
     sf.astype([...this.dtypes], false);
     return sf;
+  }
+
+  describe() {
+    if (this.dtypes[0] == "string") {
+      return null;
+    } else {
+      let index = ['count', 'mean', 'std', 'min', 'median', 'max', 'variance'];
+      let count = this.count();
+      let mean = this.mean();
+      let std = this.std();
+      let min = this.min();
+      let median = this.median();
+      let max = this.max();
+      let variance = this.var();
+      let vals = [count, mean, std, min, median, max, variance];
+      let sf = new Series(vals, {
+        columns: this.columns
+      });
+
+      sf.__set_index(index);
+
+      return sf;
+    }
   }
 
   reset_index(kwargs = {}) {
@@ -499,8 +544,8 @@ class Series extends _generic.default {
   }
 
   toString() {
-    let table_width = config.get_width;
-    let table_truncate = config.get_truncate;
+    let table_width = 20;
+    let table_truncate = 20;
     let max_row = config.get_max_row;
     let data_arr = [];
     let table_config = {};
