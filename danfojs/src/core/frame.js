@@ -6,7 +6,6 @@ import {GroupBy} from "./groupby"
 // import {TimeSeries} from "./timeseries"
 import {Merge} from "./merge"
 
-
 const utils = new Utils
 // const config = new Configs()
 

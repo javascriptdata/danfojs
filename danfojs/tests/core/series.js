@@ -332,12 +332,12 @@ describe("Series", function () {
         it("Computes the standard of elements in a int series", function () {
             let data1 = [30, 40, 3, 5]
             let sf = new Series(data1)
-            assert.deepEqual(sf.std(), 19.5)
+            assert.deepEqual(sf.std(), 18.375708603116962)
         })
         it("Computes the standard deviation of elements in a float series", function () {
             let data1 = [30.1, 40.2, 3.1, 5.1]
             let sf = new Series(data1)
-            assert.deepEqual(sf.std(), 19.625)
+            assert.deepEqual(sf.std(), 18.412925713566906)
         })
 
     })
@@ -346,12 +346,12 @@ describe("Series", function () {
         it("Computes the variance of elements in a int series", function () {
             let data1 = [30, 40, 3, 5]
             let sf = new Series(data1)
-            assert.deepEqual(sf.var(), 19.5)
+            assert.deepEqual(sf.var(), 337.6666666666667)
         })
         it("Computes the variance of elements in a float series", function () {
             let data1 = [30.1, 40.2, 3.1, 5.1]
             let sf = new Series(data1)
-            assert.deepEqual(sf.var(), 19.625)
+            assert.deepEqual(sf.var(), 339.03583333333336)
         })
 
     })
@@ -360,12 +360,12 @@ describe("Series", function () {
         it("Computes the descriptive statistics on an int Series", function () {
             let data1 = [10, 45, 56, 25, 23, 20 ,10]
             let sf = new Series(data1)
-            assert.deepEqual(sf.describe().values, [7, 27, 17.378147, 10, 23, 56, 302])
+            assert.deepEqual(sf.describe().values, [7, 27.000001907348633, 17.378147196982766, 10, 23, 56, 302])
         })
         it("Computes the descriptive statistics on a float Series", function () {
             let data1 = [30.1, 40.2, 3.1, 5.1]
             let sf = new Series(data1)
-            assert.deepEqual(sf.describe().values, [7, 27, 17.378147, 10, 23, 56, 302])
+            assert.deepEqual(sf.describe().values, [4, 19.625,18.412925713566906, 3.0999999046325684, 17.6, 40.20000076293945, 339.03583333333336])
         })
         it("Computes the descriptive statistics on a float Series", function () {
             let data1 = [30.1, 40.2, 3.1, 5.1]

@@ -491,7 +491,36 @@ export class Series extends NDframe {
     }
 
 
-   
+    /**
+    * Generate descriptive statistics.
+    * Descriptive statistics include those that summarize the central tendency, 
+    * dispersion and shape of a dataset’s distribution, excluding NaN values.
+    * @returns {Series}
+    */
+    describe() {
+        if (this.dtypes[0] == "string") {
+            return null
+        } else {
+
+            let index = ['count', 'mean', 'std', 'min', 'median', 'max', 'variance']
+            let count = this.count()
+            let mean = this.mean()
+            let std = this.std()
+            let min = this.min()
+            let median = this.median()
+            let max = this.max()
+            let variance = this.var()
+
+            let vals = [count, mean, std, min, median, max, variance]
+            let sf = new Series(vals, {columns: this.columns})
+            sf.__set_index(index)
+            return sf
+
+        }
+
+
+    }
+
 
     /**
     * Generate a new DataFrame or Series with the index reset.
@@ -628,8 +657,8 @@ export class Series extends NDframe {
     * Prints the data in a Series as a grid of row and columns
     */
     toString() {
-        let table_width = config.get_width
-        let table_truncate = config.get_truncate
+        let table_width = 20
+        let table_truncate = 20
         let max_row = config.get_max_row
 
         // let data;
