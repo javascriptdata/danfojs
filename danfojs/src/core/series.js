@@ -1,9 +1,12 @@
 import * as tf from '@tensorflow/tfjs-node'
 import { Utils } from "./utils"
 import NDframe from "./generic"
+import { table } from 'table'
+import { Configs } from '../config/config'
+
 
 const utils = new Utils
-// const config = new Configs()
+const config = new Configs()  //package wide configuration object
 
 
 
@@ -513,10 +516,6 @@ export class Series extends NDframe {
 
 
 
-    
-
-
-
 
     //check two series is compatible for an mathematical operation
     __check_series_op_compactibility(other) {
@@ -586,6 +585,45 @@ export class Series extends NDframe {
         });
         return data
     }
+
+
+    /**
+    * Prints the data in a Series as a grid of row and columns
+    */
+    toString() {
+        let table_width = config.get_width
+        let table_truncate = config.get_truncate
+        let max_row = config.get_max_row
+
+        // let data;
+        let data_arr = []
+        let table_config = {}
+
+        let header = [""].concat(this.columns)
+        let idx, data;
+
+        if (this.values.length > max_row) {
+            //slice Object to show a max of [max_rows]
+            data = this.values.slice(0, max_row)
+            idx = this.index.slice(0, max_row)
+        } else {
+            data = this.values
+            idx = this.index
+        }
+
+        idx.map((val, i) => {
+            let row = [val].concat(data[i])
+            data_arr.push(row)
+        })
+
+        //set column width of all columns
+        table_config[0] = 10
+        table_config[1] = { width: table_width, truncate: table_truncate }
+    
+        data_arr.unshift(header) //Adds the column names to values before printing
+        return table(data_arr, { columns: table_config })
+    }
+
 
 }
 
