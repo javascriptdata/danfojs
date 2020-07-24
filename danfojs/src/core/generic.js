@@ -282,7 +282,7 @@ export default class NDframe {
 
 
     /**
-    * Overrides default string representation of NDFrame
+    * Prints the data in a DataFrame as a grid of row and columns
     */
     toString() {
         let table_width = config.get_width

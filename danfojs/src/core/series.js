@@ -70,7 +70,10 @@ export class Series extends NDframe {
             //Creates a new Series with last [rows]
             let config = { columns: this.column_names }
             let data = this.values.slice(this.values.length - rows)
-            return new Series(data, config)
+            let idx = this.index.slice(this.values.length - rows)
+            let sf = new Series(data, config)
+            sf.__set_index(idx)
+            return sf
         }
 
     }
