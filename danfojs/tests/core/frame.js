@@ -644,4 +644,36 @@ describe("DataFrame", function () {
             assert.deepEqual(merge_df.values, output_data);
         })
      });
+
+    describe("Apply", function(){
+
+        it("Apply math operation on dataframe at axis 1", function(){
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+
+            let rslt = [ 6, 15, 90, 206 ]
+
+            let apply_rslt = df.apply({axis:1, callable: (x)=>{
+                    return x.sum()
+                }})
+
+            assert.deepEqual(apply_rslt, rslt)
+        });
+
+        it("Apply tensor operation on dataframe at axis 0",function(){
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+
+            let rslt = [ 64, 126, 127 ]
+
+            let apply_rslt = df.apply({axis:0, callable: (x)=>{
+                return x.sum()
+            }})
+
+            assert.deepEqual(apply_rslt, rslt)
+
+        })
+    });
 });

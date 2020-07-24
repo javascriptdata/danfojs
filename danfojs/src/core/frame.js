@@ -5,6 +5,7 @@ import { Utils } from "./utils"
 import {GroupBy} from "./groupby"
 // import {TimeSeries} from "./timeseries"
 import {Merge} from "./merge"
+import { callbacks } from "@tensorflow/tfjs-node"
 
 const utils = new Utils
 // const config = new Configs()
@@ -715,6 +716,55 @@ export class DataFrame extends Ndframe {
         let merge = new Merge(kwargs)
 
         return merge
+    }
+
+    /**
+     * manipulate dataframe element with apply
+     * @param {kwargs} kargs is defined as {axis: 0 or 1, callable: [FUNCTION]}
+     * @return Array
+     */
+    apply(kwargs){
+        let is_callable = utils.__is_function(kwargs["callable"]);
+
+        if (!is_callable) {
+            throw new Error("the arguement most be a function")
+        }
+
+        let callable = kwargs["callable"]
+
+        let data = [];
+
+        if(!(kwargs["axis"]==0) && !(kwargs["axis"]==1)){
+            throw new Error("axis must either be 0 or 1")
+        }
+
+        let axis = kwargs["axis"]
+
+        if(axis==1){
+
+            let df_data = this.values
+            for(let i=0; i < df_data.length; i++ ){
+
+                let row_value = tf.tensor(df_data[i])
+
+                let callable_data = callable(row_value).arraySync()
+                data.push(callable_data)
+
+            }
+        }else{
+
+            let df_data = this.col_data
+            for(let i=0; i < df_data.length; i++ ){
+
+                let row_value = tf.tensor(df_data[i])
+
+                let callable_data = callable(row_value).arraySync()
+                data.push(callable_data)
+
+            }
+        }
+        
+        return data
     }
 
     // /**
