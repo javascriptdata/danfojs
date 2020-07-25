@@ -187,30 +187,32 @@ class DataFrame extends _generic.default {
       column_names = columns;
     }
 
-    return [new_data, column_names];
+    return [new_data, column_names, rows];
   }
 
   loc(kwargs) {
     kwargs["type"] = "loc";
 
-    let [new_data, columns] = this.__indexLoc(kwargs);
+    let [new_data, columns, rows] = this.__indexLoc(kwargs);
 
     let df_columns = {
       "columns": columns
     };
     let df = new DataFrame(new_data, df_columns);
+    df.index_arr = rows;
     return df;
   }
 
   iloc(kwargs) {
     kwargs["type"] = "iloc";
 
-    let [new_data, columns] = this.__indexLoc(kwargs);
+    let [new_data, columns, rows] = this.__indexLoc(kwargs);
 
     let df_columns = {
       "columns": columns
     };
     let df = new DataFrame(new_data, df_columns);
+    df.index_arr = rows;
     return df;
   }
 
