@@ -101,11 +101,25 @@ export class GroupBy {
      * @param {col_name} col_name String name of a column
      * @return Groupby class
      */
-    col(col_name){
+    col(col_names){
 
-        if(!this.column_name.includes(col_name)){
-            throw new Error(`Column ${col_name} does not exist in groups`)
+        // if(!this.column_name.includes(col_name)){
+        //     throw new Error(`Column ${col_name} does not exist in groups`)
+        // }
+
+        if(Array.isArray(col_names)){
+
+            for(let i=0; i< col_names.length; i++){
+
+                let col_name = col_names[i]
+                if(!this.column_name.includes(col_name)){
+                    throw new Error(`Column ${col_name} does not exist in groups`)
+                }
+            }
+        }else{
+            throw new Error(`Col_name must be an array of column`)
         }
+
 
         if(this.key_col.length ==2){
 
@@ -116,8 +130,13 @@ export class GroupBy {
                 this.group_col[key1]  = {}
                 for(var key2 in this.data_tensors[key1]){
 
-                    let data = this.data_tensors[key1][key2].column(col_name)
-                    this.group_col[key1][key2] = data
+                    this.group_col[key1][key2] = []
+                    for(let i =0; i< col_names.length; i++){
+                        let col_name = col_names[i]
+                        let data = this.data_tensors[key1][key2].column(col_name)
+                        this.group_col[key1][key2].push(data)
+                    }
+                    
                 }
             }
         }
@@ -127,8 +146,13 @@ export class GroupBy {
 
             for(let key1 in this.data_tensors){
 
-                let data = this.data_tensors[key1].column(col_name)
-                this.group_col[key1] = data
+                this.group_col[key1] = []
+                for(let i =0; i< col_names.length; i++){
+                    let col_name = col_names[i]
+                    let data = this.data_tensors[key1].column(col_name)
+                    this.group_col[key1].push(data)
+                }
+                
             }
         }
 
@@ -150,8 +174,13 @@ export class GroupBy {
                 count_group[key1]  = {}
                 for(var key2 in this.group_col[key1]){
 
-                    let data = eval(`this.group_col[key1][key2].${operation}`)
-                    count_group[key1][key2] = data
+                    count_group[key1][key2] = []
+                    for(let i=0; i <this.group_col[key1][key2].length; i++ ){
+
+                        let data = eval(`this.group_col[key1][key2][i].${operation}`)
+                        count_group[key1][key2].push(data)
+                    }
+                    
                 }
             }
             return count_group
@@ -159,9 +188,14 @@ export class GroupBy {
         }else{
             let count_group = {}
 
-            for(let key1 in this.group_col){            
-                let data = eval(`this.group_col[key1].${operation}`)
-                count_group[key1] = data
+            for(let key1 in this.group_col){ 
+                
+                count_group[key1] = []
+                for(let i=0; i <this.group_col[key1].length; i++ ){
+
+                    let data = eval(`this.group_col[key1][i].${operation}`)
+                    count_group[key1].push(data)
+                }
             }
 
             return count_group

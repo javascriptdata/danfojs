@@ -96,8 +96,9 @@ export class DataFrame extends Ndframe {
                     if(kwargs["rows"][0].includes(":")){
                         
                         let row_split = kwargs["rows"][0].split(":")
-                        let start   = parseInt(row_split[0]);
-                        let end     = parseInt(row_split[1]);
+
+                        let start   = parseInt(row_split[0]) || 0;
+                        let end     = parseInt(row_split[1]) || (this.values.length-1);
 
                         if(typeof start == "number" && typeof end == "number"){
                             rows = utils.__range(start,end);
@@ -123,9 +124,9 @@ export class DataFrame extends Ndframe {
                         let row_split = kwargs["columns"][0].split(":")
                         let start, end;
 
-                        if(kwargs["type"] =="iloc"){
-                            start   = parseInt(row_split[0]);
-                            end     = parseInt(row_split[1]);
+                        if(kwargs["type"] =="iloc" || (row_split[0] == "")){
+                            start   = parseInt(row_split[0]) || 0;
+                            end     = parseInt(row_split[1]) || (this.values[0].length -1);
                         }else{
                             
                             start = parseInt(this.columns.indexOf(row_split[0]));
