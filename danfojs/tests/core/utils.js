@@ -117,6 +117,23 @@ describe("Utils Functions", function () {
         })
     })
 
+    describe("__replace_undefined_with_NaN", function () {
+        it("replace undefined in Series with NaN", function () {
+            let data = [10.01, 2.2, undefined, 20.505, 20.22, undefined]
+            assert.deepEqual(utils.__replace_undefined_with_NaN(data, true), [10.01, 2.2, NaN, 20.505, 20.22, NaN])
+        })
+        it("replace undefined in DataFrame with NaN", function () {
+            let data = [[10.01, 2.2, undefined, 20.505, 20.22, undefined],
+            [10.01, undefined, undefined, 20.505, 20, undefined]]
+
+            let result = [[10.01, 2.2, NaN, 20.505, 20.22, NaN],
+            [10.01, NaN, NaN, 20.505, 20, NaN]]
+            assert.deepEqual(utils.__replace_undefined_with_NaN(data, false), result)
+        })
+    })
+
+
+
 
 
 })

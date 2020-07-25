@@ -1,10 +1,10 @@
 import Ndframe from "./generic"
-import {Series} from "./series"
+import { Series } from "./series"
 import * as tf from '@tensorflow/tfjs-node'
 import { Utils } from "./utils"
-import {GroupBy} from "./groupby"
+import { GroupBy } from "./groupby"
 // import {TimeSeries} from "./timeseries"
-import {Merge} from "./merge"
+import { Merge } from "./merge"
 
 const utils = new Utils
 // const config = new Configs()
@@ -91,23 +91,24 @@ export class DataFrame extends Ndframe {
         if (Object.prototype.hasOwnProperty.call(kwargs, "rows")) { //check if the object has the key
             if (Array.isArray(kwargs["rows"])) {
 
-                if(kwargs["rows"].length ==1 && typeof kwargs["rows"][0] == "string"){
+                if (kwargs["rows"].length == 1 && typeof kwargs["rows"][0] == "string") {
                     //console.log("here", kwargs["rows"].length)
-                    if(kwargs["rows"][0].includes(":")){
-                        
+                    if (kwargs["rows"][0].includes(":")) {
+
                         let row_split = kwargs["rows"][0].split(":")
 
-                        let start   = parseInt(row_split[0]) || 0;
-                        let end     = parseInt(row_split[1]) || (this.values.length-1);
+                        let start = parseInt(row_split[0]) || 0;
+                        let end = parseInt(row_split[1]) || (this.values.length - 1);
 
-                        if(typeof start == "number" && typeof end == "number"){
-                            rows = utils.__range(start,end);
+                        if (typeof start == "number" && typeof end == "number") {
+                            rows = utils.__range(start, end);
+                            // rows = this.index.slice(start, end)
                         }
-                        
-                    }else{
+
+                    } else {
                         throw new Error("numbers in string must be separated by ':'")
                     }
-                }else{
+                } else {
                     rows = kwargs["rows"];
                 }
             } else {
@@ -119,28 +120,28 @@ export class DataFrame extends Ndframe {
 
         if (Object.prototype.hasOwnProperty.call(kwargs, "columns")) {
             if (Array.isArray(kwargs["columns"])) {
-                if(kwargs["columns"].length ==1 && kwargs["columns"][0].includes(":")){
-                        
-                        let row_split = kwargs["columns"][0].split(":")
-                        let start, end;
+                if (kwargs["columns"].length == 1 && kwargs["columns"][0].includes(":")) {
 
-                        if(kwargs["type"] =="iloc" || (row_split[0] == "")){
-                            start   = parseInt(row_split[0]) || 0;
-                            end     = parseInt(row_split[1]) || (this.values[0].length -1);
-                        }else{
-                            
-                            start = parseInt(this.columns.indexOf(row_split[0]));
-                            end   = parseInt(this.columns.indexOf(row_split[1]));
-                        }
-                        
+                    let row_split = kwargs["columns"][0].split(":")
+                    let start, end;
 
-                        if(typeof start == "number" && typeof end == "number"){
-                            
-                            columns = utils.__range(start,end);
-                            isColumnSplit = true;
-                        }
-                        
-                }else{
+                    if (kwargs["type"] == "iloc" || (row_split[0] == "")) {
+                        start = parseInt(row_split[0]) || 0;
+                        end = parseInt(row_split[1]) || (this.values[0].length - 1);
+                    } else {
+
+                        start = parseInt(this.columns.indexOf(row_split[0]));
+                        end = parseInt(this.columns.indexOf(row_split[1]));
+                    }
+
+
+                    if (typeof start == "number" && typeof end == "number") {
+
+                        columns = utils.__range(start, end);
+                        isColumnSplit = true;
+                    }
+
+                } else {
                     columns = kwargs["columns"];
                 }
 
@@ -159,7 +160,7 @@ export class DataFrame extends Ndframe {
             let max_rowIndex = data_values.length - 1 //obtain the maximum row index
 
             if (row_val > max_rowIndex) { //check if the input row index is greater than the maximum row index
-                throw new Error(`row index ${row_val} is bigger than ${max_rowIndex}`);
+                throw new Error(`Specified row index ${row_val} is bigger than maximum row index of ${max_rowIndex}`);
             }
 
             let value = data_values[row_val]
@@ -181,7 +182,7 @@ export class DataFrame extends Ndframe {
                         throw new Error(`column index ${col_index} is bigger than ${max_colIndex}`);
                     }
                 }
-                
+
                 let elem = value[col_index]; //obtain the element at the column index
                 row_data.push(elem);
             }
@@ -191,12 +192,12 @@ export class DataFrame extends Ndframe {
         }
 
         let column_names = []
-        if(kwargs["type"] == "iloc" || isColumnSplit){
+        if (kwargs["type"] == "iloc" || isColumnSplit) {
             // let axes = this.axes
             columns.map((col) => {
                 column_names.push(this.columns[col]);
             })
-        }else{
+        } else {
             column_names = columns
         }
 
@@ -215,7 +216,8 @@ export class DataFrame extends Ndframe {
         let df_columns = { "columns": columns }
         let df = new DataFrame(new_data, df_columns);
         df.index_arr = rows
-
+        // console.log("Printing rowss");
+        // console.log(rows);
         return df;
 
     }
@@ -263,14 +265,15 @@ export class DataFrame extends Ndframe {
     * @param {rows}  
     */
     tail(rows = 5) {
-        if (rows > this.values.length || rows < 1) {
+        let row_len = this.values.length
+        if (rows > row_len || rows < 1) {
             //return all values
             let config = { columns: this.column_names }
             return new DataFrame(this.values, config)
         } else {
             //Creates a new dataframe with last [rows]
-            let data = this.values.slice(this.values.length - rows)
-            let indx = this.index.slice(this.values.length - rows)
+            let data = this.values.slice(row_len - rows)
+            let indx = this.index.slice(row_len - rows)
             let config = { columns: this.column_names }
             let df = new DataFrame(data, config)
             df.__set_index(indx)
@@ -283,7 +286,7 @@ export class DataFrame extends Ndframe {
     * Gets [num] number of random rows in a dataframe
     * @param {rows}  
     */
-    sample(num = 1) {
+    sample(num = 5) {
         if (num > this.values.length || num < 1) {
             //return all values
             let config = { columns: this.column_names }
@@ -291,11 +294,43 @@ export class DataFrame extends Ndframe {
         } else {
             //Creates a new dataframe with last [rows]
             let config = { columns: this.column_names }
-            let sampled_arr = utils.__sample_from_iter(this.values, num)
-            return new DataFrame(sampled_arr, config)
+            let sampled_index = utils.__sample_from_iter(this.index, num, false);
+            let sampled_arr = []
+            let new_idx = []
+            let self = this
+
+            sampled_index.map((val) => {
+                sampled_arr.push(self.values[val])
+                new_idx.push(self.index[val])
+            });
+            let df = new DataFrame(sampled_arr, config)
+            // console.log(new_idx);
+            df.__set_index(new_idx)
+            // console.log(df.head() + "");
+            return df
 
         }
     }
+
+    /**
+       * Return Addition of DataFrame and other, element-wise (binary operator add).
+       * @param {other} Series, Array or Number to add  
+       * @returns {DataFrame}
+       */
+    add(other, axis) {
+        if (this.__frame_is_compactible_for_operation) { //check if all types a numeric
+            let tensors = this.__get_ops_tensors([this, other], axis)
+            let sum_vals = tensors[0].add(tensors[1])
+            let col_names = this.columns
+            return this.__get_df_from_tensor(sum_vals, col_names)
+
+        } else {
+            throw Error("TypeError: Dtypes of column must be Float of Int")
+        }
+
+    }
+
+
 
 
     /**
@@ -314,7 +349,7 @@ export class DataFrame extends Ndframe {
 
         if (Object.prototype.hasOwnProperty.call(kwargs, "column")) {
 
-            
+
             if (this.columns.includes(kwargs["column"])) {
 
                 var column_index = this.columns.indexOf(kwargs["column"]);
@@ -498,7 +533,7 @@ export class DataFrame extends Ndframe {
         let col_indx_objs = utils.__arr_to_obj(this.columns)
         let indx = col_indx_objs[col_name]
         let data = this.col_data[indx]
-        return new Series(data,{columns: [col_name]})
+        return new Series(data, { columns: [col_name] })
 
     }
 
@@ -511,7 +546,7 @@ export class DataFrame extends Ndframe {
 
     //     let timeseries = new TimeSeries(kwargs); // parsed to date-time
     //     timeseries.preprocessed() // generate date-time list
-        
+
     //     return timeseries
     // }
 
@@ -538,114 +573,114 @@ export class DataFrame extends Ndframe {
     static concat(kwargs) {
 
         // check if keys exist in kwargs
-        utils.__in_object(kwargs,"df_list","df_list not found: specify the list of dataframe")
-        utils.__in_object(kwargs,"axis","axis not found: specify the axis")
+        utils.__in_object(kwargs, "df_list", "df_list not found: specify the list of dataframe")
+        utils.__in_object(kwargs, "axis", "axis not found: specify the axis")
 
-        let df_list =null; //set the df_list to null
+        let df_list = null; //set the df_list to null
         let axis = null; // set axis to null
 
         //check if df_list is an array
-        if(Array.isArray(kwargs["df_list"])){
+        if (Array.isArray(kwargs["df_list"])) {
 
             df_list = kwargs["df_list"];
-        }else{
+        } else {
             throw new Error("df_list must be an Array of dataFrame");
         }
 
         //check if axis is int and is either 0 or 1
-        if(typeof kwargs["axis"] === "number"){
+        if (typeof kwargs["axis"] === "number") {
 
-            if(kwargs["axis"]==0 || kwargs["axis"]==1){
+            if (kwargs["axis"] == 0 || kwargs["axis"] == 1) {
 
                 axis = kwargs["axis"];
-            }else{
+            } else {
                 throw new Error("Invalid axis: axis must be 0 or 1")
             }
 
-        }else{
+        } else {
             throw new Error("axis must be a number")
         }
 
 
         let df_object = Object.assign({}, df_list); // convert the array to object
 
-        if(axis==1){
+        if (axis == 1) {
 
             let columns = []
             let duplicate_col_count = {}
             let max_length = 0;
 
-            for(let key in df_object){
-                
+            for (let key in df_object) {
+
                 let column = df_object[key].columns
                 let length = df_object[key].values.length;
 
-                if(length > max_length){
+                if (length > max_length) {
                     max_length = length;
                 }
 
-                for(let index in column){
+                for (let index in column) {
 
                     let col_name = column[index]
-                    if(col_name in duplicate_col_count){
+                    if (col_name in duplicate_col_count) {
 
                         let count = duplicate_col_count[col_name]
-                        let name = `${col_name}_${count+1}`
+                        let name = `${col_name}_${count + 1}`
 
                         columns.push(name);
 
-                        duplicate_col_count[col_name]  = count +1
-                    }else{
+                        duplicate_col_count[col_name] = count + 1
+                    } else {
 
                         columns.push(col_name)
                         duplicate_col_count[col_name] = 1
                     }
                 }
-                
+
 
             }
-            
+
             let data = new Array(max_length)
-            
-            for(let key in df_list){
+
+            for (let key in df_list) {
 
                 let values = df_list[key].values
 
-                for(let index=0; index< values.length;index++){
+                for (let index = 0; index < values.length; index++) {
 
                     let val = values[index]
-                    if(typeof data[index] === "undefined"){
+                    if (typeof data[index] === "undefined") {
 
                         data[index] = val;
-                    }else{
+                    } else {
                         data[index].push(...val);
                     }
                 }
 
-                if(values.length < max_length){
-                    let column_length = df_list[key].columns.length 
+                if (values.length < max_length) {
+                    let column_length = df_list[key].columns.length
                     let null_array = Array(column_length);
-                    
-                    for(let col=0;col < column_length;col++){
+
+                    for (let col = 0; col < column_length; col++) {
                         null_array[col] = "NaN"
                     }
-                    
-                    if(typeof data[max_length-1] === "undefined"){
-                        data[max_length -1] = null_array
-                    }else{
-                        data[max_length -1].push(...null_array);
+
+                    if (typeof data[max_length - 1] === "undefined") {
+                        data[max_length - 1] = null_array
+                    } else {
+                        data[max_length - 1].push(...null_array);
                     }
                 }
             }
-            
-            let df = new DataFrame(data,{columns:columns}); //convert to dataframe
+
+            let df = new DataFrame(data, { columns: columns }); //convert to dataframe
             return df;
         }
-        else{
+        else {
             //concatenate base on axis 0 
             let columns = [];
 
-            for(let key in df_list){
+            for (let key in df_list) {
                 let column = df_list[key].columns
                 columns.push(...column)
             }
@@ -656,56 +691,56 @@ export class DataFrame extends Ndframe {
 
             let data = []
 
-            for(let key in df_list){
+            for (let key in df_list) {
 
                 let value = df_list[key].values
 
                 // let col_length = value[0].length
 
                 let df_columns = df_list[key].columns
-                    
+
                 let not_exist = []
-                for(let col_index in columns){
+                for (let col_index in columns) {
                     let col_name = columns[col_index]
 
                     let is_index = df_columns.indexOf(col_name)
 
-                    if(is_index == -1){
+                    if (is_index == -1) {
                         not_exist.push(col_name);
                     }
                 }
 
-                if(not_exist.length > 0){
-                    for(let i=0;i<value.length;i++){
+                if (not_exist.length > 0) {
+                    for (let i = 0; i < value.length; i++) {
                         let row_value = value[i]
-                        
+
                         let new_arr = Array(columns.length)
-                        for(let j=0; j < columns.length; j++){
+                        for (let j = 0; j < columns.length; j++) {
 
                             let col_name = columns[j]
-                            if(not_exist.includes(col_name)){
-                                
+                            if (not_exist.includes(col_name)) {
+
                                 new_arr[j] = "NaN"
-                            }else{
+                            } else {
                                 let index = df_columns.indexOf(col_name)
                                 new_arr[j] = row_value[index]
                             }
-                            
+
                         }
                         data.push(new_arr);
                     }
-                }else{
+                } else {
                     data.push(...value);
                 }
-                
+
             }
 
-            let df = new DataFrame(data,{columns:columns});
+            let df = new DataFrame(data, { columns: columns });
             return df;
 
         }
 
-     }
+    }
 
 
     /**
@@ -724,7 +759,7 @@ export class DataFrame extends Ndframe {
      * @param {kwargs} kargs is defined as {axis: 0 or 1, callable: [FUNCTION]}
      * @return Array
      */
-    apply(kwargs){
+    apply(kwargs) {
         let is_callable = utils.__is_function(kwargs["callable"]);
 
         if (!is_callable) {
@@ -735,16 +770,16 @@ export class DataFrame extends Ndframe {
 
         let data = [];
 
-        if(!(kwargs["axis"]==0) && !(kwargs["axis"]==1)){
+        if (!(kwargs["axis"] == 0) && !(kwargs["axis"] == 1)) {
             throw new Error("axis must either be 0 or 1")
         }
 
         let axis = kwargs["axis"]
 
-        if(axis==1){
+        if (axis == 1) {
 
             let df_data = this.values
-            for(let i=0; i < df_data.length; i++ ){
+            for (let i = 0; i < df_data.length; i++) {
 
                 let row_value = tf.tensor(df_data[i])
 
@@ -752,10 +787,10 @@ export class DataFrame extends Ndframe {
                 data.push(callable_data)
 
             }
-        }else{
+        } else {
 
             let df_data = this.col_data
-            for(let i=0; i < df_data.length; i++ ){
+            for (let i = 0; i < df_data.length; i++) {
 
                 let row_value = tf.tensor(df_data[i])
 
@@ -764,16 +799,97 @@ export class DataFrame extends Ndframe {
 
             }
         }
-        
+
         return data
     }
 
-    // /**
-    //  * create a one-hot encoder
-    //  * @param {*} series a dataframe column
-    //  * @return DataFrame
-    //  */
-    // static dummy(series) { }
+
+
+    //slice the corresponding arrays from tensor objects
+    __get_df_from_tensor(val, col_names) {
+        let len = val.shape[0]
+        let new_array = []
+        for (let i = 0; i < len; i++) {
+            let arr = val.slice([i], [1]).arraySync()[0]
+            new_array.push(arr)
+        }
+        return new DataFrame(new_array, { columns: col_names })
+
+    }
+
+    //checks if DataFrame is compaticble for arithmetic operation
+    //compatible Dataframe must have only numerical dtypes
+    __frame_is_compactible_for_operation() {
+        let dtypes = this.dtypes
+        const float = (element) => element == "float32";
+        const int = (element) => element == "int32";
+
+        if (dtypes.every(float)) {
+            return true
+        } else if (dtypes.every(int)) {
+            return true
+        } else {
+            return false
+        }
+    }
+
+
+    //retreives the corresponding tensors based on specified axis
+    __get_ops_tensors(tensors, axis) {
+        if (utils.__is_undefined(tensors[1].series)) { //check if add operation is on a series or DataFrame
+            let tensors_arr = []
+            if (utils.__is_undefined(axis) || axis == 1) {
+                //axis = 1 (column)
+                tensors_arr.push(tensors[0].row_data_tensor)
+                tensors_arr.push(tensors[1])
+                return tensors_arr
+
+            } else {
+                //axis = 0 (rows)
+                tensors_arr.push(tensors[0].col_data_tensor)
+                tensors_arr.push(tensors[1])
+                return tensors_arr
+            }
+        } else {
+            //operation is being performed on a Dataframe or Series
+            let tensors_arr = []
+            if (utils.__is_undefined(axis) || axis == 1) {
+                //axis = 1 (column)
+                let this_tensor, other_tensor
+
+                this_tensor = tensors[0].row_data_tensor //tensorflow uses 1 for rows axis and 0 for column axis 
+                if (tensors[1].series) {
+                    other_tensor = tf.tensor(tensors[1].values, [1, tensors[1].values.length])
+                } else {
+                    other_tensor = tensors[1].row_data_tensor
+
+                }
+
+                tensors_arr.push(this_tensor)
+                tensors_arr.push(other_tensor)
+                return tensors_arr
+
+            } else {
+                //axis = 0 (rows)
+                let this_tensor, other_tensor
+
+                this_tensor = tensors[0].row_data_tensor
+                if (tensors[1].series) {
+                    other_tensor = tf.tensor(tensors[1].values, [tensors[1].values.length, 1])
+                } else {
+                    other_tensor = tensors[1].col_data_tensor
+
+                }
+
+                tensors_arr.push(this_tensor)
+                tensors_arr.push(other_tensor)
+                return tensors_arr
+            }
+        }
+    }
+
+
+
 
 }
 

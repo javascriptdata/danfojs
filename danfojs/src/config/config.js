@@ -4,8 +4,8 @@
  */
 export class Configs {
     constructor() {
-        this.table_width = 15  //set the width of each column printed in console
-        this.table_truncate = 14 //set the max number of string before text is truncated in printing
+        this.table_width = 17  //set the width of each column printed in console
+        this.table_truncate = 16 //set the max number of string before text is truncated in printing
         this.dtype_test_lim = 10
         this.table_max_row = 30
         this.table_max_col_in_console = 8

@@ -85,7 +85,7 @@ export class Series extends NDframe {
     * @param {rows}  
     * @returns {Series}
     */
-    sample(num = 10) {
+    sample(num = 5) {
         if (num > this.values.length || num < 1) {
             //return all values
             let config = { columns: this.column_names }
@@ -410,7 +410,7 @@ export class Series extends NDframe {
     }
 
     /**
-    *  Return unbiased variance over requested axis.
+    *  Return unbiased variance of Series.
     * @returns {Number}
     */
     var() {
@@ -480,7 +480,7 @@ export class Series extends NDframe {
 
 
     /**
-    * Make a copy of this object’s indices and data
+    * Make a new copy of Series 
     * @returns {Series}
     */
     copy() {

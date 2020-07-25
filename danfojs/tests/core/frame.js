@@ -1,5 +1,6 @@
 import { assert } from "chai"
 import { DataFrame } from '../../src/core/frame'
+import { Series } from "../../src/core/series";
 // import {to_date_time} from '../../src/core/timeseries'
 
 describe("DataFrame", function () {
@@ -105,6 +106,12 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { columns: cols })
             assert.deepEqual(df.sample(2).shape, [2, 3])
         })
+        it("Samples n number of random elements from a DataFrame", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78], [100, 200, 300]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            assert.deepEqual(df.sample().shape, [5, 3])
+        })
         it("Return all values if n of sample is greater than lenght of Dataframe", function () {
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78], [100, 200, 300]]
             let cols = ["A", "B", "C"]
@@ -131,7 +138,7 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            assert.throws(function () { df.loc({ "rows": [0, 8], "columns": ["B", "C"] }) }, Error, "row index 8 is bigger than 1");
+            assert.throws(function () { df.loc({ "rows": [0, 8], "columns": ["B", "C"] }) }, Error, "Specified row index 8 is bigger than maximum row index of 1");
         })
 
         it("check data after selecting column", function () {
@@ -219,7 +226,7 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            assert.throws(function () { df.iloc({ "rows": [0, 8], "columns": [1, 2] }) }, Error, "row index 8 is bigger than 1");
+            assert.throws(function () { df.iloc({ "rows": [0, 8], "columns": [1, 2] }) }, Error, "Specified row index 8 is bigger than maximum row index of 1");
         })
 
         it("check data after selecting column", function () {
@@ -278,6 +285,38 @@ describe("DataFrame", function () {
         })
 
     });
+
+
+    describe("add", function () {
+        it("Return Addition of DataFrame with a single Number", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.add(2).values, [[2, 4, 6], [362, 182, 362]])
+        })
+        it("Return addition of a DataFrame with a Series along default axis 1", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let sf = new Series([1, 2, 1])
+            let df = new DataFrame(data)
+            assert.deepEqual(df.add(sf).values, [[1, 4, 5], [361, 182, 361]])
+        })
+        it("Return addition of a DataFrame with a Series along axis 0", function () {
+            let data = [[0, 2, 4],[360, 180, 360]]
+            let sf = new Series([1, 2])
+            let df = new DataFrame(data)
+            assert.deepEqual(df.add(sf, 0).values, [[1, 3, 5], [362, 182, 362]])
+        })
+        it("Return addition of a DataFrame with a DataFrame along default axis 1", function () {
+            let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
+            let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
+            assert.deepEqual(df1.add(df2).values, [[1, 4, 8], [370, 185, 360]])
+        })
+        it("Return addition of a DataFrame with a DataFrame along axis 0", function () {
+            let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
+            let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
+            assert.deepEqual(df1.add(df2).values, [[1, 4, 8], [370, 185, 360]])
+        })
+
+    })
 
     describe("query", function () {
 
@@ -371,7 +410,7 @@ describe("DataFrame", function () {
         });
     });
 
-    describe("groupby",function(){
+    describe("groupby", function () {
         it("Check group by One column data", function () {
 
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
@@ -380,13 +419,13 @@ describe("DataFrame", function () {
             let group_df = df.groupby(["A"]);
 
             let group_dict = {
-                '1': [ [ 1, 2, 3 ]],
-                '4': [ [ 4, 5, 6 ] ],
-                '20': [ [ 20, 30, 40 ] ],
-                '39': [ [ 39, 89, 78 ] ]
-              }
+                '1': [[1, 2, 3]],
+                '4': [[4, 5, 6]],
+                '20': [[20, 30, 40]],
+                '39': [[39, 89, 78]]
+            }
 
-            assert.deepEqual(group_df.col_dict,group_dict);
+            assert.deepEqual(group_df.col_dict, group_dict);
         });
         it("Obtain the DataFrame of one of the group", function () {
 
@@ -394,24 +433,24 @@ describe("DataFrame", function () {
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
             let group_df = df.groupby(["A"]);
-            let new_data =  [ [ 1, 2, 3 ]]
+            let new_data = [[1, 2, 3]]
 
-            assert.deepEqual(group_df.get_groups([1]).values,new_data);
+            assert.deepEqual(group_df.get_groups([1]).values, new_data);
         });
         it("Check group by Two column data", function () {
 
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            let group_df = df.groupby(["A","B"]);
-            let new_data =  {
-                '1': { '2': [ [ 1, 2, 3 ] ] },
-                '4': { '5': [ [4, 5, 6] ]},
-                '20': {'30': [ [20, 30, 40] ]},
-                '39': { '89': [ [39, 89, 78] ] }
-              }
+            let group_df = df.groupby(["A", "B"]);
+            let new_data = {
+                '1': { '2': [[1, 2, 3]] },
+                '4': { '5': [[4, 5, 6]] },
+                '20': { '30': [[20, 30, 40]] },
+                '39': { '89': [[39, 89, 78]] }
+            }
 
-            assert.deepEqual(group_df.col_dict,new_data);
+            assert.deepEqual(group_df.col_dict, new_data);
         });
 
         it("Obtain the DataFrame of one of the group, grouped by two column", function () {
@@ -419,10 +458,10 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            let group_df = df.groupby(["A","B"]);
-            let new_data =  [ [ 1, 2, 3 ]]
+            let group_df = df.groupby(["A", "B"]);
+            let new_data = [[1, 2, 3]]
 
-            assert.deepEqual(group_df.get_groups([1,2]).values,new_data);
+            assert.deepEqual(group_df.get_groups([1, 2]).values, new_data);
         });
 
         it("Count column in group", function () {
@@ -430,30 +469,30 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            let group_df = df.groupby(["A","B"]);
-            let new_data =  {
+            let group_df = df.groupby(["A", "B"]);
+            let new_data = {
                 '1': { '2': [1] },
-                '4': { '5': [1]},
-                '20': {'30': [1]},
+                '4': { '5': [1] },
+                '20': { '30': [1] },
                 '39': { '89': [1] }
-              }
-            
-            assert.deepEqual(group_df.col(["C"]).count(),new_data);
+            }
+
+            assert.deepEqual(group_df.col(["C"]).count(), new_data);
         });
         it("sum column element in group", function () {
 
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            let group_df = df.groupby(["A","B"]);
-            let new_data =  {
-                '1': { '2': [3]},
-                '4': { '5': [6]},
-                '20': {'30': [40]},
+            let group_df = df.groupby(["A", "B"]);
+            let new_data = {
+                '1': { '2': [3] },
+                '4': { '5': [6] },
+                '20': { '30': [40] },
                 '39': { '89': [78] }
-              }
+            }
 
-            assert.deepEqual(group_df.col(["C"]).sum(),new_data);
+            assert.deepEqual(group_df.col(["C"]).sum(), new_data);
         });
 
         it("sum column element group by one column", function () {
@@ -462,44 +501,44 @@ describe("DataFrame", function () {
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
             let group_df = df.groupby(["A"]);
-           
-            let new_data =  { '1': [2,3], '4': [5,6], '20': [30,40], '39': [89,78] }
-            
-            assert.deepEqual(group_df.col(["B","C"]).sum(),new_data);
+
+            let new_data = { '1': [2, 3], '4': [5, 6], '20': [30, 40], '39': [89, 78] }
+
+            assert.deepEqual(group_df.col(["B", "C"]).sum(), new_data);
         });
 
 
     });
 
-    describe("column", function(){
-        it("Obtain a column from a dataframe created from object",function(){
+    describe("column", function () {
+        it("Obtain a column from a dataframe created from object", function () {
             let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
             let options = { columns: ["Gender", "count"] }
             let df = new DataFrame(data, options)
             let col_data = df.column("count")
-            let rslt_data = [1,2,3]
+            let rslt_data = [1, 2, 3]
             assert.deepEqual(col_data.values, rslt_data);
         })
-        it("Obtain a column from a dataframe",function(){
+        it("Obtain a column from a dataframe", function () {
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
             let col_data = df.column("C")
-            let rslt_data = [3,6,40,78]
+            let rslt_data = [3, 6, 40, 78]
             assert.deepEqual(col_data.values, rslt_data);
         })
-        it("Throw Error for wrong column",function(){
+        it("Throw Error for wrong column", function () {
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            assert.throws(()=>{df.column("D")},Error,"column D does not exist")
+            assert.throws(() => { df.column("D") }, Error, "column D does not exist")
 
         })
     });
 
-    describe("Concatenate",function(){
+    describe("Concatenate", function () {
 
-        it("Check the axis 0 concatenation",function(){
+        it("Check the axis 0 concatenation", function () {
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
@@ -508,20 +547,20 @@ describe("DataFrame", function () {
             let cols1 = ["A", "B", "C"]
             let df1 = new DataFrame(data1, { columns: cols1 })
 
-            let data2 = [[1, 2, 3,5], [4, 5, 6,8], [20, 30, 40,10]]
-            let cols2 = ["A", "B", "C","D"]
+            let data2 = [[1, 2, 3, 5], [4, 5, 6, 8], [20, 30, 40, 10]]
+            let cols2 = ["A", "B", "C", "D"]
             let df2 = new DataFrame(data2, { columns: cols2 })
 
-            let new_df = DataFrame.concat({"df_list":[df,df1, df2],"axis":0})
+            let new_df = DataFrame.concat({ "df_list": [df, df1, df2], "axis": 0 })
 
-            let data_values = [[1, 2, 3,"NaN"], [4, 5, 6,"NaN"], [20, 30, 40,"NaN"], [39, 89, 78,"NaN"],
-                                [1, 2, 3,"NaN"], [4, 5, 6,"NaN"], [20, 30, 40,"NaN"], [39, 89, 78,"NaN"],
-                                [1, 2, 3,5], [4, 5, 6,8], [20, 30, 40,10]]
-            
+            let data_values = [[1, 2, 3, "NaN"], [4, 5, 6, "NaN"], [20, 30, 40, "NaN"], [39, 89, 78, "NaN"],
+            [1, 2, 3, "NaN"], [4, 5, 6, "NaN"], [20, 30, 40, "NaN"], [39, 89, 78, "NaN"],
+            [1, 2, 3, 5], [4, 5, 6, 8], [20, 30, 40, 10]]
+
             assert.deepEqual(new_df.values, data_values);
         });
 
-        it("Check the axis 1 concatenation",function(){
+        it("Check the axis 1 concatenation", function () {
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
@@ -530,147 +569,151 @@ describe("DataFrame", function () {
             let cols1 = ["A", "B", "C"]
             let df1 = new DataFrame(data1, { columns: cols1 })
 
-            let data2 = [[1, 2, 3,5], [4, 5, 6,8], [20, 30, 40,10]]
-            let cols2 = ["A", "B", "C","D"]
+            let data2 = [[1, 2, 3, 5], [4, 5, 6, 8], [20, 30, 40, 10]]
+            let cols2 = ["A", "B", "C", "D"]
             let df2 = new DataFrame(data2, { columns: cols2 })
 
-            let new_df = DataFrame.concat({"df_list":[df,df1, df2],"axis":1})
+            let new_df = DataFrame.concat({ "df_list": [df, df1, df2], "axis": 1 })
 
-            let data_values = [[1,2,3,1,2,3,1,2,3,5],[4,5,6,4,5,6,4,5,6,8],
-                                [20,30,40,20,30,40,20,30,40,10],[39,89,78,39,89,78,"NaN",
-                                "NaN","NaN","NaN"]]
+            let data_values = [[1, 2, 3, 1, 2, 3, 1, 2, 3, 5], [4, 5, 6, 4, 5, 6, 4, 5, 6, 8],
+            [20, 30, 40, 20, 30, 40, 20, 30, 40, 10], [39, 89, 78, 39, 89, 78, "NaN",
+                "NaN", "NaN", "NaN"]]
             assert.deepEqual(new_df.values, data_values);
         });
-     });
+    });
 
-     describe("Merge",function(){
+    describe("Merge", function () {
 
-        it("test outer merge", function(){
-            let data = [['K0','k0','A0','B0'],['k0','K1','A1','B1'],
-                        ['K1','K0','A2','B2'],['K2','K2','A3','B3']]
+        it("test outer merge", function () {
+            let data = [['K0', 'k0', 'A0', 'B0'], ['k0', 'K1', 'A1', 'B1'],
+            ['K1', 'K0', 'A2', 'B2'], ['K2', 'K2', 'A3', 'B3']]
 
-            let data2 = [['K0','k0','C0','D0'],['K1','K0','C1','D1'],
-                         ['K1','K0','C2','D2'],['K2','K0','C3','D3']]
+            let data2 = [['K0', 'k0', 'C0', 'D0'], ['K1', 'K0', 'C1', 'D1'],
+            ['K1', 'K0', 'C2', 'D2'], ['K2', 'K0', 'C3', 'D3']]
 
-            let colum1 = ['Key1','Key2','A','B']
-            let colum2 = ['Key1','Key2','A','D']
+            let colum1 = ['Key1', 'Key2', 'A', 'B']
+            let colum2 = ['Key1', 'Key2', 'A', 'D']
 
-            let df1 = new DataFrame(data,{columns: colum1})
-            let df2 = new DataFrame(data2,{columns:colum2})
-            let merge_df = DataFrame.merge({"left":df1, "right":df2,"on":["Key1","Key2"],"how":"outer"})
-
-            let output_data = [
-                [ 'K0', 'k0', 'A0', 'B0', 'C0', 'D0' ],
-                [ 'k0', 'K1', 'A1', 'B1', 'NaN', 'NaN' ],
-                [ 'K1', 'K0', 'A2', 'B2', 'C1', 'D1' ],
-                [ 'K1', 'K0', 'A2', 'B2', 'C2', 'D2' ],
-                [ 'K2', 'K2', 'A3', 'B3', 'NaN', 'NaN' ],
-                [ 'K2', 'K0', 'NaN', 'NaN', 'C3', 'D3' ]
-              ];
-
-
-              assert.deepEqual(merge_df.values, output_data);
-        })
-
-        it("test inner merge", function(){
-            let data = [['K0','k0','A0','B0'],['k0','K1','A1','B1'],
-                        ['K1','K0','A2','B2'],['K2','K2','A3','B3']]
-
-            let data2 = [['K0','k0','C0','D0'],['K1','K0','C1','D1'],
-                         ['K1','K0','C2','D2'],['K2','K0','C3','D3']]
-
-            let colum1 = ['Key1','Key2','A','B']
-            let colum2 = ['Key1','Key2','A','D']
-
-            let df1 = new DataFrame(data,{columns: colum1})
-            let df2 = new DataFrame(data2,{columns:colum2})
-            let merge_df = DataFrame.merge({"left":df1, "right":df2,"on":["Key1","Key2"],"how":"inner"})
+            let df1 = new DataFrame(data, { columns: colum1 })
+            let df2 = new DataFrame(data2, { columns: colum2 })
+            let merge_df = DataFrame.merge({ "left": df1, "right": df2, "on": ["Key1", "Key2"], "how": "outer" })
 
             let output_data = [
-                [ 'K0', 'k0', 'A0', 'B0', 'C0', 'D0' ],
-                [ 'K1', 'K0', 'A2', 'B2', 'C1', 'D1' ],
-                [ 'K1', 'K0', 'A2', 'B2', 'C2', 'D2' ]
-              ];
+                ['K0', 'k0', 'A0', 'B0', 'C0', 'D0'],
+                ['k0', 'K1', 'A1', 'B1', 'NaN', 'NaN'],
+                ['K1', 'K0', 'A2', 'B2', 'C1', 'D1'],
+                ['K1', 'K0', 'A2', 'B2', 'C2', 'D2'],
+                ['K2', 'K2', 'A3', 'B3', 'NaN', 'NaN'],
+                ['K2', 'K0', 'NaN', 'NaN', 'C3', 'D3']
+            ];
+
 
             assert.deepEqual(merge_df.values, output_data);
         })
 
-        it("test left merge", function(){
-            let data = [['K0','k0','A0','B0'],['k0','K1','A1','B1'],
-                        ['K1','K0','A2','B2'],['K2','K2','A3','B3']]
+        it("test inner merge", function () {
+            let data = [['K0', 'k0', 'A0', 'B0'], ['k0', 'K1', 'A1', 'B1'],
+            ['K1', 'K0', 'A2', 'B2'], ['K2', 'K2', 'A3', 'B3']]
 
-            let data2 = [['K0','k0','C0','D0'],['K1','K0','C1','D1'],
-                         ['K1','K0','C2','D2'],['K2','K0','C3','D3']]
+            let data2 = [['K0', 'k0', 'C0', 'D0'], ['K1', 'K0', 'C1', 'D1'],
+            ['K1', 'K0', 'C2', 'D2'], ['K2', 'K0', 'C3', 'D3']]
 
-            let colum1 = ['Key1','Key2','A','B']
-            let colum2 = ['Key1','Key2','A','D']
+            let colum1 = ['Key1', 'Key2', 'A', 'B']
+            let colum2 = ['Key1', 'Key2', 'A', 'D']
 
-            let df1 = new DataFrame(data,{columns: colum1})
-            let df2 = new DataFrame(data2,{columns:colum2})
-            let merge_df = DataFrame.merge({"left":df1, "right":df2,"on":["Key1","Key2"],"how":"left"})
+            let df1 = new DataFrame(data, { columns: colum1 })
+            let df2 = new DataFrame(data2, { columns: colum2 })
+            let merge_df = DataFrame.merge({ "left": df1, "right": df2, "on": ["Key1", "Key2"], "how": "inner" })
 
             let output_data = [
-                [ 'K0', 'k0', 'A0', 'B0', 'C0', 'D0' ],
-                [ 'k0', 'K1', 'A1', 'B1', 'NaN', 'NaN' ],
-                [ 'K1', 'K0', 'A2', 'B2', 'C1', 'D1' ],
-                [ 'K1', 'K0', 'A2', 'B2', 'C2', 'D2' ],
-                [ 'K2', 'K2', 'A3', 'B3', 'NaN', 'NaN' ]
-              ];
+                ['K0', 'k0', 'A0', 'B0', 'C0', 'D0'],
+                ['K1', 'K0', 'A2', 'B2', 'C1', 'D1'],
+                ['K1', 'K0', 'A2', 'B2', 'C2', 'D2']
+            ];
 
             assert.deepEqual(merge_df.values, output_data);
         })
 
-        it("test right merge", function(){
-            let data = [['K0','k0','A0','B0'],['k0','K1','A1','B1'],
-                        ['K1','K0','A2','B2'],['K2','K2','A3','B3']]
+        it("test left merge", function () {
+            let data = [['K0', 'k0', 'A0', 'B0'], ['k0', 'K1', 'A1', 'B1'],
+            ['K1', 'K0', 'A2', 'B2'], ['K2', 'K2', 'A3', 'B3']]
 
-            let data2 = [['K0','k0','C0','D0'],['K1','K0','C1','D1'],
-                         ['K1','K0','C2','D2'],['K2','K0','C3','D3']]
+            let data2 = [['K0', 'k0', 'C0', 'D0'], ['K1', 'K0', 'C1', 'D1'],
+            ['K1', 'K0', 'C2', 'D2'], ['K2', 'K0', 'C3', 'D3']]
 
-            let colum1 = ['Key1','Key2','A','B']
-            let colum2 = ['Key1','Key2','A','D']
+            let colum1 = ['Key1', 'Key2', 'A', 'B']
+            let colum2 = ['Key1', 'Key2', 'A', 'D']
 
-            let df1 = new DataFrame(data,{columns: colum1})
-            let df2 = new DataFrame(data2,{columns:colum2})
-            let merge_df = DataFrame.merge({"left":df1, "right":df2,"on":["Key1","Key2"],"how":"right"})
+            let df1 = new DataFrame(data, { columns: colum1 })
+            let df2 = new DataFrame(data2, { columns: colum2 })
+            let merge_df = DataFrame.merge({ "left": df1, "right": df2, "on": ["Key1", "Key2"], "how": "left" })
 
             let output_data = [
-                [ 'K0', 'k0', 'A0', 'B0', 'C0', 'D0' ],
-                [ 'K1', 'K0', 'A2', 'B2', 'C1', 'D1' ],
-                [ 'K1', 'K0', 'A2', 'B2', 'C2', 'D2' ],
-                [ 'K2', 'K0', 'NaN', 'NaN', 'C3', 'D3' ]
-              ];
+                ['K0', 'k0', 'A0', 'B0', 'C0', 'D0'],
+                ['k0', 'K1', 'A1', 'B1', 'NaN', 'NaN'],
+                ['K1', 'K0', 'A2', 'B2', 'C1', 'D1'],
+                ['K1', 'K0', 'A2', 'B2', 'C2', 'D2'],
+                ['K2', 'K2', 'A3', 'B3', 'NaN', 'NaN']
+            ];
 
             assert.deepEqual(merge_df.values, output_data);
         })
-     });
 
-    describe("Apply", function(){
+        it("test right merge", function () {
+            let data = [['K0', 'k0', 'A0', 'B0'], ['k0', 'K1', 'A1', 'B1'],
+            ['K1', 'K0', 'A2', 'B2'], ['K2', 'K2', 'A3', 'B3']]
 
-        it("Apply math operation on dataframe at axis 1", function(){
+            let data2 = [['K0', 'k0', 'C0', 'D0'], ['K1', 'K0', 'C1', 'D1'],
+            ['K1', 'K0', 'C2', 'D2'], ['K2', 'K0', 'C3', 'D3']]
+
+            let colum1 = ['Key1', 'Key2', 'A', 'B']
+            let colum2 = ['Key1', 'Key2', 'A', 'D']
+
+            let df1 = new DataFrame(data, { columns: colum1 })
+            let df2 = new DataFrame(data2, { columns: colum2 })
+            let merge_df = DataFrame.merge({ "left": df1, "right": df2, "on": ["Key1", "Key2"], "how": "right" })
+
+            let output_data = [
+                ['K0', 'k0', 'A0', 'B0', 'C0', 'D0'],
+                ['K1', 'K0', 'A2', 'B2', 'C1', 'D1'],
+                ['K1', 'K0', 'A2', 'B2', 'C2', 'D2'],
+                ['K2', 'K0', 'NaN', 'NaN', 'C3', 'D3']
+            ];
+
+            assert.deepEqual(merge_df.values, output_data);
+        })
+    });
+
+    describe("Apply", function () {
+
+        it("Apply math operation on dataframe at axis 1", function () {
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
 
-            let rslt = [ 6, 15, 90, 206 ]
+            let rslt = [6, 15, 90, 206]
 
-            let apply_rslt = df.apply({axis:1, callable: (x)=>{
+            let apply_rslt = df.apply({
+                axis: 1, callable: (x) => {
                     return x.sum()
-                }})
+                }
+            })
 
             assert.deepEqual(apply_rslt, rslt)
         });
 
-        it("Apply tensor operation on dataframe at axis 0",function(){
+        it("Apply tensor operation on dataframe at axis 0", function () {
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
 
-            let rslt = [ 64, 126, 127 ]
+            let rslt = [64, 126, 127]
 
-            let apply_rslt = df.apply({axis:0, callable: (x)=>{
-                return x.sum()
-            }})
+            let apply_rslt = df.apply({
+                axis: 0, callable: (x) => {
+                    return x.sum()
+                }
+            })
 
             assert.deepEqual(apply_rslt, rslt)
 

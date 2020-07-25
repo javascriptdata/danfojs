@@ -7,11 +7,11 @@ const config = new Configs()
 describe("Config", function () {
     it("gets the default config val for table width", function () {
         let table_width = config.get_width
-        assert.equal(table_width, 15)
+        assert.equal(table_width, 17)
     })
     it("gets the default config val for table truncation", function () {
         let table_trunc = config.get_truncate
-        assert.equal(table_trunc, 14)
+        assert.equal(table_trunc, 16)
     })
     it("Sets the config val for table width", function () {
         config.set_width(7)
