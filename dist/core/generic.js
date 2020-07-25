@@ -270,7 +270,7 @@ class NDframe {
           rows: [`0:${row_len}`],
           columns: this.columns
         });
-        idx = data.index;
+        idx = data.index_arr;
         values = data.values;
       }
 

@@ -254,8 +254,6 @@ class DataFrame extends _generic.default {
   }
 
   sample(num = 5) {
-    let row_len = this.values.length;
-
     if (num > this.values.length || num < 1) {
       let config = {
         columns: this.column_names
@@ -266,7 +264,7 @@ class DataFrame extends _generic.default {
         columns: this.column_names
       };
 
-      let sampled_index = utils.__randgen(num, 0, row_len);
+      let sampled_index = utils.__sample_from_iter(this.index, num, false);
 
       let sampled_arr = [];
       let new_idx = [];

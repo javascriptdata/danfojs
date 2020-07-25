@@ -102,6 +102,7 @@ export class DataFrame extends Ndframe {
 
                         if (typeof start == "number" && typeof end == "number") {
                             rows = utils.__range(start, end);
+                            // rows = this.index.slice(start, end)
                         }
 
                     } else {
@@ -215,7 +216,8 @@ export class DataFrame extends Ndframe {
         let df_columns = { "columns": columns }
         let df = new DataFrame(new_data, df_columns);
         df.index_arr = rows
-
+        // console.log("Printing rowss");
+        // console.log(rows);
         return df;
 
     }
@@ -285,7 +287,6 @@ export class DataFrame extends Ndframe {
     * @param {rows}  
     */
     sample(num = 5) {
-        let row_len = this.values.length
         if (num > this.values.length || num < 1) {
             //return all values
             let config = { columns: this.column_names }
@@ -293,7 +294,7 @@ export class DataFrame extends Ndframe {
         } else {
             //Creates a new dataframe with last [rows]
             let config = { columns: this.column_names }
-            let sampled_index = utils.__randgen(num, 0, row_len);
+            let sampled_index = utils.__sample_from_iter(this.index, num, false);
             let sampled_arr = []
             let new_idx = []
             let self = this
@@ -303,7 +304,9 @@ export class DataFrame extends Ndframe {
                 new_idx.push(self.index[val])
             });
             let df = new DataFrame(sampled_arr, config)
+            // console.log(new_idx);
             df.__set_index(new_idx)
+            // console.log(df.head() + "");
             return df
 
         }
