@@ -146,7 +146,7 @@ class DataFrame extends _generic.default {
       let max_rowIndex = data_values.length - 1;
 
       if (row_val > max_rowIndex) {
-        throw new Error(`row index ${row_val} is bigger than ${max_rowIndex}`);
+        throw new Error(`Specified row index ${row_val} is bigger than maximum row index of ${max_rowIndex}`);
       }
 
       let value = data_values[row_val];
@@ -187,30 +187,32 @@ class DataFrame extends _generic.default {
       column_names = columns;
     }
 
-    return [new_data, column_names];
+    return [new_data, column_names, rows];
   }
 
   loc(kwargs) {
     kwargs["type"] = "loc";
 
-    let [new_data, columns] = this.__indexLoc(kwargs);
+    let [new_data, columns, rows] = this.__indexLoc(kwargs);
 
     let df_columns = {
       "columns": columns
     };
     let df = new DataFrame(new_data, df_columns);
+    df.index_arr = rows;
     return df;
   }
 
   iloc(kwargs) {
     kwargs["type"] = "iloc";
 
-    let [new_data, columns] = this.__indexLoc(kwargs);
+    let [new_data, columns, rows] = this.__indexLoc(kwargs);
 
     let df_columns = {
       "columns": columns
     };
     let df = new DataFrame(new_data, df_columns);
+    df.index_arr = rows;
     return df;
   }
 
@@ -278,6 +280,18 @@ class DataFrame extends _generic.default {
       df.__set_index(new_idx);
 
       return df;
+    }
+  }
+
+  add(other, axis) {
+    if (this.__frame_is_compactible_for_operation) {
+      let tensors = this.__get_ops_tensors([this, other], axis);
+
+      let sum_vals = tensors[0].add(tensors[1]);
+      let col_names = this.columns;
+      return this.__get_df_from_tensor(sum_vals, col_names);
+    } else {
+      throw Error("TypeError: Dtypes of column must be Float of Int");
     }
   }
 
@@ -624,18 +638,78 @@ class DataFrame extends _generic.default {
     return data;
   }
 
-  add(other) {
-    if (utils.__is_number(other)) {
-      let sum = this.tensor.add(other).arraySync();
-      return new _series.Series(sum, {
-        columns: this.column_names
-      });
+  __get_df_from_tensor(val, col_names) {
+    let len = val.shape[0];
+    let new_array = [];
+
+    for (let i = 0; i < len; i++) {
+      let arr = val.slice([i], [1]).arraySync()[0];
+      new_array.push(arr);
+    }
+
+    return new DataFrame(new_array, {
+      columns: col_names
+    });
+  }
+
+  __frame_is_compactible_for_operation() {
+    let dtypes = this.dtypes;
+
+    const float = element => element == "float32";
+
+    const int = element => element == "int32";
+
+    if (dtypes.every(float)) {
+      return true;
+    } else if (dtypes.every(int)) {
+      return true;
     } else {
-      if (this.__check_series_op_compactibility) {
-        let sum = this.tensor.add(other.tensor).arraySync();
-        return new _series.Series(sum, {
-          columns: this.column_names
-        });
+      return false;
+    }
+  }
+
+  __get_ops_tensors(tensors, axis) {
+    if (utils.__is_undefined(tensors[1].series)) {
+      let tensors_arr = [];
+
+      if (utils.__is_undefined(axis) || axis == 1) {
+        tensors_arr.push(tensors[0].row_data_tensor);
+        tensors_arr.push(tensors[1]);
+        return tensors_arr;
+      } else {
+        tensors_arr.push(tensors[0].col_data_tensor);
+        tensors_arr.push(tensors[1]);
+        return tensors_arr;
+      }
+    } else {
+      let tensors_arr = [];
+
+      if (utils.__is_undefined(axis) || axis == 1) {
+        let this_tensor, other_tensor;
+        this_tensor = tensors[0].row_data_tensor;
+
+        if (tensors[1].series) {
+          other_tensor = tf.tensor(tensors[1].values, [1, tensors[1].values.length]);
+        } else {
+          other_tensor = tensors[1].row_data_tensor;
+        }
+
+        tensors_arr.push(this_tensor);
+        tensors_arr.push(other_tensor);
+        return tensors_arr;
+      } else {
+        let this_tensor, other_tensor;
+        this_tensor = tensors[0].row_data_tensor;
+
+        if (tensors[1].series) {
+          other_tensor = tf.tensor(tensors[1].values, [tensors[1].values.length, 1]);
+        } else {
+          other_tensor = tensors[1].col_data_tensor;
+        }
+
+        tensors_arr.push(this_tensor);
+        tensors_arr.push(other_tensor);
+        return tensors_arr;
       }
     }
   }

@@ -5,8 +5,6 @@ import { Utils } from "./utils"
 import { GroupBy } from "./groupby"
 // import {TimeSeries} from "./timeseries"
 import { Merge } from "./merge"
-import { util } from "chai"
-import { tensor } from "@tensorflow/tfjs-node"
 
 const utils = new Utils
 // const config = new Configs()

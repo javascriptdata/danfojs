@@ -43,8 +43,8 @@ class NDframe {
 
   __read_array(data) {
     this.data = utils.__replace_undefined_with_NaN(data, this.series);
-    this.data_tensor = tf.tensor(this.data);
-    this.index_arr = [...Array(this.data_tensor.shape[0]).keys()];
+    this.row_data_tensor = tf.tensor(this.data);
+    this.index_arr = [...Array(this.row_data_tensor.shape[0]).keys()];
 
     if (this.ndim == 1) {
       if (!utils.__key_in_object(this.kwargs, 'columns')) {
@@ -60,12 +60,12 @@ class NDframe {
       }
     } else {
       if (!utils.__key_in_object(this.kwargs, 'columns')) {
-        this.columns = [...Array(this.data_tensor.shape[0]).keys()];
+        this.columns = [...Array(this.row_data_tensor.shape[1]).keys()];
       } else {
-        if (this.kwargs['columns'].length == Number(this.data_tensor.shape[1])) {
+        if (this.kwargs['columns'].length == Number(this.row_data_tensor.shape[1])) {
           this.columns = this.kwargs['columns'];
         } else {
-          throw `Column length mismatch. You provided a column of length ${this.kwargs['columns'].length} but data has lenght of ${this.data_tensor.shape[1]}`;
+          throw `Column length mismatch. You provided a column of length ${this.kwargs['columns'].length} but data has lenght of ${this.row_data_tensor.shape[1]}`;
         }
       }
 
@@ -83,9 +83,9 @@ class NDframe {
       data_arr.push(Object.values(item));
     });
     this.data = utils.__replace_undefined_with_NaN(data_arr, this.series);
-    this.data_tensor = tf.tensor(this.data);
+    this.row_data_tensor = tf.tensor(this.data);
     this.kwargs['columns'] = Object.keys(Object.values(data)[0]);
-    this.index_arr = [...Array(this.data_tensor.shape[0]).keys()];
+    this.index_arr = [...Array(this.row_data_tensor.shape[0]).keys()];
 
     if (this.ndim == 1) {
       if (this.kwargs['columns'] == undefined) {
@@ -95,12 +95,12 @@ class NDframe {
       }
     } else {
       if (!utils.__key_in_object(this.kwargs, 'columns')) {
-        this.columns = [...Array(this.data_tensor.shape[0]).keys()];
+        this.columns = [...Array(this.row_data_tensor.shape[1]).keys()];
       } else {
-        if (this.kwargs['columns'].length == Number(this.data_tensor.shape[1])) {
+        if (this.kwargs['columns'].length == Number(this.row_data_tensor.shape[1])) {
           this.columns = this.kwargs['columns'];
         } else {
-          throw `Column lenght mismatch. You provided a column of lenght ${this.kwargs['columns'].length} but data has column length of ${this.data_tensor.shape[1]}`;
+          throw `Column lenght mismatch. You provided a column of lenght ${this.kwargs['columns'].length} but data has column length of ${this.row_data_tensor.shape[1]}`;
         }
       }
 
@@ -110,7 +110,7 @@ class NDframe {
         this.__set_col_types(null, true);
       }
 
-      this.index_arr = [...Array(this.data_tensor.shape[0]).keys()];
+      this.index_arr = [...Array(this.row_data_tensor.shape[0]).keys()];
     }
   }
 
@@ -122,6 +122,7 @@ class NDframe {
         this.col_types = utils.__get_t(this.values);
       } else {
         this.col_data = utils.__get_col_values(this.data);
+        this.col_data_tensor = tf.tensor(this.col_data);
         this.col_types = utils.__get_t(this.col_data);
       }
     } else {
@@ -132,6 +133,7 @@ class NDframe {
           }
         });
         this.col_data = utils.__get_col_values(this.data);
+        this.col_data_tensor = tf.tensor(this.col_data);
         this.col_types = dtypes;
       } else {
         throw new Error(`dtypes: lenght mismatch. Specified dtype has a lenght
@@ -152,7 +154,7 @@ class NDframe {
     if (this.series) {
       return 1;
     } else {
-      return this.data_tensor.shape.length;
+      return this.row_data_tensor.shape.length;
     }
   }
 
@@ -189,7 +191,7 @@ class NDframe {
     if (this.series) {
       return [this.values.length, 1];
     } else {
-      return this.data_tensor.shape;
+      return this.row_data_tensor.shape;
     }
   }
 
@@ -202,7 +204,7 @@ class NDframe {
   }
 
   get size() {
-    return this.data_tensor.size;
+    return this.row_data_tensor.size;
   }
 
   toString() {
@@ -254,7 +256,6 @@ class NDframe {
       });
     } else {
       header = [""].concat(this.columns);
-      console.log(header);
       let idx, values;
 
       if (this.values.length > max_row) {
