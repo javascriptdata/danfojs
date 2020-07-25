@@ -227,7 +227,11 @@ class DataFrame extends _generic.default {
         columns: this.column_names
       };
       let data = this.values.slice(0, rows);
-      return new DataFrame(data, config);
+      let index = this.index.slice(0, rows);
+      console.log(index);
+      let df = new DataFrame(data, config);
+      df.index_arr = index;
+      return df;
     }
   }
 
