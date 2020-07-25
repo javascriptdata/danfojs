@@ -42,8 +42,8 @@ class NDframe {
   }
 
   __read_array(data) {
-    this.data = data;
-    this.data_tensor = tf.tensor(data);
+    this.data = utils.__replace_undefined_with_NaN(data, this.series);
+    this.data_tensor = tf.tensor(this.data);
     this.index_arr = [...Array(this.data_tensor.shape[0]).keys()];
 
     if (this.ndim == 1) {
@@ -82,8 +82,8 @@ class NDframe {
     data.forEach(item => {
       data_arr.push(Object.values(item));
     });
-    this.data = data_arr;
-    this.data_tensor = tf.tensor(data_arr);
+    this.data = utils.__replace_undefined_with_NaN(data_arr, this.series);
+    this.data_tensor = tf.tensor(this.data);
     this.kwargs['columns'] = Object.keys(Object.values(data)[0]);
     this.index_arr = [...Array(this.data_tensor.shape[0]).keys()];
 
@@ -213,7 +213,7 @@ class NDframe {
     let data_arr = [];
     let table_config = {};
     let col_len = this.columns.length;
-    let row_len = this.values.length;
+    let row_len = this.values.length - 1;
     let header = [];
 
     if (col_len > max_col_in_console) {

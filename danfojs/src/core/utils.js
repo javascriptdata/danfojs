@@ -120,7 +120,7 @@ export class Utils {
         }
     }
 
-    //retreives the column wise value from an array
+    //retreives the column data value from an array
     __get_col_values(data) {
         let row_len = data.length
         let cols_len = data[0].length
@@ -136,6 +136,35 @@ export class Utils {
 
     }
 
+
+    __replace_undefined_with_NaN(data, isSeries) {
+        if (isSeries) {
+            let temp_arr = []
+            data.map(val => {
+                if (typeof val === 'undefined') {
+                    temp_arr.push(NaN)
+                } else {
+                    temp_arr.push(val)
+                }
+            })
+            return temp_arr
+        } else {
+            let full_arr = []
+            data.map(val => {
+                var temp_arr = []
+                val.map(ele => {
+                    if (typeof ele === 'undefined') {
+                        temp_arr.push(NaN)
+                    } else {
+                        temp_arr.push(ele)
+                    }
+                })
+                full_arr.push(temp_arr)
+            })
+            return full_arr
+        }
+
+    }
 
     //infer types from an array of array
     __get_t(arr) {
@@ -345,32 +374,32 @@ export class Utils {
     }
 
     //check a variable is a function
-    __is_function(variable){
+    __is_function(variable) {
 
         return typeof variable == "function"
     }
 
-    
+
 
     //generate a random list
-    __randgen(num,start,end){
+    __randgen(num, start, end) {
 
-        let gen_num  = []
+        let gen_num = []
 
         //random int
         function randi(a, b) { return Math.floor(Math.random() * (b - a) + a); }
-        
-        function recursive(val,arr){
-            if(!arr.includes(val)){
+
+        function recursive(val, arr) {
+            if (!arr.includes(val)) {
                 return val
             }
 
             val = randi(start, end);
 
-            recursive(val,arr);
+            recursive(val, arr);
         }
 
-        for(let i=0; i< num; i++){
+        for (let i = 0; i < num; i++) {
 
             let gen_val = randi(start, end)
             let recur_val = recursive(gen_val, gen_num);

@@ -230,14 +230,16 @@ class DataFrame extends _generic.default {
   }
 
   tail(rows = 5) {
-    if (rows > this.values.length || rows < 1) {
+    let row_len = this.values.length;
+
+    if (rows > row_len || rows < 1) {
       let config = {
         columns: this.column_names
       };
       return new DataFrame(this.values, config);
     } else {
-      let data = this.values.slice(this.values.length - rows);
-      let indx = this.index.slice(this.values.length - rows);
+      let data = this.values.slice(row_len - rows);
+      let indx = this.index.slice(row_len - rows);
       let config = {
         columns: this.column_names
       };
@@ -249,7 +251,9 @@ class DataFrame extends _generic.default {
     }
   }
 
-  sample(num = 1) {
+  sample(num = 5) {
+    let row_len = this.values.length;
+
     if (num > this.values.length || num < 1) {
       let config = {
         columns: this.column_names
@@ -260,9 +264,20 @@ class DataFrame extends _generic.default {
         columns: this.column_names
       };
 
-      let sampled_arr = utils.__sample_from_iter(this.values, num);
+      let sampled_index = utils.__randgen(num, 0, row_len);
 
-      return new DataFrame(sampled_arr, config);
+      let sampled_arr = [];
+      let new_idx = [];
+      let self = this;
+      sampled_index.map(val => {
+        sampled_arr.push(self.values[val]);
+        new_idx.push(self.index[val]);
+      });
+      let df = new DataFrame(sampled_arr, config);
+
+      df.__set_index(new_idx);
+
+      return df;
     }
   }
 
@@ -607,6 +622,22 @@ class DataFrame extends _generic.default {
     }
 
     return data;
+  }
+
+  add(other) {
+    if (utils.__is_number(other)) {
+      let sum = this.tensor.add(other).arraySync();
+      return new _series.Series(sum, {
+        columns: this.column_names
+      });
+    } else {
+      if (this.__check_series_op_compactibility) {
+        let sum = this.tensor.add(other.tensor).arraySync();
+        return new _series.Series(sum, {
+          columns: this.column_names
+        });
+      }
+    }
   }
 
 }

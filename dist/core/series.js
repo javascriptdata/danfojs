@@ -70,7 +70,7 @@ class Series extends _generic.default {
     }
   }
 
-  sample(num = 10) {
+  sample(num = 5) {
     if (num > this.values.length || num < 1) {
       let config = {
         columns: this.column_names

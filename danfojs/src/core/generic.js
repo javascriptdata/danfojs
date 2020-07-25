@@ -43,8 +43,8 @@ export default class NDframe {
 
 
     __read_array(data) {
-        this.data = data //Defualt array data in row format
-        this.data_tensor = tf.tensor(data) //data saved as tensors TODO: INfer type before saving as tensor
+        this.data = utils.__replace_undefined_with_NaN(data, this.series) //Defualt array data in row format
+        this.data_tensor = tf.tensor(this.data) //data saved as tensors TODO: INfer type before saving as tensor
         this.index_arr = [...Array(this.data_tensor.shape[0]).keys()]   //set index
 
 
@@ -93,8 +93,8 @@ export default class NDframe {
             data_arr.push(Object.values(item))
 
         });
-        this.data = data_arr //default array data in row format
-        this.data_tensor = tf.tensor(data_arr) //data saved as tensors
+        this.data = utils.__replace_undefined_with_NaN(data_arr, this.series) //Defualt array data in row format
+        this.data_tensor = tf.tensor(this.data) //data saved as tensors
         this.kwargs['columns'] = Object.keys(Object.values(data)[0]) //get names of the column from the first entry
         this.index_arr = [...Array(this.data_tensor.shape[0]).keys()]     //set index
 
@@ -120,7 +120,7 @@ export default class NDframe {
                 }
             }
 
-            //saves array data in column form for easy access
+            //set column types
             if (utils.__key_in_object(this.kwargs, 'dtypes')) {
                 this.__set_col_types(this.kwargs['dtypes'], false)
             } else {
@@ -282,7 +282,7 @@ export default class NDframe {
 
 
     /**
-    * Prints the data in a DataFrame as a grid of row and columns
+    * Prints the data in a Series as a grid of row and columns
     */
     toString() {
         let table_width = config.get_width
@@ -295,7 +295,7 @@ export default class NDframe {
         let table_config = {}
         // let idx = this.index
         let col_len = this.columns.length
-        let row_len = this.values.length
+        let row_len = this.values.length - 1
         let header = []
 
         if (col_len > max_col_in_console) {

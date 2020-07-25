@@ -85,7 +85,7 @@ export class Series extends NDframe {
     * @param {rows}  
     * @returns {Series}
     */
-    sample(num = 10) {
+    sample(num = 5) {
         if (num > this.values.length || num < 1) {
             //return all values
             let config = { columns: this.column_names }

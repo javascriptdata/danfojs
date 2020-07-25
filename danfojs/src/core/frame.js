@@ -261,14 +261,15 @@ export class DataFrame extends Ndframe {
     * @param {rows}  
     */
     tail(rows = 5) {
-        if (rows > this.values.length || rows < 1) {
+        let row_len = this.values.length
+        if (rows > row_len || rows < 1) {
             //return all values
             let config = { columns: this.column_names }
             return new DataFrame(this.values, config)
         } else {
             //Creates a new dataframe with last [rows]
-            let data = this.values.slice(this.values.length - rows)
-            let indx = this.index.slice(this.values.length - rows)
+            let data = this.values.slice(row_len - rows)
+            let indx = this.index.slice(row_len - rows)
             let config = { columns: this.column_names }
             let df = new DataFrame(data, config)
             df.__set_index(indx)
@@ -281,7 +282,8 @@ export class DataFrame extends Ndframe {
     * Gets [num] number of random rows in a dataframe
     * @param {rows}  
     */
-    sample(num = 1) {
+    sample(num = 5) {
+        let row_len = this.values.length
         if (num > this.values.length || num < 1) {
             //return all values
             let config = { columns: this.column_names }
@@ -289,8 +291,18 @@ export class DataFrame extends Ndframe {
         } else {
             //Creates a new dataframe with last [rows]
             let config = { columns: this.column_names }
-            let sampled_arr = utils.__sample_from_iter(this.values, num)
-            return new DataFrame(sampled_arr, config)
+            let sampled_index = utils.__randgen(num, 0, row_len);
+            let sampled_arr = []
+            let new_idx = []
+            let self = this
+
+            sampled_index.map((val) => {
+                sampled_arr.push(self.values[val])
+                new_idx.push(self.index[val])
+            });
+            let df = new DataFrame(sampled_arr, config)
+            df.__set_index(new_idx)
+            return df
 
         }
     }
@@ -766,12 +778,25 @@ export class DataFrame extends Ndframe {
         return data
     }
 
-    // /**
-    //  * create a one-hot encoder
-    //  * @param {*} series a dataframe column
-    //  * @return DataFrame
-    //  */
-    // static dummy(series) { }
+
+     /**
+    * Return Addition of series and other, element-wise (binary operator add).
+    * Equivalent to series + other
+    * @param {other} Series or Number to add  
+    * @returns {Series}
+    */
+   add(other) {
+    if (utils.__is_number(other)) {
+        //broadcast addition
+        let sum = this.tensor.add(other).arraySync()
+        return new Series(sum, { columns: this.column_names })
+    } else {
+        if (this.__check_series_op_compactibility) {
+            let sum = this.tensor.add(other.tensor).arraySync()
+            return new Series(sum, { columns: this.column_names })
+        }
+    }
+}
 
 }
 
