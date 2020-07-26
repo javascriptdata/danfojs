@@ -223,15 +223,13 @@ class DataFrame extends _generic.default {
       };
       return new DataFrame(this.values, config);
     } else {
-      let config = {
-        columns: this.column_names
-      };
       let data = this.values.slice(0, rows);
-      let index = this.index.slice(0, rows);
-      console.log(index);
-      let df = new DataFrame(data, config);
-      df.index_arr = index;
-      return df;
+      let idx = this.index.slice(0, rows);
+      let config = {
+        columns: this.column_names,
+        index: idx
+      };
+      return new DataFrame(data, config);
     }
   }
 
@@ -247,12 +245,10 @@ class DataFrame extends _generic.default {
       let data = this.values.slice(row_len - rows);
       let indx = this.index.slice(row_len - rows);
       let config = {
-        columns: this.column_names
+        columns: this.column_names,
+        index: indx
       };
       let df = new DataFrame(data, config);
-
-      df.__set_index(indx);
-
       return df;
     }
   }
@@ -264,23 +260,24 @@ class DataFrame extends _generic.default {
       };
       return new DataFrame(this.values, config);
     } else {
-      let config = {
-        columns: this.column_names
-      };
-
-      let sampled_index = utils.__sample_from_iter(this.index, num, false);
-
-      let sampled_arr = [];
+      let values = this.values;
+      let idx = this.index;
+      let new_values = [];
       let new_idx = [];
-      let self = this;
-      sampled_index.map(val => {
-        sampled_arr.push(self.values[val]);
-        new_idx.push(self.index[val]);
+      let counts = [...Array(idx.length).keys()];
+
+      let rand_nums = utils.__sample_from_iter(counts, num, false);
+
+      rand_nums.map(i => {
+        new_values.push(values[i]);
+        new_idx.push(idx[i]);
       });
-      let df = new DataFrame(sampled_arr, config);
-
-      df.__set_index(new_idx);
-
+      let config = {
+        columns: this.column_names,
+        index: new_idx
+      };
+      let df = new DataFrame(new_values, config);
+      console.log(df + "");
       return df;
     }
   }

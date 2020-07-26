@@ -45,8 +45,12 @@ export default class NDframe {
     __read_array(data) {
         this.data = utils.__replace_undefined_with_NaN(data, this.series) //Defualt array data in row format
         this.row_data_tensor = tf.tensor(this.data) //data saved as tensors TODO: INfer type before saving as tensor
-        this.index_arr = [...Array(this.row_data_tensor.shape[0]).keys()]   //set index
 
+        if (utils.__key_in_object(this.kwargs, 'index')) {
+            this.__set_index(this.kwargs['index'])
+        } else {
+            this.index_arr = [...Array(this.row_data_tensor.shape[0]).keys()]   //set index
+        }
 
         if (this.ndim == 1) {
             //series array
@@ -96,8 +100,12 @@ export default class NDframe {
         this.data = utils.__replace_undefined_with_NaN(data_arr, this.series) //Defualt array data in row format
         this.row_data_tensor = tf.tensor(this.data) //data saved as tensors
         this.kwargs['columns'] = Object.keys(Object.values(data)[0]) //get names of the column from the first entry
-        this.index_arr = [...Array(this.row_data_tensor.shape[0]).keys()]     //set index
 
+        if (utils.__key_in_object(this.kwargs, 'index')) {
+            this.__set_index(this.kwargs['index'])
+        } else {
+            this.index_arr = [...Array(this.row_data_tensor.shape[0]).keys()]   //set index
+        }
 
         if (this.ndim == 1) {
             //series array
@@ -128,8 +136,6 @@ export default class NDframe {
                 this.__set_col_types(null, true)
             }
 
-            //set index
-            this.index_arr = [...Array(this.row_data_tensor.shape[0]).keys()]
         }
     }
 
@@ -225,7 +231,7 @@ export default class NDframe {
         if (!Array.isArray(labels)) {
             throw Error("Value Error: index must be an array")
         }
-        if (labels.length > this.index.length || labels.length < this.index.length) {
+        if (labels.length > this.row_data_tensor.shape[0] || labels.length < this.row_data_tensor.shape[0]) {
             throw Error("Value Error: length of labels must match row shape of data")
         }
         this.index_arr = labels
@@ -341,9 +347,9 @@ export default class NDframe {
                 idx = data.index
                 values = data.values
             } else {
-                let data = this.loc({ rows: [`0:${row_len}`], columns: this.columns })
-                idx = data.index_arr
-                values = data.values
+                values = this.values
+                idx = this.index
+
             }
 
             // merge cols
@@ -351,7 +357,7 @@ export default class NDframe {
                 let row = [val].concat(values[i])
                 data_arr.push(row)
             })
-            
+
 
         }
 

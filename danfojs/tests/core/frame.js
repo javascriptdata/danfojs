@@ -97,6 +97,12 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { columns: cols })
             assert.deepEqual(df.tail(-1).values, data)
         })
+        it("Return last 3 row index in a DataFrame", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            assert.deepEqual(df.tail(2).index, [2,3])
+        })
     })
 
     describe("sample", function () {
