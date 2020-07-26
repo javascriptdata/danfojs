@@ -725,4 +725,15 @@ describe("DataFrame", function () {
 
         })
     });
+
+    describe("dropna", function(){
+        it("drop inplace", function(){
+            let data = [[NaN, 1,2,3], [3,4,NaN,9],[5,6,7,8]]
+            let column = ["A","B","C","D"]
+            let df = new DataFrame(data,{columns:column})
+
+            console.log(df.dropna() +"")
+            console.log(df +"")
+        })
+    });
 });

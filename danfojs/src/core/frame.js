@@ -565,6 +565,66 @@ export class DataFrame extends Ndframe {
     //  */
     // nanIndex() { }
 
+    /**
+     * Drop all rows containing NaN
+     * @param {kwargs} kwargs [Object] {axis: [int]{o or 1}, inplace:[boolean]}
+     */
+    dropna(kwargs={}){
+
+        let axis = kwargs["axis"] || 0;
+        let inplace = kwargs["inplace"] || true;
+
+        if(axis !=0 && axis !=1){
+            throw new Error("axis must either be 1 or 0")
+        }
+
+        let df_values = null
+        let columns = null
+        if(axis ==0){
+            df_values = this.values
+            columns = this.columns
+        }
+        else{
+            df_values = this.col_data
+            columns = []
+        }
+        let data = []
+
+        for(let i=0;i < df_values.length; i++){
+            let values = df_values[i]
+
+            if(!(values.includes(NaN)) && !(values.includes("NaN"))){
+                if(axis ==0){
+                    data.push(values);
+                }else{
+
+                    columns.push(this.columns[i])
+                    if(data.length == 0){
+                        
+                        for(let j=0; j < values.length; j++){
+                            data.push([values[j]])
+                        }
+                    }else{
+                        for(let j =0; j < data.length; j++){
+                            data[j].push(values[j])
+                        }
+                    }
+                }
+                
+            }
+
+        }
+        
+        if(inplace ==true){
+            this.data = data
+            this.__reset_index()
+            this.columns = columns
+        }else{
+            return new DataFrame(data,{columns: columns})
+        }
+
+    }
+
 
     /**
      * Join two or more dataframe together base on their
