@@ -91,20 +91,20 @@ export class Series extends NDframe {
             let config = { columns: this.column_names }
             return new Series(this.values, config)
         } else {
-            //Creates a new dataframe with last [rows]
-            let config = { columns: this.column_names }
-            let sampled_index = utils.__randgen(num, 0, this.shape[0]);
-
-            let sampled_arr = []
+            let values = this.values
+            let idx = this.index
+            let new_values = []
             let new_idx = []
-
-            let self = this
-            sampled_index.map((val) => {
-                sampled_arr.push(self.values[val])
-                new_idx.push(self.index[val])
-            });
-            let sf = new Series(sampled_arr, config)
-            sf.__set_index(new_idx)
+ 
+            let counts = [...Array(idx.length).keys()]   //set index
+            //get random sampled numbers
+            let rand_nums = utils.__randgen(num, 0, counts.length)
+            rand_nums.map(i =>{
+                new_values.push(values[i])
+                new_idx.push(idx[i])
+            })
+            let config = {columns: this.column_names, index: new_idx}
+            let sf = new Series(new_values, config)
             return sf
 
         }

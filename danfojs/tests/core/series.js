@@ -67,7 +67,7 @@ describe("Series", function () {
         it("Samples n number of random elements from a DataFrame", function () {
             let data = [1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78]
             let sf = new Series(data)
-            assert.deepEqual(sf.sample(2).values.length, 2)
+            assert.deepEqual(sf.sample(5).values.length, 5)
         })
         it("Return all values if n of sample is greater than lenght of Dataframe", function () {
             let data = [1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78]

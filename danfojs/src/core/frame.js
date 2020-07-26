@@ -300,7 +300,6 @@ export class DataFrame extends Ndframe {
 
            let counts = [...Array(idx.length).keys()]   //set index
 
-
            //get random sampled numbers
            let rand_nums = utils.__sample_from_iter(counts, num, false)
            rand_nums.map(i =>{
@@ -310,7 +309,6 @@ export class DataFrame extends Ndframe {
 
            let config = {columns: this.column_names, index: new_idx}
            let df = new DataFrame(new_values, config)
-           console.log(df + "");
            return df
 
         }

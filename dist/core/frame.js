@@ -277,7 +277,6 @@ class DataFrame extends _generic.default {
         index: new_idx
       };
       let df = new DataFrame(new_values, config);
-      console.log(df + "");
       return df;
     }
   }
