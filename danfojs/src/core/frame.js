@@ -552,11 +552,29 @@ export class DataFrame extends Ndframe {
     //     return timeseries
     // }
 
-    // /**
-    //  * check if each row,col contains NaN
-    //  * @return Array list (bool)
-    //  */
-    // isnan() { }
+    /**
+     * check if each row,col contains NaN
+     * @return DataFrame
+     */
+    isna() {
+
+        let data = []
+        let values = this.values;
+        let columns = this.columns;
+
+        for(let i=0; i < values.length; i++){
+            let temp_data = []
+            let row_value = values[i]
+            for(let j=0; j < row_value.length; j++){
+
+                let val = row_value[j] == 0 ? 0 : !!row_value[j]
+                temp_data.push(val)
+            }
+            data.push(temp_data);
+        }
+        
+        return new DataFrame(data,{columns:columns})
+     }
 
 
     // /**
@@ -572,7 +590,7 @@ export class DataFrame extends Ndframe {
     dropna(kwargs={}){
 
         let axis = kwargs["axis"] || 0;
-        let inplace = kwargs["inplace"] || true;
+        let inplace = kwargs["inplace"] || false;
 
         if(axis !=0 && axis !=1){
             throw new Error("axis must either be 1 or 0")
@@ -593,7 +611,7 @@ export class DataFrame extends Ndframe {
         for(let i=0;i < df_values.length; i++){
             let values = df_values[i]
 
-            if(!(values.includes(NaN)) && !(values.includes("NaN"))){
+            if(!(values.includes(NaN))){
                 if(axis ==0){
                     data.push(values);
                 }else{
@@ -724,7 +742,7 @@ export class DataFrame extends Ndframe {
                     let null_array = Array(column_length);
 
                     for (let col = 0; col < column_length; col++) {
-                        null_array[col] = "NaN"
+                        null_array[col] = NaN
                     }
 
                     if (typeof data[max_length - 1] === "undefined") {
@@ -782,7 +800,7 @@ export class DataFrame extends Ndframe {
                             let col_name = columns[j]
                             if (not_exist.includes(col_name)) {
 
-                                new_arr[j] = "NaN"
+                                new_arr[j] = NaN
                             } else {
                                 let index = df_columns.indexOf(col_name)
                                 new_arr[j] = row_value[index]

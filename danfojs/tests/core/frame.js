@@ -559,8 +559,8 @@ describe("DataFrame", function () {
 
             let new_df = DataFrame.concat({ "df_list": [df, df1, df2], "axis": 0 })
 
-            let data_values = [[1, 2, 3, "NaN"], [4, 5, 6, "NaN"], [20, 30, 40, "NaN"], [39, 89, 78, "NaN"],
-            [1, 2, 3, "NaN"], [4, 5, 6, "NaN"], [20, 30, 40, "NaN"], [39, 89, 78, "NaN"],
+            let data_values = [[1, 2, 3, NaN], [4, 5, 6, NaN], [20, 30, 40, NaN], [39, 89, 78, NaN],
+            [1, 2, 3, NaN], [4, 5, 6, NaN], [20, 30, 40, NaN], [39, 89, 78, NaN],
             [1, 2, 3, 5], [4, 5, 6, 8], [20, 30, 40, 10]]
 
             assert.deepEqual(new_df.values, data_values);
@@ -582,8 +582,8 @@ describe("DataFrame", function () {
             let new_df = DataFrame.concat({ "df_list": [df, df1, df2], "axis": 1 })
 
             let data_values = [[1, 2, 3, 1, 2, 3, 1, 2, 3, 5], [4, 5, 6, 4, 5, 6, 4, 5, 6, 8],
-            [20, 30, 40, 20, 30, 40, 20, 30, 40, 10], [39, 89, 78, 39, 89, 78, "NaN",
-                "NaN", "NaN", "NaN"]]
+            [20, 30, 40, 20, 30, 40, 20, 30, 40, 10], [39, 89, 78, 39, 89, 78, NaN,
+                NaN, NaN, NaN]]
             assert.deepEqual(new_df.values, data_values);
         });
     });
@@ -606,11 +606,11 @@ describe("DataFrame", function () {
 
             let output_data = [
                 ['K0', 'k0', 'A0', 'B0', 'C0', 'D0'],
-                ['k0', 'K1', 'A1', 'B1', 'NaN', 'NaN'],
+                ['k0', 'K1', 'A1', 'B1', NaN, NaN],
                 ['K1', 'K0', 'A2', 'B2', 'C1', 'D1'],
                 ['K1', 'K0', 'A2', 'B2', 'C2', 'D2'],
-                ['K2', 'K2', 'A3', 'B3', 'NaN', 'NaN'],
-                ['K2', 'K0', 'NaN', 'NaN', 'C3', 'D3']
+                ['K2', 'K2', 'A3', 'B3', NaN, NaN],
+                ['K2', 'K0', NaN, NaN, 'C3', 'D3']
             ];
 
 
@@ -656,10 +656,10 @@ describe("DataFrame", function () {
 
             let output_data = [
                 ['K0', 'k0', 'A0', 'B0', 'C0', 'D0'],
-                ['k0', 'K1', 'A1', 'B1', 'NaN', 'NaN'],
+                ['k0', 'K1', 'A1', 'B1', NaN, NaN],
                 ['K1', 'K0', 'A2', 'B2', 'C1', 'D1'],
                 ['K1', 'K0', 'A2', 'B2', 'C2', 'D2'],
-                ['K2', 'K2', 'A3', 'B3', 'NaN', 'NaN']
+                ['K2', 'K2', 'A3', 'B3', NaN, NaN]
             ];
 
             assert.deepEqual(merge_df.values, output_data);
@@ -683,7 +683,7 @@ describe("DataFrame", function () {
                 ['K0', 'k0', 'A0', 'B0', 'C0', 'D0'],
                 ['K1', 'K0', 'A2', 'B2', 'C1', 'D1'],
                 ['K1', 'K0', 'A2', 'B2', 'C2', 'D2'],
-                ['K2', 'K0', 'NaN', 'NaN', 'C3', 'D3']
+                ['K2', 'K0', NaN, NaN, 'C3', 'D3']
             ];
 
             assert.deepEqual(merge_df.values, output_data);
@@ -727,13 +727,65 @@ describe("DataFrame", function () {
     });
 
     describe("dropna", function(){
-        it("drop inplace", function(){
+        it("drop inplace at axis 0 at inplace false", function(){
             let data = [[NaN, 1,2,3], [3,4,NaN,9],[5,6,7,8]]
             let column = ["A","B","C","D"]
             let df = new DataFrame(data,{columns:column})
+            
+            let df_val = [ [ 5, 6, 7, 8 ] ]
+            
+            assert.deepEqual(df.dropna().values, df_val)
+           
+        })
+        it("drop inplace at axis 1, inplace false ", function(){
+            let data = [[NaN, 1,2,3], [3,4,NaN,9],[5,6,7,8]]
+            let column = ["A","B","C","D"]
+            let df = new DataFrame(data,{columns:column})
+            
+            let df_val = [ [ 1, 3 ], [ 4, 9 ], [ 6, 8 ] ]
 
-            console.log(df.dropna() +"")
-            console.log(df +"")
+            assert.deepEqual(df.dropna({axis:1}).values, df_val)
+           
+        })
+        it("drop inplace at axis 1, inplace true ", function(){
+            let data = [[NaN, 1,2,3], [3,4,NaN,9],[5,6,7,8]]
+            let column = ["A","B","C","D"]
+            let df = new DataFrame(data,{columns:column})
+            
+            let df_val = [ [ 1, 3 ], [ 4, 9 ], [ 6, 8 ] ]
+            df.dropna({axis:1, inplace:true})
+            
+            
+            assert.deepEqual(df.values, df_val)
+           
+        })
+        it("drop inplace at axis 0 at inplace true", function(){
+            let data = [[NaN, 1,2,3], [3,4,NaN,9],[5,6,7,8]]
+            let column = ["A","B","C","D"]
+            let df = new DataFrame(data,{columns:column})
+            
+            let df_val = [ [ 5, 6, 7, 8 ] ]
+            
+            df.dropna({inplace:true})
+            assert.deepEqual(df.values, df_val)
+           
         })
     });
+
+    describe("isna", function(){
+
+        it("check if each value are nan", function(){
+            let data = [[NaN, 1,2,3], [3,4,NaN,9],[5,6,7,8]]
+            let column = ["A","B","C","D"]
+            let df = new DataFrame(data,{columns:column}) 
+
+            let df_val = [
+                [ false, true, true, true ],
+                [ true, true, false, true ],
+                [ true, true, true, true ]
+              ]
+
+              assert.deepEqual(df.isna().values, df_val)
+        });
+    })
 });

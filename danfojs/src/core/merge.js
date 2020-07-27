@@ -264,7 +264,7 @@ export class Merge {
                         let nan_array = Array(this.right_col.length);
                         
                         for(let i=0; i< this.right_col.length; i++){
-                            nan_array[i] = "NaN"
+                            nan_array[i] = NaN
                         }
 
                         let inner_data =key_array.slice(0)
@@ -284,7 +284,7 @@ export class Merge {
                     let nan_array = Array(this.left_col.length);
 
                     for(let j=0; j < nan_array.length; j++){
-                        nan_array[j] = "NaN"
+                        nan_array[j] = NaN
                     }
 
                     let inner_data = key_array.slice(0)
