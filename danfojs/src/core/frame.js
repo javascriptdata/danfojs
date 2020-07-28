@@ -936,11 +936,25 @@ export class DataFrame extends Ndframe {
     }
 
 
-    // /**
-    //  * Obtain index containing nan values
-    //  * @return Array list (int)
-    //  */
-    // nanIndex() { }
+    /**
+     * Obtain index containing nan values
+     * @return Array list (int)
+     */
+    nanIndex() { 
+
+        let df_values = this.values
+        let index_data = []
+
+        for(let i=0; i< df_values.length; i++){
+
+            let row_values = df_values[i]
+
+            if(row_values.includes(NaN)){
+                index_data.push(i)
+            }
+        }
+        return index_data
+    }
 
     /**
      * Drop all rows containing NaN

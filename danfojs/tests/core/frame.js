@@ -1237,4 +1237,16 @@ describe("DataFrame", function () {
             assert.deepEqual(df.isna().values, df_val)
         });
     })
+
+    describe("nanindex", function () {
+
+        it("print out the nanIndex", function () {
+            let data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]]
+            let column = ["A", "B", "C", "D"]
+            let df = new DataFrame(data, { columns: column })
+
+            let df_val = [0,1]
+            assert.deepEqual(df.nanIndex(), df_val)
+        });
+    })
 });
