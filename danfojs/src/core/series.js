@@ -335,7 +335,7 @@ export class Series extends NDframe {
         if (!this.series) {
             throw Error("property error: Object must be a series")
         }
-        return utils.__count_nan(this.values)
+        return utils.__count_nan(this.values, true, true)
     }
 
 
@@ -392,7 +392,7 @@ export class Series extends NDframe {
             return new Series(result.arraySync(), { columns: this.column_names })
 
         } else {
-            let result = utils.__round(this.values, dp)
+            let result = utils.__round(this.values, dp, true)
             return new Series(result, { columns: this.column_names })
 
         }

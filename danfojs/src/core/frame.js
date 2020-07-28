@@ -533,12 +533,12 @@ export class DataFrame extends Ndframe {
 
     }
 
-     /**
-       * Return variance of DataFrame across specified axis.
-       * @param {axis} Number {0: row, 1 : column} Axis for the function to be applied on
-       * @returns {Series}
-       */
-      var(axis = 1) {
+    /**
+      * Return variance of DataFrame across specified axis.
+      * @param {axis} Number {0: row, 1 : column} Axis for the function to be applied on
+      * @returns {Series}
+      */
+    var(axis = 1) {
         if (this.__frame_is_compactible_for_operation) { //check if all types are numeric
             let tensor_vals = this.col_data_tensor.arraySync()
             let idx;
@@ -551,6 +551,50 @@ export class DataFrame extends Ndframe {
             let sf = new Series(median, { "index": idx })
             return sf
 
+        } else {
+            throw Error("TypeError: Dtypes of columns must be Float of Int")
+        }
+
+    }
+
+
+    /**
+     * Return number of non-null elements in a Series
+     *  @returns {Series}, Count of non-null values
+     */
+    count(axis = 1) {
+        if (this.__frame_is_compactible_for_operation) { //check if all types are numeric
+            let tensor_vals, idx;
+            if (axis == 1) {
+                tensor_vals = this.col_data_tensor.arraySync()
+                idx = this.column_names
+            } else {
+                tensor_vals = this.row_data_tensor.arraySync()
+                idx = this.index
+            }
+            let counts = utils.__count_nan(tensor_vals, true, false)
+            let sf = new Series(counts, { "index": idx })
+            return sf
+
+        } else {
+            throw Error("TypeError: Dtypes of columns must be Float of Int")
+        }
+
+    }
+
+    /**
+     * Rounds values in  DataFrame to specified number of dp
+     *  @returns {DataFrame}, New DataFrame with rounded values
+     */
+    round(dp = 1) {
+        if (this.__frame_is_compactible_for_operation) { //check if all types are numeric
+            let values = this.values
+            let idx = this.index
+        
+            let new_vals = utils.__round(values, dp, false)
+            let options = {"columns": this.column_names, "index": idx}
+            let df = new DataFrame(new_vals, options)
+            return df
         } else {
             throw Error("TypeError: Dtypes of columns must be Float of Int")
         }

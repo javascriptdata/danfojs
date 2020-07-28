@@ -318,21 +318,43 @@ export class Utils {
         return arr_map
     }
 
-    //count the null values present in an array
-    __count_nan(arr, val = true) {
-        let null_count = 0
-        let val_count = 0
-        arr.map(ele => {
-            if (Number.isNaN(ele)) {
-                null_count = null_count + 1
+    //count the NaN and non-NaN values present in an array
+    __count_nan(arr, val = true, isSeries) {
+        if (isSeries) {
+            let null_count = 0
+            let val_count = 0
+            arr.map(ele => {
+                if (Number.isNaN(ele)) {
+                    null_count = null_count + 1
+                } else {
+                    val_count = val_count + 1
+                }
+            })
+            if (val) {
+                return val_count
             } else {
-                val_count = val_count + 1
+                return null_count
             }
-        })
-        if (val) {
-            return val_count
         } else {
-            return null_count
+            let result_arr = []
+            arr.map(ele_arr => {
+                let null_count = 0
+                let val_count = 0
+                ele_arr.map(ele => {
+                    if (Number.isNaN(ele)) {
+                        null_count = null_count + 1
+                    } else {
+                        val_count = val_count + 1
+                    }
+                })
+                if (val) {
+                    result_arr.push(val_count)
+                } else {
+                    result_arr.push(null_count)
+                }
+            })
+            return result_arr
+
         }
     }
 
@@ -355,7 +377,7 @@ export class Utils {
 
                 if (sorted.length % 2 === 0) {
                     result_arr.push((sorted[middle - 1] + sorted[middle]) / 2)
-                }else{
+                } else {
                     result_arr.push(sorted[middle])
                 }
 
@@ -391,16 +413,29 @@ export class Utils {
     }
 
     //round elements of an array to ndp
-    __round(arr, dp = 2) {
+    __round(arr, dp = 2, isSeries) {
         if (dp < 0) {
             dp = 1
         }
-        let new_arr = []
-        arr.map(val => {
-            new_arr.push(Number(val.toFixed(dp)))
-        })
+        if (isSeries) {
 
-        return new_arr
+            let new_arr = []
+            arr.map(val => {
+                new_arr.push(Number(val.toFixed(dp)))
+            })
+
+            return new_arr
+        } else {
+            let result_arr = []
+            arr.map(arr_ele => {
+                let new_arr = []
+                arr_ele.map(val => {
+                    new_arr.push(Number(val.toFixed(dp)))
+                })
+                result_arr.push(new_arr)
+            })
+            return result_arr
+        }
 
     }
 

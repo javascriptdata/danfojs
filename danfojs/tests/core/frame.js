@@ -407,7 +407,7 @@ describe("DataFrame", function () {
         it("Return division of a DataFrame with a DataFrame along default axis 1", function () {
             let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
             let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
-            assert.deepEqual(df1.div(df2).values, [[0,1,1], [36, 36, Infinity]])
+            assert.deepEqual(df1.div(df2).values, [[0, 1, 1], [36, 36, Infinity]])
         })
         it("Return division of a DataFrame with a DataFrame along axis 0", function () {
             let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
@@ -486,7 +486,7 @@ describe("DataFrame", function () {
     describe("mean", function () {
         it("Returns the mean of a DataFrame (Default axis is [1:column])", function () {
             let data = [[0, 2, 4], [360, 180, 360]]
-            let df = new DataFrame(data, {columns: ["col1", "col2", "col3"]})
+            let df = new DataFrame(data, { columns: ["col1", "col2", "col3"] })
             assert.deepEqual(df.mean().values, [180, 91, 182])
         })
         it("Return mean of a DataFrame along axis 0 (row)", function () {
@@ -540,7 +540,7 @@ describe("DataFrame", function () {
             let df = new DataFrame(data)
             assert.deepEqual(df.min({ "axis": 0 }).values, [0, 180])
         })
-    
+
     })
 
     describe("max", function () {
@@ -568,7 +568,7 @@ describe("DataFrame", function () {
             let df = new DataFrame(data)
             assert.deepEqual(df.std(0).values, [2, 103.92304845413264])
         })
-       
+
 
     })
 
@@ -583,7 +583,7 @@ describe("DataFrame", function () {
             let df = new DataFrame(data)
             assert.deepEqual(df.var(0).values, [4, 10800])
         })
-       
+
 
     })
 
@@ -624,25 +624,25 @@ describe("DataFrame", function () {
             assert.deepEqual(df.count().values, [3, 3, 4])
         })
         it("Return the count of non NaN values of a DataFrame along axis 0", function () {
-            let data = [{ "col1": [0, 2, 4, NaN] }, { "col2": [360, undefined, 360, 70] }]
+            let data = [[0, 2, 4, NaN], [360, undefined, 360, 70]]
             let df = new DataFrame(data)
-            assert.deepEqual(df.count({ "axis": 0 }).values, [2, 1, 2, 1])
+            assert.deepEqual(df.count(0).values, [3, 3])
         })
 
     })
 
     describe("round", function () {
-        it("Rounds values in a DataFrame (Default axis is [1:column])", function () {
+        it("Rounds values in a DataFrame to 3dp", function () {
             let data = [[10.1, 2.092, 4.23], [360.232244, 180.0190290, 36.902612]]
             let df = new DataFrame(data)
             let expected = [[10.1, 2.092, 4.23], [360.232, 180.0190, 36.903]]
             assert.deepEqual(df.round(3).values, expected)
         })
-        it("Return the variance of values of a DataFrame along axis 1", function () {
-            let data = [{ "col1": [0, 2.25, 4.22] }, { "col2": [36.0, 18.0, 36.72] }]
+        it("Rounds values in a DataFrame to 1dp", function () {
+            let data = [[10.1, 2.092, 4.23], [360.232244, 180.0190290, 36.902612]]
             let df = new DataFrame(data)
-            let expected = [[0, 36], [2, 18], [4, 37]]
-            assert.deepEqual(df.round().values, expected)
+            let expected = [[10.1, 2.1, 4.2], [360.2, 180.0, 36.9]]
+            assert.deepEqual(df.round(1).values, expected)
         })
 
     })
