@@ -289,7 +289,7 @@ export class DataFrame extends Ndframe {
     * @param {rows}  
     */
     sample(num = 5) {
-
+        //TODO: Use different sampling strategy
         if (num > this.values.length || num < 1) {
             //return all values
             let config = { columns: this.column_names }

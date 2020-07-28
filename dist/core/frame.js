@@ -17,6 +17,8 @@ var _groupby = require("./groupby");
 
 var _merge = require("./merge");
 
+var _mathjs = require("mathjs");
+
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
@@ -289,8 +291,297 @@ class DataFrame extends _generic.default {
       let col_names = this.columns;
       return this.__get_df_from_tensor(sum_vals, col_names);
     } else {
-      throw Error("TypeError: Dtypes of column must be Float of Int");
+      throw Error("TypeError: Dtypes of columns must be Float of Int");
     }
+  }
+
+  sub(other, axis) {
+    if (this.__frame_is_compactible_for_operation) {
+      let tensors = this.__get_ops_tensors([this, other], axis);
+
+      let result = tensors[0].sub(tensors[1]);
+      let col_names = this.columns;
+      return this.__get_df_from_tensor(result, col_names);
+    } else {
+      throw Error("TypeError: Dtypes of columns must be Float of Int");
+    }
+  }
+
+  mul(other, axis) {
+    if (this.__frame_is_compactible_for_operation) {
+      let tensors = this.__get_ops_tensors([this, other], axis);
+
+      let result = tensors[0].mul(tensors[1]);
+      let col_names = this.columns;
+      return this.__get_df_from_tensor(result, col_names);
+    } else {
+      throw Error("TypeError: Dtypes of columns must be Float of Int");
+    }
+  }
+
+  div(other, axis) {
+    if (this.__frame_is_compactible_for_operation) {
+      let tensors = this.__get_ops_tensors([this, other], axis);
+
+      let result = tensors[0].div(tensors[1]);
+      let col_names = this.columns;
+      return this.__get_df_from_tensor(result, col_names);
+    } else {
+      throw Error("TypeError: Dtypes of columns must be Float of Int");
+    }
+  }
+
+  pow(other, axis) {
+    if (this.__frame_is_compactible_for_operation) {
+      let tensors = this.__get_ops_tensors([this, other], axis);
+
+      let result = tensors[0].pow(tensors[1]);
+      let col_names = this.columns;
+      return this.__get_df_from_tensor(result, col_names);
+    } else {
+      throw Error("TypeError: Dtypes of columns must be Float of Int");
+    }
+  }
+
+  mod(other, axis) {
+    if (this.__frame_is_compactible_for_operation) {
+      let tensors = this.__get_ops_tensors([this, other], axis);
+
+      let result = tensors[0].mod(tensors[1]);
+      let col_names = this.columns;
+      return this.__get_df_from_tensor(result, col_names);
+    } else {
+      throw Error("TypeError: Dtypes of columns must be Float of Int");
+    }
+  }
+
+  mean(axis = 1) {
+    if (this.__frame_is_compactible_for_operation) {
+      let operands = this.__get_tensor_and_idx(this, axis);
+
+      let tensor_vals = operands[0];
+      let idx = operands[1];
+      let result = tensor_vals.mean(operands[2]);
+      let sf = new _series.Series(result.arraySync(), {
+        "index": idx
+      });
+      return sf;
+    } else {
+      throw Error("TypeError: Dtypes of columns must be Float of Int");
+    }
+  }
+
+  median(axis = 1) {
+    if (this.__frame_is_compactible_for_operation) {
+      let tensor_vals, idx;
+
+      if (axis == 1) {
+        tensor_vals = this.col_data_tensor.arraySync();
+        idx = this.column_names;
+      } else {
+        tensor_vals = this.row_data_tensor.arraySync();
+        idx = this.index;
+      }
+
+      let median = utils.__median(tensor_vals, false);
+
+      let sf = new _series.Series(median, {
+        "index": idx
+      });
+      return sf;
+    } else {
+      throw Error("TypeError: Dtypes of columns must be Float of Int");
+    }
+  }
+
+  min(axis = 1) {
+    if (this.__frame_is_compactible_for_operation) {
+      let operands = this.__get_tensor_and_idx(this, axis);
+
+      let tensor_vals = operands[0];
+      let idx = operands[1];
+      let result = tensor_vals.min(operands[2]);
+      let sf = new _series.Series(result.arraySync(), {
+        "index": idx
+      });
+      return sf;
+    } else {
+      throw Error("TypeError: Dtypes of columns must be Float of Int");
+    }
+  }
+
+  max(axis = 1) {
+    if (this.__frame_is_compactible_for_operation) {
+      let operands = this.__get_tensor_and_idx(this, axis);
+
+      let tensor_vals = operands[0];
+      let idx = operands[1];
+      let result = tensor_vals.max(operands[2]);
+      let sf = new _series.Series(result.arraySync(), {
+        "index": idx
+      });
+      return sf;
+    } else {
+      throw Error("TypeError: Dtypes of columns must be Float of Int");
+    }
+  }
+
+  std(axis = 1) {
+    if (this.__frame_is_compactible_for_operation) {
+      let tensor_vals = this.col_data_tensor.arraySync();
+      let idx;
+
+      if (axis == 1) {
+        idx = this.column_names;
+      } else {
+        idx = this.index;
+      }
+
+      let median = (0, _mathjs.std)(tensor_vals, axis);
+      let sf = new _series.Series(median, {
+        "index": idx
+      });
+      return sf;
+    } else {
+      throw Error("TypeError: Dtypes of columns must be Float of Int");
+    }
+  }
+
+  var(axis = 1) {
+    if (this.__frame_is_compactible_for_operation) {
+      let tensor_vals = this.col_data_tensor.arraySync();
+      let idx;
+
+      if (axis == 1) {
+        idx = this.column_names;
+      } else {
+        idx = this.index;
+      }
+
+      let median = (0, _mathjs.variance)(tensor_vals, axis);
+      let sf = new _series.Series(median, {
+        "index": idx
+      });
+      return sf;
+    } else {
+      throw Error("TypeError: Dtypes of columns must be Float of Int");
+    }
+  }
+
+  count(axis = 1) {
+    if (this.__frame_is_compactible_for_operation) {
+      let tensor_vals, idx;
+
+      if (axis == 1) {
+        tensor_vals = this.col_data_tensor.arraySync();
+        idx = this.column_names;
+      } else {
+        tensor_vals = this.row_data_tensor.arraySync();
+        idx = this.index;
+      }
+
+      let counts = utils.__count_nan(tensor_vals, true, false);
+
+      let sf = new _series.Series(counts, {
+        "index": idx
+      });
+      return sf;
+    } else {
+      throw Error("TypeError: Dtypes of columns must be Float of Int");
+    }
+  }
+
+  round(dp = 1) {
+    if (this.__frame_is_compactible_for_operation) {
+      let values = this.values;
+      let idx = this.index;
+
+      let new_vals = utils.__round(values, dp, false);
+
+      let options = {
+        "columns": this.column_names,
+        "index": idx
+      };
+      let df = new DataFrame(new_vals, options);
+      return df;
+    } else {
+      throw Error("TypeError: Dtypes of columns must be Float of Int");
+    }
+  }
+
+  copy() {
+    let df = new DataFrame([...this.values], {
+      columns: [...this.column_names],
+      index: this.index,
+      dtypes: this.dtypes
+    });
+    return df;
+  }
+
+  reset_index(kwargs = {}) {
+    let options = {};
+
+    if (utils.__key_in_object(kwargs, 'inplace')) {
+      options['inplace'] = kwargs['inplace'];
+    } else {
+      options['inplace'] = false;
+    }
+
+    if (options['inplace']) {
+      this.__reset_index();
+    } else {
+      let df = this.copy();
+
+      df.__reset_index();
+
+      return df;
+    }
+  }
+
+  set_index(kwargs = {}) {
+    let options = {};
+
+    if (utils.__key_in_object(kwargs, 'index')) {
+      options['index'] = kwargs['index'];
+    } else {
+      throw Error("Index ValueError: You must specify an array of index");
+    }
+
+    if (utils.__key_in_object(kwargs, 'inplace')) {
+      options['inplace'] = kwargs['inplace'];
+    } else {
+      options['inplace'] = false;
+    }
+
+    if (options['index'].length != this.index.length) {
+      throw Error(`Index LengthError: Lenght of new Index array ${options['index'].length} must match lenght of existing index ${this.index.length}`);
+    }
+
+    if (options['inplace']) {
+      this.index_arr = options['index'];
+    } else {
+      let df = this.copy();
+
+      df.__set_index(options['index']);
+
+      return df;
+    }
+  }
+
+  __get_tensor_and_idx(df, axis) {
+    let tensor_vals, idx, t_axis;
+
+    if (axis == 1) {
+      tensor_vals = df.row_data_tensor;
+      idx = df.column_names;
+      t_axis = 0;
+    } else {
+      tensor_vals = df.row_data_tensor;
+      idx = df.index;
+      t_axis = 1;
+    }
+
+    return [tensor_vals, idx, t_axis];
   }
 
   query(kwargs) {
@@ -780,7 +1071,7 @@ class DataFrame extends _generic.default {
         if (tensors[1].series) {
           other_tensor = tf.tensor(tensors[1].values, [tensors[1].values.length, 1]);
         } else {
-          other_tensor = tensors[1].col_data_tensor;
+          other_tensor = tensors[1].row_data_tensor;
         }
 
         tensors_arr.push(this_tensor);

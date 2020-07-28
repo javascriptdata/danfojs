@@ -197,7 +197,6 @@ export class Series extends NDframe {
                 let tensor2 = other.tensor.asType(dtype)
                 let result = tensor1.div(tensor2)
                 dtype = result.dtype //dtype is subject to change after division
-                console.log(dtype);
                 return new Series(result.arraySync(), { columns: this.column_names, dtypes: [dtype] })
             }
         }

@@ -229,7 +229,7 @@ class Series extends _generic.default {
 
     let values = this.values;
 
-    let median = utils.__median(values);
+    let median = utils.__median(values, true);
 
     return median;
   }
@@ -280,7 +280,7 @@ class Series extends _generic.default {
       throw Error("property error: Object must be a series");
     }
 
-    return utils.__count_nan(this.values);
+    return utils.__count_nan(this.values, true, true);
   }
 
   maximum(other) {
@@ -328,7 +328,7 @@ class Series extends _generic.default {
         columns: this.column_names
       });
     } else {
-      let result = utils.__round(this.values, dp);
+      let result = utils.__round(this.values, dp, true);
 
       return new Series(result, {
         columns: this.column_names
