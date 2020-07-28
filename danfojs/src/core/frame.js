@@ -590,9 +590,9 @@ export class DataFrame extends Ndframe {
         if (this.__frame_is_compactible_for_operation) { //check if all types are numeric
             let values = this.values
             let idx = this.index
-        
+
             let new_vals = utils.__round(values, dp, false)
-            let options = {"columns": this.column_names, "index": idx}
+            let options = { "columns": this.column_names, "index": idx }
             let df = new DataFrame(new_vals, options)
             return df
         } else {
@@ -600,6 +600,20 @@ export class DataFrame extends Ndframe {
         }
 
     }
+
+    /**
+    * Makes a new copy of a DataFrame  
+    * @returns {DataFrame}
+    */
+    copy() {
+        let df = new DataFrame([...this.values],
+            {
+                columns: [...this.column_names],
+                index: this.index, dtypes: this.dtypes
+            })
+        return df
+    }
+
 
 
     __get_tensor_and_idx(df, axis) {
