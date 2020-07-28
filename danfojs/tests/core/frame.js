@@ -484,22 +484,16 @@ describe("DataFrame", function () {
     })
 
     describe("mean", function () {
-        it("Returs the mean of a DataFrame (Default axis is [1:column])", function () {
+        it("Returns the mean of a DataFrame (Default axis is [1:column])", function () {
             let data = [[0, 2, 4], [360, 180, 360]]
-            let df = new DataFrame(data)
+            let df = new DataFrame(data, {columns: ["col1", "col2", "col3"]})
             assert.deepEqual(df.mean().values, [180, 91, 182])
         })
         it("Return mean of a DataFrame along axis 0 (row)", function () {
             let data = [[0, 2, 4], [360, 180, 360]]
             let df = new DataFrame(data)
-            assert.deepEqual(df.mean({ "axis": 0 }).values, [2, 300])
+            assert.deepEqual(df.mean(0).values, [2, 300])
         })
-        it("Return mean of a DataFrame created from an Object along axis 1 ", function () {
-            let data = [{ "col1": [0, 2, 4] }, { "col2": [360, 180, 360] }]
-            let df = new DataFrame(data)
-            assert.deepEqual(df.mean().values, [2, 300])
-        })
-
     })
 
     describe("median", function () {
@@ -512,11 +506,6 @@ describe("DataFrame", function () {
             let data = [[0, 2, 4], [360, 180, 360]]
             let df = new DataFrame(data)
             assert.deepEqual(df.median({ "axis": 0 }).values, [2, 360])
-        })
-        it("Return median of a DataFrame along axis 1", function () {
-            let data = [{ "col1": [0, 2, 4] }, { "col2": [360, 180, 360] }]
-            let df = new DataFrame(data)
-            assert.deepEqual(df.median().values, [2, 360])
         })
 
     })

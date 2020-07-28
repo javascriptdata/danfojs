@@ -373,7 +373,7 @@ export class DataFrame extends Ndframe {
        * @param {other} DataFrame, Series, Array or Number to add  
        * @returns {DataFrame}
        */
-      div(other, axis) {
+    div(other, axis) {
         if (this.__frame_is_compactible_for_operation) { //check if all types are numeric
             let tensors = this.__get_ops_tensors([this, other], axis)
             let result = tensors[0].div(tensors[1])
@@ -386,12 +386,12 @@ export class DataFrame extends Ndframe {
 
     }
 
-     /**
-       * Return division of DataFrame and other, element-wise (binary operator add).
-       * @param {other} DataFrame, Series, Array or Number to add  
-       * @returns {DataFrame}
-       */
-      pow(other, axis) {
+    /**
+      * Return division of DataFrame and other, element-wise (binary operator add).
+      * @param {other} DataFrame, Series, Array or Number to add  
+      * @returns {DataFrame}
+      */
+    pow(other, axis) {
         if (this.__frame_is_compactible_for_operation) { //check if all types are numeric
             let tensors = this.__get_ops_tensors([this, other], axis)
             let result = tensors[0].pow(tensors[1])
@@ -409,7 +409,7 @@ export class DataFrame extends Ndframe {
        * @param {other} DataFrame, Series, Array or Number to add  
        * @returns {DataFrame}
        */
-      mod(other, axis) {
+    mod(other, axis) {
         if (this.__frame_is_compactible_for_operation) { //check if all types are numeric
             let tensors = this.__get_ops_tensors([this, other], axis)
             let result = tensors[0].mod(tensors[1])
@@ -420,6 +420,47 @@ export class DataFrame extends Ndframe {
             throw Error("TypeError: Dtypes of column must be Float of Int")
         }
 
+    }
+
+    /**
+       * Return mean of DataFrame across specified axis.
+       * @param {axis} Number {0: row, 1 : column} Axis for the function to be applied on
+       * @returns {Series}
+       */
+    mean(axis = 1) {
+        if (this.__frame_is_compactible_for_operation) { //check if all types are numeric
+            let operands = this.__get_tensor_and_idx(this, axis)
+            let tensor_vals = operands[0]
+            let idx = operands[1]
+            let result = tensor_vals.mean(operands[2])
+            let sf = new Series(result.arraySync(), { "index": idx })
+            return sf
+
+        } else {
+            throw Error("TypeError: Dtypes of column must be Float of Int")
+        }
+
+    }
+
+
+
+
+    __get_tensor_and_idx(df, axis) {
+        let tensor_vals, idx, t_axis;
+        if (axis == 1) {
+            //Tensorflow uses 0 for column and 1 for rows, 
+            // we use the opposite for consistency with Pandas (0 : row, 1: columns)
+            tensor_vals = df.row_data_tensor  
+            idx = df.column_names
+            t_axis = 0 //switch the axis
+
+        } else {
+            tensor_vals = df.row_data_tensor
+            idx = [...Array(df.col_data_tensor.shape[0] - 1).keys()]
+            t_axis = 1
+        }
+
+        return [tensor_vals, idx, t_axis]
     }
 
 
