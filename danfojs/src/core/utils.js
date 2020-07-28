@@ -136,6 +136,20 @@ export class Utils {
 
     }
 
+    //converts a 2D array of array to 1D for Series Class
+    __convert_2D_to_1D(data){
+        let new_data = []
+        data.map(val =>{
+            if (this.__is_object(val)){
+                new_data.push(JSON.stringify(val))
+            }else{
+                new_data.push(`${val}`)
+
+            }
+        })
+        return new_data
+    }
+
 
     __replace_undefined_with_NaN(data, isSeries) {
         if (isSeries) {

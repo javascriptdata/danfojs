@@ -527,14 +527,14 @@ describe("Series", function () {
     })
 
     describe("reset_index", function () {
-        it("resets the index of an Series", function () {
+        it("resets the index of a Series", function () {
             let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
             let df = new Series(data)
             let df_new = df.set_index({ "index": ["one", "two", "three"] })
             let df_reset = df_new.reset_index()
             assert.deepEqual(df_reset.index, [0, 1, 2])
         })
-        it("Reset the index of an Series created from an Array", function () {
+        it("Reset the index of a Series created from an Array", function () {
             let data = [1,2,3,4,5,6]
             let df = new Series(data)
             df.set_index({ "index": ["one", "two", "three", "four", "five", "six"], "inplace": true })

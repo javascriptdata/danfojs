@@ -28,7 +28,12 @@ const config = new _config.Configs();
 
 class Series extends _generic.default {
   constructor(data, kwargs) {
-    super(data, kwargs);
+    if (Array.isArray(data[0]) || utils.__is_object(data[0])) {
+      data = utils.__convert_2D_to_1D(data);
+      super(data, kwargs);
+    } else {
+      super(data, kwargs);
+    }
   }
 
   get tensor() {

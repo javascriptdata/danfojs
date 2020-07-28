@@ -131,7 +131,15 @@ describe("Utils Functions", function () {
             assert.deepEqual(utils.__replace_undefined_with_NaN(data, false), result)
         })
     })
+    describe("__convert_2D_to_1D", function () {
+        it("convert 2D array of array to 1D of string values", function () {
+            let data = [[10.01, 2.2, "a"], [20.505, 20.22, "boy"]]
+            assert.deepEqual(utils.__convert_2D_to_1D(data), ["10.01,2.2,a", "20.505,20.22,boy"])
+        })
 
+    })
+
+    
 
 
 

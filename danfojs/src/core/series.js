@@ -23,8 +23,12 @@ import { std, variance } from 'mathjs'
  */
 export class Series extends NDframe {
     constructor(data, kwargs) {
-        //TODO: Check if passed array is 2D like [[1,2], [2,9]] and throw error
-        super(data, kwargs)
+        if (Array.isArray(data[0]) || utils.__is_object(data[0])){
+            data = utils.__convert_2D_to_1D(data)
+            super(data, kwargs)
+        }else{
+            super(data, kwargs)
+        }
     }
 
 
