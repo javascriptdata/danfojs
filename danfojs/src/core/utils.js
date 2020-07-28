@@ -137,12 +137,12 @@ export class Utils {
     }
 
     //converts a 2D array of array to 1D for Series Class
-    __convert_2D_to_1D(data){
+    __convert_2D_to_1D(data) {
         let new_data = []
-        data.map(val =>{
-            if (this.__is_object(val)){
+        data.map(val => {
+            if (this.__is_object(val)) {
                 new_data.push(JSON.stringify(val))
-            }else{
+            } else {
                 new_data.push(`${val}`)
 
             }
@@ -337,17 +337,34 @@ export class Utils {
     }
 
     //computes the median of an array
-    __median(arr) {
-        const sorted = arr.slice().sort((a, b) => a - b);
-        const middle = Math.floor(sorted.length / 2);
+    __median(arr, isSeries) {
+        if (isSeries) {
+            const sorted = arr.slice().sort((a, b) => a - b);
+            const middle = Math.floor(sorted.length / 2);
 
-        if (sorted.length % 2 === 0) {
-            return (sorted[middle - 1] + sorted[middle]) / 2;
+            if (sorted.length % 2 === 0) {
+                return (sorted[middle - 1] + sorted[middle]) / 2;
+            }
+
+            return sorted[middle];
+        } else {
+            let result_arr = []
+            arr.map(ele => {
+                const sorted = ele.slice().sort((a, b) => a - b);
+                const middle = Math.floor(sorted.length / 2);
+
+                if (sorted.length % 2 === 0) {
+                    result_arr.push((sorted[middle - 1] + sorted[middle]) / 2)
+                }else{
+                    result_arr.push(sorted[middle])
+                }
+
+            })
+            return result_arr
         }
 
-        return sorted[middle];
-
     }
+
 
     //computes the mode(s) of an array
     __mode(arr) {

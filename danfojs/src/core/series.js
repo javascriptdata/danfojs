@@ -264,7 +264,7 @@ export class Series extends NDframe {
             throw Error("dtype error: String data type does not support median operation")
         }
         let values = this.values
-        let median = utils.__median(values)
+        let median = utils.__median(values, true)
         return median
     }
 

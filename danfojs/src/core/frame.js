@@ -8,6 +8,8 @@ import { Merge } from "./merge"
 
 const utils = new Utils
 // const config = new Configs()
+import { std, variance } from 'mathjs'
+
 
 
 /**
@@ -327,7 +329,7 @@ export class DataFrame extends Ndframe {
             return this.__get_df_from_tensor(sum_vals, col_names)
 
         } else {
-            throw Error("TypeError: Dtypes of column must be Float of Int")
+            throw Error("TypeError: Dtypes of columns must be Float of Int")
         }
 
     }
@@ -345,7 +347,7 @@ export class DataFrame extends Ndframe {
             return this.__get_df_from_tensor(result, col_names)
 
         } else {
-            throw Error("TypeError: Dtypes of column must be Float of Int")
+            throw Error("TypeError: Dtypes of columns must be Float of Int")
         }
 
     }
@@ -363,7 +365,7 @@ export class DataFrame extends Ndframe {
             return this.__get_df_from_tensor(result, col_names)
 
         } else {
-            throw Error("TypeError: Dtypes of column must be Float of Int")
+            throw Error("TypeError: Dtypes of columns must be Float of Int")
         }
 
     }
@@ -381,7 +383,7 @@ export class DataFrame extends Ndframe {
             return this.__get_df_from_tensor(result, col_names)
 
         } else {
-            throw Error("TypeError: Dtypes of column must be Float of Int")
+            throw Error("TypeError: Dtypes of columns must be Float of Int")
         }
 
     }
@@ -399,7 +401,7 @@ export class DataFrame extends Ndframe {
             return this.__get_df_from_tensor(result, col_names)
 
         } else {
-            throw Error("TypeError: Dtypes of column must be Float of Int")
+            throw Error("TypeError: Dtypes of columns must be Float of Int")
         }
 
     }
@@ -417,7 +419,7 @@ export class DataFrame extends Ndframe {
             return this.__get_df_from_tensor(result, col_names)
 
         } else {
-            throw Error("TypeError: Dtypes of column must be Float of Int")
+            throw Error("TypeError: Dtypes of columns must be Float of Int")
         }
 
     }
@@ -437,12 +439,123 @@ export class DataFrame extends Ndframe {
             return sf
 
         } else {
-            throw Error("TypeError: Dtypes of column must be Float of Int")
+            throw Error("TypeError: Dtypes of columns must be Float of Int")
         }
 
     }
 
+    /**
+       * Return median of DataFrame across specified axis.
+       * @param {axis} Number {0: row, 1 : column} Axis for the function to be applied on
+       * @returns {Series}
+       */
+    median(axis = 1) {
+        if (this.__frame_is_compactible_for_operation) { //check if all types are numeric
+            let tensor_vals, idx;
+            if (axis == 1) {
+                tensor_vals = this.col_data_tensor.arraySync()
+                idx = this.column_names
+            } else {
+                tensor_vals = this.row_data_tensor.arraySync()
+                idx = this.index
+            }
+            let median = utils.__median(tensor_vals, false)
+            let sf = new Series(median, { "index": idx })
+            return sf
 
+        } else {
+            throw Error("TypeError: Dtypes of columns must be Float of Int")
+        }
+
+    }
+
+    /**
+     * Return minimum element in a DataFrame across specified axis.
+     * @param {axis} Number {0: row, 1 : column} Axis for the function to be applied on
+     * @returns {Series}
+     */
+    min(axis = 1) {
+        if (this.__frame_is_compactible_for_operation) { //check if all types are numeric
+            let operands = this.__get_tensor_and_idx(this, axis)
+            let tensor_vals = operands[0]
+            let idx = operands[1]
+            let result = tensor_vals.min(operands[2])
+            let sf = new Series(result.arraySync(), { "index": idx })
+            return sf
+
+        } else {
+            throw Error("TypeError: Dtypes of columns must be Float of Int")
+        }
+
+    }
+
+    /**
+     * Return maximum element of DataFrame across specified axis.
+     * @param {axis} Number {0: row, 1 : column} Axis for the function to be applied on
+     * @returns {Series}
+     */
+    max(axis = 1) {
+        if (this.__frame_is_compactible_for_operation) { //check if all types are numeric
+            let operands = this.__get_tensor_and_idx(this, axis)
+            let tensor_vals = operands[0]
+            let idx = operands[1]
+            let result = tensor_vals.max(operands[2])
+            let sf = new Series(result.arraySync(), { "index": idx })
+            return sf
+
+        } else {
+            throw Error("TypeError: Dtypes of columns must be Float of Int")
+        }
+
+    }
+
+    /**
+       * Return standard deviation of DataFrame across specified axis.
+       * @param {axis} Number {0: row, 1 : column} Axis for the function to be applied on
+       * @returns {Series}
+       */
+    std(axis = 1) {
+        if (this.__frame_is_compactible_for_operation) { //check if all types are numeric
+            let tensor_vals = this.col_data_tensor.arraySync()
+            let idx;
+            if (axis == 1) {
+                idx = this.column_names
+            } else {
+                idx = this.index
+            }
+            let median = std(tensor_vals, axis)
+            let sf = new Series(median, { "index": idx })
+            return sf
+
+        } else {
+            throw Error("TypeError: Dtypes of columns must be Float of Int")
+        }
+
+    }
+
+     /**
+       * Return variance of DataFrame across specified axis.
+       * @param {axis} Number {0: row, 1 : column} Axis for the function to be applied on
+       * @returns {Series}
+       */
+      var(axis = 1) {
+        if (this.__frame_is_compactible_for_operation) { //check if all types are numeric
+            let tensor_vals = this.col_data_tensor.arraySync()
+            let idx;
+            if (axis == 1) {
+                idx = this.column_names
+            } else {
+                idx = this.index
+            }
+            let median = variance(tensor_vals, axis)
+            let sf = new Series(median, { "index": idx })
+            return sf
+
+        } else {
+            throw Error("TypeError: Dtypes of columns must be Float of Int")
+        }
+
+    }
 
 
     __get_tensor_and_idx(df, axis) {
@@ -450,13 +563,13 @@ export class DataFrame extends Ndframe {
         if (axis == 1) {
             //Tensorflow uses 0 for column and 1 for rows, 
             // we use the opposite for consistency with Pandas (0 : row, 1: columns)
-            tensor_vals = df.row_data_tensor  
+            tensor_vals = df.row_data_tensor
             idx = df.column_names
             t_axis = 0 //switch the axis
 
         } else {
             tensor_vals = df.row_data_tensor
-            idx = [...Array(df.col_data_tensor.shape[0] - 1).keys()]
+            idx = df.index
             t_axis = 1
         }
 

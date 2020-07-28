@@ -540,12 +540,7 @@ describe("DataFrame", function () {
             let df = new DataFrame(data)
             assert.deepEqual(df.min({ "axis": 0 }).values, [0, 180])
         })
-        it("Returns the minimum values of a DataFrame along axis 1", function () {
-            let data = [{ "col1": [0, 2, 4] }, { "col2": [360, 180, 360] }]
-            let df = new DataFrame(data)
-            assert.deepEqual(df.min().values, [0, 180])
-        })
-
+    
     })
 
     describe("max", function () {
@@ -559,11 +554,6 @@ describe("DataFrame", function () {
             let df = new DataFrame(data)
             assert.deepEqual(df.max({ "axis": 0 }).values, [4, 360])
         })
-        it("Returns the maximum values of a DataFrame along axis 1", function () {
-            let data = [{ "col1": [0, 2, 4] }, { "col2": [360, 180, 360] }]
-            let df = new DataFrame(data)
-            assert.deepEqual(df.max().values, [4, 360])
-        })
 
     })
 
@@ -571,18 +561,14 @@ describe("DataFrame", function () {
         it("Returns the standard deviations of values in a DataFrame (Default axis is [1:column])", function () {
             let data = [[0, 2, 4], [360, 180, 360]]
             let df = new DataFrame(data)
-            assert.deepEqual(df.std().values, [254.558441, 125.865007, 251.730014])
+            assert.deepEqual(df.std().values, [254.55844122715712, 125.86500705120545, 251.7300141024109])
         })
         it("Return the standard deviations of values of a DataFrame along axis 0 (row)", function () {
             let data = [[0, 2, 4], [360, 180, 360]]
             let df = new DataFrame(data)
-            assert.deepEqual(df.std({ "axis": 0 }).values, [2, 103.923048])
+            assert.deepEqual(df.std(0).values, [2, 103.92304845413264])
         })
-        it("Return the standard deviations of values of a DataFrame along axis 1", function () {
-            let data = [{ "col1": [0, 2, 4] }, { "col2": [360, 180, 360] }]
-            let df = new DataFrame(data)
-            assert.deepEqual(df.std().values, [2, 103.923048])
-        })
+       
 
     })
 
@@ -595,13 +581,9 @@ describe("DataFrame", function () {
         it("Return the variance of values of a DataFrame along axis 0 (row)", function () {
             let data = [[0, 2, 4], [360, 180, 360]]
             let df = new DataFrame(data)
-            assert.deepEqual(df.var({ "axis": 0 }).values, [4, 10800])
+            assert.deepEqual(df.var(0).values, [4, 10800])
         })
-        it("Return the variance of values of a DataFrame along axis 1", function () {
-            let data = [{ "col1": [0, 2, 4] }, { "col2": [360, 180, 360] }]
-            let df = new DataFrame(data)
-            assert.deepEqual(df.var().values, [4, 10800])
-        })
+       
 
     })
 
