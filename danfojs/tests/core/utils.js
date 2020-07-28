@@ -87,11 +87,11 @@ describe("Utils Functions", function () {
     describe("__median", function () {
         it("Gets the median value of an even array", function () {
             let data = [100, 2, 3, 20, 30, 40]
-            assert.deepEqual(utils.__median(data), 25)
+            assert.deepEqual(utils.__median(data, true), 25)
         })
         it("Gets the median value of an odd array", function () {
             let data = [1, 30, 20, 50, 40]
-            assert.deepEqual(utils.__median(data), 30)
+            assert.deepEqual(utils.__median(data, true), 30)
         })
     })
 
@@ -109,11 +109,11 @@ describe("Utils Functions", function () {
     describe("__round", function () {
         it("round elements in array to 1 dp", function () {
             let data = [10.01, 2.2, 3.11, 20.505, 20.22, 40.0909]
-            assert.deepEqual(utils.__round(data, 1), [10.0, 2.2, 3.1, 20.5, 20.2, 40.1])
+            assert.deepEqual(utils.__round(data, 1, true), [10.0, 2.2, 3.1, 20.5, 20.2, 40.1])
         })
         it("round elements in array to 2 dp", function () {
             let data = [10.019, 2.2099, 3.1145, 20.506, 20.22, 40.0909]
-            assert.deepEqual(utils.__round(data, 2), [10.02, 2.21, 3.11, 20.51, 20.22, 40.09])
+            assert.deepEqual(utils.__round(data, 2, true), [10.02, 2.21, 3.11, 20.51, 20.22, 40.09])
         })
     })
 

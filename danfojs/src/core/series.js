@@ -527,7 +527,7 @@ export class Series extends NDframe {
 
 
     /**
-    * Generate a new DataFrame or Series with the index reset.
+    * Generate a new Series with the index reset.
     * This is useful when the index needs to be treated as a column, 
     * or when the index is meaningless and needs to be reset to the default before another operation.
     * @param {kwargs} {inplace: Modify the Series in place (do not create a new object,

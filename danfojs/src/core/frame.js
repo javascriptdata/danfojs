@@ -614,6 +614,62 @@ export class DataFrame extends Ndframe {
         return df
     }
 
+    /**
+   * Generate a new DataFrame with the index reset.
+   * This is useful when the index needs to be treated as a column, 
+   * or when the index is meaningless and needs to be reset to the default before another operation.
+   * @param {kwargs} {inplace: Modify the Series in place (do not create a new object,
+   *                  drop: Just reset the index, without inserting it as a column in the new DataFrame.}
+   */
+    reset_index(kwargs = {}) {
+        let options = {}
+        if (utils.__key_in_object(kwargs, 'inplace')) {
+            options['inplace'] = kwargs['inplace']
+        } else {
+            options['inplace'] = false
+        }
+
+        if (options['inplace']) {
+            this.__reset_index()
+        } else {
+            let df = this.copy()
+            df.__reset_index()
+            return df
+        }
+    }
+
+    /**
+    * Generate a new Series with the specified index.
+    * Set the Series index (row labels) using an array of the same length.
+    * @param {kwargs} {index: Array of new index values}
+    */
+    set_index(kwargs = {}) {
+        let options = {}
+        if (utils.__key_in_object(kwargs, 'index')) {
+            options['index'] = kwargs['index']
+        } else {
+            throw Error("Index ValueError: You must specify an array of index")
+        }
+
+        if (utils.__key_in_object(kwargs, 'inplace')) {
+            options['inplace'] = kwargs['inplace']
+        } else {
+            options['inplace'] = false
+        }
+
+        if (options['index'].length != this.index.length) {
+            throw Error(`Index LengthError: Lenght of new Index array ${options['index'].length} must match lenght of existing index ${this.index.length}`)
+        }
+
+        if (options['inplace']) {
+            this.index_arr = options['index']
+        } else {
+            let df = this.copy()
+            df.__set_index(options['index'])
+            return df
+        }
+    }
+
 
 
     __get_tensor_and_idx(df, axis) {
