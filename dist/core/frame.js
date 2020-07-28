@@ -449,6 +449,84 @@ class DataFrame extends _generic.default {
     });
   }
 
+  isna() {
+    let data = [];
+    let values = this.values;
+    let columns = this.columns;
+
+    for (let i = 0; i < values.length; i++) {
+      let temp_data = [];
+      let row_value = values[i];
+
+      for (let j = 0; j < row_value.length; j++) {
+        let val = row_value[j] == 0 ? 0 : !!row_value[j];
+        temp_data.push(val);
+      }
+
+      data.push(temp_data);
+    }
+
+    return new DataFrame(data, {
+      columns: columns
+    });
+  }
+
+  dropna(kwargs = {}) {
+    let axis = kwargs["axis"] || 0;
+    let inplace = kwargs["inplace"] || false;
+
+    if (axis != 0 && axis != 1) {
+      throw new Error("axis must either be 1 or 0");
+    }
+
+    let df_values = null;
+    let columns = null;
+
+    if (axis == 0) {
+      df_values = this.values;
+      columns = this.columns;
+    } else {
+      df_values = this.col_data;
+      columns = [];
+    }
+
+    let data = [];
+
+    for (let i = 0; i < df_values.length; i++) {
+      let values = df_values[i];
+
+      if (!values.includes(NaN)) {
+        if (axis == 0) {
+          data.push(values);
+        } else {
+          columns.push(this.columns[i]);
+
+          if (data.length == 0) {
+            for (let j = 0; j < values.length; j++) {
+              data.push([values[j]]);
+            }
+          } else {
+            for (let j = 0; j < data.length; j++) {
+              data[j].push(values[j]);
+            }
+          }
+        }
+      }
+    }
+
+    if (inplace == true) {
+      this.data = data;
+
+      this.__reset_index();
+
+      this.columns = columns;
+    } else {
+      return new DataFrame(data, {
+        columns: columns
+      });
+    }
+  }
+
   static concat(kwargs) {
     utils.__in_object(kwargs, "df_list", "df_list not found: specify the list of dataframe");
 
@@ -523,7 +601,7 @@ class DataFrame extends _generic.default {
           let null_array = Array(column_length);
 
           for (let col = 0; col < column_length; col++) {
-            null_array[col] = "NaN";
+            null_array[col] = NaN;
           }
 
           if (typeof data[max_length - 1] === "undefined") {
@@ -573,7 +651,7 @@ class DataFrame extends _generic.default {
               let col_name = columns[j];
 
               if (not_exist.includes(col_name)) {
-                new_arr[j] = "NaN";
+                new_arr[j] = NaN;
               } else {
                 let index = df_columns.indexOf(col_name);
                 new_arr[j] = row_value[index];

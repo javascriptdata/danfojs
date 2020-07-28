@@ -101,7 +101,7 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            assert.deepEqual(df.tail(2).index, [2,3])
+            assert.deepEqual(df.tail(2).index, [2, 3])
         })
     })
 
@@ -306,7 +306,7 @@ describe("DataFrame", function () {
             assert.deepEqual(df.add(sf).values, [[1, 4, 5], [361, 182, 361]])
         })
         it("Return addition of a DataFrame with a Series along axis 0", function () {
-            let data = [[0, 2, 4],[360, 180, 360]]
+            let data = [[0, 2, 4], [360, 180, 360]]
             let sf = new Series([1, 2])
             let df = new DataFrame(data)
             assert.deepEqual(df.add(sf, 0).values, [[1, 3, 5], [362, 182, 362]])
@@ -323,6 +323,538 @@ describe("DataFrame", function () {
         })
 
     })
+
+    describe("sub", function () {
+        it("Return subtraction of DataFrame with a single Number", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.sub(2).values, [[2, 4, 6], [362, 182, 362]])
+        })
+        it("Return subtraction of a DataFrame with a Series along default axis 1", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let sf = new Series([1, 2, 1])
+            let df = new DataFrame(data)
+            assert.deepEqual(df.sub(sf).values, [[1, 4, 5], [361, 182, 361]])
+        })
+        it("Return subtraction of a DataFrame with a Series along axis 0", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let sf = new Series([1, 2])
+            let df = new DataFrame(data)
+            assert.deepEqual(df.sub(sf, 0).values, [[1, 3, 5], [362, 182, 362]])
+        })
+        it("Return subtraction of a DataFrame with a DataFrame along default axis 1", function () {
+            let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
+            let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
+            assert.deepEqual(df1.sub(df2).values, [[1, 4, 8], [370, 185, 360]])
+        })
+        it("Return subtraction of a DataFrame with a DataFrame along axis 0", function () {
+            let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
+            let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
+            assert.deepEqual(df1.sub(df2).values, [[1, 4, 8], [370, 185, 360]])
+        })
+
+    })
+
+    describe("mul", function () {
+        it("Return multiplication of DataFrame with a single Number", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.mul(2).values, [[2, 4, 6], [362, 182, 362]])
+        })
+        it("Return multiplication of a DataFrame with a Series along default axis 1", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let sf = new Series([1, 2, 1])
+            let df = new DataFrame(data)
+            assert.deepEqual(df.mul(sf).values, [[1, 4, 5], [361, 182, 361]])
+        })
+        it("Return multiplication of a DataFrame with a Series along axis 0", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let sf = new Series([1, 2])
+            let df = new DataFrame(data)
+            assert.deepEqual(df.mul(sf, 0).values, [[1, 3, 5], [362, 182, 362]])
+        })
+        it("Return multiplication of a DataFrame with a DataFrame along default axis 1", function () {
+            let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
+            let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
+            assert.deepEqual(df1.mul(df2).values, [[1, 4, 8], [370, 185, 360]])
+        })
+        it("Return multiplication of a DataFrame with a DataFrame along axis 0", function () {
+            let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
+            let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
+            assert.deepEqual(df1.add(df2).values, [[1, 4, 8], [370, 185, 360]])
+        })
+
+    })
+
+    describe("div", function () {
+        it("Return division of DataFrame with a single Number", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.div(2).values, [[2, 4, 6], [362, 182, 362]])
+        })
+        it("Return division of a DataFrame with a Series along default axis 1", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let sf = new Series([1, 2, 1])
+            let df = new DataFrame(data)
+            assert.deepEqual(df.div(sf).values, [[1, 4, 5], [361, 182, 361]])
+        })
+        it("Return division of a DataFrame with a Series along axis 0", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let sf = new Series([1, 2])
+            let df = new DataFrame(data)
+            assert.deepEqual(df.div(sf, 0).values, [[1, 3, 5], [362, 182, 362]])
+        })
+        it("Return division of a DataFrame with a DataFrame along default axis 1", function () {
+            let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
+            let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
+            assert.deepEqual(df1.div(df2).values, [[1, 4, 8], [370, 185, 360]])
+        })
+        it("Return division of a DataFrame with a DataFrame along axis 0", function () {
+            let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
+            let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
+            assert.deepEqual(df1.div(df2).values, [[1, 4, 8], [370, 185, 360]])
+        })
+
+    })
+
+    describe("pow", function () {
+        it("Return exponential of DataFrame with a single Number", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.pow(2).values, [[2, 4, 6], [362, 182, 362]])
+        })
+        it("Return exponential of a DataFrame with a Series along default axis 1", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let sf = new Series([1, 2, 1])
+            let df = new DataFrame(data)
+            assert.deepEqual(df.pow(sf).values, [[1, 4, 5], [361, 182, 361]])
+        })
+        it("Return exponential of a DataFrame with a Series along axis 0", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let sf = new Series([1, 2])
+            let df = new DataFrame(data)
+            assert.deepEqual(df.pow(sf, 0).values, [[1, 3, 5], [362, 182, 362]])
+        })
+        it("Return exponential of a DataFrame with a DataFrame along default axis 1", function () {
+            let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
+            let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
+            assert.deepEqual(df1.pow(df2).values, [[1, 4, 8], [370, 185, 360]])
+        })
+        it("Return exponential of a DataFrame with a DataFrame along axis 0", function () {
+            let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
+            let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
+            assert.deepEqual(df1.pow(df2).values, [[1, 4, 8], [370, 185, 360]])
+        })
+
+    })
+
+    describe("mod", function () {
+        it("Return modulus of DataFrame with a single Number", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.mod(2).values, [[2, 4, 6], [362, 182, 362]])
+        })
+        it("Return modulus of a DataFrame with a Series along default axis 1", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let sf = new Series([1, 2, 1])
+            let df = new DataFrame(data)
+            assert.deepEqual(df.mod(sf).values, [[1, 4, 5], [361, 182, 361]])
+        })
+        it("Return modulus of a DataFrame with a Series along axis 0", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let sf = new Series([1, 2])
+            let df = new DataFrame(data)
+            assert.deepEqual(df.mod(sf, 0).values, [[1, 3, 5], [362, 182, 362]])
+        })
+        it("Return modulus of a DataFrame with a DataFrame along default axis 1", function () {
+            let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
+            let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
+            assert.deepEqual(df1.mod(df2).values, [[1, 4, 8], [370, 185, 360]])
+        })
+        it("Return modulus of a DataFrame with a DataFrame along axis 0", function () {
+            let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
+            let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
+            assert.deepEqual(df1.mod(df2).values, [[1, 4, 8], [370, 185, 360]])
+        })
+
+    })
+
+    describe("mean", function () {
+        it("Returs the mean of a DataFrame (Default axis is [1:column])", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.mean().values, [362, 182, 362])
+        })
+        it("Return mean of a DataFrame along axis 0 (row)", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.mean({ "axis": 0 }).values, [1, 182])
+        })
+        it("Return mean of a DataFrame along axis 1", function () {
+            let data = [{ "col1": [0, 2, 4] }, { "col2": [360, 180, 360] }]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.mean().values, [1, 362, 40])
+        })
+
+    })
+
+    describe("median", function () {
+        it("Returs the median of a DataFrame (Default axis is [1:column])", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.median().values, [362, 182, 362])
+        })
+        it("Return median of a DataFrame along axis 0 (row)", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.median({ "axis": 0 }).values, [1, 182])
+        })
+        it("Return median of a DataFrame along axis 1", function () {
+            let data = [{ "col1": [0, 2, 4] }, { "col2": [360, 180, 360] }]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.median().values, [1, 362, 40])
+        })
+
+    })
+
+    describe("mode", function () {
+        it("Returns the mode of a DataFrame (Default axis is [1:column])", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.mode().values, [362, 182, 362])
+        })
+        it("Returns mode of a DataFrame along axis 0 (row)", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.mode({ "axis": 0 }).values, [1, 182])
+        })
+        it("Returns mode of a DataFrame along axis 1", function () {
+            let data = [{ "col1": [0, 2, 4] }, { "col2": [360, 180, 360] }]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.mode().values, [1, 362, 40])
+        })
+
+    })
+
+    describe("min", function () {
+        it("Returns the minimum values in a DataFrame (Default axis is [1:column])", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.min().values, [362, 182, 362])
+        })
+        it("Returns the minimum values of a DataFrame along axis 0 (row)", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.min({ "axis": 0 }).values, [1, 182])
+        })
+        it("Returns the minimum values of a DataFrame along axis 1", function () {
+            let data = [{ "col1": [0, 2, 4] }, { "col2": [360, 180, 360] }]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.min().values, [1, 362, 40])
+        })
+
+    })
+
+    describe("max", function () {
+        it("Returns the maximum values in a DataFrame (Default axis is [1:column])", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.max().values, [362, 182, 362])
+        })
+        it("Returns the maximum values of a DataFrame along axis 0 (row)", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.max({ "axis": 0 }).values, [1, 182])
+        })
+        it("Returns the maximum values of a DataFrame along axis 1", function () {
+            let data = [{ "col1": [0, 2, 4] }, { "col2": [360, 180, 360] }]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.max().values, [1, 362, 40])
+        })
+
+    })
+
+    describe("std", function () {
+        it("Returns the standard deviations of values in a DataFrame (Default axis is [1:column])", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.std().values, [362, 182, 362])
+        })
+        it("Return the standard deviations of values of a DataFrame along axis 0 (row)", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.std({ "axis": 0 }).values, [1, 182])
+        })
+        it("Return the standard deviations of values of a DataFrame along axis 1", function () {
+            let data = [{ "col1": [0, 2, 4] }, { "col2": [360, 180, 360] }]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.std().values, [1, 362, 40])
+        })
+
+    })
+
+    describe("var", function () {
+        it("Returns the variance of values in a DataFrame (Default axis is [1:column])", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.var().values, [362, 182, 362])
+        })
+        it("Return the variance of values of a DataFrame along axis 0 (row)", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.var({ "axis": 0 }).values, [1, 182])
+        })
+        it("Return the variance of values of a DataFrame along axis 1", function () {
+            let data = [{ "col1": [0, 2, 4] }, { "col2": [360, 180, 360] }]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.var().values, [1, 362, 40])
+        })
+
+    })
+
+    describe("describe", function () {
+        it("Returns descriptive statistics of columns in a DataFrame created from an array", function () {
+            let data = [[0, 2, 4, "a"],
+            [360, 180, 360, "b"],
+            [2, 4, 6, "c"]]
+            let df = new DataFrame(data)
+            let res = [[2, 4, 362, 182, 362, 2, 6],
+            [2, 4, 362, 182, 362, 2, 6],
+            [2, 4, 362, 182, 362, 2, 6]]
+            assert.deepEqual(df.describe().values, res)
+        })
+        it("Returns descriptive statistics of columns in a DataFrame created from an Object", function () {
+            let data = [{ "col1": [0, 2, 4] },
+            { "col2": [360, 180, 360] },
+            { "col3": [2, 4, 6] },
+            { "col4": ["boy", "girl", "man"] },
+            { "col5": ["apple", "car", "bee"] }]
+            let df = new DataFrame(data)
+            let res = [[2, 4, 362, 182, 362, 2, 6],
+            [2, 4, 362, 182, 362, 2, 6],
+            [2, 4, 362, 182, 362, 2, 6]]
+            assert.deepEqual(df.describe().values, res)
+        })
+
+    })
+
+    describe("count", function () {
+        it("Returns the count of non-nan values in a DataFrame (Default axis is [1:column])", function () {
+            let data = [[0, 2, 4], [360, 180.1, 360.11], [NaN, 2, 4], [360, undefined, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.count().values, [3, 3, 4])
+        })
+        it("Return the count of non NaN values of a DataFrame along axis 0", function () {
+            let data = [{ "col1": [0, 2, 4, NaN] }, { "col2": [360, undefined, 360, 70] }]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.count({ "axis": 0 }).values, [2, 1, 2, 1])
+        })
+
+    })
+
+    describe("round", function () {
+        it("Rounds values in a DataFrame (Default axis is [1:column])", function () {
+            let data = [[10.1, 2.092, 4.23], [360.232244, 180.0190290, 36.902612]]
+            let df = new DataFrame(data)
+            let expected = [[10.1, 2.092, 4.23], [360.232, 180.0190, 36.903]]
+            assert.deepEqual(df.round(3).values, expected)
+        })
+        it("Return the variance of values of a DataFrame along axis 1", function () {
+            let data = [{ "col1": [0, 2.25, 4.22] }, { "col2": [36.0, 18.0, 36.72] }]
+            let df = new DataFrame(data)
+            let expected = [[0, 36], [2, 18], [4, 37]]
+            assert.deepEqual(df.round().values, expected)
+        })
+
+    })
+
+    describe("sort_values", function () {
+        it("Sort values in DataFrame by specified column in ascending order (Default)", function () {
+            let data = [[0, 2, 4, "a"],
+            [360, 180, 360, "b"],
+            [2, 4, 6, "c"]]
+
+            let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] })
+            let expected = [[0, 2, 4, "a"], [2, 4, 6, "b"], [360, 180, 360, "c"]]
+            assert.deepEqual(df.sort_values({ "by": "col1" }).values, expected)
+        })
+
+        it("Sort values in DataFrame by specified column in ascending order (Default)", function () {
+            let data = [[0, 2, 4, "a"],
+            [360, 180, 1, "b"],
+            [2, 4, 6, "c"]]
+
+            let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] })
+            let expected = [[360, 180, 360, "c"], [0, 2, 4, "a"], [2, 4, 6, "c"]]
+            assert.deepEqual(df.sort_values({ "by": "col3" }).values, expected)
+        })
+        it("Sort values in DataFrame by specified column in descending order", function () {
+            let data = [[0, 2, 4, "a"],
+            [360, 180, 360, "b"],
+            [2, 4, 6, "c"]]
+
+            let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] })
+            let expected = [[360, 180, 360, "c"], [2, 4, 6, "c"], [0, 2, 4, "a"]]
+            assert.deepEqual(df.sort_values({ "by": "col1", "ascending": false }).values, expected)
+        })
+
+        it("Sort values in DataFrame by specified column in descending order ", function () {
+            let data = [[0, 2, 4, "a"],
+            [360, 180, 1, "b"],
+            [2, 4, 6, "c"]]
+
+            let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] })
+            let expected = [[2, 4, 6, "c"], [0, 2, 4, "a"], [360, 180, 1, "b"]]
+            assert.deepEqual(df.sort_values({ "by": "col3", "ascending": false }).values, expected)
+        })
+
+    })
+
+    describe("copy", function () {
+        it("Makes a deep copy of DataFrame", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            let df_copy = df.copy()
+            assert.deepEqual(df_copy.values, [[0, 2, 4], [360, 180, 360]])
+        })
+        it("Confirms child copy modification does not affect parent DataFrame", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            let df_copy = df.copy()
+            df_copy.addColumn({column: "col_new", value: ["boy", "girl"]})
+            assert.notDeepEqual(df_copy.values, df.values)
+        })
+
+    })
+
+    describe("reset_index", function () {
+        it("resets the index of a DataFrame", function () {
+            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
+            let df = new Series(data)
+            let df_new = df.set_index({ "index": ["one", "two", "three"] })
+            let df_reset = df_new.reset_index()
+            assert.deepEqual(df_reset.index, [0, 1, 2])
+        })
+        it("Reset the index of an Series created from an Array", function () {
+            let data = [1,2,3,4,5,6]
+            let df = new Series(data)
+            df.set_index({ "index": ["one", "two", "three", "four", "five", "six"], "inplace": true })
+            let df_new = df.reset_index()
+            assert.deepEqual(df_new.index, [0, 1, 2, 3, 4, 5])
+        })
+        it("checks that the original series changed after reseting new index inplace", function () {
+            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
+            let df = new Series(data)
+            df.reset_index({ "inplace": true })
+            assert.deepEqual(df.index, [0, 1, 2])
+        })
+    })
+
+    describe("set_index", function () {
+        it("Return Addition of DataFrame with a single Number", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.add(2).values, [[2, 4, 6], [362, 182, 362]])
+        })
+        it("Return addition of a DataFrame with a Series along default axis 1", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let sf = new Series([1, 2, 1])
+            let df = new DataFrame(data)
+            assert.deepEqual(df.add(sf).values, [[1, 4, 5], [361, 182, 361]])
+        })
+        it("Return addition of a DataFrame with a Series along axis 0", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let sf = new Series([1, 2])
+            let df = new DataFrame(data)
+            assert.deepEqual(df.add(sf, 0).values, [[1, 3, 5], [362, 182, 362]])
+        })
+        it("Return addition of a DataFrame with a DataFrame along default axis 1", function () {
+            let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
+            let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
+            assert.deepEqual(df1.add(df2).values, [[1, 4, 8], [370, 185, 360]])
+        })
+        it("Return addition of a DataFrame with a DataFrame along axis 0", function () {
+            let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
+            let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
+            assert.deepEqual(df1.add(df2).values, [[1, 4, 8], [370, 185, 360]])
+        })
+
+    })
+
+    describe("map", function () {
+
+        it("map series element to object keys", function () {
+            let sf = new Series([1, 2, 3, 4])
+            let map = { 1: "ok", 2: "okie", 3: "frit", 4: "gop" }
+
+            let rslt = ["ok", "okie", "frit", "gop"]
+
+            assert.deepEqual(sf.map(map), rslt)
+        });
+
+        it("map series element to a function statement", function () {
+            let sf = new Series([1, 2, 3, 4])
+            let func_map = (x) => {
+                return x + 1
+            }
+
+            let rslt = [2, 3, 4, 5]
+
+            assert.deepEqual(sf.map(func_map), rslt)
+        });
+    });
+
+    describe("apply", function () {
+
+        it("apply a function to a series element", function () {
+            let sf = new Series([1, 2, 3, 4, 5, 6, 7, 8])
+
+            let apply_func = (x) => {
+                return x + x
+            }
+
+            let rslt = [2, 4, 6, 8, 10, 12, 14, 16]
+            assert.deepEqual(sf.apply(apply_func), rslt)
+        });
+    });
+
+
+
+
+
+
+    describe("add", function () {
+        it("Return Addition of DataFrame with a single Number", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.add(2).values, [[2, 4, 6], [362, 182, 362]])
+        })
+        it("Return addition of a DataFrame with a Series along default axis 1", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let sf = new Series([1, 2, 1])
+            let df = new DataFrame(data)
+            assert.deepEqual(df.add(sf).values, [[1, 4, 5], [361, 182, 361]])
+        })
+        it("Return addition of a DataFrame with a Series along axis 0", function () {
+            let data = [[0, 2, 4], [360, 180, 360]]
+            let sf = new Series([1, 2])
+            let df = new DataFrame(data)
+            assert.deepEqual(df.add(sf, 0).values, [[1, 3, 5], [362, 182, 362]])
+        })
+        it("Return addition of a DataFrame with a DataFrame along default axis 1", function () {
+            let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
+            let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
+            assert.deepEqual(df1.add(df2).values, [[1, 4, 8], [370, 185, 360]])
+        })
+        it("Return addition of a DataFrame with a DataFrame along axis 0", function () {
+            let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
+            let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
+            assert.deepEqual(df1.add(df2).values, [[1, 4, 8], [370, 185, 360]])
+        })
+
+    })
+
+
 
     describe("query", function () {
 
@@ -726,66 +1258,66 @@ describe("DataFrame", function () {
         })
     });
 
-    describe("dropna", function(){
-        it("drop inplace at axis 0 at inplace false", function(){
-            let data = [[NaN, 1,2,3], [3,4,NaN,9],[5,6,7,8]]
-            let column = ["A","B","C","D"]
-            let df = new DataFrame(data,{columns:column})
-            
-            let df_val = [ [ 5, 6, 7, 8 ] ]
-            
-            assert.deepEqual(df.dropna().values, df_val)
-           
-        })
-        it("drop inplace at axis 1, inplace false ", function(){
-            let data = [[NaN, 1,2,3], [3,4,NaN,9],[5,6,7,8]]
-            let column = ["A","B","C","D"]
-            let df = new DataFrame(data,{columns:column})
-            
-            let df_val = [ [ 1, 3 ], [ 4, 9 ], [ 6, 8 ] ]
+    describe("dropna", function () {
+        it("drop inplace at axis 0 at inplace false", function () {
+            let data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]]
+            let column = ["A", "B", "C", "D"]
+            let df = new DataFrame(data, { columns: column })
 
-            assert.deepEqual(df.dropna({axis:1}).values, df_val)
-           
+            let df_val = [[5, 6, 7, 8]]
+
+            assert.deepEqual(df.dropna().values, df_val)
+
         })
-        it("drop inplace at axis 1, inplace true ", function(){
-            let data = [[NaN, 1,2,3], [3,4,NaN,9],[5,6,7,8]]
-            let column = ["A","B","C","D"]
-            let df = new DataFrame(data,{columns:column})
-            
-            let df_val = [ [ 1, 3 ], [ 4, 9 ], [ 6, 8 ] ]
-            df.dropna({axis:1, inplace:true})
-            
-            
-            assert.deepEqual(df.values, df_val)
-           
+        it("drop inplace at axis 1, inplace false ", function () {
+            let data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]]
+            let column = ["A", "B", "C", "D"]
+            let df = new DataFrame(data, { columns: column })
+
+            let df_val = [[1, 3], [4, 9], [6, 8]]
+
+            assert.deepEqual(df.dropna({ axis: 1 }).values, df_val)
+
         })
-        it("drop inplace at axis 0 at inplace true", function(){
-            let data = [[NaN, 1,2,3], [3,4,NaN,9],[5,6,7,8]]
-            let column = ["A","B","C","D"]
-            let df = new DataFrame(data,{columns:column})
-            
-            let df_val = [ [ 5, 6, 7, 8 ] ]
-            
-            df.dropna({inplace:true})
+        it("drop inplace at axis 1, inplace true ", function () {
+            let data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]]
+            let column = ["A", "B", "C", "D"]
+            let df = new DataFrame(data, { columns: column })
+
+            let df_val = [[1, 3], [4, 9], [6, 8]]
+            df.dropna({ axis: 1, inplace: true })
+
+
             assert.deepEqual(df.values, df_val)
-           
+
+        })
+        it("drop inplace at axis 0 at inplace true", function () {
+            let data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]]
+            let column = ["A", "B", "C", "D"]
+            let df = new DataFrame(data, { columns: column })
+
+            let df_val = [[5, 6, 7, 8]]
+
+            df.dropna({ inplace: true })
+            assert.deepEqual(df.values, df_val)
+
         })
     });
 
-    describe("isna", function(){
+    describe("isna", function () {
 
-        it("check if each value are nan", function(){
-            let data = [[NaN, 1,2,3], [3,4,NaN,9],[5,6,7,8]]
-            let column = ["A","B","C","D"]
-            let df = new DataFrame(data,{columns:column}) 
+        it("check if each value are nan", function () {
+            let data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]]
+            let column = ["A", "B", "C", "D"]
+            let df = new DataFrame(data, { columns: column })
 
             let df_val = [
-                [ false, true, true, true ],
-                [ true, true, false, true ],
-                [ true, true, true, true ]
-              ]
+                [false, true, true, true],
+                [true, true, false, true],
+                [true, true, true, true]
+            ]
 
-              assert.deepEqual(df.isna().values, df_val)
+            assert.deepEqual(df.isna().values, df_val)
         });
     })
 });
