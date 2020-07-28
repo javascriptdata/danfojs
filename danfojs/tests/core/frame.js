@@ -727,132 +727,70 @@ describe("DataFrame", function () {
 
     })
 
-    describe("reset_index", function () {
-        it("resets the index of a DataFrame", function () {
+
+    describe("set_index", function () {
+        it("Sets the index of a DataFrame created from an Object", function () {
             let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
-            let df = new Series(data)
+            let df = new DataFrame(data)
+            let df_new = df.set_index({ "index": ["one", "two", "three"] })
+            assert.deepEqual(df_new.index, ["one", "two", "three"] )
+        })
+        it("Sets the index of a DataFrame created from an Array", function () {
+            let data = [[0, 2, 4], [360, 180, 360], [0, 2, 4], [360, 180, 360], [0, 2, 4]]
+            let df = new DataFrame(data)
+            df.set_index({ "index": ["one", "two", "three", "four", "five", "six"], "inplace": true })
+            assert.deepEqual(df.index, [0, 1, 2, 3, 4, 5])
+        })
+       
+    })
+
+    describe("reset_index", function () {
+        it("Resets the index of a DataFrame created from an Object", function () {
+            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
+            let df = new DataFrame(data)
             let df_new = df.set_index({ "index": ["one", "two", "three"] })
             let df_reset = df_new.reset_index()
             assert.deepEqual(df_reset.index, [0, 1, 2])
         })
-        it("Reset the index of an Series created from an Array", function () {
-            let data = [1,2,3,4,5,6]
-            let df = new Series(data)
+        it("Resets the index of a DataFrame created from an Array", function () {
+            let data = [[0, 2, 4], [360, 180, 360], [0, 2, 4], [360, 180, 360], [0, 2, 4]]
+            let df = new DataFrame(data)
             df.set_index({ "index": ["one", "two", "three", "four", "five", "six"], "inplace": true })
             let df_new = df.reset_index()
             assert.deepEqual(df_new.index, [0, 1, 2, 3, 4, 5])
         })
-        it("checks that the original series changed after reseting new index inplace", function () {
-            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
-            let df = new Series(data)
-            df.reset_index({ "inplace": true })
-            assert.deepEqual(df.index, [0, 1, 2])
-        })
+       
     })
 
-    describe("set_index", function () {
-        it("Return Addition of DataFrame with a single Number", function () {
-            let data = [[0, 2, 4], [360, 180, 360]]
-            let df = new DataFrame(data)
-            assert.deepEqual(df.add(2).values, [[2, 4, 6], [362, 182, 362]])
-        })
-        it("Return addition of a DataFrame with a Series along default axis 1", function () {
-            let data = [[0, 2, 4], [360, 180, 360]]
-            let sf = new Series([1, 2, 1])
-            let df = new DataFrame(data)
-            assert.deepEqual(df.add(sf).values, [[1, 4, 5], [361, 182, 361]])
-        })
-        it("Return addition of a DataFrame with a Series along axis 0", function () {
-            let data = [[0, 2, 4], [360, 180, 360]]
-            let sf = new Series([1, 2])
-            let df = new DataFrame(data)
-            assert.deepEqual(df.add(sf, 0).values, [[1, 3, 5], [362, 182, 362]])
-        })
-        it("Return addition of a DataFrame with a DataFrame along default axis 1", function () {
-            let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
-            let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
-            assert.deepEqual(df1.add(df2).values, [[1, 4, 8], [370, 185, 360]])
-        })
-        it("Return addition of a DataFrame with a DataFrame along axis 0", function () {
-            let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
-            let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
-            assert.deepEqual(df1.add(df2).values, [[1, 4, 8], [370, 185, 360]])
-        })
-
-    })
-
-    describe("map", function () {
-
-        it("map series element to object keys", function () {
-            let sf = new Series([1, 2, 3, 4])
-            let map = { 1: "ok", 2: "okie", 3: "frit", 4: "gop" }
-
-            let rslt = ["ok", "okie", "frit", "gop"]
-
-            assert.deepEqual(sf.map(map), rslt)
-        });
-
-        it("map series element to a function statement", function () {
-            let sf = new Series([1, 2, 3, 4])
-            let func_map = (x) => {
-                return x + 1
-            }
-
-            let rslt = [2, 3, 4, 5]
-
-            assert.deepEqual(sf.map(func_map), rslt)
-        });
-    });
+    
 
     describe("apply", function () {
-
-        it("apply a function to a series element", function () {
-            let sf = new Series([1, 2, 3, 4, 5, 6, 7, 8])
+        it("Apply a function to all values of a DataFrame", function () {
+            let data = [[0, 2, 4], 
+                        [360, 180, 360],
+                         [0, 2, 4]]
+            let df = new DataFrame(data)
 
             let apply_func = (x) => {
-                return x + x
+                return x + 1000
             }
+            let expected = [[1000, 1002, 1004], [1360, 1180, 1360], [1000, 1002, 1004]]
+            assert.deepEqual(df.apply(apply_func), expected)
+        });
 
-            let rslt = [2, 4, 6, 8, 10, 12, 14, 16]
-            assert.deepEqual(sf.apply(apply_func), rslt)
+        it("Throws error on applying function to string columns", function () {
+            let data = [[0, 2, "ab"], 
+                        [360, 180, "mk"],
+                         [0, 2, "po"]]
+            let df = new DataFrame(data)
+
+            let apply_func = (x) => {
+                return x + 1000
+            }
+            let expected = "Dtypes Error: columns dtypes must be numeric, got strings"
+            assert.deepEqual(df.apply(apply_func), expected)
         });
     });
-
-
-
-
-
-
-    describe("add", function () {
-        it("Return Addition of DataFrame with a single Number", function () {
-            let data = [[0, 2, 4], [360, 180, 360]]
-            let df = new DataFrame(data)
-            assert.deepEqual(df.add(2).values, [[2, 4, 6], [362, 182, 362]])
-        })
-        it("Return addition of a DataFrame with a Series along default axis 1", function () {
-            let data = [[0, 2, 4], [360, 180, 360]]
-            let sf = new Series([1, 2, 1])
-            let df = new DataFrame(data)
-            assert.deepEqual(df.add(sf).values, [[1, 4, 5], [361, 182, 361]])
-        })
-        it("Return addition of a DataFrame with a Series along axis 0", function () {
-            let data = [[0, 2, 4], [360, 180, 360]]
-            let sf = new Series([1, 2])
-            let df = new DataFrame(data)
-            assert.deepEqual(df.add(sf, 0).values, [[1, 3, 5], [362, 182, 362]])
-        })
-        it("Return addition of a DataFrame with a DataFrame along default axis 1", function () {
-            let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
-            let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
-            assert.deepEqual(df1.add(df2).values, [[1, 4, 8], [370, 185, 360]])
-        })
-        it("Return addition of a DataFrame with a DataFrame along axis 0", function () {
-            let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
-            let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
-            assert.deepEqual(df1.add(df2).values, [[1, 4, 8], [370, 185, 360]])
-        })
-
-    })
 
 
 
