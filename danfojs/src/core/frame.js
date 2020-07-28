@@ -201,7 +201,7 @@ export class DataFrame extends Ndframe {
             column_names = columns
         }
 
-        return [new_data, column_names,rows];
+        return [new_data, column_names, rows];
     }
 
     /**
@@ -293,30 +293,30 @@ export class DataFrame extends Ndframe {
             let config = { columns: this.column_names }
             return new DataFrame(this.values, config)
         } else {
-           let values = this.values
-           let idx = this.index
-           let new_values = []
-           let new_idx = []
+            let values = this.values
+            let idx = this.index
+            let new_values = []
+            let new_idx = []
 
-           let counts = [...Array(idx.length).keys()]   //set index
+            let counts = [...Array(idx.length).keys()]   //set index
 
-           //get random sampled numbers
-           let rand_nums = utils.__sample_from_iter(counts, num, false)
-           rand_nums.map(i =>{
-               new_values.push(values[i])
-               new_idx.push(idx[i])
-           })
+            //get random sampled numbers
+            let rand_nums = utils.__sample_from_iter(counts, num, false)
+            rand_nums.map(i => {
+                new_values.push(values[i])
+                new_idx.push(idx[i])
+            })
 
-           let config = {columns: this.column_names, index: new_idx}
-           let df = new DataFrame(new_values, config)
-           return df
+            let config = { columns: this.column_names, index: new_idx }
+            let df = new DataFrame(new_values, config)
+            return df
 
         }
     }
 
     /**
        * Return Addition of DataFrame and other, element-wise (binary operator add).
-       * @param {other} Series, Array or Number to add  
+       * @param {other} DataFrame, Series, Array or Number to add  
        * @returns {DataFrame}
        */
     add(other, axis) {
@@ -331,6 +331,97 @@ export class DataFrame extends Ndframe {
         }
 
     }
+
+    /**
+      * Return subtraction of DataFrame and other, element-wise (binary operator add).
+      * @param {other} DataFrame, Series, Array or Number to add  
+      * @returns {DataFrame}
+      */
+    sub(other, axis) {
+        if (this.__frame_is_compactible_for_operation) { //check if all types are numeric
+            let tensors = this.__get_ops_tensors([this, other], axis)
+            let result = tensors[0].sub(tensors[1])
+            let col_names = this.columns
+            return this.__get_df_from_tensor(result, col_names)
+
+        } else {
+            throw Error("TypeError: Dtypes of column must be Float of Int")
+        }
+
+    }
+
+    /**
+       * Return subtraction of DataFrame and other, element-wise (binary operator add).
+       * @param {other} DataFrame, Series, Array or Number to add  
+       * @returns {DataFrame}
+       */
+    mul(other, axis) {
+        if (this.__frame_is_compactible_for_operation) { //check if all types are numeric
+            let tensors = this.__get_ops_tensors([this, other], axis)
+            let result = tensors[0].mul(tensors[1])
+            let col_names = this.columns
+            return this.__get_df_from_tensor(result, col_names)
+
+        } else {
+            throw Error("TypeError: Dtypes of column must be Float of Int")
+        }
+
+    }
+
+    /**
+       * Return division of DataFrame and other, element-wise (binary operator add).
+       * @param {other} DataFrame, Series, Array or Number to add  
+       * @returns {DataFrame}
+       */
+      div(other, axis) {
+        if (this.__frame_is_compactible_for_operation) { //check if all types are numeric
+            let tensors = this.__get_ops_tensors([this, other], axis)
+            let result = tensors[0].div(tensors[1])
+            let col_names = this.columns
+            return this.__get_df_from_tensor(result, col_names)
+
+        } else {
+            throw Error("TypeError: Dtypes of column must be Float of Int")
+        }
+
+    }
+
+     /**
+       * Return division of DataFrame and other, element-wise (binary operator add).
+       * @param {other} DataFrame, Series, Array or Number to add  
+       * @returns {DataFrame}
+       */
+      pow(other, axis) {
+        if (this.__frame_is_compactible_for_operation) { //check if all types are numeric
+            let tensors = this.__get_ops_tensors([this, other], axis)
+            let result = tensors[0].pow(tensors[1])
+            let col_names = this.columns
+            return this.__get_df_from_tensor(result, col_names)
+
+        } else {
+            throw Error("TypeError: Dtypes of column must be Float of Int")
+        }
+
+    }
+
+    /**
+       * Return division of DataFrame and other, element-wise (binary operator add).
+       * @param {other} DataFrame, Series, Array or Number to add  
+       * @returns {DataFrame}
+       */
+      mod(other, axis) {
+        if (this.__frame_is_compactible_for_operation) { //check if all types are numeric
+            let tensors = this.__get_ops_tensors([this, other], axis)
+            let result = tensors[0].mod(tensors[1])
+            let col_names = this.columns
+            return this.__get_df_from_tensor(result, col_names)
+
+        } else {
+            throw Error("TypeError: Dtypes of column must be Float of Int")
+        }
+
+    }
+
 
 
 
@@ -562,19 +653,19 @@ export class DataFrame extends Ndframe {
         let values = this.values;
         let columns = this.columns;
 
-        for(let i=0; i < values.length; i++){
+        for (let i = 0; i < values.length; i++) {
             let temp_data = []
             let row_value = values[i]
-            for(let j=0; j < row_value.length; j++){
+            for (let j = 0; j < row_value.length; j++) {
 
                 let val = row_value[j] == 0 ? 0 : !!row_value[j]
                 temp_data.push(val)
             }
             data.push(temp_data);
         }
-        
-        return new DataFrame(data,{columns:columns})
-     }
+
+        return new DataFrame(data, { columns: columns })
+    }
 
 
     // /**
@@ -587,58 +678,58 @@ export class DataFrame extends Ndframe {
      * Drop all rows containing NaN
      * @param {kwargs} kwargs [Object] {axis: [int]{o or 1}, inplace:[boolean]}
      */
-    dropna(kwargs={}){
+    dropna(kwargs = {}) {
 
         let axis = kwargs["axis"] || 0;
         let inplace = kwargs["inplace"] || false;
 
-        if(axis !=0 && axis !=1){
+        if (axis != 0 && axis != 1) {
             throw new Error("axis must either be 1 or 0")
         }
 
         let df_values = null
         let columns = null
-        if(axis ==0){
+        if (axis == 0) {
             df_values = this.values
             columns = this.columns
         }
-        else{
+        else {
             df_values = this.col_data
             columns = []
         }
         let data = []
 
-        for(let i=0;i < df_values.length; i++){
+        for (let i = 0; i < df_values.length; i++) {
             let values = df_values[i]
 
-            if(!(values.includes(NaN))){
-                if(axis ==0){
+            if (!(values.includes(NaN))) {
+                if (axis == 0) {
                     data.push(values);
-                }else{
+                } else {
 
                     columns.push(this.columns[i])
-                    if(data.length == 0){
-                        
-                        for(let j=0; j < values.length; j++){
+                    if (data.length == 0) {
+
+                        for (let j = 0; j < values.length; j++) {
                             data.push([values[j]])
                         }
-                    }else{
-                        for(let j =0; j < data.length; j++){
+                    } else {
+                        for (let j = 0; j < data.length; j++) {
                             data[j].push(values[j])
                         }
                     }
                 }
-                
+
             }
 
         }
-        
-        if(inplace ==true){
+
+        if (inplace == true) {
             this.data = data
             this.__reset_index()
             this.columns = columns
-        }else{
-            return new DataFrame(data,{columns: columns})
+        } else {
+            return new DataFrame(data, { columns: columns })
         }
 
     }
@@ -957,7 +1048,7 @@ export class DataFrame extends Ndframe {
                 if (tensors[1].series) {
                     other_tensor = tf.tensor(tensors[1].values, [tensors[1].values.length, 1])
                 } else {
-                    other_tensor = tensors[1].col_data_tensor
+                    other_tensor = tensors[1].row_data_tensor
 
                 }
 

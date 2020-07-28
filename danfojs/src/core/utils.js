@@ -155,7 +155,7 @@ export class Utils {
         if (isSeries) {
             let temp_arr = []
             data.map(val => {
-                if (typeof val === 'undefined') {
+                if (typeof val === 'undefined' || val == Infinity) {
                     temp_arr.push(NaN)
                 } else {
                     temp_arr.push(val)
@@ -167,7 +167,7 @@ export class Utils {
             data.map(val => {
                 var temp_arr = []
                 val.map(ele => {
-                    if (typeof ele === 'undefined') {
+                    if (typeof ele === 'undefined' || val == Infinity) {
                         temp_arr.push(NaN)
                     } else {
                         temp_arr.push(ele)
