@@ -965,6 +965,22 @@ describe("DataFrame", function () {
             assert.deepEqual(group_df.col(["B", "C"]).sum(), new_data);
         });
 
+        it("Perform aggregate on column for groupby", function () {
+
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let group_df = df.groupby(["A", "B"]);
+            let new_data = {
+                '1': { '2': [ 2, 1 ] },
+                '4': { '5': [ 5, 1 ] },
+                '20': { '30': [ 30, 1 ] },
+                '39': { '89': [ 89, 1 ] }
+              }
+
+            assert.deepEqual(group_df.agg({"B":"mean", "C":"count"}), new_data);
+        });
+
 
     });
 
