@@ -475,8 +475,8 @@ export class Series extends NDframe {
             this.__set_index(sorted_idx)
             return null
         } else {
-            let sf = new Series(sorted_arr, { columns: this.column_names })
-            sf.__set_index(sorted_idx)
+            let sf = new Series(sorted_arr, { columns: this.column_names, index: sorted_idx })
+            // sf.__set_index(sorted_idx)
             return sf
         }
     }
