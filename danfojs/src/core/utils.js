@@ -120,7 +120,7 @@ export class Utils {
         }
     }
 
-    //retreives the column data value from an array
+    //transpose row array into column wise array
     __get_col_values(data) {
         let row_len = data.length
         let cols_len = data[0].length
@@ -135,6 +135,29 @@ export class Utils {
         return cols_arr
 
     }
+
+    // let data = [{ alpha: ["A", "B", "C", "D"] }, { count: [1,2,3,4]}, {sum: [20.3, 30.456, 40.90, 90.1]}]
+
+
+    //transpose column array into row array
+    __get_row_values(data) {
+        let rows_len = Object.values(data[0])[0].length
+        let cols_len = data.length
+        var rows_arr = []
+
+        for (var i = 0; i <= rows_len - 1; i++) {
+            var temp_row = []
+            for (let j = 0; j < cols_len; j++) {
+                let _arr = Object.values(data[j])[0]
+                temp_row.push(_arr[i])
+            }
+            rows_arr.push(temp_row)
+        }
+        
+        return rows_arr
+
+    }
+
 
     //converts a 2D array of array to 1D for Series Class
     __convert_2D_to_1D(data) {

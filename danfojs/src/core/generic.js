@@ -93,49 +93,59 @@ export default class NDframe {
     //Reads a Javascript Object of arrays of data points
     __read_object(data) {
         let data_arr = []
-        data.forEach((item) => {
-            data_arr.push(Object.values(item))
-
-        });
-        this.data = utils.__replace_undefined_with_NaN(data_arr, this.series) //Defualt array data in row format
-        this.row_data_tensor = tf.tensor(this.data) //data saved as tensors
-        this.kwargs['columns'] = Object.keys(Object.values(data)[0]) //get names of the column from the first entry
-
-        if (utils.__key_in_object(this.kwargs, 'index')) {
-            this.__set_index(this.kwargs['index'])
+        //check format of objects
+        let _key = Object.keys(data[0])[0]  //get first column name in data
+        if (Array.isArray(data[0][_key])) {
+            // format of data is [{"a": [1,2,3,4]}, {"b": [2,4,5,7]}]
+            data_arr = utils.__get_row_values(data)
+            //call read array on result
+            this.__read_array(data_arr)
         } else {
-            this.index_arr = [...Array(this.row_data_tensor.shape[0]).keys()]   //set index
-        }
+            //format of data is [{"a": 1, "b" : 2}, {"a": 2, "b" : 4}, {"a": 4, "b" : 5}]
+            data.forEach((item) => {
+                data_arr.push(Object.values(item))
+            });
 
-        if (this.ndim == 1) {
-            //series array
-            if (this.kwargs['columns'] == undefined) {
-                this.columns = ["0"]
+            this.data = utils.__replace_undefined_with_NaN(data_arr, this.series) //Defualt array data in row format
+            this.row_data_tensor = tf.tensor(this.data) //data saved as tensors
+            this.kwargs['columns'] = Object.keys(Object.values(data)[0]) //get names of the column from the first entry
+
+            if (utils.__key_in_object(this.kwargs, 'index')) {
+                this.__set_index(this.kwargs['index'])
             } else {
-                this.columns = this.kwargs['columns']
+                this.index_arr = [...Array(this.row_data_tensor.shape[0]).keys()]   //set index
             }
 
-        } else {
-            //2D or more array
-            if (!utils.__key_in_object(this.kwargs, 'columns')) {
-                //asign integer numbers
-                this.columns = [...Array(this.row_data_tensor.shape[1]).keys()] //use 0 because we are testing lenght from an Object
-            } else {
-                if (this.kwargs['columns'].length == Number(this.row_data_tensor.shape[1])) {
-                    this.columns = this.kwargs['columns']
+            if (this.ndim == 1) {
+                //series array
+                if (this.kwargs['columns'] == undefined) {
+                    this.columns = ["0"]
                 } else {
-                    throw `Column lenght mismatch. You provided a column of lenght ${this.kwargs['columns'].length} but data has column length of ${this.row_data_tensor.shape[1]}`
+                    this.columns = this.kwargs['columns']
                 }
-            }
 
-            //set column types
-            if (utils.__key_in_object(this.kwargs, 'dtypes')) {
-                this.__set_col_types(this.kwargs['dtypes'], false)
             } else {
-                //infer dtypes
-                this.__set_col_types(null, true)
-            }
+                //2D or more array
+                if (!utils.__key_in_object(this.kwargs, 'columns')) {
+                    //asign integer numbers
+                    this.columns = [...Array(this.row_data_tensor.shape[1]).keys()] //use 0 because we are testing lenght from an Object
+                } else {
+                    if (this.kwargs['columns'].length == Number(this.row_data_tensor.shape[1])) {
+                        this.columns = this.kwargs['columns']
+                    } else {
+                        throw `Column lenght mismatch. You provided a column of lenght ${this.kwargs['columns'].length} but data has column length of ${this.row_data_tensor.shape[1]}`
+                    }
+                }
 
+                //set column types
+                if (utils.__key_in_object(this.kwargs, 'dtypes')) {
+                    this.__set_col_types(this.kwargs['dtypes'], false)
+                } else {
+                    //infer dtypes
+                    this.__set_col_types(null, true)
+                }
+
+            }
         }
     }
 

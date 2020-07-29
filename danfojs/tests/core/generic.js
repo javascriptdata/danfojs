@@ -7,7 +7,7 @@ describe("Generic (NDFrame)", function () {
         it("prints the shape of a 1D array", function () {
             let data = [1, 2, 3, "Boy", "Girl"]
             let ndframe = new NDframe(data)
-            assert.deepEqual(ndframe.shape, [5,1])
+            assert.deepEqual(ndframe.shape, [5, 1])
         })
         it("prints the default assigned column name in a series", function () {
             let data = ["Boy", 20, 25]
@@ -108,6 +108,20 @@ describe("Generic (NDFrame)", function () {
             let df = new NDframe(data)
             assert.deepEqual(df.index, [0, 1, 2, 3])
         })
+    })
+
+    describe("NDframe Created from JavaScript Object of Arrays", function () {
+
+        it("prints the shape of a 2D ", function () {
+            let data = [{ alpha: ["A", "B", "C", "D"] }, { count: [1, 2, 3, 4] }]
+            let ndframe = new NDframe(data)
+            assert.deepEqual(ndframe.shape, [4, 2])
+        })
+        // it("prints the shape of a 2D ", function () {
+        //     let data = [{ alpha: ["A", "B", "C", "D"] }, { count: [1,2,3,4]}, {sum: [20.3, 30.456, 40.90, 90.1]}]
+        //     let ndframe = new NDframe(data)
+        //     assert.deepEqual(ndframe.shape, [4, 3])
+        // })
     })
 
     describe("__set_index", function () {

@@ -671,6 +671,83 @@ export class DataFrame extends Ndframe {
     }
 
 
+    /**
+    * Generate descriptive statistics for all numeric columns
+    * Descriptive statistics include those that summarize the central tendency, 
+    * dispersion and shape of a dataset’s distribution, excluding NaN values.
+    * @returns {Series}
+    */
+    describe() {
+
+        if (this.dtypes[0] == "string") {
+            return null
+        } else {
+
+            let index = ['count', 'mean', 'std', 'min', 'median', 'max', 'variance']
+            let count = this.count()
+            let mean = this.mean()
+            let std = this.std()
+            let min = this.min()
+            let median = this.median()
+            let max = this.max()
+            let variance = this.var()
+
+            let vals = [count, mean, std, min, median, max, variance]
+            let sf = new Series(vals, { columns: this.columns })
+            sf.__set_index(index)
+            return sf
+
+        }
+
+    }
+
+    /**
+     * Return a subset of the DataFrame’s columns based on the column dtypes.
+     * @param {include} scalar or array-like. A selection of dtypes or strings to be included. At least one of these parameters must be supplied.
+     * @returns {DataFrame, Series} The subset of the frame including the dtypes.
+     */
+    select_dtypes(include = [""]) {
+        let dtypes = this.dtypes
+        // let dtype_index = [...Array(this.dtypes.length - 1).keys()]
+        let col_vals = []
+        let original_col_vals = this.col_data
+        const __supported_dtypes = ['float32', "int32", 'string', 'datetime']
+
+        if (include == [""] || include == []) {
+            //return all
+            let df = this.copy()
+            return df
+        } else {
+            //check if the right types are included
+            include.forEach(type => {
+                if (!__supported_dtypes.includes(type)) {
+                    throw Error(`Dtype Error: dtype ${type} not found in dtypes`)
+                }
+                dtypes.map((dtype, i) => {
+                    if (dtype == type) {
+                        let _obj = {}
+                        _obj[this.column_names[i]] = original_col_vals[i]
+                        col_vals.push(_obj)
+                    }
+                })
+
+            });
+            if (col_vals.length == 1) {
+                let _key = Object.keys(col_vals[0])[0]
+                let data = col_vals[0][_key]
+                let column_name = [_key]
+                let sf = new Series(data, {columns: column_name, index: this.index })
+                return sf
+            } else {
+                let df = new DataFrame(col_vals, {index: this.index })
+                return df
+            }
+        }
+
+
+
+    }
+
 
     __get_tensor_and_idx(df, axis) {
         let tensor_vals, idx, t_axis;
@@ -940,16 +1017,16 @@ export class DataFrame extends Ndframe {
      * Obtain index containing nan values
      * @return Array list (int)
      */
-    nanIndex() { 
+    nanIndex() {
 
         let df_values = this.values
         let index_data = []
 
-        for(let i=0; i< df_values.length; i++){
+        for (let i = 0; i < df_values.length; i++) {
 
             let row_values = df_values[i]
 
-            if(row_values.includes(NaN)){
+            if (row_values.includes(NaN)) {
                 index_data.push(i)
             }
         }

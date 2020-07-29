@@ -743,33 +743,33 @@ describe("DataFrame", function () {
 
 
 
-    describe("apply", function () {
-        it("Apply a function to all values of a DataFrame", function () {
-            let data = [[0, 2, 4],
-            [360, 180, 360],
-            [0, 2, 4]]
-            let df = new DataFrame(data)
+    // describe("apply", function () {
+    //     it("Apply a function to all values of a DataFrame", function () {
+    //         let data = [[0, 2, 4],
+    //         [360, 180, 360],
+    //         [0, 2, 4]]
+    //         let df = new DataFrame(data)
 
-            let apply_func = (x) => {
-                return x + 1000
-            }
-            let expected = [[1000, 1002, 1004], [1360, 1180, 1360], [1000, 1002, 1004]]
-            assert.deepEqual(df.apply(apply_func), expected)
-        });
+    //         let apply_func = (x) => {
+    //             return x + 1000
+    //         }
+    //         let expected = [[1000, 1002, 1004], [1360, 1180, 1360], [1000, 1002, 1004]]
+    //         assert.deepEqual(df.apply(apply_func), expected)
+    //     });
 
-        it("Throws error on applying function to string columns", function () {
-            let data = [[0, 2, "ab"],
-            [360, 180, "mk"],
-            [0, 2, "po"]]
-            let df = new DataFrame(data)
+    //     it("Throws error on applying function to string columns", function () {
+    //         let data = [[0, 2, "ab"],
+    //         [360, 180, "mk"],
+    //         [0, 2, "po"]]
+    //         let df = new DataFrame(data)
 
-            let apply_func = (x) => {
-                return x + 1000
-            }
-            let expected = "Dtypes Error: columns dtypes must be numeric, got strings"
-            assert.deepEqual(df.apply(apply_func), expected)
-        });
-    });
+    //         let apply_func = (x) => {
+    //             return x + 1000
+    //         }
+    //         let expected = "Dtypes Error: columns dtypes must be numeric, got strings"
+    //         assert.deepEqual(df.apply(apply_func), expected)
+    //     });
+    // });
 
 
 
@@ -1245,8 +1245,61 @@ describe("DataFrame", function () {
             let column = ["A", "B", "C", "D"]
             let df = new DataFrame(data, { columns: column })
 
-            let df_val = [0,1]
+            let df_val = [0, 1]
             assert.deepEqual(df.nanIndex(), df_val)
         });
     })
+
+    describe("select_dtypes", function () {
+
+        it("Returns float columns in a DataFrame", function () {
+            let data = [[30, 1, 2, "boy"], [3.2, 4, 30, "girl"], [5.09, 6, 7, "cat"]]
+            let column = ["A", "B", "C", "D"]
+            let df = new DataFrame(data, { columns: column })
+            let df_sub = df.select_dtypes(['float32'])
+            assert.deepEqual(df_sub.values, [30, 3.2, 5.09])
+        });
+
+        it("Returns int columns in a DataFrame", function () {
+            let data = [[30, 1, 2, "boy"],
+            [3.2, 4, 30, "girl"],
+            [5.09, 6, 7, "cat"]]
+            let column = ["A", "B", "C", "D"]
+            let df = new DataFrame(data, { columns: column })
+            let df_sub = df.select_dtypes(['int32'])
+            assert.deepEqual(df_sub.values, [[1, 2], [4, 30], [6, 7]])
+        });
+
+        it("Returns string columns in a DataFrame", function () {
+            let data = [[30, 1, 2, "boy"],
+            [3.2, 4, 30, "girl"],
+            [5.09, 6, 7, "cat"]]
+            let column = ["A", "B", "C", "D"]
+            let df = new DataFrame(data, { columns: column })
+            let df_sub = df.select_dtypes(['string'])
+            assert.deepEqual(df_sub.values, ["boy", "girl", "cat"])
+        });
+
+        it("Returns string and float columns in a DataFrame", function () {
+            let data = [[30, 1, 2, "boy"],
+            [3.2, 4, 30, "girl"],
+            [5.09, 6, 7, "cat"]]
+            let column = ["A", "B", "C", "D"]
+            let df = new DataFrame(data, { columns: column })
+            let df_sub = df.select_dtypes(['string', 'float32'])
+            assert.deepEqual(df_sub.values, [["boy", 30], ["girl", 3.2], ["cat", 5.09]])
+        });
+
+        it("Returns int and float columns in a DataFrame", function () {
+            let data = [[30, 1, 2, "boy"],
+            [3.2, 4, 30, "girl"],
+            [5.09, 6, 7, "cat"]]
+            let column = ["A", "B", "C", "D"]
+            let df = new DataFrame(data, { columns: column })
+            let df_sub = df.select_dtypes(['int32', 'float32'])
+            assert.deepEqual(df_sub.values, [[1, 2, 30], [4, 30, 3.2], [6, 7, 5.09]])
+        });
+    })
+
+
 });
