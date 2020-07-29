@@ -153,8 +153,15 @@ export class Utils {
             }
             rows_arr.push(temp_row)
         }
+        //get column names
+        let col_names = []
+        for (let i = 0; i < cols_len; i++) {
+            let _key = Object.keys(data[i])[0]
+            col_names.push(_key)
+            
+        }
         
-        return rows_arr
+        return [rows_arr, col_names]
 
     }
 

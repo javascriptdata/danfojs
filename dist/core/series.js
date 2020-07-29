@@ -172,7 +172,6 @@ class Series extends _generic.default {
         let tensor2 = other.tensor.asType(dtype);
         let result = tensor1.div(tensor2);
         dtype = result.dtype;
-        console.log(dtype);
         return new Series(result.arraySync(), {
           columns: this.column_names,
           dtypes: [dtype]

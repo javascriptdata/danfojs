@@ -84,40 +84,51 @@ class NDframe {
 
   __read_object(data) {
     let data_arr = [];
-    data.forEach(item => {
-      data_arr.push(Object.values(item));
-    });
-    this.data = utils.__replace_undefined_with_NaN(data_arr, this.series);
-    this.row_data_tensor = tf.tensor(this.data);
-    this.kwargs['columns'] = Object.keys(Object.values(data)[0]);
+    let _key = Object.keys(data[0])[0];
 
-    if (utils.__key_in_object(this.kwargs, 'index')) {
-      this.__set_index(this.kwargs['index']);
+    if (Array.isArray(data[0][_key])) {
+      let result = utils.__get_row_values(data);
+
+      data_arr = result[0];
+      this.kwargs['columns'] = result[1];
+
+      this.__read_array(data_arr);
     } else {
-      this.index_arr = [...Array(this.row_data_tensor.shape[0]).keys()];
-    }
+      data.forEach(item => {
+        data_arr.push(Object.values(item));
+      });
+      this.data = utils.__replace_undefined_with_NaN(data_arr, this.series);
+      this.row_data_tensor = tf.tensor(this.data);
+      this.kwargs['columns'] = Object.keys(Object.values(data)[0]);
 
-    if (this.ndim == 1) {
-      if (this.kwargs['columns'] == undefined) {
-        this.columns = ["0"];
+      if (utils.__key_in_object(this.kwargs, 'index')) {
+        this.__set_index(this.kwargs['index']);
       } else {
-        this.columns = this.kwargs['columns'];
+        this.index_arr = [...Array(this.row_data_tensor.shape[0]).keys()];
       }
-    } else {
-      if (!utils.__key_in_object(this.kwargs, 'columns')) {
-        this.columns = [...Array(this.row_data_tensor.shape[1]).keys()];
-      } else {
-        if (this.kwargs['columns'].length == Number(this.row_data_tensor.shape[1])) {
-          this.columns = this.kwargs['columns'];
+
+      if (this.ndim == 1) {
+        if (this.kwargs['columns'] == undefined) {
+          this.columns = ["0"];
         } else {
-          throw `Column lenght mismatch. You provided a column of lenght ${this.kwargs['columns'].length} but data has column length of ${this.row_data_tensor.shape[1]}`;
+          this.columns = this.kwargs['columns'];
         }
-      }
-
-      if (utils.__key_in_object(this.kwargs, 'dtypes')) {
-        this.__set_col_types(this.kwargs['dtypes'], false);
       } else {
-        this.__set_col_types(null, true);
+        if (!utils.__key_in_object(this.kwargs, 'columns')) {
+          this.columns = [...Array(this.row_data_tensor.shape[1]).keys()];
+        } else {
+          if (this.kwargs['columns'].length == Number(this.row_data_tensor.shape[1])) {
+            this.columns = this.kwargs['columns'];
+          } else {
+            throw `Column lenght mismatch. You provided a column of lenght ${this.kwargs['columns'].length} but data has column length of ${this.row_data_tensor.shape[1]}`;
+          }
+        }
+
+        if (utils.__key_in_object(this.kwargs, 'dtypes')) {
+          this.__set_col_types(this.kwargs['dtypes'], false);
+        } else {
+          this.__set_col_types(null, true);
+        }
       }
     }
   }

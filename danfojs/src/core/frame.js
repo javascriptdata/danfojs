@@ -873,12 +873,15 @@ export class DataFrame extends Ndframe {
         let new_data = []
 
         data.map(function (val, index) {
-
             let new_val = val.slice()
             new_val.push(value[index])
             new_data.push(new_val);
         });
 
+        //add new dtype
+        let old_type_list = [...this.dtypes]
+        old_type_list.push(utils.__get_t(value)[0])
+        this.col_types = old_type_list
         this.data = new_data;
         this.col_data = utils.__get_col_values(new_data)
         this.data_tensor = tf.tensor(new_data)

@@ -97,8 +97,10 @@ export default class NDframe {
         let _key = Object.keys(data[0])[0]  //get first column name in data
         if (Array.isArray(data[0][_key])) {
             // format of data is [{"a": [1,2,3,4]}, {"b": [2,4,5,7]}]
-            data_arr = utils.__get_row_values(data)
-            //call read array on result
+            let result = utils.__get_row_values(data)
+            data_arr = result[0]
+            this.kwargs['columns'] = result[1]
+            //call read array on result since it is an array of array format
             this.__read_array(data_arr)
         } else {
             //format of data is [{"a": 1, "b" : 2}, {"a": 2, "b" : 4}, {"a": 4, "b" : 5}]

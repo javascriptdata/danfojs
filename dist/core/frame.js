@@ -568,6 +568,71 @@ class DataFrame extends _generic.default {
     }
   }
 
+  describe() {
+    if (this.dtypes[0] == "string") {
+      return null;
+    } else {
+      let index = ['count', 'mean', 'std', 'min', 'median', 'max', 'variance'];
+      let count = this.count();
+      let mean = this.mean();
+      let std = this.std();
+      let min = this.min();
+      let median = this.median();
+      let max = this.max();
+      let variance = this.var();
+      let vals = [count, mean, std, min, median, max, variance];
+      let sf = new _series.Series(vals, {
+        columns: this.columns
+      });
+
+      sf.__set_index(index);
+
+      return sf;
+    }
+  }
+
+  select_dtypes(include = [""]) {
+    let dtypes = this.dtypes;
+    let col_vals = [];
+    let original_col_vals = this.col_data;
+    const __supported_dtypes = ['float32', "int32", 'string', 'datetime'];
+
+    if (include == [""] || include == []) {
+      let df = this.copy();
+      return df;
+    } else {
+      include.forEach(type => {
+        if (!__supported_dtypes.includes(type)) {
+          throw Error(`Dtype Error: dtype ${type} not found in dtypes`);
+        }
+
+        dtypes.map((dtype, i) => {
+          if (dtype == type) {
+            let _obj = {};
+            _obj[this.column_names[i]] = original_col_vals[i];
+            col_vals.push(_obj);
+          }
+        });
+      });
+
+      if (col_vals.length == 1) {
+        let _key = Object.keys(col_vals[0])[0];
+        let data = col_vals[0][_key];
+        let column_name = [_key];
+        let sf = new _series.Series(data, {
+          columns: column_name,
+          index: this.index
+        });
+        return sf;
+      } else {
+        let df = new DataFrame(col_vals, {
+          index: this.index
+        });
+        return df;
+      }
+    }
+  }
+
   __get_tensor_and_idx(df, axis) {
     let tensor_vals, idx, t_axis;
 
@@ -653,6 +718,9 @@ class DataFrame extends _generic.default {
       new_val.push(value[index]);
       new_data.push(new_val);
     });
+    let old_type_list = [...this.dtypes];
+    old_type_list.push(utils.__get_t(value)[0]);
+    this.col_types = old_type_list;
     this.data = new_data;
     this.col_data = utils.__get_col_values(new_data);
     this.data_tensor = tf.tensor(new_data);
@@ -760,6 +828,21 @@ class DataFrame extends _generic.default {
     return new DataFrame(data, {
       columns: columns
     });
+  }
+
+  nanIndex() {
+    let df_values = this.values;
+    let index_data = [];
+
+    for (let i = 0; i < df_values.length; i++) {
+      let row_values = df_values[i];
+
+      if (row_values.includes(NaN)) {
+        index_data.push(i);
+      }
+    }
+
+    return index_data;
   }
 
   dropna(kwargs = {}) {
