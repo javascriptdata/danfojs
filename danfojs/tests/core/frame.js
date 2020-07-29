@@ -1257,6 +1257,20 @@ describe("DataFrame", function () {
         });
     })
 
+    describe("fillna", function () {
+
+        it("replace all nana value", function () {
+            let data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]]
+            let column = ["A", "B", "C", "D"]
+            let df = new DataFrame(data, { columns: column })
+
+            let df_val = [[-999, 1, 2, 3], [3, 4, -999, 9], [5, 6, 7, 8]]
+        
+            assert.deepEqual(df.fillna(-999).values, df_val)
+        });
+    })
+    
+
     describe("nanindex", function () {
 
         it("print out the nanIndex", function () {
