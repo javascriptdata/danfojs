@@ -965,6 +965,22 @@ describe("DataFrame", function () {
             assert.deepEqual(group_df.col(["B", "C"]).sum(), new_data);
         });
 
+        it("Perform aggregate on column for groupby", function () {
+
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let group_df = df.groupby(["A", "B"]);
+            let new_data = {
+                '1': { '2': [ 2, 1 ] },
+                '4': { '5': [ 5, 1 ] },
+                '20': { '30': [ 30, 1 ] },
+                '39': { '89': [ 89, 1 ] }
+              }
+
+            assert.deepEqual(group_df.agg({"B":"mean", "C":"count"}), new_data);
+        });
+
 
     });
 
@@ -1240,6 +1256,20 @@ describe("DataFrame", function () {
             assert.deepEqual(df.isna().values, df_val)
         });
     })
+
+    describe("fillna", function () {
+
+        it("replace all nana value", function () {
+            let data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]]
+            let column = ["A", "B", "C", "D"]
+            let df = new DataFrame(data, { columns: column })
+
+            let df_val = [[-999, 1, 2, 3], [3, 4, -999, 9], [5, 6, 7, 8]]
+        
+            assert.deepEqual(df.fillna(-999).values, df_val)
+        });
+    })
+    
 
     describe("nanindex", function () {
 

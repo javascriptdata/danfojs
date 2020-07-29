@@ -1012,6 +1012,35 @@ export class DataFrame extends Ndframe {
     // }
 
     /**
+     * Replace all nan value with a specific value
+     * @param {*} nan_val 
+     */
+    fillna(nan_val) {
+
+        let data = []
+        let values = this.values;
+        let columns = this.columns;
+
+        for (let i = 0; i < values.length; i++) {
+            let temp_data = []
+            let row_value = values[i]
+            for (let j = 0; j < row_value.length; j++) {
+
+                let val = row_value[j] == 0 ? 0 : !!row_value[j]
+                if(!val){
+                    temp_data.push(nan_val)
+                }else{
+                    temp_data.push(row_value[j])
+                }
+                
+            }
+            data.push(temp_data);
+        }
+
+        return new DataFrame(data, { columns: columns })
+    }
+
+    /**
      * check if each row,col contains NaN
      * @return DataFrame
      */

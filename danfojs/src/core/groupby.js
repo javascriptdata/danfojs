@@ -165,6 +165,20 @@ export class GroupBy {
      */
     arithemetic(operation){
 
+        let ops_name = ["mean","sum","count","mode"]
+
+        let ops_map = {
+            "mean": "mean()",
+            "sum": "sum()",
+            "mode": "mode()",
+            "count": "count()"
+        }
+        let is_array = false;
+
+        if(Array.isArray(operation)){
+            is_array = true
+        }
+
         if(this.key_col.length ==2){
 
             let count_group = {}
@@ -176,8 +190,18 @@ export class GroupBy {
 
                     count_group[key1][key2] = []
                     for(let i=0; i <this.group_col[key1][key2].length; i++ ){
+                        let data = null
+                        if(is_array){
+                            let op = operation[i]
+                            if(!ops_name.includes(op)){
+                                throw new Error("operation does not exist")
+                            }
+                            data = eval(`this.group_col[key1][key2][i].${ops_map[op]}`)
 
-                        let data = eval(`this.group_col[key1][key2][i].${operation}`)
+                        }else{
+                            data = eval(`this.group_col[key1][key2][i].${operation}`)
+                        }
+                        
                         count_group[key1][key2].push(data)
                     }
                     
@@ -192,8 +216,18 @@ export class GroupBy {
                 
                 count_group[key1] = []
                 for(let i=0; i <this.group_col[key1].length; i++ ){
+                    let data = null
+                    if(is_array){
+                        let op = operation[i]
+                        if(!ops_name.includes(op)){
+                            throw new Error("operation does not exist")
+                        }
+                        data = eval(`this.group_col[key1][i].${ops_map[op]}`)
 
-                    let data = eval(`this.group_col[key1][i].${operation}`)
+                    }else{
+                        data = eval(`this.group_col[key1][i].${operation}`)
+                    }
+                    
                     count_group[key1].push(data)
                 }
             }
@@ -246,5 +280,20 @@ export class GroupBy {
         return this.data_tensors[key]
     }
 
+    /**
+     * Map every column to an operaton
+     * @param {kwargs} kwargs {column name: math operation}
+     */
+    agg(kwargs={}){
+
+        let columns = Object.keys(kwargs)
+        let operations = columns.map(x=>{ return kwargs[x]})
+        
+        this.col(columns)
+
+        let data = this.arithemetic(operations)
+
+        return data;
+    }
 
 }
