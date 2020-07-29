@@ -569,26 +569,28 @@ class DataFrame extends _generic.default {
   }
 
   describe() {
-    if (this.dtypes[0] == "string") {
-      return null;
-    } else {
-      let index = ['count', 'mean', 'std', 'min', 'median', 'max', 'variance'];
-      let count = this.count();
-      let mean = this.mean();
-      let std = this.std();
-      let min = this.min();
-      let median = this.median();
-      let max = this.max();
-      let variance = this.var();
-      let vals = [count, mean, std, min, median, max, variance];
-      let sf = new _series.Series(vals, {
-        columns: this.columns
-      });
-
-      sf.__set_index(index);
-
-      return sf;
-    }
+    let numeric_df = this.select_dtypes(['float32', 'int32']);
+    let col_names = numeric_df.columns;
+    let index = ['count', 'mean', 'std', 'min', 'median', 'max', 'variance'];
+    let stats_arr = [];
+    col_names.forEach(name => {
+      let col_series = numeric_df.column(name);
+      let count = col_series.count();
+      let mean = col_series.mean();
+      let std = col_series.std();
+      let min = col_series.min();
+      let median = col_series.median();
+      let max = col_series.max();
+      let variance = col_series.var();
+      let _stats = [count, mean, std, min, median, max, variance];
+      let col_obj = {};
+      col_obj[name] = _stats;
+      stats_arr.push(col_obj);
+    });
+    let df = new DataFrame(stats_arr, {
+      "index": index
+    });
+    return df.round(6);
   }
 
   select_dtypes(include = [""]) {

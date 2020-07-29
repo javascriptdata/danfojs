@@ -678,26 +678,29 @@ export class DataFrame extends Ndframe {
     * @returns {Series}
     */
     describe() {
+        let numeric_df = this.select_dtypes(['float32', 'int32'])
+        let col_names = numeric_df.columns
+        let index = ['count', 'mean', 'std', 'min', 'median', 'max', 'variance']
 
-        if (this.dtypes[0] == "string") {
-            return null
-        } else {
+        let stats_arr = []
+        col_names.forEach(name =>{
+            let col_series = numeric_df.column(name)
+            let count = col_series.count()
+            let mean = col_series.mean()
+            let std = col_series.std()
+            let min = col_series.min()
+            let median = col_series.median()
+            let max = col_series.max()
+            let variance = col_series.var()
 
-            let index = ['count', 'mean', 'std', 'min', 'median', 'max', 'variance']
-            let count = this.count()
-            let mean = this.mean()
-            let std = this.std()
-            let min = this.min()
-            let median = this.median()
-            let max = this.max()
-            let variance = this.var()
+            let _stats = [count, mean, std, min, median, max, variance]
+            let col_obj = {}
+            col_obj[name] = _stats
+            stats_arr.push(col_obj)
 
-            let vals = [count, mean, std, min, median, max, variance]
-            let sf = new Series(vals, { columns: this.columns })
-            sf.__set_index(index)
-            return sf
-
-        }
+        })
+       let df = new DataFrame(stats_arr, {"index": index})
+       return df.round(6)
 
     }
 
@@ -840,13 +843,6 @@ export class DataFrame extends Ndframe {
 
         return new_df;
     }
-
-    // __inObject(object, key, message) {
-
-    //     if (!Object.prototype.hasOwnProperty.call(object, key)) {
-    //         throw new Error(message);
-    //     }
-    // }
 
 
     /**
