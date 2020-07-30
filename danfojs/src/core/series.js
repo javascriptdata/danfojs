@@ -1,4 +1,5 @@
-import * as tf from '@tensorflow/tfjs-node'
+// import * as tf from '@tensorflow/tfjs-node'
+import * as tf from '@tensorflow/tfjs'
 import { Utils } from "./utils"
 import NDframe from "./generic"
 import { table } from 'table'

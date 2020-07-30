@@ -1,6 +1,8 @@
 import { assert } from "chai"
 import { Series } from '../../src/core/series'
-import * as tf from '@tensorflow/tfjs-node'
+// import * as tf from '@tensorflow/tfjs-node'
+import * as tf from '@tensorflow/tfjs'
+
 
 
 describe("Series", function () {

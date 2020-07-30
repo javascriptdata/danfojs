@@ -653,11 +653,11 @@ describe("DataFrame", function () {
     describe("sort_values", function () {
         it("Sort values in DataFrame by specified column in ascending order (Default)", function () {
             let data = [[0, 2, 4, "a"],
-            [360, 180, 360, "b"],
-            [2, 4, 6, "c"]]
+                      [360, 180, 360, "b"],
+                      [2, 4, 6, "c"]]
 
             let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] })
-            df.sort_values({ "by": "col1", inplace: true })
+            df.sort_values({ "by": "col1", inplace: true, ascending: true })
             let expected = [[0, 2, 4, "a"], [2, 4, 6, "c"], [360, 180, 360, "b"]]
             assert.deepEqual(df.values, expected)
             assert.deepEqual(df.index, [0, 2, 1])
