@@ -657,8 +657,11 @@ describe("DataFrame", function () {
             [2, 4, 6, "c"]]
 
             let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] })
-            let expected = [[0, 2, 4, "a"], [2, 4, 6, "b"], [360, 180, 360, "c"]]
-            assert.deepEqual(df.sort_values({ "by": "col1" }).values, expected)
+            df.sort_values({ "by": "col1", inplace: true })
+            let expected = [[0, 2, 4, "a"], [2, 4, 6, "c"], [360, 180, 360, "b"]]
+            assert.deepEqual(df.values, expected)
+            assert.deepEqual(df.index, [0, 2, 1])
+
         })
 
         it("Sort values in DataFrame by specified column in ascending order (Default)", function () {
@@ -667,8 +670,11 @@ describe("DataFrame", function () {
             [2, 4, 6, "c"]]
 
             let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] })
-            let expected = [[360, 180, 360, "c"], [0, 2, 4, "a"], [2, 4, 6, "c"]]
-            assert.deepEqual(df.sort_values({ "by": "col3" }).values, expected)
+            let df_sort = df.sort_values({ "by": "col3" })
+            let expected = [[360, 180, 1, "b"], [0, 2, 4, "a"], [2, 4, 6, "c"]]
+            assert.deepEqual(df_sort.values, expected)
+            assert.deepEqual(df_sort.index, [1, 0, 2])
+
         })
         it("Sort values in DataFrame by specified column in descending order", function () {
             let data = [[0, 2, 4, "a"],
@@ -676,11 +682,11 @@ describe("DataFrame", function () {
             [2, 4, 6, "c"]]
 
             let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] })
-            let expected = [[360, 180, 360, "c"], [2, 4, 6, "c"], [0, 2, 4, "a"]]
+            let expected = [[360, 180, 360, "b"], [2, 4, 6, "c"], [0, 2, 4, "a"]]
             assert.deepEqual(df.sort_values({ "by": "col1", "ascending": false }).values, expected)
         })
 
-        it("Sort values in DataFrame by specified column in descending order ", function () {
+        it("Sort values in DataFrame by specified column in descending order (second col)", function () {
             let data = [[0, 2, 4, "a"],
             [360, 180, 1, "b"],
             [2, 4, 6, "c"]]

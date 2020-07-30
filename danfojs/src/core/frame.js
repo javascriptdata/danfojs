@@ -794,7 +794,7 @@ export class DataFrame extends Ndframe {
         let index = ['count', 'mean', 'std', 'min', 'median', 'max', 'variance']
 
         let stats_arr = []
-        col_names.forEach(name =>{
+        col_names.forEach(name => {
             let col_series = numeric_df.column(name)
             let count = col_series.count()
             let mean = col_series.mean()
@@ -810,8 +810,8 @@ export class DataFrame extends Ndframe {
             stats_arr.push(col_obj)
 
         })
-       let df = new DataFrame(stats_arr, {"index": index})
-       return df.round(6)
+        let df = new DataFrame(stats_arr, { "index": index })
+        return df.round(6)
 
     }
 
@@ -850,18 +850,57 @@ export class DataFrame extends Ndframe {
                 let _key = Object.keys(col_vals[0])[0]
                 let data = col_vals[0][_key]
                 let column_name = [_key]
-                let sf = new Series(data, {columns: column_name, index: this.index })
+                let sf = new Series(data, { columns: column_name, index: this.index })
                 return sf
             } else {
-                let df = new DataFrame(col_vals, {index: this.index })
+                let df = new DataFrame(col_vals, { index: this.index })
                 return df
             }
         }
 
-
-
     }
 
+
+    /**
+    * Sort a Dataframe in ascending or descending order by some criterion.
+    *  @param {kwargs} Object, {ascending (Bool): Whether to return sorted values in ascending order or not,
+    *                           inplace (Bool): Whether to perform sorting on the original Series or not}
+    * @returns {Series}
+    */
+    sort_values(kwargs = {}) {
+
+        if (utils.__key_in_object(kwargs, "by")) {
+            let sort_col = this.column(kwargs["by"])
+            let sorted_col, sorted_index;
+            let new_row_data = []
+
+            if (utils.__key_in_object(kwargs, "inplace") && kwargs['inplace'] == true) {
+                sort_col.sort_values(kwargs)
+                sorted_index = sort_col.index
+
+            } else {
+                sorted_col = sort_col.sort_values(kwargs)
+                sorted_index = sorted_col.index
+            }
+
+            sorted_index.map(idx => {
+                new_row_data.push(this.values[idx])
+            })
+
+            if (utils.__key_in_object(kwargs, "inplace") && kwargs['inplace'] == true){
+                this.data = new_row_data
+                this.index_arr = sorted_index
+                return null
+            }else{
+                let df = new DataFrame(new_row_data, { columns: this.column_names, index: sorted_index, dtype: this.dtypes })
+                return df
+            }
+           
+        } else {
+            throw Error("Value Error: must specify the column to sort by")
+        }
+
+    }
 
     __get_tensor_and_idx(df, axis) {
         let tensor_vals, idx, t_axis;
@@ -1114,12 +1153,12 @@ export class DataFrame extends Ndframe {
             for (let j = 0; j < row_value.length; j++) {
 
                 let val = row_value[j] == 0 ? 0 : !!row_value[j]
-                if(!val){
+                if (!val) {
                     temp_data.push(nan_val)
-                }else{
+                } else {
                     temp_data.push(row_value[j])
                 }
-                
+
             }
             data.push(temp_data);
         }

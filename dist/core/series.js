@@ -400,11 +400,9 @@ class Series extends _generic.default {
       return null;
     } else {
       let sf = new Series(sorted_arr, {
-        columns: this.column_names
+        columns: this.column_names,
+        index: sorted_idx
       });
-
-      sf.__set_index(sorted_idx);
-
       return sf;
     }
   }
