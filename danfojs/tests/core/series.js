@@ -157,20 +157,20 @@ describe("Series", function () {
             let sf = new Series(data)
             assert.deepEqual(sf.mul(1).values, [1, 2, 3, 4, 5])
         })
-        it("Throws type error on multiplication of string type", function () {
-            let data = [1, 2, 3, 4]
-            let data2 = ["A", "B", "C", "d"]
-            let sf = new Series(data)
-            let sf2 = new Series(data2)
-            assert.throws(() => { sf.mul(sf2) }, Error, "Argument 'x' passed to 'cast' must be numeric tensor, but got string tensor")
-        })
-        it("Throws length error if series lenght mixmatch", function () {
-            let data = [1, 2, 3, 4]
-            let data2 = [1, 2, 3, 4, 5, 6]
-            let sf = new Series(data)
-            let sf2 = new Series(data2)
-            assert.throws(() => { sf.mul(sf2) }, Error, "Operands could not be broadcast together with shapes 4 and 6")
-        })
+        // it("Throws type error on multiplication of string type", function () {
+        //     let data = [1, 2, 3, 4]
+        //     let data2 = ["A", "B", "C", "d"]
+        //     let sf = new Series(data)
+        //     let sf2 = new Series(data2)
+        //     assert.throws(() => { sf.mul(sf2) }, Error, "Argument 'x' passed to 'cast' must be numeric tensor, but got string tensor")
+        // })
+        // it("Throws length error if series lenght mixmatch", function () {
+        //     let data = [1, 2, 3, 4]
+        //     let data2 = [1, 2, 3, 4, 5, 6]
+        //     let sf = new Series(data)
+        //     let sf2 = new Series(data2)
+        //     assert.throws(() => { sf.mul(sf2) }, Error, "Operands could not be broadcast together with shapes 4 and 6")
+        // })
 
     })
 
@@ -194,20 +194,20 @@ describe("Series", function () {
             let sf = new Series(data)
             assert.deepEqual(sf.div(2).values, [5, 1, 1.5, 45])
         })
-        it("Throws type error on division of string type", function () {
-            let data = [1, 2, 3, 4]
-            let data2 = ["A", "B", "C", "d"]
-            let sf = new Series(data)
-            let sf2 = new Series(data2)
-            assert.throws(() => { sf.mul(sf2) }, Error, "Argument 'x' passed to 'cast' must be numeric tensor, but got string tensor")
-        })
-        it("Throws length error if series lenght mixmatch", function () {
-            let data = [1, 2, 3, 4]
-            let data2 = [1, 2, 3, 4, 5, 6]
-            let sf = new Series(data)
-            let sf2 = new Series(data2)
-            assert.throws(() => { sf.mul(sf2) }, Error, "Operands could not be broadcast together with shapes 4 and 6")
-        })
+        // it("Throws type error on division of string type", function () {
+        //     let data = [1, 2, 3, 4]
+        //     let data2 = ["A", "B", "C", "d"]
+        //     let sf = new Series(data)
+        //     let sf2 = new Series(data2)
+        //     assert.throws(() => { sf.mul(sf2) }, Error, "Argument 'x' passed to 'cast' must be numeric tensor, but got string tensor")
+        // })
+        // it("Throws length error if series lenght mixmatch", function () {
+        //     let data = [1, 2, 3, 4]
+        //     let data2 = [1, 2, 3, 4, 5, 6]
+        //     let sf = new Series(data)
+        //     let sf2 = new Series(data2)
+        //     assert.throws(() => { sf.mul(sf2) }, Error, "Operands could not be broadcast together with shapes 4 and 6")
+        // })
 
     })
 
@@ -360,22 +360,24 @@ describe("Series", function () {
 
     describe("describe", function () {
         it("Computes the descriptive statistics on an int Series", function () {
-            let data1 = [10, 45, 56, 25, 23, 20 ,10]
+            let data1 = [10, 45, 56, 25, 23, 20, 10]
             let sf = new Series(data1)
             assert.deepEqual(sf.describe().values, [7, 27.000001907348633, 17.378147196982766, 10, 23, 56, 302])
         })
         it("Computes the descriptive statistics on a float Series", function () {
             let data1 = [30.1, 40.2, 3.1, 5.1]
             let sf = new Series(data1)
-            assert.deepEqual(sf.describe().values, [4, 19.625,18.412925713566906, 3.0999999046325684, 17.6, 40.20000076293945, 339.03583333333336])
+            assert.deepEqual(sf.describe().values, [4, 19.625, 18.412925713566906, 3.0999999046325684, 17.6, 40.20000076293945, 339.03583333333336])
         })
         it("Computes the descriptive statistics on a float Series", function () {
             let data1 = [30.1, 40.2, 3.1, 5.1]
             let sf = new Series(data1)
-            assert.deepEqual(sf.describe().index, ['count', 'mean', 'std', 'min', 'median', 'max' ,'variance'])
+            assert.deepEqual(sf.describe().index, ['count', 'mean', 'std', 'min', 'median', 'max', 'variance'])
         })
 
     })
+
+
 
     describe("maximum", function () {
         it("Returns the max of a and b (a > b ? a : b) element-wise. Supports broadcasting.", function () {
@@ -537,7 +539,7 @@ describe("Series", function () {
             assert.deepEqual(df_reset.index, [0, 1, 2])
         })
         it("Reset the index of a Series created from an Array", function () {
-            let data = [1,2,3,4,5,6]
+            let data = [1, 2, 3, 4, 5, 6]
             let df = new Series(data)
             df.set_index({ "index": ["one", "two", "three", "four", "five", "six"], "inplace": true })
             let df_new = df.reset_index()
@@ -609,5 +611,228 @@ describe("Series", function () {
             assert.deepEqual(sf.apply(apply_func), rslt)
         });
     });
+
+    describe("unique", function () {
+
+        it("returns the unique values in a Series of type int", function () {
+            let sf = new Series([1, 2, 3, 4, 5, 6, 7, 8, 1, 1, 22, 8, 5, 5, 5])
+            let expected = [1, 2, 3, 4, 5, 6, 7, 8, 22]
+            assert.deepEqual(sf.unique().values, expected)
+        });
+        it("returns the unique values in a Series of type string", function () {
+            let sf = new Series(["a", "a", "b", "c", "c", "d", "e", "d", "d", "e"])
+            let expected = ["a", "b", "c", "d", "e"]
+            assert.deepEqual(sf.unique().values, expected)
+        });
+    });
+
+    describe("value_counts", function () {
+
+        it("returns the unique values and their counts in a Series of type int", function () {
+            let sf = new Series([1, 2, 3, 4, 5, 6, 7, 8, 1, 1, 22, 8, 5, 5, 5])
+            let expected_index = [1, 2, 3, 4, 5, 6, 7, 8, 22]
+            let expected_vals = [3, 1, 1, 1, 4, 1, 1, 2, 1]
+            assert.deepEqual(sf.unique().values, expected_vals)
+            assert.deepEqual(sf.unique().index, expected_index)
+
+        });
+        it("returns the unique values and their counts in a Series of type string", function () {
+            let sf = new Series(["a", "a", "b", "c", "c", "d", "e", "d", "d", "e"])
+            let expected_vals = [2, 1, 2, 3, 2]
+            let expected_index = ["a", "b", "c", "d", "e"]
+            assert.deepEqual(sf.unique().values, expected_vals)
+            assert.deepEqual(sf.unique().index, expected_index)
+
+        });
+    });
+
+    describe("abs", function () {
+        it("Returns the absolute values in Series", function () {
+            let data1 = [-10, 45, 56, -25, 23, -20, 10]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.abs().values, [10, 45, 56, 25, 23, 20, 10])
+        })
+        it("Computes the descriptive statistics on a float Series", function () {
+            let data1 = [-30.1, -40.2, -3.1, -5.1]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.abs().values, [30.1, 40.2, 3.1, 5.1])
+        })
+
+    })
+
+    describe("cumsum", function () {
+        it("Return cumulative sum over a Series", function () {
+            let data1 = [10, 45, 56, 25, 23, 20, 10]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.cumsum().values, [10, 55, 111, 136, 159, 179, 189])
+        })
+
+    })
+
+    describe("cummax", function () {
+        it("Return cumulative maximum over a Series", function () {
+            let data1 = [10, 45, 56, 25, 23, 20, 10]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.cummax().values, [10, 45, 56, 56, 56, 56, 56])
+        })
+
+    })
+
+    describe("cummin", function () {
+        it("Return cumulative minimum over a Series", function () {
+            let data1 = [10, 45, 56, 25, 23, 20, 10]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.cummin().values, [10, 10, 10, 10, 10, 10, 10])
+        })
+
+    })
+
+    describe("cumprod", function () {
+        it("Return cumulative product over a Series", function () {
+            let data1 = [10, 45, 56, 25, 23, 20, 10]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.cumprod().values, [10, 40, 200, 1000, 2000, 0, 0])
+        })
+
+    })
+
+    describe("lt", function () {
+        it("Return Less than of series and other series (element-wise)", function () {
+            let data1 = [10, 45, 56, 25, 23, 20, 10]
+            let data2 = [100, 450, 590, 5, 25, 2, 0]
+
+            let sf = new Series(data1)
+            let sf2 = new Series(data2)
+            let expected = [true, true, true, false, true, false, false]
+            assert.deepEqual(sf.lt(sf2).values, expected)
+        })
+
+        it("Return Less than of series scalar (element-wise)", function () {
+            let data1 = [10, 45, 56, 25, 23, 20, 10]
+            let sf = new Series(data1)
+            let expected = [true, false, false, true, true, true, true]
+            assert.deepEqual(sf.lt(30).values, expected)
+        })
+
+    })
+
+    describe("gt", function () {
+        it("Return Greater than of series and other series (element-wise)", function () {
+            let data1 = [10, 45, 56, 25, 23, 20, 10]
+            let data2 = [100, 450, 590, 5, 25, 2, 0]
+
+            let sf = new Series(data1)
+            let sf2 = new Series(data2)
+            let expected = [true, true, true, false, true, false, false]
+            assert.deepEqual(sf.gt(sf2).values, expected)
+        })
+
+        it("Return Greater than of series scalar (element-wise)", function () {
+            let data1 = [10, 45, 56, 25, 23, 20, 10]
+            let sf = new Series(data1)
+            let expected = [true, false, false, true, true, true, true]
+            assert.deepEqual(sf.gt(30).values, expected)
+        })
+
+    })
+
+    describe("le", function () {
+        it("Return Less than or Equal to of series and other series (element-wise)", function () {
+            let data1 = [10, 45, 56, 25, 23, 20, 10]
+            let data2 = [100, 450, 590, 5, 25, 2, 0]
+
+            let sf = new Series(data1)
+            let sf2 = new Series(data2)
+            let expected = [true, true, true, false, true, false, false]
+            assert.deepEqual(sf.le(sf2).values, expected)
+        })
+
+        it("Return Less than or Equal to of series scalar (element-wise)", function () {
+            let data1 = [10, 45, 56, 25, 23, 20, 10]
+            let sf = new Series(data1)
+            let expected = [true, false, false, true, true, true, true]
+            assert.deepEqual(sf.le(30).values, expected)
+        })
+
+    })
+
+    describe("ge", function () {
+        it("Return Greater than or Equal to of series and other series (element-wise)", function () {
+            let data1 = [10, 45, 56, 25, 23, 20, 10]
+            let data2 = [100, 450, 590, 5, 25, 2, 0]
+
+            let sf = new Series(data1)
+            let sf2 = new Series(data2)
+            let expected = [true, true, true, false, true, false, false]
+            assert.deepEqual(sf.ge(sf2).values, expected)
+        })
+
+        it("Return Greater than or Equal to of series scalar (element-wise)", function () {
+            let data1 = [10, 45, 56, 25, 23, 20, 10]
+            let sf = new Series(data1)
+            let expected = [true, false, false, true, true, true, true]
+            assert.deepEqual(sf.ge(30).values, expected)
+        })
+
+    })
+
+    describe("ne", function () {
+        it("Return Not Equal to of series and other series (element-wise)", function () {
+            let data1 = [10, 45, 56, 25, 23, 20, 10]
+            let data2 = [100, 450, 590, 5, 25, 2, 0]
+
+            let sf = new Series(data1)
+            let sf2 = new Series(data2)
+            let expected = [true, true, true, false, true, false, false]
+            assert.deepEqual(sf.ne(sf2).values, expected)
+        })
+
+        it("Return Not Equal to of series scalar (element-wise)", function () {
+            let data1 = [10, 45, 56, 25, 23, 20, 10]
+            let sf = new Series(data1)
+            let expected = [true, false, false, true, true, true, true]
+            assert.deepEqual(sf.ne(30).values, expected)
+        })
+
+    })
+
+    describe("eq", function () {
+        it("Return Equal to of series and other series (element-wise)", function () {
+            let data1 = [10, 45, 56, 25, 23, 20, 10]
+            let data2 = [100, 450, 590, 5, 25, 2, 0]
+
+            let sf = new Series(data1)
+            let sf2 = new Series(data2)
+            let expected = [true, true, true, false, true, false, false]
+            assert.deepEqual(sf.eq(sf2).values, expected)
+        })
+
+        it("Return Equal to of series scalar (element-wise)", function () {
+            let data1 = [10, 45, 56, 25, 23, 20, 10]
+            let sf = new Series(data1)
+            let expected = [true, false, false, true, true, true, true]
+            assert.deepEqual(sf.eq(30).values, expected)
+        })
+
+    })
+
+    describe("replace", function () {
+        it("Replace values given in to_replace with value", function () {
+            let data1 = [10, 45, 56, 25, 23, 20, 10]
+            let sf = new Series(data1)
+            let expected = [-50, 45, 56, 25, 23, 20, -50]
+            let df_rep = sf.replace({replace: 10, with: -50 })
+            assert.deepEqual(df_rep.values, expected)
+        })
+
+        it("Return Equal to of series scalar (element-wise)", function () {
+            let data1 = ["A", "A", "A", "B", "B", "C", "C", "D"]
+            let sf = new Series(data1)
+            let expected = ["boy", "boy", "boy", "B", "B", "C", "C", "D"]
+            sf.replace({replace: "A", with: "boy", inplace: true })
+            assert.deepEqual(sf.values, expected)
+        })
+
+    })
 
 })

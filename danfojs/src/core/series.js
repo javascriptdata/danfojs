@@ -1,5 +1,5 @@
-// import * as tf from '@tensorflow/tfjs-node'
-import * as tf from '@tensorflow/tfjs'
+import * as tf from '@tensorflow/tfjs-node'
+// import * as tf from '@tensorflow/tfjs'
 import { Utils } from "./utils"
 import NDframe from "./generic"
 import { table } from 'table'
@@ -459,7 +459,7 @@ export class Series extends NDframe {
         let arr_obj = [...this.values]
 
         for (let i = 0; i < this.shape[0]; i++) {
-            let min_idx = arr_tensor.argMin().arraySync()
+            let min_idx = arr_tensor.argMin().arraySync() //TODO Use JS Array implementation instead of TF 
             sorted_arr.push(this.values[min_idx])
             sorted_idx.push(this.index[min_idx])
             arr_obj[min_idx] = NaN  //replace with NaN string

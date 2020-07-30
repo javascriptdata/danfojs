@@ -1,7 +1,7 @@
 import Ndframe from "./generic"
 import { Series } from "./series"
-// import * as tf from '@tensorflow/tfjs-node'
-import * as tf from '@tensorflow/tfjs'
+import * as tf from '@tensorflow/tfjs-node'
+// import * as tf from '@tensorflow/tfjs'
 import { Utils } from "./utils"
 import { GroupBy } from "./groupby"
 // import {TimeSeries} from "./timeseries"
@@ -601,6 +601,8 @@ export class DataFrame extends Ndframe {
         }
 
     }
+
+    
     /**
      * Find the cummulative max
      * @param {axis} axis [int] {0 or 1} 
@@ -679,7 +681,7 @@ export class DataFrame extends Ndframe {
      */
     cumsum(kwargs={}){
         let axis = kwargs["axis"] || 0
-        let data = this.cum_ops(axis=axis,"sum");
+        let data = this.cum_ops(axis,"sum");
         return data
     }
 
@@ -689,7 +691,7 @@ export class DataFrame extends Ndframe {
      */
     cummin(kwargs={}){
         let axis = kwargs["axis"] || 0
-        let data = this.cum_ops(axis=axis,"min");
+        let data = this.cum_ops(axis,"min");
         return data
     }
 
@@ -699,7 +701,7 @@ export class DataFrame extends Ndframe {
      */
     cummax(kwargs={}){
         let axis = kwargs["axis"] || 0
-        let data = this.cum_ops(axis=axis,"max");
+        let data = this.cum_ops(axis,"max");
         return data
     }
 
@@ -709,7 +711,7 @@ export class DataFrame extends Ndframe {
      */
     cumprod(kwargs={}){
         let axis = kwargs["axis"] || 0
-        let data = this.cum_ops(axis=0,"prod");
+        let data = this.cum_ops(axis,"prod");
         return data
     }
 
@@ -869,7 +871,6 @@ export class DataFrame extends Ndframe {
     * @returns {Series}
     */
     sort_values(kwargs = {}) {
-
         if (utils.__key_in_object(kwargs, "by")) {
             let sort_col = this.column(kwargs["by"])
             let sorted_col, sorted_index;
@@ -891,11 +892,9 @@ export class DataFrame extends Ndframe {
             if (utils.__key_in_object(kwargs, "inplace") && kwargs['inplace'] == true){
                 this.data = new_row_data
                 this.index_arr = sorted_index
-                console.log(this.values);
                 return null
             }else{
                 let df = new DataFrame(new_row_data, { columns: this.column_names, index: sorted_index, dtype: this.dtypes })
-                console.log(df.values);
                 return df
             }
            
