@@ -1,7 +1,7 @@
 import { assert } from "chai"
 import { Series } from '../../src/core/series'
-// import * as tf from '@tensorflow/tfjs-node'
-import * as tf from '@tensorflow/tfjs'
+import * as tf from '@tensorflow/tfjs-node'
+// import * as tf from '@tensorflow/tfjs'
 
 
 
@@ -632,16 +632,16 @@ describe("Series", function () {
             let sf = new Series([1, 2, 3, 4, 5, 6, 7, 8, 1, 1, 22, 8, 5, 5, 5])
             let expected_index = [1, 2, 3, 4, 5, 6, 7, 8, 22]
             let expected_vals = [3, 1, 1, 1, 4, 1, 1, 2, 1]
-            assert.deepEqual(sf.unique().values, expected_vals)
-            assert.deepEqual(sf.unique().index, expected_index)
+            assert.deepEqual(sf.value_count().values, expected_vals)
+            assert.deepEqual(sf.value_count().index, expected_index)
 
         });
         it("returns the unique values and their counts in a Series of type string", function () {
             let sf = new Series(["a", "a", "b", "c", "c", "d", "e", "d", "d", "e"])
             let expected_vals = [2, 1, 2, 3, 2]
             let expected_index = ["a", "b", "c", "d", "e"]
-            assert.deepEqual(sf.unique().values, expected_vals)
-            assert.deepEqual(sf.unique().index, expected_index)
+            assert.deepEqual(sf.value_count().values, expected_vals)
+            assert.deepEqual(sf.value_count().index, expected_index)
 
         });
     });
@@ -689,9 +689,14 @@ describe("Series", function () {
 
     describe("cumprod", function () {
         it("Return cumulative product over a Series", function () {
-            let data1 = [10, 45, 56, 25, 23, 20, 10]
+            let data1 = [1, 2, 10, 3, 12, 14, 1]
             let sf = new Series(data1)
-            assert.deepEqual(sf.cumprod().values, [10, 40, 200, 1000, 2000, 0, 0])
+            let rslt = [
+                1,   2,    20,
+               60, 720, 10080,
+            10080
+          ]
+            assert.deepEqual(sf.cumprod().values, rslt)
         })
 
     })

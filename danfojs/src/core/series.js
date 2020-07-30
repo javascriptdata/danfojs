@@ -24,10 +24,10 @@ import { std, variance } from 'mathjs'
  */
 export class Series extends NDframe {
     constructor(data, kwargs) {
-        if (Array.isArray(data[0]) || utils.__is_object(data[0])){
+        if (Array.isArray(data[0]) || utils.__is_object(data[0])) {
             data = utils.__convert_2D_to_1D(data)
             super(data, kwargs)
-        }else{
+        } else {
             super(data, kwargs)
         }
     }
@@ -100,15 +100,15 @@ export class Series extends NDframe {
             let idx = this.index
             let new_values = []
             let new_idx = []
- 
+
             let counts = [...Array(idx.length).keys()]   //set index
             //get random sampled numbers
             let rand_nums = utils.__randgen(num, 0, counts.length)
-            rand_nums.map(i =>{
+            rand_nums.map(i => {
                 new_values.push(values[i])
                 new_idx.push(idx[i])
             })
-            let config = {columns: this.column_names, index: new_idx}
+            let config = { columns: this.column_names, index: new_idx }
             let sf = new Series(new_values, config)
             return sf
 
@@ -516,7 +516,7 @@ export class Series extends NDframe {
             let variance = this.var()
 
             let vals = [count, mean, std, min, median, max, variance]
-            let sf = new Series(vals, {columns: this.columns})
+            let sf = new Series(vals, { columns: this.columns })
             sf.__set_index(index)
             return sf
 
@@ -656,7 +656,250 @@ export class Series extends NDframe {
         return data
     }
 
+    /**
+     * Obtain the unique value in a series
+     * @return series
+     */
+    unique() {
 
+        let data_set = new Set(this.values)
+        let data = Array.from(data_set);
+        let series = new Series(data = data)
+
+        return series
+
+    }
+
+    /**
+     * count the number of occurence of each value in as series
+     * @return Series
+     */
+    value_count() {
+
+        let s_data = this.values
+
+        let data_dict = {}
+
+        for (let i = 0; i < s_data.length; i++) {
+
+            let val = s_data[i]
+            if (val in data_dict) {
+                data_dict[val] += 1
+            } else {
+                data_dict[val] = 1
+            }
+        }
+
+        let index = Object.keys(data_dict).map(x =>{ 
+            return parseInt(x) ? parseInt(x): x
+        })
+        let data = index.map(x => { return data_dict[x] })
+
+        let series = new Series(data)
+        series.index_arr = index;
+
+        return series
+
+    }
+
+    /**
+     * get the absolute number
+     * @return series
+     */
+    abs(){
+        let s_data = this.values
+
+        let tensor_data = tf.tensor1d(s_data)
+        let abs_data = tensor_data.abs().arraySync()
+
+        return new Series(utils.__round(abs_data,2,true))
+    }
+
+    /**
+     * perform cumulative operation on series data
+     * @returns array
+     */
+    __cum_ops(ops){
+
+        let s_data = this.values
+        let temp_val = s_data[0]
+        let data = [temp_val]
+
+        for(let i=1; i< s_data.length; i++){
+
+            let curr_val = s_data[i]
+            switch(ops){
+                case "max":
+                    if(curr_val > temp_val){
+                        data.push(curr_val)
+                        temp_val = curr_val
+                    }else{
+                        data.push(temp_val)
+                    }
+                break;
+                case "min":
+                    if(curr_val < temp_val){
+                        data.push(curr_val)
+                        temp_val = curr_val
+                    }else{
+                        data.push(temp_val)
+                    }
+                break;
+                case "sum":
+                    temp_val = temp_val +curr_val
+                    data.push(temp_val);
+                break;
+                case "prod":
+                    temp_val = temp_val * curr_val
+                    data.push(temp_val)
+                break;
+
+            } 
+        }
+        return new Series(data)
+    }
+
+    /* calculate the cummulative
+    *@return series
+    */
+   cumsum(){
+       let data = this.__cum_ops("sum");
+       return data
+   }
+
+   /**
+    * calculate the cummulative min
+    * @returns series
+    */
+   cummin(){
+       let data = this.__cum_ops("min");
+       return data
+   }
+
+   /**
+    * calculate the cummulative max
+    * @returns series
+    */
+   cummax(){
+       let data = this.__cum_ops("max");
+       return data
+   }
+
+   /**
+    * calculate the cummulative prod
+    * @returns series
+    */
+   cumprod(){
+       let data = this.__cum_ops("prod");
+       return data
+   }
+
+   /**
+    * check if a series is less than the other series
+    */
+   __bool_ops(series, b_ops){
+       if(!(series instanceof Series)){
+            throw new Error("must be an instance of series")
+       }
+
+       let l_seires = this.values
+       let r_series = series.values
+
+       if(!(l_seires.length === r_series.length)){
+           throw new Error("Both series must be of thesame length")
+       }
+
+       let data = []
+
+       for(let i=0;i < l_seires.length; i++){
+
+            let l_val = l_seires[i]
+            let r_val = r_series[i]
+            let bool = null
+            switch(b_ops){
+
+                case "lt":
+                    bool = l_val < r_val ? true : false
+                    data.push(bool);
+                break;
+                case "gt":
+                    bool = l_val > r_val ? true : false
+                    data.push(bool);
+                break;
+                case "le":
+                    bool = l_val <= r_val ? true : false
+                    data.push(bool);
+                break;
+                case "ge":
+                    bool = l_val >= r_val ? true : false
+                    data.push(bool);
+                break;
+                case "ne":
+                    bool = l_val != r_val ? true : false
+                    data.push(bool);
+                break;
+                case "eq":
+                    bool = l_val === r_val ? true : false
+                    data.push(bool);
+                break;
+            }
+       }
+       
+       return new Series(data)
+
+   }
+
+   /**
+    * 
+    * @param {series} series 
+    * @reurn series
+    */
+   lt(series){
+       return this.__bool_ops(series,"lt");
+   }
+
+   /**
+    * 
+    * @param {series} series 
+    * @reurn series
+    */
+   gt(series){
+        return this.__bool_ops(series,"gt");
+   }
+   /**
+    * 
+    * @param {series} series 
+    * @reurn series
+    */
+   le(series){
+        return this.__bool_ops(series,"le");
+    }
+
+    /**
+    * 
+    * @param {series} series 
+    * @reurn series
+    */
+   ge(series){
+        return this.__bool_ops(series,"ge");
+    }
+
+    /**
+    * 
+    * @param {series} series 
+    * @reurn series
+    */
+   ne(series){
+        return this.__bool_ops(series,"ne");
+    }
+    /**
+    * 
+    * @param {series} series 
+    * @reurn series
+    */
+   eq(series){
+        return this.__bool_ops(series,"eq");
+    }
     /**
     * Prints the data in a Series as a grid of row and columns
     */
