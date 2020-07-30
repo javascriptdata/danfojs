@@ -601,6 +601,117 @@ export class DataFrame extends Ndframe {
         }
 
     }
+    /**
+     * Find the cummulative max
+     * @param {axis} axis [int] {0 or 1} 
+     */
+    cum_ops(axis=0, ops){
+
+        if(!(axis==0) && !(axis==1)){
+            throw new Error("axis must be between 0 or 1")
+        }
+
+        if(this.__frame_is_compactible_for_operation){
+
+            let data = []
+            let df_data = null
+
+            if(axis ==0){
+                df_data = this.col_data
+            }else{
+                df_data = this.values
+            }
+
+            for(let i=0; i <df_data.length; i++){
+                let value = df_data[i]
+                let temp_val = value[0]
+                let temp_data = [temp_val] 
+                for(let j=1; j < value.length; j++){
+
+                    let curr_val = value[j]
+                    switch(ops){
+                        case "max":
+                            if(curr_val > temp_val){
+                                temp_val = curr_val
+                                temp_data.push(curr_val);
+                            }else{
+                                temp_data.push(temp_val)
+                            }
+                        break;
+                        case "min":
+                            if(curr_val < temp_val){
+                                temp_val = curr_val
+                                temp_data.push(curr_val);
+                            }else{
+                                temp_data.push(temp_val)
+                            }
+                        break;
+                        case "sum":
+                            temp_val = temp_val+curr_val
+                            temp_data.push(temp_val)
+                            
+                        break;
+                        case "prod":
+                            temp_val = temp_val * curr_val
+                            temp_data.push(temp_val);
+
+                        break
+
+                    }
+                }
+                data.push(temp_data)
+            }
+
+            if(axis==0){
+                data = utils.__get_col_values(data)
+            }
+            
+            return new DataFrame(data, {columns: this.columns})
+
+        }else{
+            throw Error("TypeError: Dtypes of columns must be Float of Int")
+        }
+
+    }
+    /**
+     * calculate the cummulative sum
+     * @param {kwargs} {axis: [int]}
+     */
+    cumsum(kwargs={}){
+        let axis = kwargs["axis"] || 0
+        let data = this.cum_ops(axis=axis,"sum");
+        return data
+    }
+
+    /**
+     * calculate the cummulative min
+     * @param {kwargs} {axis: [int]}
+     */
+    cummin(kwargs={}){
+        let axis = kwargs["axis"] || 0
+        let data = this.cum_ops(axis=axis,"min");
+        return data
+    }
+
+    /**
+     * calculate the cummulative max
+     * @param {kwargs} {axis: [int]}
+     */
+    cummax(kwargs={}){
+        let axis = kwargs["axis"] || 0
+        let data = this.cum_ops(axis=axis,"max");
+        return data
+    }
+
+    /**
+     * calculate the cummulative prod
+     * @param {kwargs} {axis: [int]}
+     */
+    cumprod(kwargs={}){
+        let axis = kwargs["axis"] || 0
+        let data = this.cum_ops(axis=0,"prod");
+        return data
+    }
 
     /**
     * Makes a new copy of a DataFrame  

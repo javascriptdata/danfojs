@@ -1340,5 +1340,24 @@ describe("DataFrame", function () {
         });
     })
 
+    describe("cum_ops", function () {
+
+        it("check cumsum data", function () {
+            let data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]]
+            let column = ["A", "B", "C", "D"]
+            let df = new DataFrame(data, { columns: column })
+            let rslt = [ [ 2, 1, 2, 3 ], [ 5, 5, 13, 12 ], [ 10, 11, 20, 20 ] ]
+            
+            assert.deepEqual(df.cumsum().values, rslt)
+        });
+        it("check cumsum data along axis 1", function () {
+            let data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]]
+            let column = ["A", "B", "C", "D"]
+            let df = new DataFrame(data, { columns: column })
+            let rslt = [ [ 2, 3, 5, 8 ], [ 3, 7, 18, 27 ], [ 5, 11, 18, 26 ] ]
+            
+            assert.deepEqual(df.cumsum({axis:1}).values, rslt)
+        });
+    })
 
 });
