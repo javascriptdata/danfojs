@@ -826,7 +826,7 @@ describe("Series", function () {
             let data1 = [10, 45, 56, 25, 23, 20, 10]
             let sf = new Series(data1)
             let expected = [-50, 45, 56, 25, 23, 20, -50]
-            let df_rep = sf.replace({replace: 10, with: -50 })
+            let df_rep = sf.replace({ replace: 10, with: -50 })
             assert.deepEqual(df_rep.values, expected)
         })
 
@@ -834,8 +834,103 @@ describe("Series", function () {
             let data1 = ["A", "A", "A", "B", "B", "C", "C", "D"]
             let sf = new Series(data1)
             let expected = ["boy", "boy", "boy", "B", "B", "C", "C", "D"]
-            sf.replace({replace: "A", with: "boy", inplace: true })
+            sf.replace({ replace: "A", with: "boy", inplace: true })
             assert.deepEqual(sf.values, expected)
+        })
+
+    })
+
+    describe("drop_duplicates", function () {
+        it("Return Series with duplicate values removed", function () {
+            let data1 = [10, 45, 56, 10, 23, 20, 10, 10]
+            let sf = new Series(data1)
+            let expected = [10, 45, 56, 23, 20]
+            let df_drop = sf.drop_duplicates()
+            assert.deepEqual(df_drop.values, expected)
+        })
+
+        it("Return Series with duplicate values removed (String)", function () {
+            let data1 = ["A", "A", "A", "B", "B", "C", "C", "D"]
+            let sf = new Series(data1)
+            let expected = ["A", "B", "C", "D"]
+            sf.drop_duplicates({ inplace: true })
+            assert.deepEqual(sf.values, expected)
+        })
+
+    })
+
+    describe("dropna", function () {
+        it("Return a new Series with missing values removed.", function () {
+            let data1 = [10, 45, undefined, 10, 23, 20, undefined, 10]
+            let sf = new Series(data1)
+            let expected = [10, 45, 10, 23, 20, 10]
+            let df_drop = sf.dropna()
+            assert.deepEqual(df_drop.values, expected)
+        })
+
+        it("Return a new Series with missing values removed.", function () {
+            let data1 = ["A", NaN, "A", "B", "B", NaN, "C", undefined]
+            let sf = new Series(data1)
+            let expected = ["A", "A", "B", "B", "C"]
+            sf.dropna({ inplace: true })
+            assert.deepEqual(sf.values, expected)
+        })
+
+    })
+
+    describe("argsort", function () {
+        it("Return the integer indices that would sort the Series values", function () {
+            let data1 = [10, 45, 20, 10, 23, 20, 30, 11]
+            let sf = new Series(data1)
+            let expected = [0, 3, 7, 2, 5, 4, 6, 1]
+            let sf_sort = sf.argsort()
+            assert.deepEqual(sf_sort.values, expected)
+        })
+
+        it("Return the integer indices that would sort the Series values", function () {
+            let data1 = [10.22, 4.5, 2.0, 10, 23.23, 20.1, 30, 11]
+            let sf = new Series(data1)
+            let expected = [2, 1, 3, 0, 7, 5, 4, 6]
+            let sf_sort = sf.argsort()
+            assert.deepEqual(sf_sort.values, expected)
+        })
+
+    })
+
+    describe("argmax", function () {
+        it("Return int position of the largest value in the Series.", function () {
+            let data1 = [10, 45, 20, 10, 23, 20, 30, 11]
+            let sf = new Series(data1)
+            let expected = 1
+            let argmax = sf.argmax()
+            assert.deepEqual(argmax, expected)
+        })
+
+        it("Return int position of the largest value in the Float Series.", function () {
+            let data1 = [10.22, 4.5, 2.0, 10, 23.23, 20.1, 30, 11]
+            let sf = new Series(data1)
+            let expected = 6
+            let argmax = sf.argmax()
+            assert.deepEqual(argmax, expected)
+        })
+
+    })
+
+    describe("argmin", function () {
+        it("Return int position of the smallest value in the Series", function () {
+            let data1 = [10, 45, 20, 122, 23, 20, 30, 11]
+            let sf = new Series(data1)
+            let expected = 0
+            let argmin = sf.argmin()
+            assert.deepEqual(argmin, expected)
+        })
+
+        it("Return int position of the smallest value in a Float Series", function () {
+            let data1 = [10.22, 4.5, 2.0, 10, 23.23, 20.1, 30, 11]
+            let sf = new Series(data1)
+            let expected = 2
+            let argmin = sf.argmin()
+            assert.deepEqual(argmin, expected)
         })
 
     })

@@ -21,3 +21,39 @@ export const read_csv = async (source, config={})=>{
     await csvDataset.forEachAsync(row => data.push(Object.values(row)));
     return new DataFrame(data,{columns: column_names})
 }
+
+/**
+ * Reads a JSON file from local or remote address
+ * 
+ * @param {source} URL or local file path to retreive JSON file.
+ * @returns {Promise} DataFrame structure of parsed CSV data
+ */
+export const read_json = async (source)=>{
+    
+    return "TODO"
+}
+
+
+/**
+ * Reads a Excel file from local or remote address
+ * 
+ * @param {source} URL or local file path to retreive JSON file.
+ * @returns {Promise} DataFrame structure of parsed CSV data
+ */
+export const read_excel = async (source)=>{
+    
+    return "TODO"
+}
+
+
+
+/**
+ * Reads a SQL Database into DataFrame
+ * 
+ * @param {source} URL or local file path to retreive JSON file.
+ * @returns {Promise} DataFrame structure of parsed CSV data
+ */
+export const read_sql = async (source)=>{
+    
+    return "TODO"
+}
