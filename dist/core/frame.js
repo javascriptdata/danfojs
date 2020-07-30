@@ -635,6 +635,41 @@ class DataFrame extends _generic.default {
     }
   }
 
+  sort_values(kwargs = {}) {
+    if (utils.__key_in_object(kwargs, "by")) {
+      let sort_col = this.column(kwargs["by"]);
+      let sorted_col, sorted_index;
+      let new_row_data = [];
+
+      if (utils.__key_in_object(kwargs, "inplace") && kwargs['inplace'] == true) {
+        sort_col.sort_values(kwargs);
+        sorted_index = sort_col.index;
+      } else {
+        sorted_col = sort_col.sort_values(kwargs);
+        sorted_index = sorted_col.index;
+      }
+
+      sorted_index.map(idx => {
+        new_row_data.push(this.values[idx]);
+      });
+
+      if (utils.__key_in_object(kwargs, "inplace") && kwargs['inplace'] == true) {
+        this.data = new_row_data;
+        this.index_arr = sorted_index;
+        return null;
+      } else {
+        let df = new DataFrame(new_row_data, {
+          columns: this.column_names,
+          index: sorted_index,
+          dtype: this.dtypes
+        });
+        return df;
+      }
+    } else {
+      throw Error("Value Error: must specify the column to sort by");
+    }
+  }
+
   __get_tensor_and_idx(df, axis) {
     let tensor_vals, idx, t_axis;
 
@@ -807,6 +842,33 @@ class DataFrame extends _generic.default {
     let data = this.col_data[indx];
     return new _series.Series(data, {
       columns: [col_name]
+    });
+  }
+
+  fillna(nan_val) {
+    let data = [];
+    let values = this.values;
+    let columns = this.columns;
+
+    for (let i = 0; i < values.length; i++) {
+      let temp_data = [];
+      let row_value = values[i];
+
+      for (let j = 0; j < row_value.length; j++) {
+        let val = row_value[j] == 0 ? 0 : !!row_value[j];
+
+        if (!val) {
+          temp_data.push(nan_val);
+        } else {
+          temp_data.push(row_value[j]);
+        }
+      }
+
+      data.push(temp_data);
+    }
+
+    return new DataFrame(data, {
+      columns: columns
     });
   }
 

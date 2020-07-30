@@ -331,13 +331,13 @@ export default class NDframe {
                 //slice Object to show a max of [max_rows]
                 let df_subset_1 = this.loc({ rows: [`0:${max_row}`], columns: first_4_cols })
                 let df_subset_2 = this.loc({ rows: [`0:${max_row}`], columns: last_3_cols })
-                sub_idx = df_subset_1.index
+                sub_idx = this.index.slice(0, max_row)
                 values_1 = df_subset_1.values
                 value_2 = df_subset_2.values
             } else {
                 let df_subset_1 = this.loc({ rows: [`0:${row_len}`], columns: first_4_cols })
                 let df_subset_2 = this.loc({ rows: [`0:${row_len}`], columns: last_3_cols })
-                sub_idx = df_subset_1.index
+                sub_idx = this.index.slice(0, max_row)
                 values_1 = df_subset_1.values
                 value_2 = df_subset_2.values
             }
