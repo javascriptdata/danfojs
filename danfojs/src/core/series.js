@@ -827,7 +827,7 @@ export class Series extends NDframe {
             if (kwargs['inplace']) {
                 this.data = replaced_arr
             } else {
-                let sf = new Series(replaced_arr, {index: this.index, columns: this.columns, dtypes: this.dtypes})
+                let sf = new Series(replaced_arr, { index: this.index, columns: this.columns, dtypes: this.dtypes })
                 return sf
             }
 
@@ -844,6 +844,57 @@ export class Series extends NDframe {
      */
     eq(other) {
         return this.__bool_ops(other, "eq");
+    }
+
+    /**
+     * Return Series with duplicate values removed
+     * @param {kwargs} {inplace: Perform operation inplace or not} 
+     * @return {Series}
+     */
+    drop_duplicates(kwargs = {}) {
+        let params_needed = ["inplace", "keep"]
+        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+            throw Error(`Params Error: Specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
+        }
+        kwargs['inplace'] = kwargs['inplace'] || false
+        kwargs['keep'] = kwargs['keep'] || "first"
+
+
+        let data_arr, old_index;
+        if (kwargs['keep'] == "last") {
+            data_arr = this.values.reverse()
+            old_index = this.index.reverse()
+        } else {
+            data_arr = this.values
+            old_index = this.index
+        }
+
+
+        let seen = []
+        let new_index = []
+        let new_arr = []
+        data_arr.map((val, i) => {
+            if (!seen.includes(val)) {
+                new_index.push(old_index[i])
+                new_arr.push(val)
+                seen.push(val)
+            }
+        })
+
+        if (kwargs['keep'] == "last") {
+            //re-reversed the array and index
+            new_arr = new_arr.reverse()
+            new_index = new_index.reverse()
+        }
+
+        if (kwargs['inplace'] == true) {
+            this.data = new_arr
+            this.index_arr = new_index
+        } else {
+            let sf = new Series(new_arr, { index: new_index, columns: this.column_names, dtypes: this.dtypes })
+            return sf
+        }
+
     }
 
 

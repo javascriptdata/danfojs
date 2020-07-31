@@ -536,6 +536,10 @@ export class Utils {
 
     __right_params_are_passed(kwargs, params_needed) {
         let keys = Object.keys(kwargs)
+        if (keys.length == 0) {
+            return true
+        }
+
         let bool = []
         for (let i = 0; i < keys.length; i++) {
             if (params_needed.includes(keys[i])) {

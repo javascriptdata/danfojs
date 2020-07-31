@@ -847,20 +847,37 @@ describe("Series", function () {
     })
 
     describe("drop_duplicates", function () {
-        it("Return Series with duplicate values removed", function () {
+        it("Return Series with duplicate values removed (Default, first values kept)", function () {
             let data1 = [10, 45, 56, 10, 23, 20, 10, 10]
             let sf = new Series(data1)
             let expected = [10, 45, 56, 23, 20]
+            let expected_index = [0,1,2,4,5]
             let df_drop = sf.drop_duplicates()
             assert.deepEqual(df_drop.values, expected)
+            assert.deepEqual(df_drop.index, expected_index)
+
+        })
+
+        it("Return Series with duplicate values removed (last values kept)", function () {
+            let data1 = [10, 45, 56, 10, 23, 20, 10, 10]
+            let sf = new Series(data1)
+            let expected = [45, 56, 23, 20, 10]
+            let expected_index = [1, 2, 4, 5, 7]
+            let df_drop = sf.drop_duplicates({ keep: "last"})
+            assert.deepEqual(df_drop.values, expected)
+            assert.deepEqual(df_drop.index, expected_index)
+
         })
 
         it("Return Series with duplicate values removed (String)", function () {
             let data1 = ["A", "A", "A", "B", "B", "C", "C", "D"]
             let sf = new Series(data1)
             let expected = ["A", "B", "C", "D"]
+            let expected_index = [0, 3, 5, 7]
             sf.drop_duplicates({ inplace: true })
             assert.deepEqual(sf.values, expected)
+            assert.deepEqual(sf.index, expected_index)
+
         })
 
     })
