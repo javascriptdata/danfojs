@@ -81,6 +81,16 @@ describe("Utils Functions", function () {
             let result = ['string', 'string', 'float32']
             assert.deepEqual(utils.__get_t(data), result)
         })
+        it("Returns bool type in a 1D array", function () {
+            let data = [true, true, false, false, false, true]
+            let result = ['boolean']
+            assert.deepEqual(utils.__get_t(data), result)
+        })
+        it("Returns bool type in a 2D array", function () {
+            let data = [[true, false, true], ["boy", "girl", "man"], [20, 30, 24]]
+            let result = ['boolean', 'string', 'int32']
+            assert.deepEqual(utils.__get_t(data), result)
+        })
     })
 
 
@@ -139,7 +149,7 @@ describe("Utils Functions", function () {
 
     })
 
-    
+
 
 
 

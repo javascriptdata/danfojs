@@ -159,9 +159,9 @@ export class Utils {
         for (let i = 0; i < cols_len; i++) {
             let _key = Object.keys(data[i])[0]
             col_names.push(_key)
-            
+
         }
-        
+
         return [rows_arr, col_names]
 
     }
@@ -218,8 +218,9 @@ export class Utils {
             let int_tracker = []
             let float_tracker = []
             let string_tracker = []
-
+            let bool_tracker = []
             let lim;
+
             if (arr.length < config.get_dtype_test_lim) {
                 lim = arr.length - 1
             } else {
@@ -227,20 +228,30 @@ export class Utils {
             }
             arr.forEach((ele, indx) => {
                 let count = indx
-                if (!isNaN(Number(ele))) {
+                if (typeof ele == 'boolean') {
+                    float_tracker.push(false)
+                    int_tracker.push(false)
+                    string_tracker.push(false)
+                    bool_tracker.push(true)
+                } else if (!isNaN(Number(ele))) {
+
                     if (ele.toString().includes(".")) {
                         float_tracker.push(true)
                         int_tracker.push(false)
                         string_tracker.push(false)
+                        bool_tracker.push(false)
                     } else {
                         float_tracker.push(false)
                         int_tracker.push(true)
                         string_tracker.push(false)
+                        bool_tracker.push(false)
+
                     }
                 } else {
                     float_tracker.push(false)
                     int_tracker.push(false)
                     string_tracker.push(true)
+                    bool_tracker.push(false)
                 }
 
                 if (count == lim) {
@@ -250,9 +261,12 @@ export class Utils {
                         dtypes.push("string")
                     } else if (float_tracker.some(even)) {
                         dtypes.push("float32")
-                    } else {
+                    } else if (int_tracker.some(even)) {
                         dtypes.push("int32")
-
+                    } else if (bool_tracker.some(even)) {
+                        dtypes.push("boolean")
+                    } else {
+                        dtypes.push("undefined")
                     }
                 }
             })
@@ -271,23 +285,34 @@ export class Utils {
                 let int_tracker = []
                 let float_tracker = []
                 let string_tracker = []
+                let bool_tracker = []
 
                 ele.forEach((ele, indx) => {
                     let count = indx
-                    if (!isNaN(Number(ele))) {
-                        if (ele.toString().includes(".")) {
-                            float_tracker.push(true)
-                            string_tracker.push(false)
-                            int_tracker.push(false)
-                        } else {
-                            int_tracker.push(true)
-                            string_tracker.push(false)
-                            float_tracker.push(false)
-                        }
-                    } else {
-                        string_tracker.push(true)
+                    if (typeof ele == 'boolean') {
                         float_tracker.push(false)
                         int_tracker.push(false)
+                        string_tracker.push(false)
+                        bool_tracker.push(true)
+                    } else if (!isNaN(Number(ele))) {
+
+                        if (ele.toString().includes(".")) {
+                            float_tracker.push(true)
+                            int_tracker.push(false)
+                            string_tracker.push(false)
+                            bool_tracker.push(false)
+                        } else {
+                            float_tracker.push(false)
+                            int_tracker.push(true)
+                            string_tracker.push(false)
+                            bool_tracker.push(false)
+
+                        }
+                    } else {
+                        float_tracker.push(false)
+                        int_tracker.push(false)
+                        string_tracker.push(true)
+                        bool_tracker.push(false)
                     }
 
                     if (count == lim) {
@@ -297,9 +322,12 @@ export class Utils {
                             dtypes.push("string")
                         } else if (float_tracker.some(even)) {
                             dtypes.push("float32")
-                        } else {
+                        } else if (int_tracker.some(even)) {
                             dtypes.push("int32")
-
+                        } else if (bool_tracker.some(even)) {
+                            dtypes.push("boolean")
+                        } else {
+                            dtypes.push("undefined")
                         }
                     }
                 })
@@ -333,7 +361,7 @@ export class Utils {
 
     //check if a array is 1D
     __is_1D_array(arr) {
-        if ((typeof (arr[0]) == "number") || (typeof (arr[0]) == "string")) {
+        if ((typeof (arr[0]) == "number") || (typeof (arr[0]) == "string") || (typeof (arr[0]) == "boolean")) {
             return true
         } else {
             return false

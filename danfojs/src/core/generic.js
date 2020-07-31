@@ -155,7 +155,7 @@ export default class NDframe {
 
     __set_col_types(dtypes, infer) {
         //set data type for each column in an NDFrame
-        const __supported_dtypes = ['float32', "int32", 'string', 'datetime']
+        const __supported_dtypes = ['float32', "int32", 'string', 'boolean']
 
         if (infer) {
             //saves array data in column form for easy access
