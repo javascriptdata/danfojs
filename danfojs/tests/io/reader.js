@@ -17,10 +17,12 @@ describe("read_csv", async function () {
     //     const csvUrl =
     //         'file:///home/dsn/personal/opensource/danfojs/danfojs/data/all_brand_df.csv';
 
-    //     const df = await read_csv(csvUrl)
-    //     const num_of_columns = (df.column_names).length
-    //     console.log(df.head() + "")
-    //     assert.equal(num_of_columns, 12)
+    //     read_csv(csvUrl).then((df) => {
+    //         const num_of_columns = (df.column_names).length
+    //         console.log(df.head() + "")
+    //         assert.equal(num_of_columns, 12)
+    //     })
+
     // })
 })
 

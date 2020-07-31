@@ -3,6 +3,7 @@ import * as tf from '@tensorflow/tfjs-node'
 import fetch from "node-fetch"
 import fs from 'fs'
 
+
 // import * as tf from '@tensorflow/tfjs'
 
 
@@ -24,6 +25,7 @@ export const read_csv = async (source, config = {}) => {
     await csvDataset.forEachAsync(row => data.push(Object.values(row)));
     return new DataFrame(data, { columns: column_names })
 }
+
 
 /**
  * Reads a JSON file from local or remote address
@@ -63,26 +65,29 @@ export const read_json = async (source) => {
 }
 
 
-/**
- * Reads a Excel file from local or remote address
- * 
- * @param {source} URL or local file path to retreive JSON file.
- * @returns {Promise} DataFrame structure of parsed CSV data
- */
-export const read_excel = async (source) => {
+// /**
+//  * Reads a Excel file from local or remote address
+//  * 
+//  * @param {source} URL or local file path to retreive JSON file.
+//  * @returns {Promise} DataFrame structure of parsed CSV data
+//  */
+// export const read_excel = async (source) => {
 
-    return "TODO"
-}
+//     xlsxFile('./Data.xlsx').then((rows) => {
+//         console.log(rows);
+//         console.table(rows);
+//        })
+// }
 
 
 
-/**
- * Reads a SQL Database into DataFrame
- * 
- * @param {source} URL or local file path to retreive JSON file.
- * @returns {Promise} DataFrame structure of parsed CSV data
- */
-export const read_sql = async (source) => {
+// /**
+//  * Reads a SQL Database into DataFrame
+//  * 
+//  * @param {source} URL or local file path to retreive JSON file.
+//  * @returns {Promise} DataFrame structure of parsed CSV data
+//  */
+// export const read_sql = async (source) => {
 
-    return "TODO"
-}
+//     return "TODO"
+// }
