@@ -1249,7 +1249,7 @@ describe("DataFrame", function () {
     describe("isna", function () {
 
         it("check if each value are nan", function () {
-            let data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]]
+            let data = [[NaN, 1, 2, 3], [3, 4, undefined, 9], [5, 6, 7, 8]]
             let column = ["A", "B", "C", "D"]
             let df = new DataFrame(data, { columns: column })
 

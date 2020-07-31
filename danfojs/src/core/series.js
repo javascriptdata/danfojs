@@ -462,7 +462,7 @@ export class Series extends NDframe {
             throw Error("Dtype Error: cannot sort Series of type string")
         }
 
-        let params_needed = ["inplace", "ascending"]
+        let params_needed = ["inplace", "ascending", "by"] //"by" param is used in DataFrame call to sort_values
         if (!utils.__right_params_are_passed(kwargs, params_needed)) {
             throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
         }
