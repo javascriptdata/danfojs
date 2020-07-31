@@ -464,6 +464,24 @@ describe("Series", function () {
         })
     })
 
+    describe("isna", function () {
+        it("Return a boolean same-sized object indicating if string Series contain NaN", function () {
+            let data1 = [NaN, undefined, "girl", "Man"]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.isna().values, [true, true, false, false])
+        })
+        it("Return a boolean same-sized object indicating if float Series values are NaN", function () {
+            let data1 = [30.21091, NaN, 3.564, undefined]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.isna().values, [false, true, false, true])
+        })
+        it("Return a boolean same-sized object indicating if int Series values are NaN", function () {
+            let data1 = [30, 40, 3, 5, undefined, undefined]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.isna().values, [false, false, false, false, true, true])
+        })
+    })
+
     describe("sort_values", function () {
         it("Sort values in a Series in ascending order (not inplace)", function () {
             let sf = new Series([20, 30, 1, 2, 4, 57, 89, 0, 4])
@@ -474,8 +492,11 @@ describe("Series", function () {
         it("confirms that sort_values in ascending order does not happen inplace", function () {
             let sf = new Series([20, 30, 1, 2, 4, 57, 89, 0, 4])
             let result = [0, 1, 2, 4, 4, 20, 30, 57, 89]
+            let expected_index = [7, 2, 3, 4, 8, 0, 1, 5, 6]
             sf.sort_values({ "inplace": true })
             assert.deepEqual(sf.values, result)
+            assert.deepEqual(sf.index, expected_index)
+
         })
         it("Sort values in a Series in Descending order", function () {
             let sf = new Series([20, 30, 1, 2, 4, 57, 89, 0, 4])

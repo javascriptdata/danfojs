@@ -1169,8 +1169,9 @@ export class DataFrame extends Ndframe {
     }
 
     /**
-     * check if each row,col contains NaN
-     * @return DataFrame
+     * Return a boolean same-sized object indicating if the values are NaN. NaN and undefined values,
+     *  gets mapped to True values. Everything else gets mapped to False values. 
+     * @return {DataFrame}
      */
     isna() {
 

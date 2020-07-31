@@ -427,6 +427,27 @@ export class Series extends NDframe {
 
     }
 
+    /**
+     * Return a boolean same-sized object indicating if the values are NaN. NaN and undefined values,
+     *  gets mapped to True values. Everything else gets mapped to False values. 
+     * @return {Series}
+     */
+    isna() {
+        let new_arr = []
+        this.values.map(val => {
+            // eslint-disable-next-line use-isnan
+            if (val == NaN) {
+                new_arr.push(true)
+            } else if (isNaN(val) && typeof val != "string") {
+                new_arr.push(true)
+            } else {
+                new_arr.push(false)
+            }
+        })
+        let sf = new Series(new_arr, { index: this.index, columns: this.column_names, dtypes: ["boolean"] })
+        return sf
+    }
+
 
     /**
     * Sort a Series in ascending or descending order by some criterion.
@@ -435,10 +456,17 @@ export class Series extends NDframe {
     * @returns {Series}
     */
     sort_values(kwargs = {}) {
+        // console.log(this);
 
         if (this.dtypes[0] == 'string') {
             throw Error("Dtype Error: cannot sort Series of type string")
         }
+
+        let params_needed = ["inplace", "ascending"]
+        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
+        }
+
         let options = {}
         if (utils.__key_in_object(kwargs, 'ascending')) {
             options['ascending'] = kwargs["ascending"]
@@ -474,10 +502,11 @@ export class Series extends NDframe {
         if (options['inplace']) {
             this.data = sorted_arr
             this.__set_index(sorted_idx)
-            return null
+            console.log(this + "");
         } else {
             let sf = new Series(sorted_arr, { columns: this.column_names, index: sorted_idx })
             // sf.__set_index(sorted_idx)
+            console.log(sf + "");
             return sf
         }
     }
@@ -530,18 +559,16 @@ export class Series extends NDframe {
     * Generate a new Series with the index reset.
     * This is useful when the index needs to be treated as a column, 
     * or when the index is meaningless and needs to be reset to the default before another operation.
-    * @param {kwargs} {inplace: Modify the Series in place (do not create a new object,
-    *                  drop: Just reset the index, without inserting it as a column in the new DataFrame.}
+    * @param {kwargs} {inplace: Modify the Series in place (do not create a new object}
     */
     reset_index(kwargs = {}) {
-        let options = {}
-        if (utils.__key_in_object(kwargs, 'inplace')) {
-            options['inplace'] = kwargs['inplace']
-        } else {
-            options['inplace'] = false
+        let params_needed = ["inplace"]
+        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
         }
 
-        if (options['inplace']) {
+        kwargs['inplace'] = kwargs['inplace'] || false
+        if (kwargs['inplace']) {
             this.__reset_index()
         } else {
             let sf = this.copy()
@@ -553,31 +580,30 @@ export class Series extends NDframe {
     /**
     * Generate a new Series with the specified index.
     * Set the Series index (row labels) using an array of the same length.
-    * @param {kwargs} {index: Array of new index values}
+    * @param {kwargs} {index: Array of new index values, inplace: If operation should happen inplace}
     */
     set_index(kwargs = {}) {
-        let options = {}
-        if (utils.__key_in_object(kwargs, 'index')) {
-            options['index'] = kwargs['index']
-        } else {
+
+        let params_needed = ["index", "inplace"]
+        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
+        }
+
+        kwargs['inplace'] = kwargs['inplace'] || false
+
+        if (!utils.__key_in_object(kwargs, 'index')) {
             throw Error("Index ValueError: You must specify an array of index")
         }
 
-        if (utils.__key_in_object(kwargs, 'inplace')) {
-            options['inplace'] = kwargs['inplace']
-        } else {
-            options['inplace'] = false
+        if (kwargs['index'].length != this.index.length) {
+            throw Error(`Index LengthError: Lenght of new Index array ${kwargs['index'].length} must match lenght of existing index ${this.index.length}`)
         }
 
-        if (options['index'].length != this.index.length) {
-            throw Error(`Index LengthError: Lenght of new Index array ${options['index'].length} must match lenght of existing index ${this.index.length}`)
-        }
-
-        if (options['inplace']) {
-            this.index_arr = options['index']
+        if (kwargs['inplace']) {
+            this.index_arr = kwargs['index']
         } else {
             let sf = this.copy()
-            sf.__set_index(options['index'])
+            sf.__set_index(kwargs['index'])
             return sf
         }
     }
@@ -797,20 +823,28 @@ export class Series extends NDframe {
     }
 
 
+
     /**
-     * Replace all occurence of a value with a new specified value"
-     * @param {kwargs}, {"replace": the value you want to replace, "with": the new value you want to replace the olde value with, inplace: Perform operation inplace or not} 
+     * Returns Equal to of series and other. Supports element wise operations
+     * @param {other} Series, Scalar 
      * @return {Series}
      */
+    eq(other) {
+        return this.__bool_ops(other, "eq");
+    }
+
+    /**
+   * Replace all occurence of a value with a new specified value"
+   * @param {kwargs}, {"replace": the value you want to replace, "with": the new value you want to replace the olde value with, inplace: Perform operation inplace or not} 
+   * @return {Series}
+   */
     replace(kwargs = {}) {
         let params_needed = ["replace", "with", "inplace"]
         if (!utils.__right_params_are_passed(kwargs, params_needed)) {
             throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
         }
 
-        if (!utils.__key_in_object(kwargs, "inplace")) {
-            kwargs['inplace'] = false
-        }
+        kwargs['inplace'] = kwargs['inplace'] || false
 
         if (utils.__key_in_object(kwargs, "replace") && utils.__key_in_object(kwargs, "with")) {
             let replaced_arr = []
@@ -837,14 +871,6 @@ export class Series extends NDframe {
 
     }
 
-    /**
-     * Returns Equal to of series and other. Supports element wise operations
-     * @param {other} Series, Scalar 
-     * @return {Series}
-     */
-    eq(other) {
-        return this.__bool_ops(other, "eq");
-    }
 
     /**
      * Return Series with duplicate values removed
