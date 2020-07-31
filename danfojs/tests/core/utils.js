@@ -141,6 +141,7 @@ describe("Utils Functions", function () {
             assert.deepEqual(utils.__replace_undefined_with_NaN(data, false), result)
         })
     })
+
     describe("__convert_2D_to_1D", function () {
         it("convert 2D array of array to 1D of string values", function () {
             let data = [[10.01, 2.2, "a"], [20.505, 20.22, "boy"]]
@@ -149,7 +150,19 @@ describe("Utils Functions", function () {
 
     })
 
+    describe("__wrong_params_are_passed", function () {
+        it("check if the right params are passed to a function", function () {
+            let params_needed = ["replace", "with", "inplace"]
+            let kwargs = {"replae": 2, "with": 12, "inplace": true}
+            assert.equal(utils.__right_params_are_passed(kwargs, params_needed), false)
+        })
+        it("check if the right params are passed to a function 2", function () {
+            let params_needed = ["replace", "with", "inplace"]
+            let kwargs = {"replace": 2, "with": 12, "inplace": true}
+            assert.equal(utils.__right_params_are_passed(kwargs, params_needed), true)
+        })
 
+    })
 
 
 

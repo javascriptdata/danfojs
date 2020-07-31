@@ -692,10 +692,10 @@ describe("Series", function () {
             let data1 = [1, 2, 10, 3, 12, 14, 1]
             let sf = new Series(data1)
             let rslt = [
-                1,   2,    20,
-               60, 720, 10080,
-            10080
-          ]
+                1, 2, 20,
+                60, 720, 10080,
+                10080
+            ]
             assert.deepEqual(sf.cumprod().values, rslt)
         })
 
@@ -728,14 +728,14 @@ describe("Series", function () {
 
             let sf = new Series(data1)
             let sf2 = new Series(data2)
-            let expected = [true, true, true, false, true, false, false]
+            let expected = [false, false, false, true, false, true, true]
             assert.deepEqual(sf.gt(sf2).values, expected)
         })
 
         it("Return Greater than of series scalar (element-wise)", function () {
             let data1 = [10, 45, 56, 25, 23, 20, 10]
             let sf = new Series(data1)
-            let expected = [true, false, false, true, true, true, true]
+            let expected = [false, true, true, false, false, false, false]
             assert.deepEqual(sf.gt(30).values, expected)
         })
 
@@ -764,18 +764,18 @@ describe("Series", function () {
     describe("ge", function () {
         it("Return Greater than or Equal to of series and other series (element-wise)", function () {
             let data1 = [10, 45, 56, 25, 23, 20, 10]
-            let data2 = [100, 450, 590, 5, 25, 2, 0]
+            let data2 = [100, 450, 56, 5, 25, 20, 0]
 
             let sf = new Series(data1)
             let sf2 = new Series(data2)
-            let expected = [true, true, true, false, true, false, false]
+            let expected = [false, false, true, true, false, true, true]
             assert.deepEqual(sf.ge(sf2).values, expected)
         })
 
         it("Return Greater than or Equal to of series scalar (element-wise)", function () {
-            let data1 = [10, 45, 56, 25, 23, 20, 10]
+            let data1 = [30, 45, 56, 25, 23, 20, 10]
             let sf = new Series(data1)
-            let expected = [true, false, false, true, true, true, true]
+            let expected = [true, true, true, false, false, false, false]
             assert.deepEqual(sf.ge(30).values, expected)
         })
 
@@ -784,18 +784,18 @@ describe("Series", function () {
     describe("ne", function () {
         it("Return Not Equal to of series and other series (element-wise)", function () {
             let data1 = [10, 45, 56, 25, 23, 20, 10]
-            let data2 = [100, 450, 590, 5, 25, 2, 0]
+            let data2 = [10, 450, 56, 5, 25, 2, 0]
 
             let sf = new Series(data1)
             let sf2 = new Series(data2)
-            let expected = [true, true, true, false, true, false, false]
+            let expected = [false, true, false, true, true, true, true]
             assert.deepEqual(sf.ne(sf2).values, expected)
         })
 
         it("Return Not Equal to of series scalar (element-wise)", function () {
-            let data1 = [10, 45, 56, 25, 23, 20, 10]
+            let data1 = [10, 30, 56, 30, 23, 20, 10]
             let sf = new Series(data1)
-            let expected = [true, false, false, true, true, true, true]
+            let expected = [true, false, true, false, true, true, true]
             assert.deepEqual(sf.ne(30).values, expected)
         })
 
@@ -804,25 +804,25 @@ describe("Series", function () {
     describe("eq", function () {
         it("Return Equal to of series and other series (element-wise)", function () {
             let data1 = [10, 45, 56, 25, 23, 20, 10]
-            let data2 = [100, 450, 590, 5, 25, 2, 0]
+            let data2 = [100, 450, 590, 25, 25, 2, 0]
 
             let sf = new Series(data1)
             let sf2 = new Series(data2)
-            let expected = [true, true, true, false, true, false, false]
+            let expected = [false, false, false, true, false, false, false]
             assert.deepEqual(sf.eq(sf2).values, expected)
         })
 
         it("Return Equal to of series scalar (element-wise)", function () {
-            let data1 = [10, 45, 56, 25, 23, 20, 10]
+            let data1 = [10, 45, 56, 25, 23, 20, 30]
             let sf = new Series(data1)
-            let expected = [true, false, false, true, true, true, true]
+            let expected = [false, false, false, false, false, false, true]
             assert.deepEqual(sf.eq(30).values, expected)
         })
 
     })
 
     describe("replace", function () {
-        it("Replace values given in to_replace with value", function () {
+        it("Replace values given in replace param with value", function () {
             let data1 = [10, 45, 56, 25, 23, 20, 10]
             let sf = new Series(data1)
             let expected = [-50, 45, 56, 25, 23, 20, -50]
@@ -830,12 +830,18 @@ describe("Series", function () {
             assert.deepEqual(df_rep.values, expected)
         })
 
-        it("Return Equal to of series scalar (element-wise)", function () {
+        it("Replace values given in replace param with value (String type)", function () {
             let data1 = ["A", "A", "A", "B", "B", "C", "C", "D"]
             let sf = new Series(data1)
             let expected = ["boy", "boy", "boy", "B", "B", "C", "C", "D"]
             sf.replace({ replace: "A", with: "boy", inplace: true })
             assert.deepEqual(sf.values, expected)
+        })
+        it("Throw error on wrong param passed", function () {
+            let data1 = ["A", "A", "A", "B", "B", "C", "C", "D"]
+            let sf = new Series(data1)
+            let expected = `Params Error: A specified parameter is not supported. Your params must be any of the following [replace,with,inplace]`
+            assert.throws(() => { sf.replace({ replce: "A", with: "boy", inplace: true }) }, Error, expected)
         })
 
     })

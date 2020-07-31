@@ -583,10 +583,6 @@ export class Series extends NDframe {
     }
 
 
-
-
-
-
     //check two series is compatible for an mathematical operation
     __check_series_op_compactibility(other) {
         if (utils.__is_undefined(other.series)) {
@@ -608,7 +604,7 @@ export class Series extends NDframe {
     /**
      * map all the element in a column to a variable
      * @param{callable} callable can either be a funtion or an object
-     * @return return an array
+     * @return {Array}
      */
     map(callable) {
 
@@ -640,7 +636,7 @@ export class Series extends NDframe {
      * The apply function is similar to the map function
      * just that it only takes in a function
      * @param {callable} callable [FUNCTION]
-     * @return Array
+     * @return {Array}
      */
     apply(callable) {
         let is_callable = utils.__is_function(callable);
@@ -657,22 +653,22 @@ export class Series extends NDframe {
     }
 
     /**
-     * Obtain the unique value in a series
-     * @return series
+     * Returns the unique value in a series
+     * @return {Series}
      */
     unique() {
 
         let data_set = new Set(this.values)
         let data = Array.from(data_set);
-        let series = new Series(data = data)
+        let series = new Series(data)
 
         return series
 
     }
 
     /**
-     * count the number of occurence of each value in as series
-     * @return Series
+     * Returns the unique values and their counts in a Series
+     * @return {Series}
      */
     value_count() {
 
@@ -690,216 +686,167 @@ export class Series extends NDframe {
             }
         }
 
-        let index = Object.keys(data_dict).map(x =>{ 
-            return parseInt(x) ? parseInt(x): x
+        let index = Object.keys(data_dict).map(x => {
+            return parseInt(x) ? parseInt(x) : x
         })
         let data = index.map(x => { return data_dict[x] })
 
-        let series = new Series(data)
-        series.index_arr = index;
+        let series = new Series(data, { index: index })
+        // series.index_arr = index;
 
         return series
 
     }
 
     /**
-     * get the absolute number
-     * @return series
+     * Returns the absolute values in Series
+     * @return {series}
      */
-    abs(){
+    abs() {
         let s_data = this.values
 
         let tensor_data = tf.tensor1d(s_data)
         let abs_data = tensor_data.abs().arraySync()
 
-        return new Series(utils.__round(abs_data,2,true))
+        return new Series(utils.__round(abs_data, 2, true))
+    }
+
+
+    /** 
+     * Returns the cumulative sum over a Series
+    * @return {Series}
+    */
+    cumsum() {
+        let data = this.__cum_ops("sum");
+        return data
     }
 
     /**
-     * perform cumulative operation on series data
-     * @returns array
+     * Returns cumulative minimum over a Series
+     * @returns series
      */
-    __cum_ops(ops){
+    cummin() {
+        let data = this.__cum_ops("min");
+        return data
+    }
 
-        let s_data = this.values
-        let temp_val = s_data[0]
-        let data = [temp_val]
+    /**
+     * Returns cumulative maximum over a Series
+     * @returns series
+     */
+    cummax() {
+        let data = this.__cum_ops("max");
+        return data
+    }
 
-        for(let i=1; i< s_data.length; i++){
+    /**
+     * Returns cumulative product over a Series
+     * @returns series
+     */
+    cumprod() {
+        let data = this.__cum_ops("prod");
+        return data
+    }
 
-            let curr_val = s_data[i]
-            switch(ops){
-                case "max":
-                    if(curr_val > temp_val){
-                        data.push(curr_val)
-                        temp_val = curr_val
-                    }else{
-                        data.push(temp_val)
-                    }
-                break;
-                case "min":
-                    if(curr_val < temp_val){
-                        data.push(curr_val)
-                        temp_val = curr_val
-                    }else{
-                        data.push(temp_val)
-                    }
-                break;
-                case "sum":
-                    temp_val = temp_val +curr_val
-                    data.push(temp_val);
-                break;
-                case "prod":
-                    temp_val = temp_val * curr_val
-                    data.push(temp_val)
-                break;
 
-            } 
+
+
+    /**
+     * Returns Less than of series and other. Supports element wise operations
+     * @param {other} Series, Scalar 
+     * @return {Series}
+     */
+    lt(other) {
+        return this.__bool_ops(other, "lt");
+    }
+
+    /**
+     * Returns Greater than of series and other. Supports element wise operations
+     * @param {other} Series, Scalar 
+     * @return {Series}
+     */
+    gt(other) {
+        return this.__bool_ops(other, "gt");
+    }
+
+    /**
+     * Returns Less than or Equal to of series and other. Supports element wise operations
+     * @param {other} Series, Scalar 
+     * @return {Series}
+     */
+    le(other) {
+        return this.__bool_ops(other, "le");
+    }
+
+    /**
+     * Returns Greater than or Equal to of series and other. Supports element wise operations
+     * @param {other} Series, Scalar 
+     * @return {Series}
+     */
+    ge(other) {
+        return this.__bool_ops(other, "ge");
+    }
+
+    /**
+      * Returns Not Equal to of series and other. Supports element wise operations
+      * @param {other} Series, Scalar 
+      * @return {Series}
+      */
+    ne(other) {
+        return this.__bool_ops(other, "ne");
+    }
+
+
+    /**
+     * Replace all occurence of a value with a new specified value"
+     * @param {kwargs}, {"replace": the value you want to replace, "with": the new value you want to replace the olde value with, inplace: Perform operation inplace or not} 
+     * @return {Series}
+     */
+    replace(kwargs = {}) {
+        let params_needed = ["replace", "with", "inplace"]
+        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
         }
-        return new Series(data)
-    }
 
-    /* calculate the cummulative
-    *@return series
-    */
-   cumsum(){
-       let data = this.__cum_ops("sum");
-       return data
-   }
+        if (!utils.__key_in_object(kwargs, "inplace")) {
+            kwargs['inplace'] = false
+        }
 
-   /**
-    * calculate the cummulative min
-    * @returns series
-    */
-   cummin(){
-       let data = this.__cum_ops("min");
-       return data
-   }
+        if (utils.__key_in_object(kwargs, "replace") && utils.__key_in_object(kwargs, "with")) {
+            let replaced_arr = []
+            let old_arr = this.values
 
-   /**
-    * calculate the cummulative max
-    * @returns series
-    */
-   cummax(){
-       let data = this.__cum_ops("max");
-       return data
-   }
+            old_arr.map(val => {
+                if (val == kwargs['replace']) {
+                    replaced_arr.push(kwargs['with'])
+                } else {
+                    replaced_arr.push(val)
+                }
+            })
 
-   /**
-    * calculate the cummulative prod
-    * @returns series
-    */
-   cumprod(){
-       let data = this.__cum_ops("prod");
-       return data
-   }
-
-   /**
-    * check if a series is less than the other series
-    */
-   __bool_ops(series, b_ops){
-       if(!(series instanceof Series)){
-            throw new Error("must be an instance of series")
-       }
-
-       let l_seires = this.values
-       let r_series = series.values
-
-       if(!(l_seires.length === r_series.length)){
-           throw new Error("Both series must be of thesame length")
-       }
-
-       let data = []
-
-       for(let i=0;i < l_seires.length; i++){
-
-            let l_val = l_seires[i]
-            let r_val = r_series[i]
-            let bool = null
-            switch(b_ops){
-
-                case "lt":
-                    bool = l_val < r_val ? true : false
-                    data.push(bool);
-                break;
-                case "gt":
-                    bool = l_val > r_val ? true : false
-                    data.push(bool);
-                break;
-                case "le":
-                    bool = l_val <= r_val ? true : false
-                    data.push(bool);
-                break;
-                case "ge":
-                    bool = l_val >= r_val ? true : false
-                    data.push(bool);
-                break;
-                case "ne":
-                    bool = l_val != r_val ? true : false
-                    data.push(bool);
-                break;
-                case "eq":
-                    bool = l_val === r_val ? true : false
-                    data.push(bool);
-                break;
+            if (kwargs['inplace']) {
+                this.data = replaced_arr
+            } else {
+                let sf = new Series(replaced_arr, {index: this.index, columns: this.columns, dtypes: this.dtypes})
+                return sf
             }
-       }
-       
-       return new Series(data)
 
-   }
+        } else {
+            throw Error("Params Error: Must specify both 'replace' and 'with' parameters.")
+        }
 
-   /**
-    * 
-    * @param {series} series 
-    * @reurn series
-    */
-   lt(series){
-       return this.__bool_ops(series,"lt");
-   }
-
-   /**
-    * 
-    * @param {series} series 
-    * @reurn series
-    */
-   gt(series){
-        return this.__bool_ops(series,"gt");
-   }
-   /**
-    * 
-    * @param {series} series 
-    * @reurn series
-    */
-   le(series){
-        return this.__bool_ops(series,"le");
     }
 
     /**
-    * 
-    * @param {series} series 
-    * @reurn series
-    */
-   ge(series){
-        return this.__bool_ops(series,"ge");
+     * Returns Equal to of series and other. Supports element wise operations
+     * @param {other} Series, Scalar 
+     * @return {Series}
+     */
+    eq(other) {
+        return this.__bool_ops(other, "eq");
     }
 
-    /**
-    * 
-    * @param {series} series 
-    * @reurn series
-    */
-   ne(series){
-        return this.__bool_ops(series,"ne");
-    }
-    /**
-    * 
-    * @param {series} series 
-    * @reurn series
-    */
-   eq(series){
-        return this.__bool_ops(series,"eq");
-    }
+
     /**
     * Prints the data in a Series as a grid of row and columns
     */
@@ -936,6 +883,116 @@ export class Series extends NDframe {
         data_arr.unshift(header) //Adds the column names to values before printing
         return table(data_arr, { columns: table_config })
     }
+
+    /**
+     * Perform boolean operations on bool values
+     */
+    __bool_ops(other, b_ops) {
+        let r_series;
+        let l_series = this.values
+
+        ///operation can be performed on a Series or a single scalar using broadcasting
+        if (typeof other == "number") {
+            //create array of other for broadcasting
+            r_series = []
+            for (let i = 0; i < this.values.length; i++) {
+                r_series.push(other)
+            }
+        } else {
+            if (!(other instanceof Series)) {
+                throw new Error("must be an instance of series")
+            }
+            l_series = this.values
+            r_series = other.values
+        }
+
+        if (!(l_series.length === r_series.length)) {
+            throw new Error("Both series must be of the same length")
+        }
+
+        let data = []
+
+        for (let i = 0; i < l_series.length; i++) {
+
+            let l_val = l_series[i]
+            let r_val = r_series[i]
+            let bool = null
+            switch (b_ops) {
+
+                case "lt":
+                    bool = l_val < r_val ? true : false
+                    data.push(bool);
+                    break;
+                case "gt":
+                    bool = l_val > r_val ? true : false
+                    data.push(bool);
+                    break;
+                case "le":
+                    bool = l_val <= r_val ? true : false
+                    data.push(bool);
+                    break;
+                case "ge":
+                    bool = l_val >= r_val ? true : false
+                    data.push(bool);
+                    break;
+                case "ne":
+                    bool = l_val != r_val ? true : false
+                    data.push(bool);
+                    break;
+                case "eq":
+                    bool = l_val === r_val ? true : false
+                    data.push(bool);
+                    break;
+            }
+        }
+        return new Series(data)
+
+    }
+
+    /**
+     * perform cumulative operation on series data
+     * @returns array
+     */
+    __cum_ops(ops) {
+
+        let s_data = this.values
+        let temp_val = s_data[0]
+        let data = [temp_val]
+
+        for (let i = 1; i < s_data.length; i++) {
+
+            let curr_val = s_data[i]
+            switch (ops) {
+                case "max":
+                    if (curr_val > temp_val) {
+                        data.push(curr_val)
+                        temp_val = curr_val
+                    } else {
+                        data.push(temp_val)
+                    }
+                    break;
+                case "min":
+                    if (curr_val < temp_val) {
+                        data.push(curr_val)
+                        temp_val = curr_val
+                    } else {
+                        data.push(temp_val)
+                    }
+                    break;
+                case "sum":
+                    temp_val = temp_val + curr_val
+                    data.push(temp_val);
+                    break;
+                case "prod":
+                    temp_val = temp_val * curr_val
+                    data.push(temp_val)
+                    break;
+
+            }
+        }
+        return new Series(data)
+    }
+
 
 
 }

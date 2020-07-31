@@ -533,6 +533,25 @@ export class Utils {
 
         return gen_num;
     }
+
+    __right_params_are_passed(kwargs, params_needed) {
+        let keys = Object.keys(kwargs)
+        let bool = []
+        for (let i = 0; i < keys.length; i++) {
+            if (params_needed.includes(keys[i])) {
+                bool.push(true)
+            } else {
+                bool.push(false)
+            }
+        }
+        const truthy = (element) => element == false;
+        if (bool.some(truthy)) {
+            return false
+        } else {
+            return true
+        }
+
+    }
 }
 
 
