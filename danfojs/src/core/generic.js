@@ -435,4 +435,11 @@ export default class NDframe {
     }
 
 
+    /**
+    * Pretty prints a DataFrame or Series in the console
+    */
+    print(){
+        console.log(this + "");
+    }
+
 }

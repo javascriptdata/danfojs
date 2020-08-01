@@ -502,11 +502,8 @@ export class Series extends NDframe {
         if (options['inplace']) {
             this.data = sorted_arr
             this.__set_index(sorted_idx)
-            console.log(this + "");
         } else {
             let sf = new Series(sorted_arr, { columns: this.column_names, index: sorted_idx })
-            // sf.__set_index(sorted_idx)
-            console.log(sf + "");
             return sf
         }
     }
@@ -877,7 +874,7 @@ export class Series extends NDframe {
      * @param {kwargs} {inplace: Perform operation inplace or not} 
      * @return {Series}
      */
-    dropna(kwargs={}){
+    dropna(kwargs = {}) {
         let params_needed = ["inplace"]
         if (!utils.__right_params_are_passed(kwargs, params_needed)) {
             throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
@@ -889,23 +886,33 @@ export class Series extends NDframe {
         let new_values = []
         let new_index = []
         let isna_vals = this.isna().values
-        
-        isna_vals.map((val, i)=>{
-            if (!val){
+
+        isna_vals.map((val, i) => {
+            if (!val) {
                 new_values.push(old_values[i])
                 new_index.push(old_index[i])
             }
         })
-       if (kwargs['inplace']){
-           this.index_arr = new_index
-           this.data = new_values
-       }else{
-           let sf = new Series(new_values, {columns: this.column_names, index: new_index, dtypes: this.dtypes})
-           return sf
-       }
+        if (kwargs['inplace']) {
+            this.index_arr = new_index
+            this.data = new_values
+        } else {
+            let sf = new Series(new_values, { columns: this.column_names, index: new_index, dtypes: this.dtypes })
+            return sf
+        }
 
     }
 
+    /**
+   * Return the integer indices that would sort the Series values.
+   * @param {ascending} boolean true: will sort the Series in ascending order, false: will sort in descending order
+   * @return {Series}
+   */
+    argsort(ascending = true) {
+        let sorted_index = this.sort_values({ ascending: ascending }).index
+        let sf = new Series(sorted_index)
+        return sf
+    }
 
     /**
      * Return Series with duplicate values removed

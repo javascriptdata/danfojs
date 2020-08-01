@@ -872,7 +872,7 @@ describe("Series", function () {
             let data1 = [10, 45, 56, 10, 23, 20, 10, 10]
             let sf = new Series(data1)
             let expected = [10, 45, 56, 23, 20]
-            let expected_index = [0,1,2,4,5]
+            let expected_index = [0, 1, 2, 4, 5]
             let df_drop = sf.drop_duplicates()
             assert.deepEqual(df_drop.values, expected)
             assert.deepEqual(df_drop.index, expected_index)
@@ -884,7 +884,7 @@ describe("Series", function () {
             let sf = new Series(data1)
             let expected = [45, 56, 23, 20, 10]
             let expected_index = [1, 2, 4, 5, 7]
-            let df_drop = sf.drop_duplicates({ keep: "last"})
+            let df_drop = sf.drop_duplicates({ keep: "last" })
             assert.deepEqual(df_drop.values, expected)
             assert.deepEqual(df_drop.index, expected_index)
 
@@ -908,7 +908,7 @@ describe("Series", function () {
             let data1 = [10, 45, undefined, 10, 23, 20, undefined, 10]
             let sf = new Series(data1)
             let expected = [10, 45, 10, 23, 20, 10]
-            let expected_index = [ 0, 1, 3, 4, 5, 7 ]
+            let expected_index = [0, 1, 3, 4, 5, 7]
             let sf_drop = sf.dropna()
             assert.deepEqual(sf_drop.values, expected)
             assert.deepEqual(sf_drop.index, expected_index)
@@ -919,9 +919,9 @@ describe("Series", function () {
             let data1 = ["A", NaN, "A", "B", "B", NaN, "C", undefined]
             let sf = new Series(data1)
             let expected = ["A", "A", "B", "B", "C"]
-            let expected_index = [ 0, 2, 3, 4, 6 ]
+            let expected_index = [0, 2, 3, 4, 6]
 
-            sf.dropna({inplace: true })
+            sf.dropna({ inplace: true })
             assert.deepEqual(sf.values, expected)
             assert.deepEqual(sf.index, expected_index)
 
@@ -941,8 +941,8 @@ describe("Series", function () {
         it("Return the integer indices that would sort the Series values", function () {
             let data1 = [10.22, 4.5, 2.0, 10, 23.23, 20.1, 30, 11]
             let sf = new Series(data1)
-            let expected = [2, 1, 3, 0, 7, 5, 4, 6]
-            let sf_sort = sf.argsort()
+            let expected = [6, 4, 5, 7, 0, 3, 1, 2]
+            let sf_sort = sf.argsort(false)
             assert.deepEqual(sf_sort.values, expected)
         })
 
