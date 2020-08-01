@@ -271,7 +271,7 @@ class Series extends _generic.default {
     }
 
     let temp_sum = tf.tensor(this.values).asType(this.dtypes[0]).sum().arraySync();
-    return temp_sum;
+    return Number(temp_sum.toFixed(5));
   }
 
   count() {
@@ -421,14 +421,11 @@ class Series extends _generic.default {
       this.data = sorted_arr;
 
       this.__set_index(sorted_idx);
-
-      console.log(this + "");
     } else {
       let sf = new Series(sorted_arr, {
         columns: this.column_names,
         index: sorted_idx
       });
-      console.log(sf + "");
       return sf;
     }
   }
@@ -690,6 +687,63 @@ class Series extends _generic.default {
     } else {
       throw Error("Params Error: Must specify both 'replace' and 'with' parameters.");
     }
+  }
+
+  dropna(kwargs = {}) {
+    let params_needed = ["inplace"];
+
+    if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+      throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`);
+    }
+
+    kwargs['inplace'] = kwargs['inplace'] || false;
+    let old_values = this.values;
+    let old_index = this.index;
+    let new_values = [];
+    let new_index = [];
+    let isna_vals = this.isna().values;
+    isna_vals.map((val, i) => {
+      if (!val) {
+        new_values.push(old_values[i]);
+        new_index.push(old_index[i]);
+      }
+    });
+
+    if (kwargs['inplace']) {
+      this.index_arr = new_index;
+      this.data = new_values;
+    } else {
+      let sf = new Series(new_values, {
+        columns: this.column_names,
+        index: new_index,
+        dtypes: this.dtypes
+      });
+      return sf;
+    }
+  }
+
+  argsort(ascending = true) {
+    let sorted_index = this.sort_values({
+      ascending: ascending
+    }).index;
+    let sf = new Series(sorted_index);
+    return sf;
+  }
+
+  argmax() {
+    let sorted_index = this.sort_values({
+      ascending: true
+    }).index;
+    let last_idx = sorted_index[sorted_index.length - 1];
+    return last_idx;
+  }
+
+  argmin() {
+    let sorted_index = this.sort_values({
+      ascending: true
+    }).index;
+    let first_idx = sorted_index[0];
+    return first_idx;
   }
 
   drop_duplicates(kwargs = {}) {

@@ -1360,6 +1360,17 @@ describe("DataFrame", function () {
         });
     })
 
+    describe("__set_column_property", async function () {
+        it("Access column object using list subset and name of column", async function () {
+            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
+            let df = new DataFrame(data)
+            let col1 = ["A", "B", "C"]
+            let col2 = [1, 2, 3]
+            assert.deepEqual(df['alpha'].values, col1)
+            assert.deepEqual(df['count'].values, col2)
+        })
+    })
+
     describe("lt", function () {
         it("Returns Less than of DataFrame and other DataFrame (element-wise)", function () {
             let data1 = [[10, 45, 56, 10], [25, 23, 20, 10]]

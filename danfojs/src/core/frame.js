@@ -23,9 +23,20 @@ import { std, variance } from 'mathjs'
 export class DataFrame extends Ndframe {
     constructor(data, kwargs) {
         super(data, kwargs)
-
+        this.__set_column_property() //set column property on Class
     }
 
+
+
+    //set all columns to DataFrame Property. This ensures easy access to columns as Series
+    __set_column_property() {
+        let col_vals = this.col_data
+        let col_names = this.column_names
+
+        col_vals.forEach((col, i) => {
+            this[col_names[i]] = new Series(col, { columns: col_names[i], index: this.index })
+        });
+    }
 
     /**
      * Drop a row or a column base on the axis specified
@@ -602,75 +613,75 @@ export class DataFrame extends Ndframe {
 
     }
 
-    
+
     /**
      * Find the cummulative max
      * @param {axis} axis [int] {0 or 1} 
      */
-    cum_ops(axis=0, ops){
+    cum_ops(axis = 0, ops) {
 
-        if(!(axis==0) && !(axis==1)){
+        if (!(axis == 0) && !(axis == 1)) {
             throw new Error("axis must be between 0 or 1")
         }
 
-        if(this.__frame_is_compactible_for_operation){
+        if (this.__frame_is_compactible_for_operation) {
 
             let data = []
             let df_data = null
 
-            if(axis ==0){
+            if (axis == 0) {
                 df_data = this.col_data
-            }else{
+            } else {
                 df_data = this.values
             }
 
-            for(let i=0; i <df_data.length; i++){
+            for (let i = 0; i < df_data.length; i++) {
                 let value = df_data[i]
                 let temp_val = value[0]
-                let temp_data = [temp_val] 
-                for(let j=1; j < value.length; j++){
+                let temp_data = [temp_val]
+                for (let j = 1; j < value.length; j++) {
 
                     let curr_val = value[j]
-                    switch(ops){
+                    switch (ops) {
                         case "max":
-                            if(curr_val > temp_val){
+                            if (curr_val > temp_val) {
                                 temp_val = curr_val
                                 temp_data.push(curr_val);
-                            }else{
+                            } else {
                                 temp_data.push(temp_val)
                             }
-                        break;
+                            break;
                         case "min":
-                            if(curr_val < temp_val){
+                            if (curr_val < temp_val) {
                                 temp_val = curr_val
                                 temp_data.push(curr_val);
-                            }else{
+                            } else {
                                 temp_data.push(temp_val)
                             }
-                        break;
+                            break;
                         case "sum":
-                            temp_val = temp_val+curr_val
+                            temp_val = temp_val + curr_val
                             temp_data.push(temp_val)
-                            
-                        break;
+
+                            break;
                         case "prod":
                             temp_val = temp_val * curr_val
                             temp_data.push(temp_val);
 
-                        break
+                            break
 
                     }
                 }
                 data.push(temp_data)
             }
 
-            if(axis==0){
+            if (axis == 0) {
                 data = utils.__get_col_values(data)
             }
-            
-            return new DataFrame(data, {columns: this.columns})
 
-        }else{
+            return new DataFrame(data, { columns: this.columns })
+
+        } else {
             throw Error("TypeError: Dtypes of columns must be Float of Int")
         }
 
@@ -679,9 +690,9 @@ export class DataFrame extends Ndframe {
      * calculate the cummulative sum
      * @param {kwargs} {axis: [int]}
      */
-    cumsum(kwargs={}){
+    cumsum(kwargs = {}) {
         let axis = kwargs["axis"] || 0
-        let data = this.cum_ops(axis,"sum");
+        let data = this.cum_ops(axis, "sum");
         return data
     }
 
@@ -689,9 +700,9 @@ export class DataFrame extends Ndframe {
      * calculate the cummulative min
      * @param {kwargs} {axis: [int]}
      */
-    cummin(kwargs={}){
+    cummin(kwargs = {}) {
         let axis = kwargs["axis"] || 0
-        let data = this.cum_ops(axis,"min");
+        let data = this.cum_ops(axis, "min");
         return data
     }
 
@@ -699,9 +710,9 @@ export class DataFrame extends Ndframe {
      * calculate the cummulative max
      * @param {kwargs} {axis: [int]}
      */
-    cummax(kwargs={}){
+    cummax(kwargs = {}) {
         let axis = kwargs["axis"] || 0
-        let data = this.cum_ops(axis,"max");
+        let data = this.cum_ops(axis, "max");
         return data
     }
 
@@ -709,9 +720,9 @@ export class DataFrame extends Ndframe {
      * calculate the cummulative prod
      * @param {kwargs} {axis: [int]}
      */
-    cumprod(kwargs={}){
+    cumprod(kwargs = {}) {
         let axis = kwargs["axis"] || 0
-        let data = this.cum_ops(axis,"prod");
+        let data = this.cum_ops(axis, "prod");
         return data
     }
 
@@ -889,15 +900,15 @@ export class DataFrame extends Ndframe {
                 new_row_data.push(this.values[idx])
             })
 
-            if (utils.__key_in_object(kwargs, "inplace") && kwargs['inplace'] == true){
+            if (utils.__key_in_object(kwargs, "inplace") && kwargs['inplace'] == true) {
                 this.data = new_row_data
                 this.index_arr = sorted_index
                 return null
-            }else{
+            } else {
                 let df = new DataFrame(new_row_data, { columns: this.column_names, index: sorted_index, dtype: this.dtypes })
                 return df
             }
-           
+
         } else {
             throw Error("Value Error: must specify the column to sort by")
         }
@@ -1513,6 +1524,17 @@ export class DataFrame extends Ndframe {
 
         return data
     }
+
+
+
+    // /**
+    //  * Returns Less than of DataFrame and other. Supports element wise operations
+    //  * @param {other} DataFrame, Series, Scalar 
+    //  * @return {DataFrame}
+    //  */
+    // lt(other) {
+    //     //
+    // }
 
 
 

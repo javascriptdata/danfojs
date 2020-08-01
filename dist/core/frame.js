@@ -30,6 +30,19 @@ const utils = new _utils.Utils();
 class DataFrame extends _generic.default {
   constructor(data, kwargs) {
     super(data, kwargs);
+
+    this.__set_column_property();
+  }
+
+  __set_column_property() {
+    let col_vals = this.col_data;
+    let col_names = this.column_names;
+    col_vals.forEach((col, i) => {
+      this[col_names[i]] = new _series.Series(col, {
+        columns: col_names[i],
+        index: this.index
+      });
+    });
   }
 
   drop(val, kwargs = {
