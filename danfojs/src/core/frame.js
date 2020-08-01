@@ -950,6 +950,20 @@ export class DataFrame extends Ndframe {
         }
     }
 
+    /**
+    * Returns the absolute values in DataFrame
+    * @return {DataFrame}
+    */
+    abs() {
+        let data = this.values
+
+        let tensor_data = tf.tensor(data)
+        let abs_data = tensor_data.abs().arraySync()
+        let df = new DataFrame(utils.__round(abs_data, 2, false), { columns: this.column_names, index: this.index })
+        return df
+    }
+
+
 
     __get_tensor_and_idx(df, axis) {
         let tensor_vals, idx, t_axis;
