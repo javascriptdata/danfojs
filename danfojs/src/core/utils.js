@@ -556,6 +556,18 @@ export class Utils {
         }
 
     }
+
+    __std(data){
+
+        let tensor_data = data
+
+        let mean = tensor_data.mean()
+        let sub_mean_pow = tensor_data.sub(mean).pow(2)
+        let mean_data = sub_mean_pow.mean()
+        let std = mean_data.sqrt()
+        
+        return std
+    }
 }
 
 
