@@ -323,7 +323,7 @@ export class Series extends NDframe {
             throw Error("dtype error: String data type does not support sum operation")
         }
         let temp_sum = tf.tensor(this.values).asType(this.dtypes[0]).sum().arraySync()
-        return temp_sum
+        return Number(temp_sum.toFixed(5))
     }
 
 

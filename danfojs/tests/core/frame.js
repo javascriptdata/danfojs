@@ -653,8 +653,8 @@ describe("DataFrame", function () {
     describe("sort_values", function () {
         it("Sort values in DataFrame by specified column in ascending order (Default)", function () {
             let data = [[0, 2, 4, "a"],
-                      [360, 180, 360, "b"],
-                      [2, 4, 6, "c"]]
+            [360, 180, 360, "b"],
+            [2, 4, 6, "c"]]
 
             let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] })
             df.sort_values({ "by": "col1", inplace: true, ascending: true })
@@ -978,13 +978,13 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { columns: cols })
             let group_df = df.groupby(["A", "B"]);
             let new_data = {
-                '1': { '2': [ 2, 1 ] },
-                '4': { '5': [ 5, 1 ] },
-                '20': { '30': [ 30, 1 ] },
-                '39': { '89': [ 89, 1 ] }
-              }
+                '1': { '2': [2, 1] },
+                '4': { '5': [5, 1] },
+                '20': { '30': [30, 1] },
+                '39': { '89': [89, 1] }
+            }
 
-            assert.deepEqual(group_df.agg({"B":"mean", "C":"count"}), new_data);
+            assert.deepEqual(group_df.agg({ "B": "mean", "C": "count" }), new_data);
         });
 
 
@@ -1271,11 +1271,11 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { columns: column })
 
             let df_val = [[-999, 1, 2, 3], [3, 4, -999, 9], [5, 6, 7, 8]]
-        
+
             assert.deepEqual(df.fillna(-999).values, df_val)
         });
     })
-    
+
 
     describe("nanindex", function () {
 
@@ -1346,18 +1346,259 @@ describe("DataFrame", function () {
             let data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]]
             let column = ["A", "B", "C", "D"]
             let df = new DataFrame(data, { columns: column })
-            let rslt = [ [ 2, 1, 2, 3 ], [ 5, 5, 13, 12 ], [ 10, 11, 20, 20 ] ]
-            
+            let rslt = [[2, 1, 2, 3], [5, 5, 13, 12], [10, 11, 20, 20]]
+
             assert.deepEqual(df.cumsum().values, rslt)
         });
         it("check cumsum data along axis 1", function () {
             let data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]]
             let column = ["A", "B", "C", "D"]
             let df = new DataFrame(data, { columns: column })
-            let rslt = [ [ 2, 3, 5, 8 ], [ 3, 7, 18, 27 ], [ 5, 11, 18, 26 ] ]
-            
-            assert.deepEqual(df.cumsum({axis:1}).values, rslt)
+            let rslt = [[2, 3, 5, 8], [3, 7, 18, 27], [5, 11, 18, 26]]
+
+            assert.deepEqual(df.cumsum({ axis: 1 }).values, rslt)
         });
+    })
+
+    describe("lt", function () {
+        it("Returns Less than of DataFrame and other DataFrame (element-wise)", function () {
+            let data1 = [[10, 45, 56, 10], [25, 23, 20, 10]]
+            let data2 = [[100, 450, 590, 5], [25, 2, 0, 10]]
+
+            let df = new DataFrame(data1)
+            let df2 = new DataFrame(data2)
+            let expected = [[true, true, true, false], [false, false, false, false]]
+            assert.deepEqual(df.lt(df2).values, expected)
+        })
+
+        it("Return Less than of series scalar (element-wise)", function () {
+            let data1 = [[10, 45, 56, 10], [25, 23, 20, 10]]
+            let sf = new DataFrame(data1)
+            let expected = [[true, false, false, true], [true, true, true, true]]
+            assert.deepEqual(sf.lt(30).values, expected)
+        })
+
+    })
+
+    describe("gt", function () {
+        it("Return Greater than of series and other series (element-wise)", function () {
+            let data1 = [[10, 45, 56, 10], [25, 23, 20, 10]]
+            let data2 = [[100, 450, 590, 5], [25, 2, 0, 10]]
+
+            let df = new DataFrame(data1)
+            let df2 = new DataFrame(data2)
+            let expected = [[false, false, false, true], [false, true, true, false]]
+            assert.deepEqual(df.gt(df2).values, expected)
+        })
+
+        it("Return Greater than of series scalar (element-wise)", function () {
+            let data1 = [[10, 45, 56, 10], [25, 23, 20, 10]]
+            let sf = new DataFrame(data1)
+            let expected = [[false, true, true, false], [false, false, false, false]]
+            assert.deepEqual(sf.gt(30).values, expected)
+        })
+
+    })
+
+    describe("le", function () {
+        it("Return Less than or Equal to of series and other series (element-wise)", function () {
+            let data1 = [[10, 45, 56, 10], [25, 23, 20, 10]]
+            let data2 = [[100, 450, 590, 5], [25, 2, 0, 10]]
+
+            let df = new DataFrame(data1)
+            let df2 = new DataFrame(data2)
+            let expected = [[true, true, true, false], [true, false, false, true]]
+            assert.deepEqual(df.le(df2).values, expected)
+        })
+
+        it("Return Less than or Equal to of series scalar (element-wise)", function () {
+            let data1 = [[10, 45, 56, 10], [25, 23, 30, 10]]
+            let sf = new DataFrame(data1)
+            let expected = [[true, false, false, true], [true, true, true, true]]
+            assert.deepEqual(sf.le(30).values, expected)
+        })
+
+    })
+
+    describe("ge", function () {
+        it("Return Greater than or Equal to of series and other series (element-wise)", function () {
+            let data1 = [[10, 45, 56, 10], [25, 23, 20, 10]]
+            let data2 = [[100, 450, 590, 5], [25, 2, 0, 10]]
+
+            let df = new DataFrame(data1)
+            let df2 = new DataFrame(data2)
+            let expected = [[false, false, false, true], [true, true, true, true]]
+            assert.deepEqual(df.ge(df2).values, expected)
+        })
+
+        it("Return Greater than or Equal to of series scalar (element-wise)", function () {
+            let data1 = [[10, 45, 56, 10], [25, 23, 30, 10]]
+            let sf = new DataFrame(data1)
+            let expected = [[false, true, true, false], [false, false, true, false]]
+            assert.deepEqual(sf.ge(30).values, expected)
+        })
+
+    })
+
+    describe("ne", function () {
+        it("Return Not Equal to of series and other series (element-wise)", function () {
+            let data1 = [[10, 45, 56, 10], [25, 23, 20, 10]]
+            let data2 = [[100, 450, 590, 5], [25, 2, 0, 10]]
+
+            let df = new DataFrame(data1)
+            let df2 = new DataFrame(data2)
+            let expected = [[true, true, true, true], [false, true, true, false]]
+            assert.deepEqual(df.ne(df2).values, expected)
+        })
+
+        it("Return Not Equal to of series scalar (element-wise)", function () {
+            let data1 = [[10, 45, 56, 10], [25, 23, 30, 10]]
+            let sf = new DataFrame(data1)
+            let expected = [[true, true, true, true], [true, true, false, true]]
+            assert.deepEqual(sf.ne(30).values, expected)
+        })
+
+    })
+
+    describe("eq", function () {
+        it("Return Equal to of series and other series (element-wise)", function () {
+            let data1 = [[10, 45, 56, 10], [25, 23, 20, 10]]
+            let data2 = [[100, 450, 590, 5], [25, 2, 0, 10]]
+
+            let df = new DataFrame(data1)
+            let df2 = new DataFrame(data2)
+            let expected = [[false, false, false, false], [true, false, false, true]]
+            assert.deepEqual(df.eq(df2).values, expected)
+        })
+
+        it("Return Equal to of series scalar (element-wise)", function () {
+            let data1 = [[10, 45, 56, 10], [25, 23, 30, 10]]
+            let sf = new DataFrame(data1)
+            let expected = [[false, false, false, false], [false, false, true, false]]
+            assert.deepEqual(sf.eq(30).values, expected)
+        })
+
+    })
+
+    describe("replace", function () {
+        it("Replace values given in replace param", function () {
+            let data1 = [[10, 45, 56, 25], [23, 20, 10, 24]]
+            let sf = new DataFrame(data1)
+            let expected = [[-999, 45, 56, 25], [23, 20, -999, 24]]
+            let df_rep = sf.replace({ replace: 10, with: -999 })
+            assert.deepEqual(df_rep.values, expected)
+        })
+
+        it("Replace values given in replace param with value (String type)", function () {
+            let data1 = [["A", "A", "A", "B"], ["B", "C", "C", "D"]]
+            let sf = new Series(data1)
+            let expected = [["boy", "boy", "boy", "B"], ["B", "C", "C", "D"]]
+            sf.replace({ replace: "A", with: "boy", inplace: true })
+            assert.deepEqual(sf.values, expected)
+        })
+        it("Throw error on wrong param passed", function () {
+            let data1 = [["A", "A", "A", "B"], ["B", "C", "C", "D"]]
+            let sf = new Series(data1)
+            let expected = `Params Error: A specified parameter is not supported. Your params must be any of the following [replace,with,inplace]`
+            assert.throws(() => { sf.replace({ replce: "A", with: "boy", inplace: true }) }, Error, expected)
+        })
+
+    })
+
+    describe("drop_duplicates", function () {
+        it("Return Series with duplicate values removed (Default, first values kept)", function () {
+            let data1 = [10, 45, 56, 10, 23, 20, 10, 10]
+            let sf = new Series(data1)
+            let expected = [10, 45, 56, 23, 20]
+            let expected_index = [0, 1, 2, 4, 5]
+            let df_drop = sf.drop_duplicates()
+            assert.deepEqual(df_drop.values, expected)
+            assert.deepEqual(df_drop.index, expected_index)
+
+        })
+
+        it("Return Series with duplicate values removed (last values kept)", function () {
+            let data1 = [10, 45, 56, 10, 23, 20, 10, 10]
+            let sf = new Series(data1)
+            let expected = [45, 56, 23, 20, 10]
+            let expected_index = [1, 2, 4, 5, 7]
+            let df_drop = sf.drop_duplicates({ keep: "last" })
+            assert.deepEqual(df_drop.values, expected)
+            assert.deepEqual(df_drop.index, expected_index)
+
+        })
+
+        it("Return Series with duplicate values removed (String)", function () {
+            let data1 = ["A", "A", "A", "B", "B", "C", "C", "D"]
+            let sf = new Series(data1)
+            let expected = ["A", "B", "C", "D"]
+            let expected_index = [0, 3, 5, 7]
+            sf.drop_duplicates({ inplace: true })
+            assert.deepEqual(sf.values, expected)
+            assert.deepEqual(sf.index, expected_index)
+
+        })
+
+    })
+
+    describe("sum", function () {
+        it("Sum values of a DataFrame by Default axis column (axis=1)", function () {
+            let data1 = [[30, 40, 3.1, "a"],
+            [5, 5, 5.1, "b"],
+            [5, 5, 3.2, "c"]]
+            let sf = new DataFrame(data1)
+            let res = [40, 50, 11.4, "abc"]
+            assert.deepEqual(sf.sum(), res)
+        })
+        it("Sum values of a DataFrame along row axis (axis=0)", function () {
+            let data1 = [[30, 40, 3.1, "a"],
+            [5, 5, 5.1, "b"],
+            [5, 5, 3.2, "c"]]
+            let df = new DataFrame(data1)
+            let res = [73.1, 15.1, 13.2]
+            assert.deepEqual(df.sum({ axis: 0 }), res)
+        })
+        it("Sum values of a mixed DataFrame along row axis (axis=0)", function () {
+            let data1 = [[30, 40, 3.1, "a", true],
+            [5, 5, 5.1, "b", true],
+            [5, 5, 3.2, "c", true]]
+            let df = new DataFrame(data1)
+            let res = [74.1, 16.1, 14.2]
+            assert.deepEqual(df.sum({ axis: 0 }), res)
+        })
+        it("Sum values of a boolean DataFrame along row axis (axis=0)", function () {
+            let data1 = [[true, true, false, true],
+            [false, false, false, false],
+            [false, true, true, false]]
+            let df = new DataFrame(data1)
+            let res = [3, 0, 2]
+            assert.deepEqual(df.sum({ axis: 0 }), res)
+        })
+        it("Sum values of a boolean DataFrame along default column axis (axis=1)", function () {
+            let data1 = [[true, true, false, true],
+            [false, false, false, false],
+            [false, true, true, false]]
+            let df = new DataFrame(data1)
+            let res = [1, 2, 1, 1]
+            assert.deepEqual(df.sum(), res)
+        })
+
+    })
+
+    describe("abs", function () {
+        it("Returns the absolute values in DataFrame of ints", function () {
+            let data1 = [[-10, 45, 56, 10], [-25, 23, 20, -10]]
+            let df = new DataFrame(data1)
+            let expected = [[10, 45, 56, 10], [25, 23, 20, 10]]
+            assert.deepEqual(df.abs().values, expected)
+        })
+
+        it("Returns the absolute values in mixed DataFrame", function () {
+            let data1 = [[-10, -45.1, 56, 10], [-25, -23.2, 20, -10]]
+            let df = new DataFrame(data1)
+            let expected = [[10, 45.1, 56, 10], [25, 23.2, 20, 10]]
+            assert.deepEqual(df.abs().values, expected)
+        })
     })
 
 });

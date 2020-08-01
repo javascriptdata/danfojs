@@ -284,6 +284,25 @@ describe("Series", function () {
 
     })
 
+    describe("sum", function () {
+        it("Sum values of a Int Series", function () {
+            let data1 = [30, 40, 3, 5, 5, 5, 5, 5, 3, 3, 3, 21, 3]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.sum(), 131)
+        })
+        it("Sum values of a Float Series", function () {
+            let data1 = [30.1, 3.1, 40.2, 3.1, 5.1]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.sum(), 81.6)
+        })
+        it("Sum values of a bool Series", function () {
+            let data1 = [true, true, false, false, false]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.sum(), 2)
+        })
+
+    })
+
     describe("mode", function () {
         it("Computes the multi-modal values of a Series", function () {
             let data1 = [30, 40, 3, 5, 5, 5, 5, 5, 3, 3, 3, 21, 3]
@@ -387,14 +406,6 @@ describe("Series", function () {
             let sf2 = new Series(data2)
             assert.deepEqual(sf1.maximum(sf2).values, [30, 41, 3, 5])
         })
-        // it("Return sum of float values in a series", function () {
-        //     let data1 = [30.1, 40.2, 3.1, 5.1]
-        //     let data2 = [10, 41, 2, 0]
-        //     let sf = new Series(data1)
-        //     let sf2 = new Series(data2)
-
-        //     assert.deepEqual(sf.maximum(sf2).values, )
-        // })
         it("Throws error on checking maximum of incompatible Series", function () {
             let data1 = [30, 40, 3, 5]
             let data2 = [10, 41, 2]
@@ -680,6 +691,22 @@ describe("Series", function () {
         })
 
     })
+
+    describe("fillna", function () {
+        it("replace all NaN value with specified value", function () {
+            let data = [NaN, 1, 2, 33, 4, NaN, 5, 6, 7, 8]
+            let sf = new Series(data)
+            let sf_val = [-999, 1, 2, 33, 4, -999, 5, 6, 7, 8]
+            assert.deepEqual(sf.fillna(-999).values, sf_val)
+        })
+        it("replace all NaN value with specified value", function () {
+            let data = [NaN, "boy", NaN, "hey", "Man", undefined]
+            let sf = new Series(data)
+            let sf_val = ["filled", "boy", "filled", "hey", "Man", "filled"]
+            assert.deepEqual(sf.fillna("filled").values, sf_val)
+        });
+    })
+
 
     describe("cumsum", function () {
         it("Return cumulative sum over a Series", function () {
