@@ -915,6 +915,42 @@ export class DataFrame extends Ndframe {
 
     }
 
+
+    /**
+    * Return the sum of the values in a DataFrame across a specified axis.
+    * @params {kwargs} {axis: 0 for row and 1 for column}
+    * @returns {Series}, Sum of values accross axis
+    */
+    sum(kwargs = { axis: 1 }) {
+        if (this.__frame_is_compactible_for_operation()) {
+            let values;
+            let val_sums = []
+            if (kwargs['axis'] == 1) {
+                values = this.col_data
+            } else {
+                values = this.values
+            }
+
+            values.map(arr => {
+                let temp_sum = tf.tensor(arr).sum().arraySync()
+                val_sums.push(Number(temp_sum.toFixed(5)))
+            })
+
+            let new_index;
+            if (kwargs['axis'] == 1) {
+                new_index = this.column_names
+            } else {
+                new_index = this.index
+            }
+            let sf = new Series(val_sums, { columns: "sum", index: new_index })
+            return sf
+
+        } else {
+            throw Error("Dtype Error: Operation can not be performed on string type")
+        }
+    }
+
+
     __get_tensor_and_idx(df, axis) {
         let tensor_vals, idx, t_axis;
         if (axis == 1) {
@@ -1726,16 +1762,25 @@ export class DataFrame extends Ndframe {
     //compatible Dataframe must have only numerical dtypes
     __frame_is_compactible_for_operation() {
         let dtypes = this.dtypes
-        const float = (element) => element == "float32";
-        const int = (element) => element == "int32";
+        // const float = (element) => element == "float32";
+        // const int = (element) => element == "int32";
+        // const bools = (element) => element == "boolean";
+        const str = (element) => element == "string";
 
-        if (dtypes.every(float)) {
-            return true
-        } else if (dtypes.every(int)) {
-            return true
-        } else {
+        if (dtypes.some(str)) {
             return false
+        } else {
+            return true
         }
+        // if (dtypes.every(float)) {
+        //     return true
+        // } else if (dtypes.every(int)) {
+        //     return true
+        // } else if (dtypes.every(bools)) {
+        //     return true
+        // } else {
+        //     return false
+        // }
     }
 
 

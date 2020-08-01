@@ -1378,8 +1378,8 @@ describe("DataFrame", function () {
 
             let df = new DataFrame(data1)
             let df2 = new DataFrame(data2)
-            let expected = [[true, true, true, false], 
-                            [false, false, false, false]]
+            let expected = [[true, true, true, false],
+            [false, false, false, false]]
             assert.deepEqual(df.lt(df2).values, expected)
         })
 
@@ -1387,7 +1387,7 @@ describe("DataFrame", function () {
             let data1 = [[10, 45, 56, 10], [25, 23, 20, 10]]
             let sf = new DataFrame(data1)
             let expected = [[true, false, false, true],
-                            [true, true, true, true]]
+            [true, true, true, true]]
             assert.deepEqual(sf.lt(30).values, expected)
         })
 
@@ -1556,44 +1556,44 @@ describe("DataFrame", function () {
 
     describe("sum", function () {
         it("Sum values of a DataFrame by Default axis column (axis=1)", function () {
-            let data1 = [[30, 40, 3.1, "a"],
-            [5, 5, 5.1, "b"],
-            [5, 5, 3.2, "c"]]
+            let data1 = [[30, 40, 3.1],
+                        [5, 5, 5.1],
+                        [5, 5, 3.2]]
             let sf = new DataFrame(data1)
-            let res = [40, 50, 11.4, "abc"]
-            assert.deepEqual(sf.sum(), res)
+            let res = [40, 50, 11.4]
+            assert.deepEqual(sf.sum().values, res)
         })
         it("Sum values of a DataFrame along row axis (axis=0)", function () {
-            let data1 = [[30, 40, 3.1, "a"],
-            [5, 5, 5.1, "b"],
-            [5, 5, 3.2, "c"]]
+            let data1 = [[30, 40, 3.1],
+                        [5, 5, 5.1],
+                        [5, 5, 3.2]]
             let df = new DataFrame(data1)
             let res = [73.1, 15.1, 13.2]
-            assert.deepEqual(df.sum({ axis: 0 }), res)
+            assert.deepEqual(df.sum({ axis: 0 }).values, res)
         })
         it("Sum values of a mixed DataFrame along row axis (axis=0)", function () {
-            let data1 = [[30, 40, 3.1, "a", true],
-            [5, 5, 5.1, "b", true],
-            [5, 5, 3.2, "c", true]]
+            let data1 = [[30, 40, 3.1, true],
+                        [5, 5, 5.1, true],
+                        [5, 5, 3.2, true]]
             let df = new DataFrame(data1)
             let res = [74.1, 16.1, 14.2]
-            assert.deepEqual(df.sum({ axis: 0 }), res)
+            assert.deepEqual(df.sum({ axis: 0 }).values, res)
         })
         it("Sum values of a boolean DataFrame along row axis (axis=0)", function () {
             let data1 = [[true, true, false, true],
-            [false, false, false, false],
-            [false, true, true, false]]
+                        [false, false, false, false],
+                        [false, true, true, false]]
             let df = new DataFrame(data1)
             let res = [3, 0, 2]
-            assert.deepEqual(df.sum({ axis: 0 }), res)
+            assert.deepEqual(df.sum({ axis: 0 }).values, res)
         })
         it("Sum values of a boolean DataFrame along default column axis (axis=1)", function () {
             let data1 = [[true, true, false, true],
-            [false, false, false, false],
-            [false, true, true, false]]
+                        [false, false, false, false],
+                        [false, true, true, false]]
             let df = new DataFrame(data1)
             let res = [1, 2, 1, 1]
-            assert.deepEqual(df.sum(), res)
+            assert.deepEqual(df.sum().values, res)
         })
 
     })
