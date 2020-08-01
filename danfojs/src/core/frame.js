@@ -1561,8 +1561,77 @@ export class DataFrame extends Ndframe {
 
     }
 
+    /**
+    * Returns Less than or Equal to of DataFrame and other. Supports element wise operations
+    * @param {other} DataFrame, Series, Scalar 
+    * @return {DataFrame}
+    */
+    le(other) {
+        if (this.__frame_is_compactible_for_operation()) {
+
+            let df = this.__logical_ops(other, "le")
+            return df
+
+        } else {
+            throw Error("Dtype Error: Operation can not be performed on string type")
+        }
+    }
+
+    /**
+    * Returns Greater than or Equal to of DataFrame and other. Supports element wise operations
+    * @param {other} DataFrame, Series, Scalar 
+    * @return {DataFrame}
+    */
+    ge(other) {
+        if (this.__frame_is_compactible_for_operation()) {
+
+            let df = this.__logical_ops(other, "ge")
+            return df
+
+        } else {
+            throw Error("Dtype Error: Operation can not be performed on string type")
+        }
+
+    }
+
+    /**
+    * Returns Not Equal to of DataFrame and other. Supports element wise operations
+    * @param {other} DataFrame, Series, Scalar 
+    * @return {DataFrame}
+    */
+    ne(other) {
+        if (this.__frame_is_compactible_for_operation()) {
+
+            let df = this.__logical_ops(other, "ne")
+            return df
+
+        } else {
+            throw Error("Dtype Error: Operation can not be performed on string type")
+        }
+
+    }
+
+    /**
+    * Returns Greater than or Equal to of DataFrame and other. Supports element wise operations
+    * @param {other} DataFrame, Series, Scalar 
+    * @return {DataFrame}
+    */
+    eq(other) {
+        if (this.__frame_is_compactible_for_operation()) {
+
+            let df = this.__logical_ops(other, "eq")
+            return df
+
+        } else {
+            throw Error("Dtype Error: Operation can not be performed on string type")
+        }
+
+    }
+
+  
 
 
+    //performs logical comparisons on DataFrame using Tensorflow.js
     __logical_ops(val, logical_type) {
         let int_vals, other;
 
