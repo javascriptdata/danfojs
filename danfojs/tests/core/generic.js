@@ -215,4 +215,21 @@ describe("Generic (NDFrame)", function () {
             assert.deepEqual(ndframe.dtypes, ["string", "int32", "float32"])
         })
     })
+
+    describe("to_csv", async function () {
+        it("Converts DataFrame of Series to csv format and return path", async function () {
+            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
+            let df = new NDframe(data)
+            let dpath = '/Users/mac/Documents/Opensource/danfojs/temp-out/file.csv'
+            df.to_csv(dpath).then((return_path)=>{
+                assert.deepEqual(return_path, dpath)
+            })
+        })
+        it("Converts DataFrame of Series to csv format and return string when path is not specified", async function () {
+            let data = [[12, 2, 20], [90, 5, 23], [45, 56, 70], [9, 10, 19]]
+            let df = new NDframe(data, {columns: ["A", "B",  "C"]})
+            let result = `A,B,C\n12,2,20\n90,5,23\n45,56,70\n9,10,19\n`
+            assert.deepEqual(await df.to_csv(), result)
+        })
+    })
 })
