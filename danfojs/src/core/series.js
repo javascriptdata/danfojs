@@ -915,6 +915,30 @@ export class Series extends NDframe {
     }
 
     /**
+     * Return int position of the largest value in the Series.
+     * @return {Number}
+     */
+    argmax() {
+        let sorted_index = this.sort_values({ ascending: true }).index
+        let last_idx = sorted_index[sorted_index.length - 1]
+        return last_idx
+    }
+
+
+    /**
+     * Return int position of the smallest value in the Series.
+     * @param {ascending} boolean true: will sort the Series in ascending order, false: will sort in descending order
+     * @return {Series}
+     */
+    argmin() {
+        let sorted_index = this.sort_values({ ascending: true }).index
+        let first_idx = sorted_index[0]
+        return first_idx
+    }
+    
+
+
+    /**
      * Return Series with duplicate values removed
      * @param {kwargs} {inplace: Perform operation inplace or not} 
      * @return {Series}
