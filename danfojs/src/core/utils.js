@@ -557,7 +557,37 @@ export class Utils {
 
     }
 
-    __std(data){
+
+    //maps int values (0, 1) to bools (false, true) 
+    __map_int_to_bool(arr, dim) {
+        let new_arr = []
+        if (dim == 2) {
+            arr.map(outer_val => {
+                let temp_arr = []
+                outer_val.map(val => {
+                    if (val == 1) {
+                        temp_arr.push(true)
+                    } else {
+                        temp_arr.push(false)
+                    }
+                })
+                new_arr.push(temp_arr)
+            })
+            return new_arr
+        } else {
+            arr.map(val => {
+                if (val == 1) {
+                    new_arr.push(true)
+                } else {
+                    new_arr.push(false)
+                }
+            })
+            return new_arr
+        }
+
+    }
+
+    __std(data) {
 
         let tensor_data = data
 
@@ -565,7 +595,7 @@ export class Utils {
         let sub_mean_pow = tensor_data.sub(mean).pow(2)
         let mean_data = sub_mean_pow.mean()
         let std = mean_data.sqrt()
-        
+
         return std
     }
 }

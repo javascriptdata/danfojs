@@ -1378,14 +1378,16 @@ describe("DataFrame", function () {
 
             let df = new DataFrame(data1)
             let df2 = new DataFrame(data2)
-            let expected = [[true, true, true, false], [false, false, false, false]]
+            let expected = [[true, true, true, false], 
+                            [false, false, false, false]]
             assert.deepEqual(df.lt(df2).values, expected)
         })
 
         it("Return Less than of series scalar (element-wise)", function () {
             let data1 = [[10, 45, 56, 10], [25, 23, 20, 10]]
             let sf = new DataFrame(data1)
-            let expected = [[true, false, false, true], [true, true, true, true]]
+            let expected = [[true, false, false, true],
+                            [true, true, true, true]]
             assert.deepEqual(sf.lt(30).values, expected)
         })
 

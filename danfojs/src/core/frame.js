@@ -1533,15 +1533,70 @@ export class DataFrame extends Ndframe {
      * @return {DataFrame}
      */
     lt(other) {
-        if  (this.__frame_is_compactible_for_operation()){
-            let values = this.values
-            let bool_arr = []
+        if (this.__frame_is_compactible_for_operation()) {
 
-            values.map(val=>{
-                
-            })
+            let df = this.__logical_ops(other, "lt")
+            return df
+
+        } else {
+            throw Error("Dtype Error: Operation can not be performed on string type")
         }
-        
+
+    }
+
+    /**
+    * Returns Greater than of DataFrame and other. Supports element wise operations
+    * @param {other} DataFrame, Series, Scalar 
+    * @return {DataFrame}
+    */
+    gt(other) {
+        if (this.__frame_is_compactible_for_operation()) {
+
+            let df = this.__logical_ops(other, "gt")
+            return df
+
+        } else {
+            throw Error("Dtype Error: Operation can not be performed on string type")
+        }
+
+    }
+
+
+
+    __logical_ops(val, logical_type) {
+        let int_vals, other;
+
+        if (typeof val == "number") {
+            other = val
+        } else {
+            other = val.values
+        }
+
+        switch (logical_type) {
+
+            case "lt":
+                int_vals = tf.tensor(this.values).less(other).arraySync()
+                break;
+            case "gt":
+                int_vals = tf.tensor(this.values).greater(other).arraySync()
+                break;
+            case "le":
+                int_vals = tf.tensor(this.values).lessEqual(other).arraySync()
+                break;
+            case "ge":
+                int_vals = tf.tensor(this.values).greaterEqual(other).arraySync()
+                break;
+            case "ne":
+                int_vals = tf.tensor(this.values).notEqual(other).arraySync()
+                break;
+            case "eq":
+                int_vals = tf.tensor(this.values).equal(other).arraySync()
+                break;
+        }
+        let bool_vals = utils.__map_int_to_bool(int_vals, 2)
+        let df = new DataFrame(bool_vals, { columns: this.column_names, index: this.index })
+        return df
+
     }
 
 
