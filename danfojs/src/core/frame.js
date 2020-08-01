@@ -1527,14 +1527,22 @@ export class DataFrame extends Ndframe {
 
 
 
-    // /**
-    //  * Returns Less than of DataFrame and other. Supports element wise operations
-    //  * @param {other} DataFrame, Series, Scalar 
-    //  * @return {DataFrame}
-    //  */
-    // lt(other) {
-    //     //
-    // }
+    /**
+     * Returns Less than of DataFrame and other. Supports element wise operations
+     * @param {other} DataFrame, Series, Scalar 
+     * @return {DataFrame}
+     */
+    lt(other) {
+        if  (this.__frame_is_compactible_for_operation()){
+            let values = this.values
+            let bool_arr = []
+
+            values.map(val=>{
+                
+            })
+        }
+        
+    }
 
 
 

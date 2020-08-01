@@ -697,13 +697,15 @@ describe("Series", function () {
             let data = [NaN, 1, 2, 33, 4, NaN, 5, 6, 7, 8]
             let sf = new Series(data)
             let sf_val = [-999, 1, 2, 33, 4, -999, 5, 6, 7, 8]
-            assert.deepEqual(sf.fillna(-999).values, sf_val)
+            sf.fillna({ value: -999, inplace: true })
+            assert.deepEqual(sf.values, sf_val)
         })
-        it("replace all NaN value with specified value", function () {
+        it("replace all NaN value in string Series with specified value", function () {
             let data = [NaN, "boy", NaN, "hey", "Man", undefined]
             let sf = new Series(data)
             let sf_val = ["filled", "boy", "filled", "hey", "Man", "filled"]
-            assert.deepEqual(sf.fillna("filled").values, sf_val)
+            let sf_fill = sf.fillna({ value: "filled" })
+            assert.deepEqual(sf_fill.values, sf_val)
         });
     })
 
