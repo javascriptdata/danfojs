@@ -1151,7 +1151,7 @@ export class DataFrame extends Ndframe {
     // }
 
     /**
-     * Replace all nan value with a specific value
+     * Fill all NaN value with a specific value
      * @param {*} nan_val 
      */
     fillna(nan_val) {
@@ -1628,7 +1628,47 @@ export class DataFrame extends Ndframe {
 
     }
 
-  
+
+    /**
+    * Replace all occurence of a value with a new specified value"
+    * @param {kwargs}, {"replace": the value you want to replace, "with": the new value you want to replace the olde value with, inplace: Perform operation inplace or not} 
+    * @return {Series}
+    */
+    replace(kwargs = {}) {
+        let params_needed = ["replace", "with", "inplace"]
+        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
+        }
+
+        kwargs['inplace'] = kwargs['inplace'] || false
+
+        if (utils.__key_in_object(kwargs, "replace") && utils.__key_in_object(kwargs, "with")) {
+            let replaced_arr = []
+            let old_arr = this.values
+
+            old_arr.map(inner_arr => {
+                let temp = []
+                inner_arr.map(val => {
+                    if (val == kwargs['replace']) {
+                        temp.push(kwargs['with'])
+                    } else {
+                        temp.push(val)
+                    }
+                })
+                replaced_arr.push(temp)
+            })
+            if (kwargs['inplace']) {
+                this.data = replaced_arr
+            } else {
+                let df = new DataFrame(replaced_arr, { index: this.index, columns: this.columns, dtypes: this.dtypes })
+                return df
+            }
+
+        } else {
+            throw Error("Params Error: Must specify both 'replace' and 'with' parameters.")
+        }
+
+    }
 
 
     //performs logical comparisons on DataFrame using Tensorflow.js

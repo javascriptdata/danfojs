@@ -1504,14 +1504,14 @@ describe("DataFrame", function () {
 
         it("Replace values given in replace param with value (String type)", function () {
             let data1 = [["A", "A", "A", "B"], ["B", "C", "C", "D"]]
-            let sf = new Series(data1)
+            let sf = new DataFrame(data1)
             let expected = [["boy", "boy", "boy", "B"], ["B", "C", "C", "D"]]
             sf.replace({ replace: "A", with: "boy", inplace: true })
             assert.deepEqual(sf.values, expected)
         })
         it("Throw error on wrong param passed", function () {
             let data1 = [["A", "A", "A", "B"], ["B", "C", "C", "D"]]
-            let sf = new Series(data1)
+            let sf = new DataFrame(data1)
             let expected = `Params Error: A specified parameter is not supported. Your params must be any of the following [replace,with,inplace]`
             assert.throws(() => { sf.replace({ replce: "A", with: "boy", inplace: true }) }, Error, expected)
         })
