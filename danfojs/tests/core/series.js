@@ -904,20 +904,27 @@ describe("Series", function () {
     })
 
     describe("dropna", function () {
-        it("Return a new Series with missing values removed.", function () {
+        it("Return a new Series with missing values removed (Int)", function () {
             let data1 = [10, 45, undefined, 10, 23, 20, undefined, 10]
             let sf = new Series(data1)
             let expected = [10, 45, 10, 23, 20, 10]
-            let df_drop = sf.dropna()
-            assert.deepEqual(df_drop.values, expected)
+            let expected_index = [ 0, 1, 3, 4, 5, 7 ]
+            let sf_drop = sf.dropna()
+            assert.deepEqual(sf_drop.values, expected)
+            assert.deepEqual(sf_drop.index, expected_index)
+
         })
 
-        it("Return a new Series with missing values removed.", function () {
+        it("Return a new Series with missing values removed (String)", function () {
             let data1 = ["A", NaN, "A", "B", "B", NaN, "C", undefined]
             let sf = new Series(data1)
             let expected = ["A", "A", "B", "B", "C"]
-            sf.dropna({ inplace: true })
+            let expected_index = [ 0, 2, 3, 4, 6 ]
+
+            sf.dropna({inplace: true })
             assert.deepEqual(sf.values, expected)
+            assert.deepEqual(sf.index, expected_index)
+
         })
 
     })

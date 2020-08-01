@@ -343,13 +343,13 @@ export default class NDframe {
 
     }
 
-    /**
-   * Write object to a JSON Format (csv) file.
-    * @params {path} File path or object, if None is provided the result is returned as a string
-    */
-    to_json(kwargs = {}) {
-        //TODO
-    }
+//     /**
+//    * Write object to a JSON Format (csv) file.
+//     * @params {path} File path or object, if None is provided the result is returned as a string
+//     */
+//     to_json(kwargs = {}) {
+//         //TODO
+//     }
 
     /**
     * Prints the data in a Series as a grid of row and columns

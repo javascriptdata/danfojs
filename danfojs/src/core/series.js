@@ -873,6 +873,41 @@ export class Series extends NDframe {
 
 
     /**
+     * Return a new Series with missing values removed.
+     * @param {kwargs} {inplace: Perform operation inplace or not} 
+     * @return {Series}
+     */
+    dropna(kwargs={}){
+        let params_needed = ["inplace"]
+        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
+        }
+        kwargs['inplace'] = kwargs['inplace'] || false
+
+        let old_values = this.values
+        let old_index = this.index
+        let new_values = []
+        let new_index = []
+        let isna_vals = this.isna().values
+        
+        isna_vals.map((val, i)=>{
+            if (!val){
+                new_values.push(old_values[i])
+                new_index.push(old_index[i])
+            }
+        })
+       if (kwargs['inplace']){
+           this.index_arr = new_index
+           this.data = new_values
+       }else{
+           let sf = new Series(new_values, {columns: this.column_names, index: new_index, dtypes: this.dtypes})
+           return sf
+       }
+
+    }
+
+
+    /**
      * Return Series with duplicate values removed
      * @param {kwargs} {inplace: Perform operation inplace or not} 
      * @return {Series}
