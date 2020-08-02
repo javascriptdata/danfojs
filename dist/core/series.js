@@ -270,6 +270,12 @@ class Series extends _generic.default {
       throw Error("dtype error: String data type does not support sum operation");
     }
 
+    if (this.dtypes[0] == "boolean") {
+      console.log(this.values);
+      let temp_sum = tf.tensor(this.values).sum().arraySync();
+      return Number(temp_sum.toFixed(5));
+    }
+
     let temp_sum = tf.tensor(this.values).asType(this.dtypes[0]).sum().arraySync();
     return Number(temp_sum.toFixed(5));
   }
@@ -372,6 +378,43 @@ class Series extends _generic.default {
       dtypes: ["boolean"]
     });
     return sf;
+  }
+
+  fillna(kwargs = {}) {
+    let params_needed = ["value", "inplace"];
+
+    if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+      throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`);
+    }
+
+    kwargs['inplace'] = kwargs['inplace'] || false;
+
+    if (!utils.__key_in_object(kwargs, "value")) {
+      throw Error('Value Error: Must specify value to replace with');
+    }
+
+    let values = this.values;
+    let new_values = [];
+    values.map(val => {
+      if (isNaN(val) && typeof val != "string") {
+        new_values.push(kwargs['value']);
+      } else {
+        new_values.push(val);
+      }
+    });
+
+    if (kwargs['inplace']) {
+      this.data = new_values;
+      this.print();
+    } else {
+      let sf = new Series(new_values, {
+        columns: this.column_names,
+        index: this.index,
+        dtypes: this.dtypes
+      });
+      sf.print();
+      return sf;
+    }
   }
 
   sort_values(kwargs = {}) {
