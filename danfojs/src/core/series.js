@@ -1,6 +1,8 @@
 import * as tf from '@tensorflow/tfjs-node'
+import { std, variance } from 'mathjs'
 // import * as tf from '@tensorflow/tfjs'
 import { Utils } from "./utils"
+import {Str} from "./strings"
 import NDframe from "./generic"
 import { table } from 'table'
 import { Configs } from '../config/config'
@@ -9,7 +11,6 @@ import { Configs } from '../config/config'
 const utils = new Utils
 const config = new Configs()  //package wide configuration object
 
-import { std, variance } from 'mathjs'
 
 
 
@@ -982,6 +983,8 @@ export class Series extends NDframe {
 
 
 
+
+
     /**
      * Return Series with duplicate values removed
      * @param {kwargs} {inplace: Perform operation inplace or not} 
@@ -1180,7 +1183,23 @@ export class Series extends NDframe {
         return new Series(data)
     }
 
+    /**
+     * Returns String Object of series. Has numerous methods to manipulate string Series
+     */
+    get str(){
+        let values = this.values
+        if (this.dtypes[0] != "string"){
+            let new_vals = []
+            //convert each value in array to string
+            values.map(val=>{
+                new_vals.push(`${val}`)
+            })
+            let sf = new Series(new_vals, {columns: this.column_names, index: this.index})
+            return new Str(sf)
+        }
+        return new Str(this)
 
+    }
 
 }
 

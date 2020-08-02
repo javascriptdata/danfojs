@@ -1,17 +1,16 @@
 //handled string columns in Series and DataFrame
+import { Series } from "./series"
+import {Utils} from "./utils"
 
-
-
+const utils = new Utils()
 
 /**
  * String methods applied on Series and DataFrames
  */
 export class Str {
-    constructor(array) {
-        if (!Array.isArray(array)) {
-            throw Error("Type Error: String class accepts only arrays")
-        }
-        this.array = array
+    constructor(series) {
+        this.series = series
+        this.array = series.values
     }
 
     /**
@@ -23,7 +22,8 @@ export class Str {
         this.array.map(val => {
             new_arr.push(val.toLowerCase())
         })
-        return new_arr
+        let sf = this.__create_new_sf_from(new_arr, this.series)
+        return sf
     }
 
     /**
@@ -35,7 +35,8 @@ export class Str {
         this.array.map(val => {
             new_arr.push(val.toUpperCase())
         })
-        return new_arr
+        let sf = this.__create_new_sf_from(new_arr, this.series)
+        return sf
     }
 
     /**
@@ -50,7 +51,8 @@ export class Str {
             let new_str = `${f_char.toUpperCase()}${l_char.toLowerCase()}`
             new_arr.push(new_str)
         })
-        return new_arr
+        let sf = this.__create_new_sf_from(new_arr, this.series)
+        return sf
 
     }
 
@@ -64,7 +66,8 @@ export class Str {
         this.array.map(val => {
             new_arr.push(val.charAt(index))
         })
-        return new_arr
+        let sf = this.__create_new_sf_from(new_arr, this.series)
+        return sf
     }
 
     /**
@@ -74,8 +77,8 @@ export class Str {
      * @params {isArray} whether operation is performed on Array or not
      * @return {array}
      */
-    concat(other = "", position = 1, isArray = false) {
-        if (isArray) {
+    concat(other = "", position = 1) {
+        if (Array.isArray(other)) {
             let final_arr = []
             for (let i = 0; i < other.length; i++) {
                 let l_str = this.array[i]
@@ -87,8 +90,8 @@ export class Str {
                 }
 
             }
-            return final_arr
-
+            let sf = this.__create_new_sf_from(final_arr, this.series)
+            return sf
         } else {
 
             let new_arr = []
@@ -101,7 +104,8 @@ export class Str {
                     new_arr.push(other.concat(val))
                 }
             })
-            return new_arr
+            let sf = this.__create_new_sf_from(new_arr, this.series)
+            return sf
         }
 
     }
@@ -117,7 +121,8 @@ export class Str {
         this.array.map(val => {
             new_arr.push(val.startsWith(str))
         })
-        return new_arr
+        let sf = this.__create_new_sf_from(new_arr, this.series)
+        return sf
     }
 
     /**
@@ -130,7 +135,8 @@ export class Str {
         this.array.map(val => {
             new_arr.push(val.endsWith(str))
         })
-        return new_arr
+        let sf = this.__create_new_sf_from(new_arr, this.series)
+        return sf
     }
 
     /**
@@ -143,7 +149,8 @@ export class Str {
         this.array.map(val => {
             new_arr.push(val.includes(str))
         })
-        return new_arr
+        let sf = this.__create_new_sf_from(new_arr, this.series)
+        return sf
     }
 
     /**
@@ -156,7 +163,8 @@ export class Str {
         this.array.map(val => {
             new_arr.push(val.indexOf(str))
         })
-        return new_arr
+        let sf = this.__create_new_sf_from(new_arr, this.series)
+        return sf
     }
 
     /**
@@ -169,7 +177,8 @@ export class Str {
         this.array.map(val => {
             new_arr.push(val.lastIndexOf(str))
         })
-        return new_arr
+        let sf = this.__create_new_sf_from(new_arr, this.series)
+        return sf
     }
 
 
@@ -184,7 +193,8 @@ export class Str {
         this.array.map(val => {
             new_arr.push(val.replace(searchValue, replaceValue))
         })
-        return new_arr
+        let sf = this.__create_new_sf_from(new_arr, this.series)
+        return sf
     }
 
     /**
@@ -197,7 +207,8 @@ export class Str {
         this.array.map(val => {
             new_arr.push(val.repeat(num))
         })
-        return new_arr
+        let sf = this.__create_new_sf_from(new_arr, this.series)
+        return sf
     }
 
 
@@ -211,7 +222,8 @@ export class Str {
         this.array.map(val => {
             new_arr.push(val.search(str))
         })
-        return new_arr
+        let sf = this.__create_new_sf_from(new_arr, this.series)
+        return sf
     }
 
     /**
@@ -225,7 +237,8 @@ export class Str {
         this.array.map(val => {
             new_arr.push(val.slice(startIndex, endIndex))
         })
-        return new_arr
+        let sf = this.__create_new_sf_from(new_arr, this.series)
+        return sf
     }
 
     /**
@@ -239,7 +252,8 @@ export class Str {
         this.array.map(val => {
             new_arr.push(val.split(splitVal))
         })
-        return new_arr
+        let sf = this.__create_new_sf_from(new_arr, this.series)
+        return sf
     }
 
     /**
@@ -253,7 +267,8 @@ export class Str {
         this.array.map(val => {
             new_arr.push(val.substr(startIndex, num))
         })
-        return new_arr
+        let sf = this.__create_new_sf_from(new_arr, this.series)
+        return sf
     }
 
     /**
@@ -267,7 +282,8 @@ export class Str {
         this.array.map(val => {
             new_arr.push(val.substring(startIndex, endIndex))
         })
-        return new_arr
+        let sf = this.__create_new_sf_from(new_arr, this.series)
+        return sf
     }
 
     /**
@@ -279,7 +295,8 @@ export class Str {
         this.array.map(val => {
             new_arr.push(val.trim())
         })
-        return new_arr
+        let sf = this.__create_new_sf_from(new_arr, this.series)
+        return sf
     }
 
     /**
@@ -296,7 +313,8 @@ export class Str {
             let new_char = `${l_char}${joinChar}${r_char}`
             new_arr.push(new_char)
         })
-        return new_arr
+        let sf = this.__create_new_sf_from(new_arr, this.series)
+        return sf
     }
 
     /**
@@ -308,7 +326,14 @@ export class Str {
         this.array.map(val => {
             new_arr.push(val.length)
         })
-        return new_arr
+        let sf = this.__create_new_sf_from(new_arr, this.series)
+        return sf
+    }
+
+    //create a new series
+    __create_new_sf_from(new_val, series) {
+        let sf = new Series(new_val, { columns: series.column_names, index: series.index })
+        return sf
     }
 
 

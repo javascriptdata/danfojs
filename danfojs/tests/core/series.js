@@ -1015,4 +1015,39 @@ describe("Series", function () {
 
     })
 
+    describe("Str", function () {
+        it("Converts all characters to lowercase.", function () {
+            let data = ['lower', 'CAPITALS', 'this is a sentence', 'SwApCaSe']
+            let res = ['lower', 'capitals', 'this is a sentence', 'swapcase']
+            let sf = new Series(data)
+            assert.deepEqual(sf.str.toLowerCase().values, res)
+        })
+        it("Converts all characters to uppercase.", function () {
+            let data = ['lower', 'CAPITALS', 'this is a sentence', 'SwApCaSe']
+            let res = ['LOWER', 'CAPITALS', 'THIS IS A SENTENCE', 'SWAPCASE']
+            let sf = new Series(data)
+            assert.deepEqual(sf.str.toUpperCase().values, res)
+        })
+        it("Converts all characters to capital case.", function () {
+            let data = ['lower', 'CAPITALS', 'this is a sentence', 'SwApCaSe']
+            let res = ['Lower', 'Capitals', 'This is a sentence', 'Swapcase']
+            let sf = new Series(data)
+            assert.deepEqual(sf.str.capitalize().values, res)
+        })
+
+        it("Returns the character at the specified index (position)", function () {
+            let data = ['lower', 'CAPITALS', 'this is a sentence', 'SwApCaSe']
+            let res = ["w", "P", "i", "A"]
+            let sf = new Series(data)
+            assert.deepEqual(sf.str.charAt(2).values, res)
+        })
+
+        it("Returns the concat of numeric series", function () {
+            let data = [1, 2, 3, 4, 5, 6]
+            let res = ["120", "220", "320", "420", "520", "620"]
+            let sf = new Series(data)
+            assert.deepEqual(sf.str.concat("20", 1).values, res)
+        })
+    })
+
 })
