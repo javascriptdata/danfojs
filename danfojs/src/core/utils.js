@@ -598,6 +598,20 @@ export class Utils {
 
         return std
     }
+
+    __zeros(row,column){
+
+        let zero_data = []
+
+        for(let i=0; i< row; i++){
+            let col_data = Array(column);
+            for(let j=0; j < column; j++){
+                col_data[j] = 0
+            }
+            zero_data.push(col_data);
+        }
+        return zero_data
+    }
 }
 
 
