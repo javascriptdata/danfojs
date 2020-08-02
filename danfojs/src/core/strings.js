@@ -7,19 +7,34 @@
  * String methods applied on Series and DataFrames
  */
 export class Str {
-    constructor(series) {
-        this.series = series
-        if (!series.series || series.dtypes[0] != "string"){
-            throw Error("Type Error: String class accepts String Series only")
+    constructor(array) {
+        if (!Array.isArray(array)) {
+            throw Error("Type Error: String class accepts only arrays")
         }
     }
 
     /**
-     * Capitalize strings in Series.
-     * @return {series}
+     *  Converts all characters to lowercase.
+     * @return {array}
      */
-    capitalize(){
-        
+    lower() {
+
+    }
+
+    /**
+     * Converts all characters to uppercase.
+     * @return {array}
+     */
+    upper() {
+
+    }
+
+    /**
+     * Capitalize first string
+     * @return {array}
+     */
+    capitalize() {
+
     }
 
 
