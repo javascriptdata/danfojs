@@ -34,10 +34,16 @@ describe("Preprocessing", function(){
         it("basic test", function(){
 
             let data = [[3,1], [7,3], [8,4], [5,6], [12,5], [14,12], [21,23], [15,15], [18,2], [14,15]]
+            // let data2 = [[4,100,900],[5,110,800],[21,220,890],[20,300,500]]
+            let data2 = [0, 4, 4, 4, 7, 10, 11, 12, 14, 16, 17, 25]
+
+
 
             let scaler = new RobustScaler()
 
-            console.log(scaler.quantile(data,true))
+            // console.log(scaler.quantile(data2,true))
+
+            console.log(scaler.fit(data2))
         });
     });
 });
