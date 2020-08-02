@@ -30,6 +30,19 @@ const utils = new _utils.Utils();
 class DataFrame extends _generic.default {
   constructor(data, kwargs) {
     super(data, kwargs);
+
+    this.__set_column_property();
+  }
+
+  __set_column_property() {
+    let col_vals = this.col_data;
+    let col_names = this.column_names;
+    col_vals.forEach((col, i) => {
+      this[col_names[i]] = new _series.Series(col, {
+        columns: col_names[i],
+        index: this.index
+      });
+    });
   }
 
   drop(val, kwargs = {
@@ -765,6 +778,52 @@ class DataFrame extends _generic.default {
     }
   }
 
+  sum(kwargs = {
+    axis: 1
+  }) {
+    if (this.__frame_is_compactible_for_operation()) {
+      let values;
+      let val_sums = [];
+
+      if (kwargs['axis'] == 1) {
+        values = this.col_data;
+      } else {
+        values = this.values;
+      }
+
+      values.map(arr => {
+        let temp_sum = tf.tensor(arr).sum().arraySync();
+        val_sums.push(Number(temp_sum.toFixed(5)));
+      });
+      let new_index;
+
+      if (kwargs['axis'] == 1) {
+        new_index = this.column_names;
+      } else {
+        new_index = this.index;
+      }
+
+      let sf = new _series.Series(val_sums, {
+        columns: "sum",
+        index: new_index
+      });
+      return sf;
+    } else {
+      throw Error("Dtype Error: Operation can not be performed on string type");
+    }
+  }
+
+  abs() {
+    let data = this.values;
+    let tensor_data = tf.tensor(data);
+    let abs_data = tensor_data.abs().arraySync();
+    let df = new DataFrame(utils.__round(abs_data, 2, false), {
+      columns: this.column_names,
+      index: this.index
+    });
+    return df;
+  }
+
   __get_tensor_and_idx(df, axis) {
     let tensor_vals, idx, t_axis;
 
@@ -1247,6 +1306,149 @@ class DataFrame extends _generic.default {
     return data;
   }
 
+  lt(other) {
+    if (this.__frame_is_compactible_for_operation()) {
+      let df = this.__logical_ops(other, "lt");
+
+      return df;
+    } else {
+      throw Error("Dtype Error: Operation can not be performed on string type");
+    }
+  }
+
+  gt(other) {
+    if (this.__frame_is_compactible_for_operation()) {
+      let df = this.__logical_ops(other, "gt");
+
+      return df;
+    } else {
+      throw Error("Dtype Error: Operation can not be performed on string type");
+    }
+  }
+
+  le(other) {
+    if (this.__frame_is_compactible_for_operation()) {
+      let df = this.__logical_ops(other, "le");
+
+      return df;
+    } else {
+      throw Error("Dtype Error: Operation can not be performed on string type");
+    }
+  }
+
+  ge(other) {
+    if (this.__frame_is_compactible_for_operation()) {
+      let df = this.__logical_ops(other, "ge");
+
+      return df;
+    } else {
+      throw Error("Dtype Error: Operation can not be performed on string type");
+    }
+  }
+
+  ne(other) {
+    if (this.__frame_is_compactible_for_operation()) {
+      let df = this.__logical_ops(other, "ne");
+
+      return df;
+    } else {
+      throw Error("Dtype Error: Operation can not be performed on string type");
+    }
+  }
+
+  eq(other) {
+    if (this.__frame_is_compactible_for_operation()) {
+      let df = this.__logical_ops(other, "eq");
+
+      return df;
+    } else {
+      throw Error("Dtype Error: Operation can not be performed on string type");
+    }
+  }
+
+  replace(kwargs = {}) {
+    let params_needed = ["replace", "with", "inplace"];
+
+    if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+      throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`);
+    }
+
+    kwargs['inplace'] = kwargs['inplace'] || false;
+
+    if (utils.__key_in_object(kwargs, "replace") && utils.__key_in_object(kwargs, "with")) {
+      let replaced_arr = [];
+      let old_arr = this.values;
+      old_arr.map(inner_arr => {
+        let temp = [];
+        inner_arr.map(val => {
+          if (val == kwargs['replace']) {
+            temp.push(kwargs['with']);
+          } else {
+            temp.push(val);
+          }
+        });
+        replaced_arr.push(temp);
+      });
+
+      if (kwargs['inplace']) {
+        this.data = replaced_arr;
+      } else {
+        let df = new DataFrame(replaced_arr, {
+          index: this.index,
+          columns: this.columns,
+          dtypes: this.dtypes
+        });
+        return df;
+      }
+    } else {
+      throw Error("Params Error: Must specify both 'replace' and 'with' parameters.");
+    }
+  }
+
+  __logical_ops(val, logical_type) {
+    let int_vals, other;
+
+    if (typeof val == "number") {
+      other = val;
+    } else {
+      other = val.values;
+    }
+
+    switch (logical_type) {
+      case "lt":
+        int_vals = tf.tensor(this.values).less(other).arraySync();
+        break;
+
+      case "gt":
+        int_vals = tf.tensor(this.values).greater(other).arraySync();
+        break;
+
+      case "le":
+        int_vals = tf.tensor(this.values).lessEqual(other).arraySync();
+        break;
+
+      case "ge":
+        int_vals = tf.tensor(this.values).greaterEqual(other).arraySync();
+        break;
+
+      case "ne":
+        int_vals = tf.tensor(this.values).notEqual(other).arraySync();
+        break;
+
+      case "eq":
+        int_vals = tf.tensor(this.values).equal(other).arraySync();
+        break;
+    }
+
+    let bool_vals = utils.__map_int_to_bool(int_vals, 2);
+
+    let df = new DataFrame(bool_vals, {
+      columns: this.column_names,
+      index: this.index
+    });
+    return df;
+  }
+
   __get_df_from_tensor(val, col_names) {
     let len = val.shape[0];
     let new_array = [];
@@ -1264,16 +1466,12 @@ class DataFrame extends _generic.default {
   __frame_is_compactible_for_operation() {
     let dtypes = this.dtypes;
 
-    const float = element => element == "float32";
+    const str = element => element == "string";
 
-    const int = element => element == "int32";
-
-    if (dtypes.every(float)) {
-      return true;
-    } else if (dtypes.every(int)) {
-      return true;
-    } else {
+    if (dtypes.some(str)) {
       return false;
+    } else {
+      return true;
     }
   }
 

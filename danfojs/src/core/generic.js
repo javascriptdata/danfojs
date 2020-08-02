@@ -4,6 +4,7 @@ import { table } from 'table'
 import { Utils } from './utils'
 import { Configs } from '../config/config'
 import { createArrayCsvWriter, createArrayCsvStringifier } from 'csv-writer'
+// import { Series } from './series'
 // const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 // const createCsvStringifier = require('csv-writer').createObjectCsvStringifier;
 
@@ -187,6 +188,9 @@ export default class NDframe {
             }
         }
     }
+
+  
+
 
     /**
         * Returns the data types in the DataFrame 

@@ -1360,6 +1360,17 @@ describe("DataFrame", function () {
         });
     })
 
+    describe("__set_column_property", async function () {
+        it("Access column object using list subset and name of column", async function () {
+            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
+            let df = new DataFrame(data)
+            let col1 = ["A", "B", "C"]
+            let col2 = [1, 2, 3]
+            assert.deepEqual(df['alpha'].values, col1)
+            assert.deepEqual(df['count'].values, col2)
+        })
+    })
+
     describe("lt", function () {
         it("Returns Less than of DataFrame and other DataFrame (element-wise)", function () {
             let data1 = [[10, 45, 56, 10], [25, 23, 20, 10]]
@@ -1367,14 +1378,16 @@ describe("DataFrame", function () {
 
             let df = new DataFrame(data1)
             let df2 = new DataFrame(data2)
-            let expected = [[true, true, true, false], [false, false, false, false]]
+            let expected = [[true, true, true, false],
+            [false, false, false, false]]
             assert.deepEqual(df.lt(df2).values, expected)
         })
 
         it("Return Less than of series scalar (element-wise)", function () {
             let data1 = [[10, 45, 56, 10], [25, 23, 20, 10]]
             let sf = new DataFrame(data1)
-            let expected = [[true, false, false, true], [true, true, true, true]]
+            let expected = [[true, false, false, true],
+            [true, true, true, true]]
             assert.deepEqual(sf.lt(30).values, expected)
         })
 
@@ -1491,14 +1504,14 @@ describe("DataFrame", function () {
 
         it("Replace values given in replace param with value (String type)", function () {
             let data1 = [["A", "A", "A", "B"], ["B", "C", "C", "D"]]
-            let sf = new Series(data1)
+            let sf = new DataFrame(data1)
             let expected = [["boy", "boy", "boy", "B"], ["B", "C", "C", "D"]]
             sf.replace({ replace: "A", with: "boy", inplace: true })
             assert.deepEqual(sf.values, expected)
         })
         it("Throw error on wrong param passed", function () {
             let data1 = [["A", "A", "A", "B"], ["B", "C", "C", "D"]]
-            let sf = new Series(data1)
+            let sf = new DataFrame(data1)
             let expected = `Params Error: A specified parameter is not supported. Your params must be any of the following [replace,with,inplace]`
             assert.throws(() => { sf.replace({ replce: "A", with: "boy", inplace: true }) }, Error, expected)
         })
@@ -1543,44 +1556,44 @@ describe("DataFrame", function () {
 
     describe("sum", function () {
         it("Sum values of a DataFrame by Default axis column (axis=1)", function () {
-            let data1 = [[30, 40, 3.1, "a"],
-            [5, 5, 5.1, "b"],
-            [5, 5, 3.2, "c"]]
+            let data1 = [[30, 40, 3.1],
+                        [5, 5, 5.1],
+                        [5, 5, 3.2]]
             let sf = new DataFrame(data1)
-            let res = [40, 50, 11.4, "abc"]
-            assert.deepEqual(sf.sum(), res)
+            let res = [40, 50, 11.4]
+            assert.deepEqual(sf.sum().values, res)
         })
         it("Sum values of a DataFrame along row axis (axis=0)", function () {
-            let data1 = [[30, 40, 3.1, "a"],
-            [5, 5, 5.1, "b"],
-            [5, 5, 3.2, "c"]]
+            let data1 = [[30, 40, 3.1],
+                        [5, 5, 5.1],
+                        [5, 5, 3.2]]
             let df = new DataFrame(data1)
             let res = [73.1, 15.1, 13.2]
-            assert.deepEqual(df.sum({ axis: 0 }), res)
+            assert.deepEqual(df.sum({ axis: 0 }).values, res)
         })
         it("Sum values of a mixed DataFrame along row axis (axis=0)", function () {
-            let data1 = [[30, 40, 3.1, "a", true],
-            [5, 5, 5.1, "b", true],
-            [5, 5, 3.2, "c", true]]
+            let data1 = [[30, 40, 3.1, true],
+                        [5, 5, 5.1, true],
+                        [5, 5, 3.2, true]]
             let df = new DataFrame(data1)
             let res = [74.1, 16.1, 14.2]
-            assert.deepEqual(df.sum({ axis: 0 }), res)
+            assert.deepEqual(df.sum({ axis: 0 }).values, res)
         })
         it("Sum values of a boolean DataFrame along row axis (axis=0)", function () {
             let data1 = [[true, true, false, true],
-            [false, false, false, false],
-            [false, true, true, false]]
+                        [false, false, false, false],
+                        [false, true, true, false]]
             let df = new DataFrame(data1)
             let res = [3, 0, 2]
-            assert.deepEqual(df.sum({ axis: 0 }), res)
+            assert.deepEqual(df.sum({ axis: 0 }).values, res)
         })
         it("Sum values of a boolean DataFrame along default column axis (axis=1)", function () {
             let data1 = [[true, true, false, true],
-            [false, false, false, false],
-            [false, true, true, false]]
+                        [false, false, false, false],
+                        [false, true, true, false]]
             let df = new DataFrame(data1)
             let res = [1, 2, 1, 1]
-            assert.deepEqual(df.sum(), res)
+            assert.deepEqual(df.sum().values, res)
         })
 
     })

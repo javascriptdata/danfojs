@@ -93,6 +93,17 @@ describe("Utils Functions", function () {
         })
     })
 
+    describe("__map_int_to_bool", function () {
+        it("map ints to bools in array of arrays", function () {
+            let data = [[1, 0, 1], [1, 1, 0]]
+            assert.deepEqual(utils.__map_int_to_bool(data, 2), [[true, false, true], [true, true, false]])
+        })
+        it("map ints to bools in array", function () {
+            let data = [1, 0, 0, 1, 1]
+            assert.deepEqual(utils.__map_int_to_bool(data, 1), [true, false, false, true, true])
+        })
+    })
+
 
     describe("__median", function () {
         it("Gets the median value of an even array", function () {
@@ -153,12 +164,12 @@ describe("Utils Functions", function () {
     describe("__wrong_params_are_passed", function () {
         it("check if the right params are passed to a function", function () {
             let params_needed = ["replace", "with", "inplace"]
-            let kwargs = {"replae": 2, "with": 12, "inplace": true}
+            let kwargs = { "replae": 2, "with": 12, "inplace": true }
             assert.equal(utils.__right_params_are_passed(kwargs, params_needed), false)
         })
         it("check if the right params are passed to a function 2", function () {
             let params_needed = ["replace", "with", "inplace"]
-            let kwargs = {"replace": 2, "with": 12, "inplace": true}
+            let kwargs = { "replace": 2, "with": 12, "inplace": true }
             assert.equal(utils.__right_params_are_passed(kwargs, params_needed), true)
         })
 
