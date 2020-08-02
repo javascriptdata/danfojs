@@ -30,11 +30,30 @@ describe("Str", function () {
         assert.deepEqual(str.charAt(2), res)
     })
     it("Joins two or more strings. 0 joins from the start", function () {
-        let data = ['lower', 'CAPITALS', 'this is a sentence', 'SwApCaSe']
-        let res = ['prelower', 'preCAPITALS', 'prethis is a sentence', 'preSwApCaSe']
+        let data = ['lower', 'CAPITALS', 'sentence', 'SwApCaSe']
+        let data2 = ['XX', 'YY', 'BB', '01']
+
+        let res = ['XXlower', 'YYCAPITALS', 'BBsentence', '01SwApCaSe']
+        let str = new Str(data)
+        assert.deepEqual(str.concat(data2, 0, true), res)
+    })
+
+    it("Joins two or more strings. 1 joins from the end", function () {
+        let data = ['lower', 'CAPITALS', 'sentence', 'SwApCaSe']
+        let data2 = ['XX', 'YY', 'BB', '01']
+
+        let res = ['lowerXX', 'CAPITALSYY', 'sentenceBB', 'SwApCaSe01']
+        let str = new Str(data)
+        assert.deepEqual(str.concat(data2, 1, true), res)
+    })
+
+    it("Joins two arrays of strings. 0 joins from the start", function () {
+        let data = ['lower', 'CAPITALS', 'sentence', 'SwApCaSe']
+        let res = ['prelower', 'preCAPITALS', 'presentence', 'preSwApCaSe']
         let str = new Str(data)
         assert.deepEqual(str.concat("pre", 0), res)
     })
+
     it("Joins two or more strings. 1 joins from the end", function () {
         let data = ['lower', 'CAPITALS', 'this is a sentence', 'SwApCaSe']
         let res = ['lowerpost', 'CAPITALSpost', 'this is a sentencepost', 'SwApCaSepost']
@@ -64,7 +83,7 @@ describe("Str", function () {
 
     it("Returns the position of the first found occurrence of a specified value in a string", function () {
         let data = ['lower', 'CAPITALS', 'this is a sentence', 'SwApCaSe']
-        let res = [-1, 0, 16, 4]
+        let res = [-1, 0, -1, 4]
         let str = new Str(data)
         assert.deepEqual(str.indexOf("C"), res)
     })
@@ -85,7 +104,7 @@ describe("Str", function () {
 
     it("Searches a string for a specified value, or a regular expression, and returns a new string where the specified values are replaced", function () {
         let data = ['lower', 'CAPITALS', 'this is a sentence', 'SwApCaSe']
-        let res = ['lower', 'CXXXPITXXXLS', 'this is a sentence', 'SwXXXpCaSe']
+        let res = ['lower', 'CXXXPITALS', 'this is a sentence', 'SwXXXpCaSe']
         let str = new Str(data)
         assert.deepEqual(str.replace("A", "XXX"), res)
     })
@@ -113,14 +132,14 @@ describe("Str", function () {
 
     it("Extracts the characters from a string, beginning at a specified start position, and through the specified number of character", function () {
         let data = ['lower part', 'CAPITALS city', 'this is a sentence', 'SwAp CaSe']
-        let res = [" pa", "AL", "is", "CA"]
+        let res = [" p", "AL", "is", "Ca"]
         let str = new Str(data)
         assert.deepEqual(str.substr(5, 2), res)
     })
 
     it("Extracts the characters from a string, between two specified indices", function () {
         let data = ['lower part', 'CAPITALS city', 'this is a sentence', 'SwAp CaSe']
-        let res = ["e", "I", "s", "A"]
+        let res = ["w", "P", "i", "A"]
         let str = new Str(data)
         assert.deepEqual(str.substring(2, 3), res)
     })
@@ -132,8 +151,8 @@ describe("Str", function () {
         assert.deepEqual(str.trim(), res)
     })
 
-    it("Joins two string together with specified value", function () {
-        let data = ['lower part ', ' CAPITALS city', ' this is a sentence', '  SwAp CaSe']
+    it("Joins strings to specified value", function () {
+        let data = ['lower part', 'CAPITALS city', 'this is a sentence', 'SwAp CaSe']
         let res = ['lower part,new', 'CAPITALS city,new', 'this is a sentence,new', 'SwAp CaSe,new']
         let str = new Str(data)
         assert.deepEqual(str.join("new", ","), res)
