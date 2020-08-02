@@ -1527,7 +1527,7 @@ export class DataFrame extends Ndframe {
     }
 
     /**
-     * manipulate dataframe element with apply
+     * Apply a function along an axis of the DataFrame.
      * @param {kwargs} kargs is defined as {axis: 0 or 1, callable: [FUNCTION]}
      * @return Array
      */
@@ -1548,7 +1548,7 @@ export class DataFrame extends Ndframe {
 
         let axis = kwargs["axis"]
 
-        if (axis == 1) {
+        if (axis == 0) {
 
             let df_data = this.values
             for (let i = 0; i < df_data.length; i++) {
@@ -1571,9 +1571,32 @@ export class DataFrame extends Ndframe {
 
             }
         }
-
-        return data
+       
+        if (utils.__is_1D_array(data)) {
+            if (kwargs['axis'] == 0) {
+                let sf = new Series(data, { index: this.index })
+                return sf
+            } else {
+                let sf = new Series(data, { index: this.column_names })
+                return sf
+            }
+        } else {
+            if (kwargs['axis'] == 0) {
+                let df = new DataFrame(data, { columns: this.column_names, index: this.index })
+                return df
+            } else {
+                let temp_data = []
+                this.column_names.map((cname, i)=>{
+                    let _obj = {}
+                    _obj[cname] = data[i]
+                    temp_data.push(_obj)
+                })
+                let df = new DataFrame(temp_data, {index: this.index })
+                return df
+            }
+        }
     }
+
 
 
 

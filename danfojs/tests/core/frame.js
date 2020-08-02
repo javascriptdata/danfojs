@@ -1170,8 +1170,7 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-
-            let rslt = [6, 15, 90, 206]
+            let rslt = [64, 126, 127]
 
             let apply_rslt = df.apply({
                 axis: 1, callable: (x) => {
@@ -1179,7 +1178,7 @@ describe("DataFrame", function () {
                 }
             })
 
-            assert.deepEqual(apply_rslt, rslt)
+            assert.deepEqual(apply_rslt.values, rslt)
         });
 
         it("Apply tensor operation on dataframe at axis 0", function () {
@@ -1187,7 +1186,7 @@ describe("DataFrame", function () {
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
 
-            let rslt = [64, 126, 127]
+            let rslt = [6, 15, 90, 206]
 
             let apply_rslt = df.apply({
                 axis: 0, callable: (x) => {
@@ -1195,9 +1194,25 @@ describe("DataFrame", function () {
                 }
             })
 
-            assert.deepEqual(apply_rslt, rslt)
+            assert.deepEqual(apply_rslt.values, rslt)
 
         })
+
+        it("Apply math operation element wise dataframe on axis 1", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+
+            let result = [[2, 3, 4], [5, 6, 7], [21, 31, 41], [40, 90, 79]]
+
+            let apply_rslt = df.apply({
+                axis: 1, callable: (x) => {
+                    return x.add(1)
+                }
+            })
+
+            assert.deepEqual(apply_rslt.values, result)
+        });
     });
 
     describe("dropna", function () {
