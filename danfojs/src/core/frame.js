@@ -1515,16 +1515,16 @@ export class DataFrame extends Ndframe {
     }
 
 
-    /**
-     * Merge two or more dataframe base on keys
-     * @param {kwargs} keys: left, right, on, how
-     */
-    static merge(kwargs) {
+    // /**
+    //  * Merge two or more dataframe base on keys
+    //  * @param {kwargs} keys: left, right, on, how
+    //  */
+    // static merge(kwargs) {
 
-        let merge = new Merge(kwargs)
+    //     let merge = new Merge(kwargs)
 
-        return merge
-    }
+    //     return merge
+    // }
 
     /**
      * Apply a function along an axis of the DataFrame.
