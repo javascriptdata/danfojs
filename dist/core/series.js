@@ -7,15 +7,17 @@ exports.Series = void 0;
 
 var tf = _interopRequireWildcard(require("@tensorflow/tfjs-node"));
 
+var _mathjs = require("mathjs");
+
 var _utils = require("./utils");
+
+var _strings = require("./strings");
 
 var _generic = _interopRequireDefault(require("./generic"));
 
 var _table = require("table");
 
 var _config = require("../config/config");
-
-var _mathjs = require("mathjs");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -977,6 +979,24 @@ class Series extends _generic.default {
     }
 
     return new Series(data);
+  }
+
+  get str() {
+    let values = this.values;
+
+    if (this.dtypes[0] != "string") {
+      let new_vals = [];
+      values.map(val => {
+        new_vals.push(`${val}`);
+      });
+      let sf = new Series(new_vals, {
+        columns: this.column_names,
+        index: this.index
+      });
+      return new _strings.Str(sf);
+    }
+
+    return new _strings.Str(this);
   }
 
 }

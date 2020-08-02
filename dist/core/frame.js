@@ -15,8 +15,6 @@ var _utils = require("./utils");
 
 var _groupby = require("./groupby");
 
-var _merge = require("./merge");
-
 var _mathjs = require("mathjs");
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
@@ -1264,11 +1262,6 @@ class DataFrame extends _generic.default {
     }
   }
 
-  static merge(kwargs) {
-    let merge = new _merge.Merge(kwargs);
-    return merge;
-  }
-
   apply(kwargs) {
     let is_callable = utils.__is_function(kwargs["callable"]);
 
@@ -1285,7 +1278,7 @@ class DataFrame extends _generic.default {
 
     let axis = kwargs["axis"];
 
-    if (axis == 1) {
+    if (axis == 0) {
       let df_data = this.values;
 
       for (let i = 0; i < df_data.length; i++) {
@@ -1303,7 +1296,38 @@ class DataFrame extends _generic.default {
       }
     }
 
-    return data;
+    if (utils.__is_1D_array(data)) {
+      if (kwargs['axis'] == 0) {
+        let sf = new _series.Series(data, {
+          index: this.index
+        });
+        return sf;
+      } else {
+        let sf = new _series.Series(data, {
+          index: this.column_names
+        });
+        return sf;
+      }
+    } else {
+      if (kwargs['axis'] == 0) {
+        let df = new DataFrame(data, {
+          columns: this.column_names,
+          index: this.index
+        });
+        return df;
+      } else {
+        let temp_data = [];
+        this.column_names.map((cname, i) => {
+          let _obj = {};
+          _obj[cname] = data[i];
+          temp_data.push(_obj);
+        });
+        let df = new DataFrame(temp_data, {
+          index: this.index
+        });
+        return df;
+      }
+    }
   }
 
   lt(other) {
