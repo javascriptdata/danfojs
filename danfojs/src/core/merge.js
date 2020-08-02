@@ -305,10 +305,10 @@ export class Merge {
 * Merge DataFrame or named Series objects with a database-style join.
 * The join is done on columns or indexes. If joining columns on columns, the DataFrame indexes will be ignored. Otherwise 
 * if joining indexes on indexes or indexes on a column or columns, the index will be passed on.
-* @param {kwargs} keys: {left: DataFrame; 
-*                       right: DataFrame | Named Series, Object to merge with;
-*                       on: label, Column or index level names to join on. These must be found in both DataFrames;
-*                       how: {‘left’, ‘right’, ‘outer’, ‘inner’}. Type of merge to be performed.
+* @param {kwargs}{left: DataFrame; 
+*                right: DataFrame | Named Series, Object to merge with;
+*                on: label, Column or index level names to join on. These must be found in both DataFrames;
+*                how: {‘left’, ‘right’, ‘outer’, ‘inner’}. Type of merge to be performed.
 * @returns {DataFrame}
 */
 export const merge = (kwargs) => {

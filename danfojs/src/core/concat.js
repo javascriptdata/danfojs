@@ -182,9 +182,7 @@ export class Concat {
 
 /**
 * Concatenate pandas objects along a particular axis with optional set logic along the other axes.
-* @param {kwargs} keys: {df_list: List of DataFrame to concatenate together
-*                       axis: 0 for row axis and 1 for index axis
-*                       
+* @param {kwargs} {df_list: List of DataFrame to concatenate together axis: 0 for row axis and 1 for index axis          
 * @returns {DataFrame}
 */
 export const concat = (kwargs) => {
