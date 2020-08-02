@@ -28,7 +28,6 @@ const read_csv = async (source, chunk) => {
   let df = new _frame.DataFrame(data, {
     columns: column_names
   });
-  df.print();
   return df;
 };
 
