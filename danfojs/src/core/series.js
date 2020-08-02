@@ -322,6 +322,11 @@ export class Series extends NDframe {
         if (this.dtypes[0] == "string") {
             throw Error("dtype error: String data type does not support sum operation")
         }
+        if (this.dtypes[0] == "boolean") {
+            console.log(this.values);
+            let temp_sum = tf.tensor(this.values).sum().arraySync()
+            return Number(temp_sum.toFixed(5))
+        }
         let temp_sum = tf.tensor(this.values).asType(this.dtypes[0]).sum().arraySync()
         return Number(temp_sum.toFixed(5))
     }
@@ -447,6 +452,45 @@ export class Series extends NDframe {
         let sf = new Series(new_arr, { index: this.index, columns: this.column_names, dtypes: ["boolean"] })
         return sf
     }
+
+    /**
+     * Replace NaN or undefined with a specified value"
+     * @param {kwargs}, {"value": the new value to replace the old value with, inplace: Perform operation inplace or not} 
+     * @return {Series}
+     */
+    fillna(kwargs = {}) {
+        let params_needed = ["value", "inplace"]
+        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
+        }
+
+        kwargs['inplace'] = kwargs['inplace'] || false
+
+        if (!utils.__key_in_object(kwargs, "value")) {
+            throw Error('Value Error: Must specify value to replace with')
+        }
+
+        let values = this.values
+        let new_values = []
+
+        values.map(val => {
+            if (isNaN(val) && typeof val != "string") {
+                new_values.push(kwargs['value'])
+            } else {
+                new_values.push(val)
+            }
+        })
+        if (kwargs['inplace']) {
+            this.data = new_values
+            this.print()
+        } else {
+            let sf = new Series(new_values, { columns: this.column_names, index: this.index, dtypes: this.dtypes })
+            sf.print()
+            return sf
+        }
+    }
+
+
 
 
     /**
@@ -935,7 +979,7 @@ export class Series extends NDframe {
         let first_idx = sorted_index[0]
         return first_idx
     }
-    
+
 
 
     /**

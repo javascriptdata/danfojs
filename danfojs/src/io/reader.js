@@ -18,12 +18,14 @@ import fs from 'fs'
  * 
  * @returns {Promise} DataFrame structure of parsed CSV data
  */
-export const read_csv = async (source, config = {}) => {
+export const read_csv = async (source,chunk) => {
     let data = []
-    const csvDataset = tf.data.csv(source, config);
+    const csvDataset = tf.data.csv(source)
     const column_names = await csvDataset.columnNames()
-    await csvDataset.forEachAsync(row => data.push(Object.values(row)));
-    return new DataFrame(data, { columns: column_names })
+    const sample = await csvDataset.take(chunk)
+    await sample.forEachAsync(row => data.push(Object.values(row)))
+    let df = new DataFrame(data, { columns: column_names })
+    return df
 }
 
 

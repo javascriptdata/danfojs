@@ -23,9 +23,20 @@ import { std, variance } from 'mathjs'
 export class DataFrame extends Ndframe {
     constructor(data, kwargs) {
         super(data, kwargs)
-
+        this.__set_column_property() //set column property on Class
     }
 
+
+
+    //set all columns to DataFrame Property. This ensures easy access to columns as Series
+    __set_column_property() {
+        let col_vals = this.col_data
+        let col_names = this.column_names
+
+        col_vals.forEach((col, i) => {
+            this[col_names[i]] = new Series(col, { columns: col_names[i], index: this.index })
+        });
+    }
 
     /**
      * Drop a row or a column base on the axis specified
@@ -602,75 +613,75 @@ export class DataFrame extends Ndframe {
 
     }
 
-    
+
     /**
      * Find the cummulative max
      * @param {axis} axis [int] {0 or 1} 
      */
-    cum_ops(axis=0, ops){
+    cum_ops(axis = 0, ops) {
 
-        if(!(axis==0) && !(axis==1)){
+        if (!(axis == 0) && !(axis == 1)) {
             throw new Error("axis must be between 0 or 1")
         }
 
-        if(this.__frame_is_compactible_for_operation){
+        if (this.__frame_is_compactible_for_operation) {
 
             let data = []
             let df_data = null
 
-            if(axis ==0){
+            if (axis == 0) {
                 df_data = this.col_data
-            }else{
+            } else {
                 df_data = this.values
             }
 
-            for(let i=0; i <df_data.length; i++){
+            for (let i = 0; i < df_data.length; i++) {
                 let value = df_data[i]
                 let temp_val = value[0]
-                let temp_data = [temp_val] 
-                for(let j=1; j < value.length; j++){
+                let temp_data = [temp_val]
+                for (let j = 1; j < value.length; j++) {
 
                     let curr_val = value[j]
-                    switch(ops){
+                    switch (ops) {
                         case "max":
-                            if(curr_val > temp_val){
+                            if (curr_val > temp_val) {
                                 temp_val = curr_val
                                 temp_data.push(curr_val);
-                            }else{
+                            } else {
                                 temp_data.push(temp_val)
                             }
-                        break;
+                            break;
                         case "min":
-                            if(curr_val < temp_val){
+                            if (curr_val < temp_val) {
                                 temp_val = curr_val
                                 temp_data.push(curr_val);
-                            }else{
+                            } else {
                                 temp_data.push(temp_val)
                             }
-                        break;
+                            break;
                         case "sum":
-                            temp_val = temp_val+curr_val
+                            temp_val = temp_val + curr_val
                             temp_data.push(temp_val)
-                            
-                        break;
+
+                            break;
                         case "prod":
                             temp_val = temp_val * curr_val
                             temp_data.push(temp_val);
 
-                        break
+                            break
 
                     }
                 }
                 data.push(temp_data)
             }
 
-            if(axis==0){
+            if (axis == 0) {
                 data = utils.__get_col_values(data)
             }
-            
-            return new DataFrame(data, {columns: this.columns})
 
-        }else{
+            return new DataFrame(data, { columns: this.columns })
+
+        } else {
             throw Error("TypeError: Dtypes of columns must be Float of Int")
         }
 
@@ -679,9 +690,9 @@ export class DataFrame extends Ndframe {
      * calculate the cummulative sum
      * @param {kwargs} {axis: [int]}
      */
-    cumsum(kwargs={}){
+    cumsum(kwargs = {}) {
         let axis = kwargs["axis"] || 0
-        let data = this.cum_ops(axis,"sum");
+        let data = this.cum_ops(axis, "sum");
         return data
     }
 
@@ -689,9 +700,9 @@ export class DataFrame extends Ndframe {
      * calculate the cummulative min
      * @param {kwargs} {axis: [int]}
      */
-    cummin(kwargs={}){
+    cummin(kwargs = {}) {
         let axis = kwargs["axis"] || 0
-        let data = this.cum_ops(axis,"min");
+        let data = this.cum_ops(axis, "min");
         return data
     }
 
@@ -699,9 +710,9 @@ export class DataFrame extends Ndframe {
      * calculate the cummulative max
      * @param {kwargs} {axis: [int]}
      */
-    cummax(kwargs={}){
+    cummax(kwargs = {}) {
         let axis = kwargs["axis"] || 0
-        let data = this.cum_ops(axis,"max");
+        let data = this.cum_ops(axis, "max");
         return data
     }
 
@@ -709,9 +720,9 @@ export class DataFrame extends Ndframe {
      * calculate the cummulative prod
      * @param {kwargs} {axis: [int]}
      */
-    cumprod(kwargs={}){
+    cumprod(kwargs = {}) {
         let axis = kwargs["axis"] || 0
-        let data = this.cum_ops(axis,"prod");
+        let data = this.cum_ops(axis, "prod");
         return data
     }
 
@@ -889,20 +900,70 @@ export class DataFrame extends Ndframe {
                 new_row_data.push(this.values[idx])
             })
 
-            if (utils.__key_in_object(kwargs, "inplace") && kwargs['inplace'] == true){
+            if (utils.__key_in_object(kwargs, "inplace") && kwargs['inplace'] == true) {
                 this.data = new_row_data
                 this.index_arr = sorted_index
                 return null
-            }else{
+            } else {
                 let df = new DataFrame(new_row_data, { columns: this.column_names, index: sorted_index, dtype: this.dtypes })
                 return df
             }
-           
+
         } else {
             throw Error("Value Error: must specify the column to sort by")
         }
 
     }
+
+
+    /**
+    * Return the sum of the values in a DataFrame across a specified axis.
+    * @params {kwargs} {axis: 0 for row and 1 for column}
+    * @returns {Series}, Sum of values accross axis
+    */
+    sum(kwargs = { axis: 1 }) {
+        if (this.__frame_is_compactible_for_operation()) {
+            let values;
+            let val_sums = []
+            if (kwargs['axis'] == 1) {
+                values = this.col_data
+            } else {
+                values = this.values
+            }
+
+            values.map(arr => {
+                let temp_sum = tf.tensor(arr).sum().arraySync()
+                val_sums.push(Number(temp_sum.toFixed(5)))
+            })
+
+            let new_index;
+            if (kwargs['axis'] == 1) {
+                new_index = this.column_names
+            } else {
+                new_index = this.index
+            }
+            let sf = new Series(val_sums, { columns: "sum", index: new_index })
+            return sf
+
+        } else {
+            throw Error("Dtype Error: Operation can not be performed on string type")
+        }
+    }
+
+    /**
+    * Returns the absolute values in DataFrame
+    * @return {DataFrame}
+    */
+    abs() {
+        let data = this.values
+
+        let tensor_data = tf.tensor(data)
+        let abs_data = tensor_data.abs().arraySync()
+        let df = new DataFrame(utils.__round(abs_data, 2, false), { columns: this.column_names, index: this.index })
+        return df
+    }
+
+
 
     __get_tensor_and_idx(df, axis) {
         let tensor_vals, idx, t_axis;
@@ -1140,7 +1201,7 @@ export class DataFrame extends Ndframe {
     // }
 
     /**
-     * Replace all nan value with a specific value
+     * Fill all NaN value with a specific value
      * @param {*} nan_val 
      */
     fillna(nan_val) {
@@ -1466,7 +1527,7 @@ export class DataFrame extends Ndframe {
     }
 
     /**
-     * manipulate dataframe element with apply
+     * Apply a function along an axis of the DataFrame.
      * @param {kwargs} kargs is defined as {axis: 0 or 1, callable: [FUNCTION]}
      * @return Array
      */
@@ -1487,7 +1548,7 @@ export class DataFrame extends Ndframe {
 
         let axis = kwargs["axis"]
 
-        if (axis == 1) {
+        if (axis == 0) {
 
             let df_data = this.values
             for (let i = 0; i < df_data.length; i++) {
@@ -1510,8 +1571,214 @@ export class DataFrame extends Ndframe {
 
             }
         }
+       
+        if (utils.__is_1D_array(data)) {
+            if (kwargs['axis'] == 0) {
+                let sf = new Series(data, { index: this.index })
+                return sf
+            } else {
+                let sf = new Series(data, { index: this.column_names })
+                return sf
+            }
+        } else {
+            if (kwargs['axis'] == 0) {
+                let df = new DataFrame(data, { columns: this.column_names, index: this.index })
+                return df
+            } else {
+                let temp_data = []
+                this.column_names.map((cname, i)=>{
+                    let _obj = {}
+                    _obj[cname] = data[i]
+                    temp_data.push(_obj)
+                })
+                let df = new DataFrame(temp_data, {index: this.index })
+                return df
+            }
+        }
+    }
 
-        return data
+
+
+
+    /**
+     * Returns Less than of DataFrame and other. Supports element wise operations
+     * @param {other} DataFrame, Series, Scalar 
+     * @return {DataFrame}
+     */
+    lt(other) {
+        if (this.__frame_is_compactible_for_operation()) {
+
+            let df = this.__logical_ops(other, "lt")
+            return df
+
+        } else {
+            throw Error("Dtype Error: Operation can not be performed on string type")
+        }
+
+    }
+
+    /**
+    * Returns Greater than of DataFrame and other. Supports element wise operations
+    * @param {other} DataFrame, Series, Scalar 
+    * @return {DataFrame}
+    */
+    gt(other) {
+        if (this.__frame_is_compactible_for_operation()) {
+
+            let df = this.__logical_ops(other, "gt")
+            return df
+
+        } else {
+            throw Error("Dtype Error: Operation can not be performed on string type")
+        }
+
+    }
+
+    /**
+    * Returns Less than or Equal to of DataFrame and other. Supports element wise operations
+    * @param {other} DataFrame, Series, Scalar 
+    * @return {DataFrame}
+    */
+    le(other) {
+        if (this.__frame_is_compactible_for_operation()) {
+
+            let df = this.__logical_ops(other, "le")
+            return df
+
+        } else {
+            throw Error("Dtype Error: Operation can not be performed on string type")
+        }
+    }
+
+    /**
+    * Returns Greater than or Equal to of DataFrame and other. Supports element wise operations
+    * @param {other} DataFrame, Series, Scalar 
+    * @return {DataFrame}
+    */
+    ge(other) {
+        if (this.__frame_is_compactible_for_operation()) {
+
+            let df = this.__logical_ops(other, "ge")
+            return df
+
+        } else {
+            throw Error("Dtype Error: Operation can not be performed on string type")
+        }
+
+    }
+
+    /**
+    * Returns Not Equal to of DataFrame and other. Supports element wise operations
+    * @param {other} DataFrame, Series, Scalar 
+    * @return {DataFrame}
+    */
+    ne(other) {
+        if (this.__frame_is_compactible_for_operation()) {
+
+            let df = this.__logical_ops(other, "ne")
+            return df
+
+        } else {
+            throw Error("Dtype Error: Operation can not be performed on string type")
+        }
+
+    }
+
+    /**
+    * Returns Greater than or Equal to of DataFrame and other. Supports element wise operations
+    * @param {other} DataFrame, Series, Scalar 
+    * @return {DataFrame}
+    */
+    eq(other) {
+        if (this.__frame_is_compactible_for_operation()) {
+
+            let df = this.__logical_ops(other, "eq")
+            return df
+
+        } else {
+            throw Error("Dtype Error: Operation can not be performed on string type")
+        }
+
+    }
+
+
+    /**
+    * Replace all occurence of a value with a new specified value"
+    * @param {kwargs}, {"replace": the value you want to replace, "with": the new value you want to replace the olde value with, inplace: Perform operation inplace or not} 
+    * @return {Series}
+    */
+    replace(kwargs = {}) {
+        let params_needed = ["replace", "with", "inplace"]
+        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
+        }
+
+        kwargs['inplace'] = kwargs['inplace'] || false
+
+        if (utils.__key_in_object(kwargs, "replace") && utils.__key_in_object(kwargs, "with")) {
+            let replaced_arr = []
+            let old_arr = this.values
+
+            old_arr.map(inner_arr => {
+                let temp = []
+                inner_arr.map(val => {
+                    if (val == kwargs['replace']) {
+                        temp.push(kwargs['with'])
+                    } else {
+                        temp.push(val)
+                    }
+                })
+                replaced_arr.push(temp)
+            })
+            if (kwargs['inplace']) {
+                this.data = replaced_arr
+            } else {
+                let df = new DataFrame(replaced_arr, { index: this.index, columns: this.columns, dtypes: this.dtypes })
+                return df
+            }
+
+        } else {
+            throw Error("Params Error: Must specify both 'replace' and 'with' parameters.")
+        }
+
+    }
+
+
+    //performs logical comparisons on DataFrame using Tensorflow.js
+    __logical_ops(val, logical_type) {
+        let int_vals, other;
+
+        if (typeof val == "number") {
+            other = val
+        } else {
+            other = val.values
+        }
+
+        switch (logical_type) {
+
+            case "lt":
+                int_vals = tf.tensor(this.values).less(other).arraySync()
+                break;
+            case "gt":
+                int_vals = tf.tensor(this.values).greater(other).arraySync()
+                break;
+            case "le":
+                int_vals = tf.tensor(this.values).lessEqual(other).arraySync()
+                break;
+            case "ge":
+                int_vals = tf.tensor(this.values).greaterEqual(other).arraySync()
+                break;
+            case "ne":
+                int_vals = tf.tensor(this.values).notEqual(other).arraySync()
+                break;
+            case "eq":
+                int_vals = tf.tensor(this.values).equal(other).arraySync()
+                break;
+        }
+        let bool_vals = utils.__map_int_to_bool(int_vals, 2)
+        let df = new DataFrame(bool_vals, { columns: this.column_names, index: this.index })
+        return df
+
     }
 
 
@@ -1532,16 +1799,25 @@ export class DataFrame extends Ndframe {
     //compatible Dataframe must have only numerical dtypes
     __frame_is_compactible_for_operation() {
         let dtypes = this.dtypes
-        const float = (element) => element == "float32";
-        const int = (element) => element == "int32";
+        // const float = (element) => element == "float32";
+        // const int = (element) => element == "int32";
+        // const bools = (element) => element == "boolean";
+        const str = (element) => element == "string";
 
-        if (dtypes.every(float)) {
-            return true
-        } else if (dtypes.every(int)) {
-            return true
-        } else {
+        if (dtypes.some(str)) {
             return false
+        } else {
+            return true
         }
+        // if (dtypes.every(float)) {
+        //     return true
+        // } else if (dtypes.every(int)) {
+        //     return true
+        // } else if (dtypes.every(bools)) {
+        //     return true
+        // } else {
+        //     return false
+        // }
     }
 
 

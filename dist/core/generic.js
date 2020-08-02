@@ -338,6 +338,10 @@ class NDframe {
     });
   }
 
+  print() {
+    console.log(this + "");
+  }
+
 }
 
 exports.default = NDframe;

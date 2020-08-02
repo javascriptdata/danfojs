@@ -129,6 +129,7 @@ export class RobustScaler{
 
     
         let median = this.__median(data,isTensor,true)
+        let med = this.__median(data,isTensor,false)
 
         let q1 = []
         let q2 = []
@@ -140,8 +141,7 @@ export class RobustScaler{
                 let lower = median[0]
                 let lower_data = sorted.slice(0,lower+1)
                 let upper_data = sorted.slice(lower+1,)
-                console.log(lower_data)
-                console.log(upper_data)
+                
                 
 
                 q1.push(this.__median(lower_data,isTensor,false));
@@ -179,7 +179,38 @@ export class RobustScaler{
             })
         }
 
-        return [q1,q2]
+        return [q1,q2, med]
 
+    }
+
+    /**
+     * Fit robust scalar on data to obtain the first quantile and third quantile
+     * @param {data} data [DataRame | Series | Array]
+     * @returns Array
+     */
+    fit(data){
+
+        let tensor_data = null
+        let isTensor = false;
+        if(Array.isArray(data)){
+            tensor_data = tf.tensor(data)
+        }
+        else if((data instanceof DataFrame)){
+            tensor_data = tf.tensor(data.values)
+            isTensor = true;
+        }
+        else if((data instanceof Series)){
+            tensor_data = tf.tensor(data.values)
+        }
+        else{
+            throw new Error("data must either be an Array, DataFrame or Series")
+        }
+
+        let [q1, q3, median] = this.quantile(data,isTensor)
+        console.log(q1,q3, median)
+        let q3_tensor = tf.tensor(q3)
+        let output_data =  tensor_data.sub(median).div(q3_tensor.sub(q1)).arraySync()
+
+        return output_data;
     }
 }
