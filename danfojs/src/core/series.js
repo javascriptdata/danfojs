@@ -252,7 +252,14 @@ export class Series extends NDframe {
         if (this.dtypes[0] == "string") {
             throw Error("dtype error: String data type does not support mean operation")
         }
-        let mean = this.tensor.mean().arraySync()
+        let values = []
+        //remove all NaNS
+        this.values.map(val=>{
+            if(!isNaN(val) && typeof val != "string"){
+                values.push(val)
+            }
+        })
+        let mean = tf.tensor(values).mean().arraySync()
         return mean
     }
 
