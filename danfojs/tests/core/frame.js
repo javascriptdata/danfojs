@@ -1546,4 +1546,25 @@ describe("DataFrame", function () {
         })
     })
 
+    describe("T", function () {
+        it("Returns the Tranpose of a DataFrame", function () {
+            let data1 = [[10, 45, 56, 10],
+                         [25, 23, 20, 10]]
+
+            let cols = ["a", "b", "c", "d"]
+            let df = new DataFrame(data1, {columns: cols})
+            let df_trans = df.T
+            let expected_vals = [[10, 25],[45, 23],[56, 20], [10, 10]]
+            let expected_index = cols
+            let expected_col_names = [0,1]
+            assert.deepEqual(df_trans.index, expected_index)
+            assert.deepEqual(df_trans.values, expected_vals)
+            assert.deepEqual(df_trans.column_names, expected_col_names)
+
+        })
+
+    })
+
+
+
 });

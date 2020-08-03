@@ -32,12 +32,12 @@ export class DataFrame extends Ndframe {
 
         col_vals.forEach((col, i) => {
             // this[col_names[i]] = new Series(col, { columns: col_names[i], index: this.index })
-            Object.defineProperty(this,col_names[i],{
-                get(){
+            Object.defineProperty(this, col_names[i], {
+                get() {
                     return new Series(this.col_data[i])
                 },
-                set(value){
-                    this.addColumn({column: col_names[i],value:value});
+                set(value) {
+                    this.addColumn({ column: col_names[i], value: value });
                 }
             })
         });
@@ -52,20 +52,20 @@ export class DataFrame extends Ndframe {
      * @returns null | DataFrame
      *            
      */
-    drop(kwargs = {axis: 0, inplace: false }) {
+    drop(kwargs = { axis: 0, inplace: false }) {
 
-        utils.__in_object(kwargs,"columns","value not defined")
+        utils.__in_object(kwargs, "columns", "value not defined")
 
         let data = kwargs["columns"];
 
         if (kwargs['axis'] == 1) {
             let self = this;
-            const index = data.map((x)=>{
-                    let col_idx = self.columns.indexOf(x)
-                    if(col_idx == -1){
-                        throw new Error(`column "${x}" does not exist`)
-                    }
-                    return col_idx
+            const index = data.map((x) => {
+                let col_idx = self.columns.indexOf(x)
+                if (col_idx == -1) {
+                    throw new Error(`column "${x}" does not exist`)
+                }
+                return col_idx
             });
             const values = this.values
 
@@ -85,9 +85,9 @@ export class DataFrame extends Ndframe {
 
         } else {
 
-            data.map((x)=>{
-                
-                if(!this.index.includes(x)) throw new Error(`${x} does not exist in index`)
+            data.map((x) => {
+
+                if (!this.index.includes(x)) throw new Error(`${x} does not exist in index`)
             });
             const values = this.values
 
@@ -239,7 +239,7 @@ export class DataFrame extends Ndframe {
         let df_columns = { "columns": columns }
         let df = new DataFrame(new_data, df_columns);
         df.index_arr = rows
-        
+
         return df;
 
     }
@@ -1095,12 +1095,12 @@ export class DataFrame extends Ndframe {
         }
 
 
-        if(this.columns.includes(column_name)){
+        if (this.columns.includes(column_name)) {
 
             let col_idx = this.columns.indexOf(column_name);
 
             let new_data = []
-            this.values.map((val,index)=>{
+            this.values.map((val, index) => {
                 let new_val = val.slice();
                 new_val[col_idx] = value[index]
                 new_data.push(new_val);
@@ -1111,7 +1111,7 @@ export class DataFrame extends Ndframe {
             // this.col_data[col_idx] = utils.__get_t(value)[0]
             this.data_tensor = tf.tensor(new_data)
 
-        }else{
+        } else {
             let data = this.values
             let new_data = []
 
@@ -1222,7 +1222,7 @@ export class DataFrame extends Ndframe {
 
     }
 
-    
+
 
     // /**
     //  * generate a datetime from a column of date string
@@ -1241,7 +1241,7 @@ export class DataFrame extends Ndframe {
      * Fill all NaN value with a specific value
      * @param {*} nan_val 
      */
-    fillna(kwargs={}) {
+    fillna(kwargs = {}) {
 
         let nan_val = kwargs["value"] || 0;
         let inplace = kwargs["inplace"] || false;
@@ -1264,14 +1264,14 @@ export class DataFrame extends Ndframe {
             }
             data.push(temp_data);
         }
-        if(inplace){
+        if (inplace) {
             this.data = data;
 
-        }else{
+        } else {
             return new DataFrame(data, { columns: columns })
         }
 
-        
+
     }
 
     /**
@@ -1426,7 +1426,7 @@ export class DataFrame extends Ndframe {
 
             }
         }
-       
+
         if (utils.__is_1D_array(data)) {
             if (kwargs['axis'] == 0) {
                 let sf = new Series(data, { index: this.index })
@@ -1441,12 +1441,12 @@ export class DataFrame extends Ndframe {
                 return df
             } else {
                 let temp_data = []
-                this.column_names.map((cname, i)=>{
+                this.column_names.map((cname, i) => {
                     let _obj = {}
                     _obj[cname] = data[i]
                     temp_data.push(_obj)
                 })
-                let df = new DataFrame(temp_data, {index: this.index })
+                let df = new DataFrame(temp_data, { index: this.index })
                 return df
             }
         }
@@ -1716,6 +1716,27 @@ export class DataFrame extends Ndframe {
                 return tensors_arr
             }
         }
+    }
+
+    /**
+     * Transpose index and columns.
+    * Reflect the DataFrame over its main diagonal by writing rows as columns and vice-versa.
+    * The property T is an accessor to the method transpose().
+     */
+    transpose() {
+        let new_values = this.col_data
+        let new_index = this.column_names
+        let new_col_names = this.index
+
+        let df = new DataFrame(new_values, { columns: new_col_names, index: new_index })
+        return df
+    }
+
+    /**
+     * The property T is an accessor to the method transpose().
+     */
+    get T() {
+        return this.transpose()
     }
 
 
