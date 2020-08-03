@@ -1458,27 +1458,51 @@ describe("DataFrame", function () {
     })
 
     describe("replace", function () {
-        it("Replace values given in replace param", function () {
-            let data1 = [[10, 45, 56, 25], [23, 20, 10, 24]]
-            let sf = new DataFrame(data1)
-            let expected = [[-999, 45, 56, 25], [23, 20, -999, 24]]
-            let df_rep = sf.replace({ replace: 10, with: -999 })
+        // it("Replace values given in replace param", function () {
+        //     let data1 = [[10, 45, 56, 25], [23, 20, 10, 24]]
+        //     let sf = new DataFrame(data1)
+        //     let expected = [[-999, 45, 56, 25], [23, 20, -999, 24]]
+        //     let df_rep = sf.replace({ replace: 10, with: -999 })
+        //     assert.deepEqual(df_rep.values, expected)
+        // })
+
+        // it("Replace values given in replace param with value (String type)", function () {
+        //     let data1 = [["A", "A", "A", "B"], ["B", "C", "C", "D"]]
+        //     let df = new DataFrame(data1)
+        //     let expected = [["boy", "boy", "boy", "B"], ["B", "C", "C", "D"]]
+        //     let df_rep = df.replace({ replace: "A", with: "boy" })
+        //     assert.deepEqual(df_rep.values, expected)
+        // })
+        // it("Throw error on wrong param passed", function () {
+        //     let data1 = [["A", "A", "A", "B"], ["B", "C", "C", "D"]]
+        //     let sf = new DataFrame(data1)
+        //     let expected = `Params Error: A specified parameter is not supported. Your params must be any of the following [replace,with,in]`
+        //     assert.throws(() => { sf.replace({ replce: "A", with: "boy" }) }, Error, expected)
+        // })
+        it("Replace values in specified two column(s)", function () {
+            let data1 = [["A", "A", 1, "girl"],
+                        ["B", "A", 2, "woman"],
+                        ["A", "B", 3, "man"]]
+            let df = new DataFrame(data1, {columns: ["col1", "col2", "col3", "col4"]})
+            let expected = [["boy", "boy", 1, "girl"],
+                            ["B", "boy", 2, "woman"],
+                            ["boy", "B", 3, "man"]]
+            let df_rep = df.replace({ replace: "A", with: "boy", in: ["col1", "col2"]})
             assert.deepEqual(df_rep.values, expected)
         })
 
-        it("Replace values given in replace param with value (String type)", function () {
-            let data1 = [["A", "A", "A", "B"], ["B", "C", "C", "D"]]
-            let sf = new DataFrame(data1)
-            let expected = [["boy", "boy", "boy", "B"], ["B", "C", "C", "D"]]
-            sf.replace({ replace: "A", with: "boy", inplace: true })
-            assert.deepEqual(sf.values, expected)
+        it("Replace values in specified single column(s)", function () {
+            let data1 = [[2, "A", 1, "girl"],
+                        [3, "A", 2, "woman"],
+                        [4, "B", 3, "man"]]
+            let df = new DataFrame(data1, {columns: ["col1", "col2", "col3", "col4"]})
+            let expected = [[2, "A", 1, "girl"],
+                            [100, "A", 2, "woman"],
+                            [4, "B", 3, "man"]]
+            let df_rep = df.replace({ replace: 3, with: 100, in: ["col1"]})
+            assert.deepEqual(df_rep.values, expected)
         })
-        it("Throw error on wrong param passed", function () {
-            let data1 = [["A", "A", "A", "B"], ["B", "C", "C", "D"]]
-            let sf = new DataFrame(data1)
-            let expected = `Params Error: A specified parameter is not supported. Your params must be any of the following [replace,with,inplace]`
-            assert.throws(() => { sf.replace({ replce: "A", with: "boy", inplace: true }) }, Error, expected)
-        })
+       
 
     })
 

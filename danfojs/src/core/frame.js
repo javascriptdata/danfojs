@@ -1240,42 +1240,42 @@ export class DataFrame extends Ndframe {
         }
 
         if (utils.__key_in_object(kwargs, "columns")) {
-            //check if the column exists
+            //check if the column(s) exists
             kwargs['columns'].map(col => {
                 if (!this.column_names.includes(col)) {
                     throw Error(`Value Error: Specified columns must be one of ${this.column_names}, got ${col}`)
                 }
             })
 
-            if (kwargs['columns'].length != kwargs['values'].length){
+            if (kwargs['columns'].length != kwargs['values'].length) {
                 throw Error(`Lenght Error: The lenght of the columns names must be equal to the lenght of the values,
                  got column of length ${kwargs['columns'].length} but values of length ${kwargs['values'].length}`)
             }
             let new_col_data_obj = []
             let fil_idx = 0
-            this.column_names.map((col, idx)=>{
+            this.column_names.map((col, idx) => {
                 let _obj = {}
-                if (kwargs['columns'].includes(col)){
+                if (kwargs['columns'].includes(col)) {
                     let temp_col_data = this.col_data[idx]  //retreive the column data
                     let __temp = []
-                    temp_col_data.map(val=>{     //fill the column
-                        if (isNaN(val) && typeof val != "string"){
+                    temp_col_data.map(val => {     //fill the column
+                        if (isNaN(val) && typeof val != "string") {
                             __temp.push(kwargs['values'][fil_idx])
-                        }else{
+                        } else {
                             __temp.push(val)
                         }
                     })
                     fil_idx += 1
                     _obj[col] = __temp
                     new_col_data_obj.push(_obj)
-                }else{
+                } else {
                     _obj[col] = this.col_data[idx]
                     new_col_data_obj.push(_obj)
                 }
             })
 
-            return new DataFrame(new_col_data_obj, { columns: this.column_names, index: this.index, dtypes: this.dtypes})
-               
+            return new DataFrame(new_col_data_obj, { columns: this.column_names, index: this.index, dtypes: this.dtypes })
+
         } else {
             //fill all columns using same value
             if (!utils.__key_in_object(kwargs, "values")) {
@@ -1309,7 +1309,7 @@ export class DataFrame extends Ndframe {
                 data.push(temp_data);
             }
 
-            return new DataFrame(data, { columns: columns, index: this.index, dtypes: this.dtypes})
+            return new DataFrame(data, { columns: columns, index: this.index, dtypes: this.dtypes })
 
         }
 
@@ -1600,43 +1600,80 @@ export class DataFrame extends Ndframe {
 
     /**
     * Replace all occurence of a value with a new specified value"
-    * @param {kwargs}, {"replace": the value you want to replace, "with": the new value you want to replace the olde value with, inplace: Perform operation inplace or not} 
+    * @param {kwargs}, {"replace": the value you want to replace,
+    *                   "with": the new value you want to replace the olde value with
+    *                   "in": Array of column names to replace value in, If not specified, replace all columns} 
     * @return {Series}
     */
     replace(kwargs = {}) {
-        let params_needed = ["replace", "with", "inplace"]
+        let params_needed = ["replace", "with", "in"]
         if (!utils.__right_params_are_passed(kwargs, params_needed)) {
             throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
         }
 
-        kwargs['inplace'] = kwargs['inplace'] || false
+        if (utils.__key_in_object(kwargs, "in")) {
+            //fill specified columns only
+            //check if the column(s) exists
+            kwargs['in'].map(col => {
+                if (!this.column_names.includes(col)) {
+                    throw Error(`Value Error: Specified columns must be one of ${this.column_names}, got ${col}`)
+                }
+            })
 
-        if (utils.__key_in_object(kwargs, "replace") && utils.__key_in_object(kwargs, "with")) {
-            let replaced_arr = []
-            let old_arr = this.values
-
-            old_arr.map(inner_arr => {
-                let temp = []
-                inner_arr.map(val => {
-                    if (val == kwargs['replace']) {
-                        temp.push(kwargs['with'])
+            if (utils.__key_in_object(kwargs, "replace") && utils.__key_in_object(kwargs, "with")) {
+                let new_col_data_obj = []
+                this.column_names.map((col, idx) => {
+                    let _obj = {}
+                    if (kwargs['in'].includes(col)) {
+                        let temp_col_data = this.col_data[idx]  //retreive the column data
+                        let __temp = []
+                        temp_col_data.map(val => {     //replace the values
+                            if (val == kwargs['replace']) {
+                                __temp.push(kwargs['with'])
+                            } else {
+                                __temp.push(val)
+                            }
+                        })
+                        _obj[col] = __temp
+                        new_col_data_obj.push(_obj)
                     } else {
-                        temp.push(val)
+                        _obj[col] = this.col_data[idx]
+                        new_col_data_obj.push(_obj)
                     }
                 })
-                replaced_arr.push(temp)
-            })
-            if (kwargs['inplace']) {
-                this.data = replaced_arr
+                return new DataFrame(new_col_data_obj, { columns: this.column_names, index: this.index, dtypes: this.dtypes })
             } else {
-                let df = new DataFrame(replaced_arr, { index: this.index, columns: this.columns, dtypes: this.dtypes })
-                return df
+
+                throw Error("Params Error: Must specify both 'replace' and 'with' parameters.")
+
             }
 
         } else {
-            throw Error("Params Error: Must specify both 'replace' and 'with' parameters.")
-        }
+            //fill every occurence in all columns and rows
+            if (utils.__key_in_object(kwargs, "replace") && utils.__key_in_object(kwargs, "with")) {
+                let replaced_arr = []
+                let old_arr = this.values
 
+                old_arr.map(inner_arr => {
+                    let temp = []
+                    inner_arr.map(val => {
+                        if (val == kwargs['replace']) {
+                            temp.push(kwargs['with'])
+                        } else {
+                            temp.push(val)
+                        }
+                    })
+                    replaced_arr.push(temp)
+                })
+
+                let df = new DataFrame(replaced_arr, { index: this.index, columns: this.columns, dtypes: this.dtypes })
+                return df
+
+
+            } else {
+                throw Error("Params Error: Must specify both 'replace' and 'with' parameters.")
+            }
+        }
     }
 
 
