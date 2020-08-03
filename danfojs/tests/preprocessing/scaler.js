@@ -11,8 +11,8 @@ describe("Preprocessing", function(){
             let fit_data = [ [ 0, 0 ], [ 0.25, 0.25 ], [ 0.5, 0.5 ], [ 1, 1 ] ]
             let transform_data = [[1.5, 0. ]];
 
-            assert.deepEqual(scaler.fit(data),fit_data)
-            assert.deepEqual(scaler.transform([[2, 2]]),transform_data)
+            assert.deepEqual(scaler.fit(data).values,fit_data)
+            assert.deepEqual(scaler.transform([[2, 2]]).values,transform_data)
         });
     })
 
@@ -25,8 +25,8 @@ describe("Preprocessing", function(){
             let fit_data = [ [ -1, -1 ], [ -1, -1 ], [ 1, 1 ], [ 1, 1 ] ]
             let transform_data = [ [ 3, 3 ] ];
 
-            assert.deepEqual(scaler.fit(data), fit_data);
-            assert.deepEqual(scaler.transform([[2, 2]]), transform_data)
+            assert.deepEqual(scaler.fit(data).values, fit_data);
+            assert.deepEqual(scaler.transform([[2, 2]]).values, transform_data)
         })
     });
 
