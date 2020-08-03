@@ -1242,7 +1242,10 @@ export class DataFrame extends Ndframe {
 
     /**
      * Fill all NaN value with a specific value
-     * @param {*} nan_val 
+     * @param {kwargs} kwargs {
+     *                      value: int|String|float,
+     *                      inplave: Boolean
+     *                          } 
      */
     fillna(kwargs={}) {
 
