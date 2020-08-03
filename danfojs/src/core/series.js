@@ -326,9 +326,8 @@ export class Series extends NDframe {
             throw Error("dtype error: String data type does not support sum operation")
         }
         if (this.dtypes[0] == "boolean") {
-            console.log(this.values);
             let temp_sum = tf.tensor(this.values).sum().arraySync()
-            return Number(temp_sum.toFixed(5))
+            return Number(temp_sum)
         }
         let temp_sum = tf.tensor(this.values).asType(this.dtypes[0]).sum().arraySync()
         return Number(temp_sum.toFixed(5))
@@ -1212,6 +1211,10 @@ export class Series extends NDframe {
         timeseries.preprocessed()
         return timeseries
 
+    }
+
+    print(){
+        console.log(this + "");
     }
 }
 

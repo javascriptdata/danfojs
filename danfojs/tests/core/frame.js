@@ -1223,11 +1223,11 @@ describe("DataFrame", function () {
         });
 
         it("Fills a list of columns with specified values inplace", function () {
-            let data = [[1, undefined, 3], [4, undefined, 6], [NaN, 20, 40], [NaN, -1, 78]]
+            let data = [[1, undefined, 3], [4, undefined, 6], [NaN, "boy", 40], [NaN, "girl", 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            let new_vals = [[1, 100, 3], [4, 100, 6], [200, 20, 40], [200, -1, 78]]
-            let df_filled = df.fillna({ columns: ["A", "B"], values: [200, 100] })
+            let new_vals = [[1, "girl", 3], [4, "girl", 6], [200, "boy", 40], [200, "girl", 78]]
+            let df_filled = df.fillna({ columns: ["A", "B"], values: [200, "girl"] })
             assert.deepEqual(df_filled.values, new_vals);
         });
     })

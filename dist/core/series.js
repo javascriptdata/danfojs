@@ -275,9 +275,8 @@ class Series extends _generic.default {
     }
 
     if (this.dtypes[0] == "boolean") {
-      console.log(this.values);
       let temp_sum = tf.tensor(this.values).sum().arraySync();
-      return Number(temp_sum.toFixed(5));
+      return Number(temp_sum);
     }
 
     let temp_sum = tf.tensor(this.values).asType(this.dtypes[0]).sum().arraySync();
@@ -1014,6 +1013,10 @@ class Series extends _generic.default {
     });
     timeseries.preprocessed();
     return timeseries;
+  }
+
+  print() {
+    console.log(this + "");
   }
 
 }

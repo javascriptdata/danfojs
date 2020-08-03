@@ -17,7 +17,7 @@ export class Utils {
     }
 
     //filter element present in an aray
-    __remove_arr(arr,index){
+    __remove_arr(arr, index) {
         let new_arr = arr.filter(function (val, i) {
             return !index.includes(i)
         });
@@ -221,14 +221,22 @@ export class Utils {
     }
 
     //infer types from an array of array
-    __get_t(arr) {
-        if (this.__is_1D_array(arr)) {
+    __get_t(arr_val) {
+        if (this.__is_1D_array(arr_val)) {
             const dtypes = []
             let int_tracker = []
             let float_tracker = []
             let string_tracker = []
             let bool_tracker = []
             let lim;
+
+            //remove NaNs from array
+            let arr = []
+            arr_val.map(val => {
+                if (!(isNaN(val) && typeof val != "string")) {
+                    arr.push(val)
+                }
+            })
 
             if (arr.length < config.get_dtype_test_lim) {
                 lim = arr.length - 1
@@ -285,18 +293,26 @@ export class Utils {
         } else {
             const dtypes = []
             let lim;
-            if (arr[0].length < config.get_dtype_test_lim) {
-                lim = arr[0].length - 1
+            if (arr_val[0].length < config.get_dtype_test_lim) {
+                lim = arr_val[0].length - 1
             } else {
                 lim = config.get_dtype_test_lim - 1
             }
-            arr.forEach((ele) => {
+            arr_val.forEach((ele) => {
                 let int_tracker = []
                 let float_tracker = []
                 let string_tracker = []
                 let bool_tracker = []
 
-                ele.forEach((ele, indx) => {
+                //remove NaNs from array
+                let arr = []
+                ele.map(val => {
+                    if (!(isNaN(val) && typeof val != "string")) {
+                        arr.push(val)
+                    }
+                })
+
+                arr.forEach((ele, indx) => {
                     let count = indx
                     if (typeof ele == 'boolean') {
                         float_tracker.push(false)
@@ -608,13 +624,13 @@ export class Utils {
         return std
     }
 
-    __zeros(row,column){
+    __zeros(row, column) {
 
         let zero_data = []
 
-        for(let i=0; i< row; i++){
+        for (let i = 0; i < row; i++) {
             let col_data = Array(column);
-            for(let j=0; j < column; j++){
+            for (let j = 0; j < column; j++) {
                 col_data[j] = 0
             }
             zero_data.push(col_data);

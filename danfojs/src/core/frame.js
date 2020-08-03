@@ -1251,32 +1251,57 @@ export class DataFrame extends Ndframe {
                 throw Error(`Lenght Error: The lenght of the columns names must be equal to the lenght of the values,
                  got column of length ${kwargs['columns'].length} but values of length ${kwargs['values'].length}`)
             }
-            let new_col_data_obj = []
-            let fil_idx = 0
-            this.column_names.map((col, idx) => {
-                let _obj = {}
-                if (kwargs['columns'].includes(col)) {
-                    let temp_col_data = this.col_data[idx]  //retreive the column data
-                    let __temp = []
-                    temp_col_data.map(val => {     //fill the column
-                        if (isNaN(val) && typeof val != "string") {
-                            __temp.push(kwargs['values'][fil_idx])
+            let new_col_data = this.col_data
+            kwargs['columns'].map((col, i) => {
+                let col_idx = this.column_names.indexOf(col)
+                let col_data = this.col_data[col_idx]
 
-                        } else {
-                            __temp.push(val)
-                        }
-                    })
-                    fil_idx += 1
-                    _obj[col] = __temp
-                    new_col_data_obj.push(_obj)
-                } else {
-                    _obj[col] = this.col_data[idx]
-                    new_col_data_obj.push(_obj)
-                }
+                let __temp = []
+                col_data.map(val => {     //fill the column
+                    if (isNaN(val) && typeof val != "string") {
+                        __temp.push(kwargs['values'][i])
+
+                    } else {
+                        __temp.push(val)
+                    }
+                })
+                new_col_data[col_idx] = __temp
 
             })
-            // console.log(new_col_data_obj);
-            return new DataFrame(new_col_data_obj, { columns: this.column_names, index: this.index })
+
+            let final_data = []
+            new_col_data.map((col, i)=>{
+                let col_obj = {}
+                col_obj[this.column_names[i]] = col
+                final_data.push(col_obj)
+            })
+                // let fil_idx = 0
+                // this.column_names.map((col, idx) => {
+                //     let _obj = {}
+                //     if (kwargs['columns'].includes(col)) {
+                //         console.log(fil_idx);
+                //         console.log(col);
+                //         console.log(kwargs['values'][fil_idx]);
+                //         let temp_col_data = this.col_data[idx]  //retreive the column data
+                //         let __temp = []
+                //         temp_col_data.map(val => {     //fill the column
+                //             if (isNaN(val) && typeof val != "string") {
+                //                 __temp.push(kwargs['values'][fil_idx])
+
+                //             } else {
+                //                 __temp.push(val)
+                //             }
+                //         })
+                //         fil_idx += 1
+                //         _obj[col] = __temp
+                //         new_col_data_obj.push(_obj)
+                //     } else {
+                //         _obj[col] = this.col_data[idx]
+                //         new_col_data_obj.push(_obj)
+                //     }
+
+            // })
+            return new DataFrame(final_data, {index: this.index })
 
         } else {
             //fill all columns using same value
@@ -1331,7 +1356,10 @@ export class DataFrame extends Ndframe {
         row_data.map(arr => {
             let temp_arr = []
             arr.map(val => {
-                if (isNaN(val) && typeof val != "string") {
+                // eslint-disable-next-line use-isnan
+                if (val == NaN) {
+                    temp_arr.push(true)
+                } else if (isNaN(val) && typeof val != "string") {
                     temp_arr.push(true)
                 } else {
                     temp_arr.push(false)
@@ -1339,7 +1367,6 @@ export class DataFrame extends Ndframe {
             })
             new_row_data.push(temp_arr)
         })
-
 
         return new DataFrame(new_row_data, { columns: columns, index: this.index })
     }
