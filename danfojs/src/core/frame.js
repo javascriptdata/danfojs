@@ -1236,7 +1236,7 @@ export class DataFrame extends Ndframe {
 
         let params_needed = ["columns", "values"]
         if (!utils.__right_params_are_passed(kwargs, params_needed)) {
-            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
         }
 
         if (utils.__key_in_object(kwargs, "columns")) {
@@ -1261,6 +1261,7 @@ export class DataFrame extends Ndframe {
                     temp_col_data.map(val => {     //fill the column
                         if (isNaN(val) && typeof val != "string") {
                             __temp.push(kwargs['values'][fil_idx])
+
                         } else {
                             __temp.push(val)
                         }
@@ -1272,9 +1273,10 @@ export class DataFrame extends Ndframe {
                     _obj[col] = this.col_data[idx]
                     new_col_data_obj.push(_obj)
                 }
-            })
 
-            return new DataFrame(new_col_data_obj, { columns: this.column_names, index: this.index, dtypes: this.dtypes })
+            })
+            // console.log(new_col_data_obj);
+            return new DataFrame(new_col_data_obj, { columns: this.column_names, index: this.index })
 
         } else {
             //fill all columns using same value
@@ -1309,7 +1311,7 @@ export class DataFrame extends Ndframe {
                 data.push(temp_data);
             }
 
-            return new DataFrame(data, { columns: columns, index: this.index, dtypes: this.dtypes })
+            return new DataFrame(data, { columns: columns, index: this.index })
 
         }
 
@@ -1322,23 +1324,56 @@ export class DataFrame extends Ndframe {
      */
     isna() {
 
-        let data = []
-        let values = this.values;
-        let columns = this.columns;
+        let new_row_data = []
+        let row_data = this.values;
+        let columns = this.column_names;
 
-        for (let i = 0; i < values.length; i++) {
-            let temp_data = []
-            let row_value = values[i]
-            for (let j = 0; j < row_value.length; j++) {
+        row_data.map(arr => {
+            let temp_arr = []
+            arr.map(val => {
+                if (isNaN(val) && typeof val != "string") {
+                    temp_arr.push(true)
+                } else {
+                    temp_arr.push(false)
+                }
+            })
+            new_row_data.push(temp_arr)
+        })
 
-                let val = row_value[j] == 0 ? true : !row_value[j]
-                temp_data.push(val)
-            }
-            data.push(temp_data);
-        }
 
-        return new DataFrame(data, { columns: columns })
+        return new DataFrame(new_row_data, { columns: columns, index: this.index })
     }
+
+
+
+    // let new_row_data = []
+    // let row_data = this.values;
+    // let columns = this.column_names;
+
+    // row_data.map(arr=>{
+    //     let temp_arr = []
+    //     arr.map(val=>{
+    //         if (isNaN(val) && typeof val != "string" ){
+    //             temp_arr.push(true)
+    //         }else{
+    //             temp_arr.push(false)
+    //         }
+    //     })
+    //     new_row_data.push(temp_arr)
+    // })
+
+    // // for (let i = 0; i < values.length; i++) {
+    // //     let temp_data = []
+    // //     let row_value = values[i]
+    // //     for (let j = 0; j < row_value.length; j++) {
+
+    // //         let val = row_value[j] == 0 ? true : !row_value[j]
+    // //         temp_data.push(val)
+    // //     }
+    // //     data.push(temp_data);
+    // // }
+
+    // return new DataFrame(new_row_data, { columns: columns, index: this.index })
 
 
     /**
@@ -1608,7 +1643,7 @@ export class DataFrame extends Ndframe {
     replace(kwargs = {}) {
         let params_needed = ["replace", "with", "in"]
         if (!utils.__right_params_are_passed(kwargs, params_needed)) {
-            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
         }
 
         if (utils.__key_in_object(kwargs, "in")) {
@@ -1641,7 +1676,7 @@ export class DataFrame extends Ndframe {
                         new_col_data_obj.push(_obj)
                     }
                 })
-                return new DataFrame(new_col_data_obj, { columns: this.column_names, index: this.index, dtypes: this.dtypes })
+                return new DataFrame(new_col_data_obj, { columns: this.column_names, index: this.index })
             } else {
 
                 throw Error("Params Error: Must specify both 'replace' and 'with' parameters.")
@@ -1666,7 +1701,7 @@ export class DataFrame extends Ndframe {
                     replaced_arr.push(temp)
                 })
 
-                let df = new DataFrame(replaced_arr, { index: this.index, columns: this.columns, dtypes: this.dtypes })
+                let df = new DataFrame(replaced_arr, { index: this.index, columns: this.column_names })
                 return df
 
 

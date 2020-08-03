@@ -1041,13 +1041,64 @@ class DataFrame extends _generic.default {
   }
 
   fillna(kwargs = {}) {
-    if (utils.__key_in_object(kwargs, "column")) {
-      if (!this.column_names.includes(kwargs['column'])) {
-        throw Error(`Value Error: Specified column must be one of ${this.column}`);
+    let params_needed = ["columns", "values"];
+
+    if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+      throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`);
+    }
+
+    if (utils.__key_in_object(kwargs, "columns")) {
+      kwargs['columns'].map(col => {
+        if (!this.column_names.includes(col)) {
+          throw Error(`Value Error: Specified columns must be one of ${this.column_names}, got ${col}`);
+        }
+      });
+
+      if (kwargs['columns'].length != kwargs['values'].length) {
+        throw Error(`Lenght Error: The lenght of the columns names must be equal to the lenght of the values,
+                 got column of length ${kwargs['columns'].length} but values of length ${kwargs['values'].length}`);
       }
+
+      let new_col_data_obj = [];
+      let fil_idx = 0;
+      this.column_names.map((col, idx) => {
+        let _obj = {};
+
+        if (kwargs['columns'].includes(col)) {
+          let temp_col_data = this.col_data[idx];
+          let __temp = [];
+          temp_col_data.map(val => {
+            if (isNaN(val) && typeof val != "string") {
+              __temp.push(kwargs['values'][fil_idx]);
+            } else {
+              __temp.push(val);
+            }
+          });
+          fil_idx += 1;
+          _obj[col] = __temp;
+          new_col_data_obj.push(_obj);
+        } else {
+          _obj[col] = this.col_data[idx];
+          new_col_data_obj.push(_obj);
+        }
+      });
+      return new DataFrame(new_col_data_obj, {
+        columns: this.column_names,
+        index: this.index
+      });
     } else {
-      let nan_val = kwargs["value"] || 0;
-      let inplace = kwargs["inplace"] || false;
+      if (!utils.__key_in_object(kwargs, "values")) {
+        throw Error("Value Error: Please specify a fill value");
+      }
+
+      let nan_val;
+
+      if (Array.isArray(kwargs['values'])) {
+        nan_val = kwargs['values'][0];
+      } else {
+        nan_val = kwargs["values"];
+      }
+
       let data = [];
       let values = this.values;
       let columns = this.columns;
@@ -1069,35 +1120,31 @@ class DataFrame extends _generic.default {
         data.push(temp_data);
       }
 
-      if (inplace) {
-        this.data = data;
-      } else {
-        return new DataFrame(data, {
-          columns: columns
-        });
-      }
+      return new DataFrame(data, {
+        columns: columns,
+        index: this.index
+      });
     }
   }
 
   isna() {
-    let data = [];
-    let values = this.values;
-    let columns = this.columns;
-
-    for (let i = 0; i < values.length; i++) {
-      let temp_data = [];
-      let row_value = values[i];
-
-      for (let j = 0; j < row_value.length; j++) {
-        let val = row_value[j] == 0 ? true : !row_value[j];
-        temp_data.push(val);
-      }
-
-      data.push(temp_data);
-    }
-
-    return new DataFrame(data, {
-      columns: columns
+    let new_row_data = [];
+    let row_data = this.values;
+    let columns = this.column_names;
+    row_data.map(arr => {
+      let temp_arr = [];
+      arr.map(val => {
+        if (isNaN(val) && typeof val != "string") {
+          temp_arr.push(true);
+        } else {
+          temp_arr.push(false);
+        }
+      });
+      new_row_data.push(temp_arr);
+    });
+    return new DataFrame(new_row_data, {
+      columns: columns,
+      index: this.index
     });
   }
 
@@ -1301,41 +1348,71 @@ class DataFrame extends _generic.default {
   }
 
   replace(kwargs = {}) {
-    let params_needed = ["replace", "with", "inplace"];
+    let params_needed = ["replace", "with", "in"];
 
     if (!utils.__right_params_are_passed(kwargs, params_needed)) {
-      throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`);
+      throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`);
     }
 
-    kwargs['inplace'] = kwargs['inplace'] || false;
-
-    if (utils.__key_in_object(kwargs, "replace") && utils.__key_in_object(kwargs, "with")) {
-      let replaced_arr = [];
-      let old_arr = this.values;
-      old_arr.map(inner_arr => {
-        let temp = [];
-        inner_arr.map(val => {
-          if (val == kwargs['replace']) {
-            temp.push(kwargs['with']);
-          } else {
-            temp.push(val);
-          }
-        });
-        replaced_arr.push(temp);
+    if (utils.__key_in_object(kwargs, "in")) {
+      kwargs['in'].map(col => {
+        if (!this.column_names.includes(col)) {
+          throw Error(`Value Error: Specified columns must be one of ${this.column_names}, got ${col}`);
+        }
       });
 
-      if (kwargs['inplace']) {
-        this.data = replaced_arr;
-      } else {
-        let df = new DataFrame(replaced_arr, {
-          index: this.index,
-          columns: this.columns,
-          dtypes: this.dtypes
+      if (utils.__key_in_object(kwargs, "replace") && utils.__key_in_object(kwargs, "with")) {
+        let new_col_data_obj = [];
+        this.column_names.map((col, idx) => {
+          let _obj = {};
+
+          if (kwargs['in'].includes(col)) {
+            let temp_col_data = this.col_data[idx];
+            let __temp = [];
+            temp_col_data.map(val => {
+              if (val == kwargs['replace']) {
+                __temp.push(kwargs['with']);
+              } else {
+                __temp.push(val);
+              }
+            });
+            _obj[col] = __temp;
+            new_col_data_obj.push(_obj);
+          } else {
+            _obj[col] = this.col_data[idx];
+            new_col_data_obj.push(_obj);
+          }
         });
-        return df;
+        return new DataFrame(new_col_data_obj, {
+          columns: this.column_names,
+          index: this.index
+        });
+      } else {
+        throw Error("Params Error: Must specify both 'replace' and 'with' parameters.");
       }
     } else {
-      throw Error("Params Error: Must specify both 'replace' and 'with' parameters.");
+      if (utils.__key_in_object(kwargs, "replace") && utils.__key_in_object(kwargs, "with")) {
+        let replaced_arr = [];
+        let old_arr = this.values;
+        old_arr.map(inner_arr => {
+          let temp = [];
+          inner_arr.map(val => {
+            if (val == kwargs['replace']) {
+              temp.push(kwargs['with']);
+            } else {
+              temp.push(val);
+            }
+          });
+          replaced_arr.push(temp);
+        });
+        let df = new DataFrame(replaced_arr, {
+          index: this.index,
+          columns: this.column_names
+        });
+        return df;
+      } else {
+        throw Error("Params Error: Must specify both 'replace' and 'with' parameters.");
+      }
     }
   }
 
