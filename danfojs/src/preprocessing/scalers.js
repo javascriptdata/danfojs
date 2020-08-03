@@ -29,7 +29,7 @@ export class MinMaxScaler {
         this.min = tensor_data.min(0)
 
         let output_data = tensor_data.sub(this.min).div(this.max.sub(this.min)).arraySync()
-        return output_data
+        return new DataFrame(data=output_data)
 
     }
 
@@ -46,7 +46,7 @@ export class MinMaxScaler {
 
         let tensor_data = tf.tensor(data);
         let output_data = tensor_data.sub(this.min).div(this.max.sub(this.min)).arraySync()
-        return output_data
+        return new DataFrame(data=output_data)
 
     }
 }
@@ -74,7 +74,7 @@ export class StandardScaler {
 
         let output_data = tensor_data.sub(this.mean).div(this.std).arraySync()
 
-        return output_data
+        return new DataFrame(data=output_data)
     }
 
     transform(data){
@@ -85,7 +85,7 @@ export class StandardScaler {
         let tensor_data = tf.tensor(data);
         let output_data = tensor_data.sub(this.mean).div(this.std).arraySync()
 
-        return output_data
+        return new DataFrame(data=output_data)
 
     }
 }
