@@ -387,7 +387,7 @@ export default class NDframe {
         if (col_len > max_col_in_console) {
             //truncate displayed columns to fit in the console
             let first_4_cols = this.columns.slice(0, 3)
-            let last_3_cols = this.columns.slice(col_len - 3, col_len)
+            let last_3_cols = this.columns.slice(col_len - 4, col_len)
             //join columns with truncate ellipse in the middle
             header = [""].concat(first_4_cols).concat(["..."]).concat(last_3_cols)
 

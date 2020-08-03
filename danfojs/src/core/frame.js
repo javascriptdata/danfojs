@@ -31,10 +31,10 @@ export class DataFrame extends Ndframe {
         let col_names = this.column_names
 
         col_vals.forEach((col, i) => {
-            // this[col_names[i]] = new Series(col, { columns: col_names[i], index: this.index })
+            this[col_names[i]] = new Series(col, { columns: col_names[i], index: this.index })
             Object.defineProperty(this, col_names[i], {
                 get() {
-                    return new Series(this.col_data[i])
+                    return new Series(this.col_data[i], { columns: col_names[i], index: this.index })
                 },
                 set(value) {
                     this.addColumn({ column: col_names[i], value: value });
@@ -1111,6 +1111,7 @@ export class DataFrame extends Ndframe {
             // this.col_data[col_idx] = utils.__get_t(value)[0]
             this.data_tensor = tf.tensor(new_data)
 
+
         } else {
             let data = this.values
             let new_data = []
@@ -1129,6 +1130,8 @@ export class DataFrame extends Ndframe {
             this.col_data = utils.__get_col_values(new_data)
             this.data_tensor = tf.tensor(new_data)
             this.columns.push(column_name);
+            this[column_name] = new Series(value)
+            // this[column_name] = new Series(value, { columns: column_name, index: this.index })
         }
     }
 
@@ -1223,54 +1226,92 @@ export class DataFrame extends Ndframe {
     }
 
 
-
-    // /**
-    //  * generate a datetime from a column of date string
-    //  * @param {kwargs} kwargs object {data: [array of string], format: String} 
-    //  * @return DateTime data structure
-    //  */
-    // static to_datetime(kwargs){
-
-    //     let timeseries = new TimeSeries(kwargs); // parsed to date-time
-    //     timeseries.preprocessed() // generate date-time list
-
-    //     return timeseries
-    // }
-
     /**
-     * Fill all NaN value with a specific value
-     * @param {*} nan_val 
-     */
+    * Replace NaN or undefined with a specified value"
+    * @param {kwargs}, {column(s): Array of column name(s) to fill. If undefined fill all columns;
+    *                   value(s): Array | Scalar of value(s) to fill with. If single value is specified, we use it to fill all
+    * @return {DataFrame}
+    */
     fillna(kwargs = {}) {
 
-        let nan_val = kwargs["value"] || 0;
-        let inplace = kwargs["inplace"] || false;
-        let data = []
-        let values = this.values;
-        let columns = this.columns;
+        let params_needed = ["columns", "values"]
+        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
+        }
 
-        for (let i = 0; i < values.length; i++) {
-            let temp_data = []
-            let row_value = values[i]
-            for (let j = 0; j < row_value.length; j++) {
-
-                let val = row_value[j] == 0 ? 0 : !!row_value[j]
-                if (!val) {
-                    temp_data.push(nan_val)
-                } else {
-                    temp_data.push(row_value[j])
+        if (utils.__key_in_object(kwargs, "columns")) {
+            //check if the column exists
+            kwargs['columns'].map(col => {
+                if (!this.column_names.includes(col)) {
+                    throw Error(`Value Error: Specified columns must be one of ${this.column_names}, got ${col}`)
                 }
+            })
+
+            if (kwargs['columns'].length != kwargs['values'].length){
+                throw Error(`Lenght Error: The lenght of the columns names must be equal to the lenght of the values,
+                 got column of length ${kwargs['columns'].length} but values of length ${kwargs['values'].length}`)
+            }
+            let new_col_data_obj = []
+            let fil_idx = 0
+            this.column_names.map((col, idx)=>{
+                let _obj = {}
+                if (kwargs['columns'].includes(col)){
+                    let temp_col_data = this.col_data[idx]  //retreive the column data
+                    let __temp = []
+                    temp_col_data.map(val=>{     //fill the column
+                        if (isNaN(val) && typeof val != "string"){
+                            __temp.push(kwargs['values'][fil_idx])
+                        }else{
+                            __temp.push(val)
+                        }
+                    })
+                    fil_idx += 1
+                    _obj[col] = __temp
+                    new_col_data_obj.push(_obj)
+                }else{
+                    _obj[col] = this.col_data[idx]
+                    new_col_data_obj.push(_obj)
+                }
+            })
+
+            return new DataFrame(new_col_data_obj, { columns: this.column_names, index: this.index, dtypes: this.dtypes})
+               
+        } else {
+            //fill all columns using same value
+            if (!utils.__key_in_object(kwargs, "values")) {
+                throw Error("Value Error: Please specify a fill value")
+            }
+
+            let nan_val;
+            if (Array.isArray(kwargs['values'])) {
+                nan_val = kwargs['values'][0]
+            } else {
+                nan_val = kwargs["values"]
 
             }
-            data.push(temp_data);
-        }
-        if (inplace) {
-            this.data = data;
+            let data = []
+            let values = this.values;
+            let columns = this.columns;
 
-        } else {
-            return new DataFrame(data, { columns: columns })
-        }
+            for (let i = 0; i < values.length; i++) {
+                let temp_data = []
+                let row_value = values[i]
+                for (let j = 0; j < row_value.length; j++) {
 
+                    let val = row_value[j] == 0 ? 0 : !!row_value[j]
+                    if (!val) {
+                        temp_data.push(nan_val)
+                    } else {
+                        temp_data.push(row_value[j])
+                    }
+
+                }
+                data.push(temp_data);
+            }
+
+            return new DataFrame(data, { columns: columns, index: this.index, dtypes: this.dtypes})
+
+        }
 
     }
 

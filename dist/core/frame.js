@@ -36,9 +36,16 @@ class DataFrame extends _generic.default {
     let col_vals = this.col_data;
     let col_names = this.column_names;
     col_vals.forEach((col, i) => {
+      this[col_names[i]] = new _series.Series(col, {
+        columns: col_names[i],
+        index: this.index
+      });
       Object.defineProperty(this, col_names[i], {
         get() {
-          return new _series.Series(this.col_data[i]);
+          return new _series.Series(this.col_data[i], {
+            columns: col_names[i],
+            index: this.index
+          });
         },
 
         set(value) {
@@ -948,6 +955,7 @@ class DataFrame extends _generic.default {
       this.col_data = utils.__get_col_values(new_data);
       this.data_tensor = tf.tensor(new_data);
       this.columns.push(column_name);
+      this[column_name] = new _series.Series(value);
     }
   }
 
@@ -1033,35 +1041,41 @@ class DataFrame extends _generic.default {
   }
 
   fillna(kwargs = {}) {
-    let nan_val = kwargs["value"] || 0;
-    let inplace = kwargs["inplace"] || false;
-    let data = [];
-    let values = this.values;
-    let columns = this.columns;
+    if (utils.__key_in_object(kwargs, "column")) {
+      if (!this.column_names.includes(kwargs['column'])) {
+        throw Error(`Value Error: Specified column must be one of ${this.column}`);
+      }
+    } else {
+      let nan_val = kwargs["value"] || 0;
+      let inplace = kwargs["inplace"] || false;
+      let data = [];
+      let values = this.values;
+      let columns = this.columns;
 
-    for (let i = 0; i < values.length; i++) {
-      let temp_data = [];
-      let row_value = values[i];
+      for (let i = 0; i < values.length; i++) {
+        let temp_data = [];
+        let row_value = values[i];
 
-      for (let j = 0; j < row_value.length; j++) {
-        let val = row_value[j] == 0 ? 0 : !!row_value[j];
+        for (let j = 0; j < row_value.length; j++) {
+          let val = row_value[j] == 0 ? 0 : !!row_value[j];
 
-        if (!val) {
-          temp_data.push(nan_val);
-        } else {
-          temp_data.push(row_value[j]);
+          if (!val) {
+            temp_data.push(nan_val);
+          } else {
+            temp_data.push(row_value[j]);
+          }
         }
+
+        data.push(temp_data);
       }
 
-      data.push(temp_data);
-    }
-
-    if (inplace) {
-      this.data = data;
-    } else {
-      return new DataFrame(data, {
-        columns: columns
-      });
+      if (inplace) {
+        this.data = data;
+      } else {
+        return new DataFrame(data, {
+          columns: columns
+        });
+      }
     }
   }
 
@@ -1439,6 +1453,21 @@ class DataFrame extends _generic.default {
         return tensors_arr;
       }
     }
+  }
+
+  transpose() {
+    let new_values = this.col_data;
+    let new_index = this.column_names;
+    let new_col_names = this.index;
+    let df = new DataFrame(new_values, {
+      columns: new_col_names,
+      index: new_index
+    });
+    return df;
+  }
+
+  get T() {
+    return this.transpose();
   }
 
 }

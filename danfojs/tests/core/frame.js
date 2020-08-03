@@ -9,20 +9,20 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            assert.throws(function () { df.drop({columns: [3], axis: 0, inplace: false }) }, Error, '3 does not exist in index');
+            assert.throws(function () { df.drop({ columns: [3], axis: 0, inplace: false }) }, Error, '3 does not exist in index');
         })
         it("throw error for wrong row index", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            assert.throws(function () { df.drop({columns: ["D"], axis: 1, inplace: false }) }, Error, 'column "D" does not exist');
+            assert.throws(function () { df.drop({ columns: ["D"], axis: 1, inplace: false }) }, Error, 'column "D" does not exist');
         })
 
         it("drop a column inplace", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            df.drop({columns: ["C","B"], axis: 1, inplace: true });
+            df.drop({ columns: ["C", "B"], axis: 1, inplace: true });
             let column = ["A"]
             assert.deepEqual(df.columns, column);
         })
@@ -30,7 +30,7 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            df.drop({columns:["C"], axis: 1, inplace: true });
+            df.drop({ columns: ["C"], axis: 1, inplace: true });
             let new_data = [[1, 2], [4, 5]]
             assert.deepEqual(df.values, new_data);
         })
@@ -39,7 +39,7 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            df.drop({columns:[0], axis: 0, inplace: true });
+            df.drop({ columns: [0], axis: 0, inplace: true });
             let new_data = [[4, 5, 6],]
             assert.deepEqual(df.values, new_data);
         })
@@ -47,7 +47,7 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            let df_drop = df.drop({ columns:["C"],axis: 1, inplace: false });
+            let df_drop = df.drop({ columns: ["C"], axis: 1, inplace: false });
 
             let expected_data = [[1, 2], [4, 5]]
             let expected_cols = ["A", "B"]
@@ -838,7 +838,7 @@ describe("DataFrame", function () {
 
             df.addColumn({ "column": "C", "value": new_col });
 
-            let new_data = [[1, 2,1], [4, 5,2], [20, 30,3], [39, 89,4]];
+            let new_data = [[1, 2, 1], [4, 5, 2], [20, 30, 3], [39, 89, 4]];
 
             assert.deepEqual(df.values, new_data);
         });
@@ -871,6 +871,7 @@ describe("DataFrame", function () {
             let new_col = [1, 2, 3]
             assert.throws(function () { df.addColumn({ "column": "D", "value": new_col }); }, Error, "Array length 3 not equal to 4");
         });
+
     });
 
     describe("groupby", function () {
@@ -1061,7 +1062,7 @@ describe("DataFrame", function () {
     //     });
     // });
 
-    
+
 
     describe("Apply", function () {
 
@@ -1179,24 +1180,55 @@ describe("DataFrame", function () {
 
     describe("fillna", function () {
 
-        it("replace all nana value", function () {
+        it("replace all NaN value", function () {
             let data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]]
             let column = ["A", "B", "C", "D"]
             let df = new DataFrame(data, { columns: column })
 
             let df_val = [[-999, 1, 2, 3], [3, 4, -999, 9], [5, 6, 7, 8]]
 
-            assert.deepEqual(df.fillna({value:-999,inplace:false}).values, df_val)
+            assert.deepEqual(df.fillna({ values: -999 }).values, df_val)
         });
-        it("replace all nan value with inplace set to true", function () {
+        it("replace all NaN value", function () {
             let data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]]
             let column = ["A", "B", "C", "D"]
             let df = new DataFrame(data, { columns: column })
 
             let df_val = [[-999, 1, 2, 3], [3, 4, -999, 9], [5, 6, 7, 8]]
 
-            df.fillna({value:-999,inplace:true})
-            assert.deepEqual(df.values, df_val)
+            let df_filled = df.fillna({ values: [-999] })
+            assert.deepEqual(df_filled.values, df_val)
+        });
+
+        it("Fills only a specified column", function () {
+            let data = [[1, 2, 3],
+            [4, 5, 6],
+            [20, NaN, 40],
+            [39, NaN, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let new_vals = [[1, 2, 3], [4, 5, 6], [20, 2, 40], [39, 2, 78]]
+            let df_filled = df.fillna({ columns: ["B"], values: [2] })
+
+            assert.deepEqual(df_filled.values, new_vals);
+        });
+        it("Fills column with specified values not in place", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [NaN, 20, 40], [NaN, -1, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let new_vals = [[1, 2, 3], [4, 5, 6], [-2, 20, 40], [-2, -1, 78]]
+            let df_filled = df.fillna({ columns: ["A"], values: [-2] })
+
+            assert.deepEqual(df_filled.values, new_vals);
+        });
+
+        it("Fills a list of columns with specified values inplace", function () {
+            let data = [[1, NaN, 3], [4, NaN, 6], [NaN, 20, 40], [NaN, -1, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let new_vals = [[1, 100, 3], [4, 100, 6], [200, 20, 40], [200, -1, 78]]
+            let df_filled = df.fillna({ columns: ["A", "B"], values: [200, 100] })
+            assert.deepEqual(df_filled.values, new_vals);
         });
     })
 
@@ -1293,12 +1325,12 @@ describe("DataFrame", function () {
             assert.deepEqual(df['alpha'].values, col1)
             assert.deepEqual(df['count'].values, col2)
         })
-        it("Access column object using list subset and name of column after assigning",function () {
+        it("Access column object using list subset and name of column after assigning", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            df["A"] = [30,40]
-            let col1 = [30,40]
+            df["A"] = [30, 40]
+            let col1 = [30, 40]
             assert.deepEqual(df["A"].values, col1)
         })
     })
@@ -1489,40 +1521,40 @@ describe("DataFrame", function () {
     describe("sum", function () {
         it("Sum values of a DataFrame by Default axis column (axis=1)", function () {
             let data1 = [[30, 40, 3.1],
-                        [5, 5, 5.1],
-                        [5, 5, 3.2]]
+            [5, 5, 5.1],
+            [5, 5, 3.2]]
             let sf = new DataFrame(data1)
             let res = [40, 50, 11.4]
             assert.deepEqual(sf.sum().values, res)
         })
         it("Sum values of a DataFrame along row axis (axis=0)", function () {
             let data1 = [[30, 40, 3.1],
-                        [5, 5, 5.1],
-                        [5, 5, 3.2]]
+            [5, 5, 5.1],
+            [5, 5, 3.2]]
             let df = new DataFrame(data1)
             let res = [73.1, 15.1, 13.2]
             assert.deepEqual(df.sum({ axis: 0 }).values, res)
         })
         it("Sum values of a mixed DataFrame along row axis (axis=0)", function () {
             let data1 = [[30, 40, 3.1, true],
-                        [5, 5, 5.1, true],
-                        [5, 5, 3.2, true]]
+            [5, 5, 5.1, true],
+            [5, 5, 3.2, true]]
             let df = new DataFrame(data1)
             let res = [74.1, 16.1, 14.2]
             assert.deepEqual(df.sum({ axis: 0 }).values, res)
         })
         it("Sum values of a boolean DataFrame along row axis (axis=0)", function () {
             let data1 = [[true, true, false, true],
-                        [false, false, false, false],
-                        [false, true, true, false]]
+            [false, false, false, false],
+            [false, true, true, false]]
             let df = new DataFrame(data1)
             let res = [3, 0, 2]
             assert.deepEqual(df.sum({ axis: 0 }).values, res)
         })
         it("Sum values of a boolean DataFrame along default column axis (axis=1)", function () {
             let data1 = [[true, true, false, true],
-                        [false, false, false, false],
-                        [false, true, true, false]]
+            [false, false, false, false],
+            [false, true, true, false]]
             let df = new DataFrame(data1)
             let res = [1, 2, 1, 1]
             assert.deepEqual(df.sum().values, res)
@@ -1549,14 +1581,14 @@ describe("DataFrame", function () {
     describe("T", function () {
         it("Returns the Tranpose of a DataFrame", function () {
             let data1 = [[10, 45, 56, 10],
-                         [25, 23, 20, 10]]
+            [25, 23, 20, 10]]
 
             let cols = ["a", "b", "c", "d"]
-            let df = new DataFrame(data1, {columns: cols})
+            let df = new DataFrame(data1, { columns: cols })
             let df_trans = df.T
-            let expected_vals = [[10, 25],[45, 23],[56, 20], [10, 10]]
+            let expected_vals = [[10, 25], [45, 23], [56, 20], [10, 10]]
             let expected_index = cols
-            let expected_col_names = [0,1]
+            let expected_col_names = [0, 1]
             assert.deepEqual(df_trans.index, expected_index)
             assert.deepEqual(df_trans.values, expected_vals)
             assert.deepEqual(df_trans.column_names, expected_col_names)
