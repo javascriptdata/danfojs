@@ -98,8 +98,8 @@ export class GroupBy {
 
     /**
      * obtain the column for each group
-     * @param {col_name} col_name String name of a column
-     * @return Groupby class
+     * @param {col_name} col_name [Array]--> array of column names
+     * @return Groupby data structure
      */
     col(col_names){
 
@@ -283,11 +283,12 @@ export class GroupBy {
     /**
      * Map every column to an operaton
      * @param {kwargs} kwargs {column name: math operation}
+     * @example .agg({"A": "mean","B": "sum","C":"count"})
      */
     agg(kwargs={}){
 
         let columns = Object.keys(kwargs)
-        let operations = columns.map(x=>{ return kwargs[x]})
+        let operations = columns.map(x=>{ return kwargs[x].toLocaleLowerCase()})
         
         this.col(columns)
 

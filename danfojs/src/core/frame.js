@@ -34,55 +34,67 @@ export class DataFrame extends Ndframe {
         let col_names = this.column_names
 
         col_vals.forEach((col, i) => {
-            this[col_names[i]] = new Series(col, { columns: col_names[i], index: this.index })
+            // this[col_names[i]] = new Series(col, { columns: col_names[i], index: this.index })
+            Object.defineProperty(this,col_names[i],{
+                get(){
+                    return new Series(this.col_data[i])
+                },
+                set(value){
+                    this.addColumn({column: col_names[i],value:value});
+                }
+            })
         });
     }
 
     /**
-     * Drop a row or a column base on the axis specified
-     * @param {val} String name of row or column to drop
+     * Drop a list of rows or columns base on the axis specified
      * @param {kwargs} Object (Optional configuration object
-     *             {axis: row=0, columns=1
+     *             {value: [Array(Columns| Index)]
+     *              axis: row=0, columns=1
      *             inplace: specify whether to drop the row/column with/without creating a new DataFrame}
+     * @returns null | DataFrame
      *            
      */
-    drop(val, kwargs = { axis: 0, inplace: false }) {
+    drop(kwargs = {axis: 0, inplace: false }) {
+
+        utils.__in_object(kwargs,"value","value not defined")
+
+        let data = kwargs["value"];
 
         if (kwargs['axis'] == 1) {
-            const index = this.columns.indexOf(val);
+            let self = this;
+            const index = data.map((x)=>{
+                    let col_idx = self.columns.indexOf(x)
+                    if(col_idx == -1){
+                        throw new Error(`column "${x}" does not exist`)
+                    }
+                    return col_idx
+            });
             const values = this.values
 
-            if (index == -1) {
-                throw new Error(`column "${val}" does not exist`)
-            }
-
             let new_data = values.map(function (element) {
-                let new_arr = utils.remove(element, index);
+                let new_arr = utils.__remove_arr(element, index);
                 return new_arr;
             });
 
             if (!kwargs['inplace']) {
-                let columns = utils.remove(this.columns, index);
+                let columns = utils.__remove_arr(this.columns, index);
                 return new DataFrame(new_data, { columns: columns })
             } else {
-                this.columns = utils.remove(this.columns, index);
+                this.columns = utils.__remove_arr(this.columns, index);
                 this.data_tensor = tf.tensor(new_data);
                 this.data = new_data
             }
 
         } else {
 
-            const axes = this.axes
-            const isIndex = axes["index"].includes(val);
+            data.map((x)=>{
+                
+                if(!this.index.includes(x)) throw new Error(`${x} does not exist in index`)
+            });
             const values = this.values
 
-            if (isIndex) {
-                var index = val;
-            } else {
-                throw new Error("Index does not exist")
-            }
-
-            let new_data = utils.remove(values, index);
+            let new_data = utils.__remove_arr(values, data);
 
             if (!kwargs['inplace']) {
                 return new DataFrame(new_data, { columns: this.columns })
@@ -220,7 +232,7 @@ export class DataFrame extends Ndframe {
 
     /**
      * Obtain the defined the set of row and column index 
-     * @param {} kwargs object {rows: Array of index, columns: Array of column name(s)} 
+     * @param {kwargs} kwargs object {rows: Array of index, columns: Array of column name(s)} 
      * @return DataFrame data stucture
      */
     loc(kwargs) {
@@ -230,8 +242,7 @@ export class DataFrame extends Ndframe {
         let df_columns = { "columns": columns }
         let df = new DataFrame(new_data, df_columns);
         df.index_arr = rows
-        // console.log("Printing rowss");
-        // console.log(rows);
+        
         return df;
 
     }
@@ -248,7 +259,6 @@ export class DataFrame extends Ndframe {
 
         let [new_data, columns, rows] = this.__indexLoc(kwargs);
         let df_columns = { "columns": columns }
-        // console.log(new_data)
         let df = new DataFrame(new_data, df_columns);
         df.index_arr = rows
         return df;
@@ -258,7 +268,8 @@ export class DataFrame extends Ndframe {
 
     /**
     * Prints the first n values in a dataframe
-    * @param {rows}  
+    * @param {rows}  rows --> int
+    * @returns DataFrame
     */
     head(rows = 5) {
         if (rows > this.values.length || rows < 1) {
@@ -277,7 +288,8 @@ export class DataFrame extends Ndframe {
 
     /**
     * Prints the last n values in a dataframe
-    * @param {rows}  
+    * @param {rows}  rows --> int
+    * @returns DataFrame
     */
     tail(rows = 5) {
         let row_len = this.values.length
@@ -298,7 +310,8 @@ export class DataFrame extends Ndframe {
 
     /**
     * Gets [num] number of random rows in a dataframe
-    * @param {rows}  
+    * @param {rows}  rows --> int
+    * @returns DataFrame 
     */
     sample(num = 5) {
         //TODO: Use different sampling strategy
@@ -615,10 +628,12 @@ export class DataFrame extends Ndframe {
 
 
     /**
-     * Find the cummulative max
+     * Perform Cummulative operations
      * @param {axis} axis [int] {0 or 1} 
+     * @param {ops} ops {String} name of operation
+     * @return {DataFrame}
      */
-    cum_ops(axis = 0, ops) {
+    __cum_ops(axis = 0, ops) {
 
         if (!(axis == 0) && !(axis == 1)) {
             throw new Error("axis must be between 0 or 1")
@@ -687,42 +702,46 @@ export class DataFrame extends Ndframe {
 
     }
     /**
-     * calculate the cummulative sum
+     * calculate the cummulative sum along axis
      * @param {kwargs} {axis: [int]}
+     * @returns {DataFrame}
      */
     cumsum(kwargs = {}) {
         let axis = kwargs["axis"] || 0
-        let data = this.cum_ops(axis, "sum");
+        let data = this.__cum_ops(axis, "sum");
         return data
     }
 
     /**
      * calculate the cummulative min
      * @param {kwargs} {axis: [int]}
+     * @returns {DataFrame}
      */
     cummin(kwargs = {}) {
         let axis = kwargs["axis"] || 0
-        let data = this.cum_ops(axis, "min");
+        let data = this.__cum_ops(axis, "min");
         return data
     }
 
     /**
      * calculate the cummulative max
      * @param {kwargs} {axis: [int]}
+     * @returns {DataFrame}
      */
     cummax(kwargs = {}) {
         let axis = kwargs["axis"] || 0
-        let data = this.cum_ops(axis, "max");
+        let data = this.__cum_ops(axis, "max");
         return data
     }
 
     /**
      * calculate the cummulative prod
      * @param {kwargs} {axis: [int]}
+     * @returns {DataFrame}
      */
     cumprod(kwargs = {}) {
         let axis = kwargs["axis"] || 0
-        let data = this.cum_ops(axis, "prod");
+        let data = this.__cum_ops(axis, "prod");
         return data
     }
 
@@ -988,8 +1007,9 @@ export class DataFrame extends Ndframe {
 
 
     /**
-     * fetch rows containing a column value
-     * @param {} kwargs {column: coumn name[string], operator: string, value: string| int} 
+     * Filter DataFrame element base on the element in a column
+     * @param {kwargs} kwargs {column : coumn name[string], operator: String, value: string| int} 
+     * @returns {DataFrame}
      */
     query(kwargs) {
         //define the set of operators to be used
@@ -1060,7 +1080,7 @@ export class DataFrame extends Ndframe {
 
     /**
      * Add a column with values to the dataframe
-     * @param {kwargs} Object keys[columns [string] and value[Array]]
+     * @param {kwargs} Object {column :[string] , value:[Array]}
      * 
      */
     addColumn(kwargs) {
@@ -1078,23 +1098,41 @@ export class DataFrame extends Ndframe {
         }
 
 
-        let data = this.values
-        let new_data = []
+        if(this.columns.includes(column_name)){
 
-        data.map(function (val, index) {
-            let new_val = val.slice()
-            new_val.push(value[index])
-            new_data.push(new_val);
-        });
+            let col_idx = this.columns.indexOf(column_name);
 
-        //add new dtype
-        let old_type_list = [...this.dtypes]
-        old_type_list.push(utils.__get_t(value)[0])
-        this.col_types = old_type_list
-        this.data = new_data;
-        this.col_data = utils.__get_col_values(new_data)
-        this.data_tensor = tf.tensor(new_data)
-        this.columns.push(column_name);
+            let new_data = []
+            this.values.map((val,index)=>{
+                let new_val = val.slice();
+                new_val[col_idx] = value[index]
+                new_data.push(new_val);
+            })
+            this.data = new_data;
+            // console.log(this.data)
+            this.col_data[col_idx] = value
+            // this.col_data[col_idx] = utils.__get_t(value)[0]
+            this.data_tensor = tf.tensor(new_data)
+
+        }else{
+            let data = this.values
+            let new_data = []
+
+            data.map(function (val, index) {
+                let new_val = val.slice()
+                new_val.push(value[index])
+                new_data.push(new_val);
+            });
+
+            //add new dtype
+            let old_type_list = [...this.dtypes]
+            old_type_list.push(utils.__get_t(value)[0])
+            this.col_types = old_type_list
+            this.data = new_data;
+            this.col_data = utils.__get_col_values(new_data)
+            this.data_tensor = tf.tensor(new_data)
+            this.columns.push(column_name);
+        }
     }
 
     /**
@@ -1187,6 +1225,8 @@ export class DataFrame extends Ndframe {
 
     }
 
+    
+
     // /**
     //  * generate a datetime from a column of date string
     //  * @param {kwargs} kwargs object {data: [array of string], format: String} 
@@ -1204,8 +1244,10 @@ export class DataFrame extends Ndframe {
      * Fill all NaN value with a specific value
      * @param {*} nan_val 
      */
-    fillna(nan_val) {
+    fillna(kwargs={}) {
 
+        let nan_val = kwargs["value"] || 0;
+        let inplace = kwargs["inplace"] || false;
         let data = []
         let values = this.values;
         let columns = this.columns;
@@ -1225,8 +1267,14 @@ export class DataFrame extends Ndframe {
             }
             data.push(temp_data);
         }
+        if(inplace){
+            this.data = data;
 
-        return new DataFrame(data, { columns: columns })
+        }else{
+            return new DataFrame(data, { columns: columns })
+        }
+
+        
     }
 
     /**

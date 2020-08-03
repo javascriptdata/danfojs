@@ -10,28 +10,28 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            assert.throws(function () { df.drop(3, { axis: 0, inplace: false }) }, Error, "Index does not exist");
+            assert.throws(function () { df.drop({value: [3], axis: 0, inplace: false }) }, Error, '3 does not exist in index');
         })
         it("throw error for wrong row index", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            assert.throws(function () { df.drop("D", { axis: 1, inplace: false }) }, Error, 'column "D" does not exist');
+            assert.throws(function () { df.drop({value: ["D"], axis: 1, inplace: false }) }, Error, 'column "D" does not exist');
         })
 
         it("drop a column inplace", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            df.drop("C", { axis: 1, inplace: true });
-            let column = ["A", "B"]
+            df.drop({value: ["C","B"], axis: 1, inplace: true });
+            let column = ["A"]
             assert.deepEqual(df.columns, column);
         })
         it("check if data is updated after column is dropped", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            df.drop("C", { axis: 1, inplace: true });
+            df.drop({value:["C"], axis: 1, inplace: true });
             let new_data = [[1, 2], [4, 5]]
             assert.deepEqual(df.values, new_data);
         })
@@ -40,7 +40,7 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            df.drop(0, { axis: 0, inplace: true });
+            df.drop({value:[0], axis: 0, inplace: true });
             let new_data = [[4, 5, 6],]
             assert.deepEqual(df.values, new_data);
         })
@@ -48,7 +48,7 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            let df_drop = df.drop("C", { axis: 1, inplace: false });
+            let df_drop = df.drop({ value:["C"],axis: 1, inplace: false });
 
             let expected_data = [[1, 2], [4, 5]]
             let expected_cols = ["A", "B"]
@@ -830,16 +830,16 @@ describe("DataFrame", function () {
     });
 
     describe("addColumn", function () {
-        it("Print the data, after a new column is added ", function () {
+        it("Print the data, after changing a column data", function () {
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
 
             let new_col = [1, 2, 3, 4]
 
-            df.addColumn({ "column": "D", "value": new_col });
+            df.addColumn({ "column": "C", "value": new_col });
 
-            let new_data = [[1, 2, 3, 1], [4, 5, 6, 2], [20, 30, 40, 3], [39, 89, 78, 4]];
+            let new_data = [[1, 2,1], [4, 5,2], [20, 30,3], [39, 89,4]];
 
             assert.deepEqual(df.values, new_data);
         });
@@ -1287,7 +1287,17 @@ describe("DataFrame", function () {
 
             let df_val = [[-999, 1, 2, 3], [3, 4, -999, 9], [5, 6, 7, 8]]
 
-            assert.deepEqual(df.fillna(-999).values, df_val)
+            assert.deepEqual(df.fillna({value:-999,inplace:false}).values, df_val)
+        });
+        it("replace all nan value with inplace set to true", function () {
+            let data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]]
+            let column = ["A", "B", "C", "D"]
+            let df = new DataFrame(data, { columns: column })
+
+            let df_val = [[-999, 1, 2, 3], [3, 4, -999, 9], [5, 6, 7, 8]]
+
+            df.fillna({value:-999,inplace:true})
+            assert.deepEqual(df.values, df_val)
         });
     })
 
@@ -1383,6 +1393,14 @@ describe("DataFrame", function () {
             let col2 = [1, 2, 3]
             assert.deepEqual(df['alpha'].values, col1)
             assert.deepEqual(df['count'].values, col2)
+        })
+        it("Access column object using list subset and name of column after assigning",function () {
+            let data = [[1, 2, 3], [4, 5, 6]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            df["A"] = [30,40]
+            let col1 = [30,40]
+            assert.deepEqual(df["A"].values, col1)
         })
     })
 
