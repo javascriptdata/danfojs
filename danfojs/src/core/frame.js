@@ -46,7 +46,7 @@ export class DataFrame extends Ndframe {
     /**
      * Drop a list of rows or columns base on the axis specified
      * @param {kwargs} Object (Optional configuration object
-     *             {value: [Array(Columns| Index)]
+     *             {columns: [Array(Columns| Index)] array of column names to drop
      *              axis: row=0, columns=1
      *             inplace: specify whether to drop the row/column with/without creating a new DataFrame}
      * @returns null | DataFrame
@@ -54,9 +54,9 @@ export class DataFrame extends Ndframe {
      */
     drop(kwargs = {axis: 0, inplace: false }) {
 
-        utils.__in_object(kwargs,"value","value not defined")
+        utils.__in_object(kwargs,"columns","value not defined")
 
-        let data = kwargs["value"];
+        let data = kwargs["columns"];
 
         if (kwargs['axis'] == 1) {
             let self = this;
@@ -1654,9 +1654,6 @@ export class DataFrame extends Ndframe {
     //compatible Dataframe must have only numerical dtypes
     __frame_is_compactible_for_operation() {
         let dtypes = this.dtypes
-        // const float = (element) => element == "float32";
-        // const int = (element) => element == "int32";
-        // const bools = (element) => element == "boolean";
         const str = (element) => element == "string";
 
         if (dtypes.some(str)) {
@@ -1664,15 +1661,6 @@ export class DataFrame extends Ndframe {
         } else {
             return true
         }
-        // if (dtypes.every(float)) {
-        //     return true
-        // } else if (dtypes.every(int)) {
-        //     return true
-        // } else if (dtypes.every(bools)) {
-        //     return true
-        // } else {
-        //     return false
-        // }
     }
 
 

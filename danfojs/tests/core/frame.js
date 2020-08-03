@@ -9,20 +9,20 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            assert.throws(function () { df.drop({value: [3], axis: 0, inplace: false }) }, Error, '3 does not exist in index');
+            assert.throws(function () { df.drop({columns: [3], axis: 0, inplace: false }) }, Error, '3 does not exist in index');
         })
         it("throw error for wrong row index", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            assert.throws(function () { df.drop({value: ["D"], axis: 1, inplace: false }) }, Error, 'column "D" does not exist');
+            assert.throws(function () { df.drop({columns: ["D"], axis: 1, inplace: false }) }, Error, 'column "D" does not exist');
         })
 
         it("drop a column inplace", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            df.drop({value: ["C","B"], axis: 1, inplace: true });
+            df.drop({columns: ["C","B"], axis: 1, inplace: true });
             let column = ["A"]
             assert.deepEqual(df.columns, column);
         })
@@ -30,7 +30,7 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            df.drop({value:["C"], axis: 1, inplace: true });
+            df.drop({columns:["C"], axis: 1, inplace: true });
             let new_data = [[1, 2], [4, 5]]
             assert.deepEqual(df.values, new_data);
         })
@@ -39,7 +39,7 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            df.drop({value:[0], axis: 0, inplace: true });
+            df.drop({columns:[0], axis: 0, inplace: true });
             let new_data = [[4, 5, 6],]
             assert.deepEqual(df.values, new_data);
         })
@@ -47,7 +47,7 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            let df_drop = df.drop({ value:["C"],axis: 1, inplace: false });
+            let df_drop = df.drop({ columns:["C"],axis: 1, inplace: false });
 
             let expected_data = [[1, 2], [4, 5]]
             let expected_cols = ["A", "B"]

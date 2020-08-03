@@ -19,6 +19,8 @@ var _table = require("table");
 
 var _config = require("../config/config");
 
+var _timeseries = require("./timeseries");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
@@ -1004,6 +1006,14 @@ class Series extends _generic.default {
     }
 
     return new _strings.Str(this);
+  }
+
+  get dt() {
+    let timeseries = new _timeseries.TimeSeries({
+      data: this
+    });
+    timeseries.preprocessed();
+    return timeseries;
   }
 
 }

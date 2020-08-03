@@ -1208,11 +1208,10 @@ export class Series extends NDframe {
     * Returns Danfo Time Object that exposes different time properties
     */
     get dt() {
-        let timeseries = new TimeSeries({data: this}); // parsed to date-time
-        timeseries.preprocessed() 
+        let timeseries = new TimeSeries({ data: this }); // parsed to date-time
+        timeseries.preprocessed()
         return timeseries
 
     }
-
 }
 

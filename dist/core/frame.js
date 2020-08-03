@@ -36,53 +36,66 @@ class DataFrame extends _generic.default {
     let col_vals = this.col_data;
     let col_names = this.column_names;
     col_vals.forEach((col, i) => {
-      this[col_names[i]] = new _series.Series(col, {
-        columns: col_names[i],
-        index: this.index
+      Object.defineProperty(this, col_names[i], {
+        get() {
+          return new _series.Series(this.col_data[i]);
+        },
+
+        set(value) {
+          this.addColumn({
+            column: col_names[i],
+            value: value
+          });
+        }
+
       });
     });
   }
 
-  drop(val, kwargs = {
+  drop(kwargs = {
     axis: 0,
     inplace: false
   }) {
+    utils.__in_object(kwargs, "columns", "value not defined");
+
+    let data = kwargs["columns"];
+
     if (kwargs['axis'] == 1) {
-      const index = this.columns.indexOf(val);
+      let self = this;
+      const index = data.map(x => {
+        let col_idx = self.columns.indexOf(x);
+
+        if (col_idx == -1) {
+          throw new Error(`column "${x}" does not exist`);
+        }
+
+        return col_idx;
+      });
       const values = this.values;
-
-      if (index == -1) {
-        throw new Error(`column "${val}" does not exist`);
-      }
-
       let new_data = values.map(function (element) {
-        let new_arr = utils.remove(element, index);
+        let new_arr = utils.__remove_arr(element, index);
+
         return new_arr;
       });
 
       if (!kwargs['inplace']) {
-        let columns = utils.remove(this.columns, index);
+        let columns = utils.__remove_arr(this.columns, index);
+
         return new DataFrame(new_data, {
           columns: columns
         });
       } else {
-        this.columns = utils.remove(this.columns, index);
-        this.astype(utils.remove(this.dtypes, index));
+        this.columns = utils.__remove_arr(this.columns, index);
         this.data_tensor = tf.tensor(new_data);
         this.data = new_data;
       }
     } else {
-      const axes = this.axes;
-      const isIndex = axes["index"].includes(val);
+      data.map(x => {
+        if (!this.index.includes(x)) throw new Error(`${x} does not exist in index`);
+      });
       const values = this.values;
 
-      if (isIndex) {
-        var index = val;
-      } else {
-        throw new Error("Index does not exist");
-      }
-
-      let new_data = utils.remove(values, index);
+      let new_data = utils.__remove_arr(values, data);
 
       if (!kwargs['inplace']) {
         return new DataFrame(new_data, {
@@ -521,7 +534,7 @@ class DataFrame extends _generic.default {
     }
   }
 
-  cum_ops(axis = 0, ops) {
+  __cum_ops(axis = 0, ops) {
     if (!(axis == 0) && !(axis == 1)) {
       throw new Error("axis must be between 0 or 1");
     }
@@ -594,25 +607,33 @@ class DataFrame extends _generic.default {
 
   cumsum(kwargs = {}) {
     let axis = kwargs["axis"] || 0;
-    let data = this.cum_ops(axis, "sum");
+
+    let data = this.__cum_ops(axis, "sum");
+
     return data;
   }
 
   cummin(kwargs = {}) {
     let axis = kwargs["axis"] || 0;
-    let data = this.cum_ops(axis, "min");
+
+    let data = this.__cum_ops(axis, "min");
+
     return data;
   }
 
   cummax(kwargs = {}) {
     let axis = kwargs["axis"] || 0;
-    let data = this.cum_ops(axis, "max");
+
+    let data = this.__cum_ops(axis, "max");
+
     return data;
   }
 
   cumprod(kwargs = {}) {
     let axis = kwargs["axis"] || 0;
-    let data = this.cum_ops(axis, "prod");
+
+    let data = this.__cum_ops(axis, "prod");
+
     return data;
   }
 
@@ -901,24 +922,33 @@ class DataFrame extends _generic.default {
       throw new Error(`Array length ${value.length} not equal to ${data_length}`);
     }
 
-    let data = this.values;
-    let new_data = [];
-    data.map(function (val, index) {
-      let new_val = val.slice();
-      new_val.push(value[index]);
-      new_data.push(new_val);
-    });
-    let old_type_list = [...this.dtypes];
-    old_type_list.push(utils.__get_t(value)[0]);
-    this.col_types = old_type_list;
-    this.data = new_data;
-    this.col_data = utils.__get_col_values(new_data);
-    this.data_tensor = tf.tensor(new_data);
-    this.columns.push(column_name);
-    this[kwargs['column']] = new _series.Series(kwargs['value'], {
-      columns: kwargs['column'],
-      index: this.index
-    });
+    if (this.columns.includes(column_name)) {
+      let col_idx = this.columns.indexOf(column_name);
+      let new_data = [];
+      this.values.map((val, index) => {
+        let new_val = val.slice();
+        new_val[col_idx] = value[index];
+        new_data.push(new_val);
+      });
+      this.data = new_data;
+      this.col_data[col_idx] = value;
+      this.data_tensor = tf.tensor(new_data);
+    } else {
+      let data = this.values;
+      let new_data = [];
+      data.map(function (val, index) {
+        let new_val = val.slice();
+        new_val.push(value[index]);
+        new_data.push(new_val);
+      });
+      let old_type_list = [...this.dtypes];
+      old_type_list.push(utils.__get_t(value)[0]);
+      this.col_types = old_type_list;
+      this.data = new_data;
+      this.col_data = utils.__get_col_values(new_data);
+      this.data_tensor = tf.tensor(new_data);
+      this.columns.push(column_name);
+    }
   }
 
   groupby(col) {
@@ -1002,7 +1032,9 @@ class DataFrame extends _generic.default {
     });
   }
 
-  fillna(nan_val) {
+  fillna(kwargs = {}) {
+    let nan_val = kwargs["value"] || 0;
+    let inplace = kwargs["inplace"] || false;
     let data = [];
     let values = this.values;
     let columns = this.columns;
@@ -1024,9 +1056,13 @@ class DataFrame extends _generic.default {
       data.push(temp_data);
     }
 
-    return new DataFrame(data, {
-      columns: columns
-    });
+    if (inplace) {
+      this.data = data;
+    } else {
+      return new DataFrame(data, {
+        columns: columns
+      });
+    }
   }
 
   isna() {
