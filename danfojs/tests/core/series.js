@@ -1050,4 +1050,34 @@ describe("Series", function () {
         })
     })
 
+    describe("dt", function () {
+        it("check month generated", function () {
+
+            let data = ["02Sep2019", "03Dec2019", "04Jan2019"]
+            let sf = new Series(data)
+            let new_data = [8, 11, 0]
+            assert.deepEqual(sf.dt.month().values, new_data);
+        });
+
+        it("check month Name generated", function () {
+            let data = ["06-30-02019", "07-29-2019", "08-28-2019"]
+            let sf = new Series(data)
+            let new_data = ["Jun", "Jul", "Aug"]
+            assert.deepEqual(sf.dt.month_name().values, new_data);
+        });
+
+        it("check days of the weeks generated", function () {
+            let data = ["06-30-02019", "07-29-2019", "08-28-2019"]
+            let sf = new Series(data)
+            let new_data = ["Sun", "Mon", "Wed"]
+            assert.deepEqual(sf.dt.weekdays().values, new_data);
+        });
+
+        it("check day of the month generated", function () {
+            let data = ["06-30-02019", "07-29-2019", "08-28-2019"]
+            let sf = new Series(data)
+            let new_data = [30, 29, 28]
+            assert.deepEqual(sf.dt.monthday().values, new_data);
+        });
+    })
 })

@@ -2,10 +2,12 @@ import * as tf from '@tensorflow/tfjs-node'
 import { std, variance } from 'mathjs'
 // import * as tf from '@tensorflow/tfjs'
 import { Utils } from "./utils"
-import {Str} from "./strings"
+import { Str } from "./strings"
 import NDframe from "./generic"
 import { table } from 'table'
 import { Configs } from '../config/config'
+import { TimeSeries } from './timeseries';
+
 
 
 const utils = new Utils
@@ -697,7 +699,7 @@ export class Series extends NDframe {
                 }
             }
         });
-        let sf = new Series(data, {columns: this.column_names, index: this.index})
+        let sf = new Series(data, { columns: this.column_names, index: this.index })
         return sf
     }
 
@@ -718,7 +720,7 @@ export class Series extends NDframe {
 
             return callable(val)
         });
-        return new Series(data, {columns: this.column_names, index: this.index})
+        return new Series(data, { columns: this.column_names, index: this.index })
     }
 
     /**
@@ -1187,18 +1189,28 @@ export class Series extends NDframe {
     /**
      * Returns String Object of series. Has numerous methods to manipulate string Series
      */
-    get str(){
+    get str() {
         let values = this.values
-        if (this.dtypes[0] != "string"){
+        if (this.dtypes[0] != "string") {
             let new_vals = []
             //convert each value in array to string
-            values.map(val=>{
+            values.map(val => {
                 new_vals.push(`${val}`)
             })
-            let sf = new Series(new_vals, {columns: this.column_names, index: this.index})
+            let sf = new Series(new_vals, { columns: this.column_names, index: this.index })
             return new Str(sf)
         }
         return new Str(this)
+
+    }
+
+    /**
+    * Returns Danfo Time Object that exposes different time properties
+    */
+    get dt() {
+        let timeseries = new TimeSeries({data: this}); // parsed to date-time
+        timeseries.preprocessed() 
+        return timeseries
 
     }
 
