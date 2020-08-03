@@ -1168,9 +1168,9 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { columns: column })
 
             let df_val = [
-                [false, true, true, true],
-                [true, true, false, true],
-                [true, true, true, true]
+                [true, false, false, false],
+                [false, false, true, false],
+                [false, false, false, false]
             ]
 
             assert.deepEqual(df.isna().values, df_val)

@@ -31,7 +31,7 @@ export class LabelEncoder{
             return self.label.indexOf(x)
         });
 
-        return output_data
+        return new Series(output_data)
     }
 
     /**
@@ -55,7 +55,7 @@ export class LabelEncoder{
             return self.label.indexOf(x)
         });
 
-        return output_data
+        return new Series(output_data)
     }
 }
 

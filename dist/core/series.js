@@ -595,7 +595,11 @@ class Series extends _generic.default {
         }
       }
     });
-    return data;
+    let sf = new Series(data, {
+      columns: this.column_names,
+      index: this.index
+    });
+    return sf;
   }
 
   apply(callable) {
@@ -608,7 +612,10 @@ class Series extends _generic.default {
     let data = this.data.map(val => {
       return callable(val);
     });
-    return data;
+    return new Series(data, {
+      columns: this.column_names,
+      index: this.index
+    });
   }
 
   unique() {
@@ -618,7 +625,7 @@ class Series extends _generic.default {
     return series;
   }
 
-  value_count() {
+  value_counts() {
     let s_data = this.values;
     let data_dict = {};
 

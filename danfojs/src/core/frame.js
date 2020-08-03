@@ -63,6 +63,7 @@ export class DataFrame extends Ndframe {
                 return new DataFrame(new_data, { columns: columns })
             } else {
                 this.columns = utils.remove(this.columns, index);
+                this.astype(utils.remove(this.dtypes, index))
                 this.data_tensor = tf.tensor(new_data);
                 this.data = new_data
             }
@@ -1092,6 +1093,8 @@ export class DataFrame extends Ndframe {
         this.col_data = utils.__get_col_values(new_data)
         this.data_tensor = tf.tensor(new_data)
         this.columns.push(column_name);
+        this[kwargs['column']] = new Series(kwargs['value'], { columns: kwargs['column'], index: this.index })
+
     }
 
     /**
@@ -1242,7 +1245,7 @@ export class DataFrame extends Ndframe {
             let row_value = values[i]
             for (let j = 0; j < row_value.length; j++) {
 
-                let val = row_value[j] == 0 ? 0 : !!row_value[j]
+                let val = row_value[j] == 0 ? true : !row_value[j]
                 temp_data.push(val)
             }
             data.push(temp_data);

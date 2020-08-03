@@ -6,3 +6,5 @@ export {read_csv} from './io/reader'
 export {read_json} from './io/reader'
 export {merge} from './core/merge'
 export {concat} from './core/concat'
+export {LabelEncoder, OneHotEncoder} from './preprocessing/encodings' //TODO Create js file to expose functions
+export {RobustScaler, MinMaxScaler, StandardScaler} from './preprocessing/scalers'

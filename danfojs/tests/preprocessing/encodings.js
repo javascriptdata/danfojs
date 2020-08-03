@@ -24,8 +24,8 @@ describe("Encodings", function(){
                 0, 1, 2, 0,
                 1, 2, 2, 1
               ]
-            assert.deepEqual(encode.fit(series),fit_data)
-            assert.deepEqual(encode.transform(["dog","man"]),[0,2])
+            assert.deepEqual(encode.fit(series).values,fit_data)
+            assert.deepEqual(encode.transform(["dog","man"]).values,[0,2])
         });
 
     })

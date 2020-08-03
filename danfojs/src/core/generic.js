@@ -4,7 +4,6 @@ import { table } from 'table'
 import { Utils } from './utils'
 import { Configs } from '../config/config'
 import { createArrayCsvWriter, createArrayCsvStringifier } from 'csv-writer'
-// import { Series } from './series'
 // const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 // const createCsvStringifier = require('csv-writer').createObjectCsvStringifier;
 
@@ -173,23 +172,27 @@ export default class NDframe {
                 this.col_types = utils.__get_t(this.col_data)
             }
         } else {
-            if (Array.isArray(dtypes) && dtypes.length == this.columns.length) {
-                dtypes.map((type, indx) => {
-                    if (!__supported_dtypes.includes(type)) {
-                        throw new Error(`dtype error: dtype specified at index ${indx} is not supported`)
-                    }
-                })
-                this.col_data = utils.__get_col_values(this.data)
-                this.col_data_tensor = tf.tensor(this.col_data) //column wise data saved as tensors used in DataFrame
+            if (this.series) {
                 this.col_types = dtypes
             } else {
-                throw new Error(`dtypes: lenght mismatch. Specified dtype has a lenght
+                if (Array.isArray(dtypes) && dtypes.length == this.columns.length) {
+                    dtypes.map((type, indx) => {
+                        if (!__supported_dtypes.includes(type)) {
+                            throw new Error(`dtype error: dtype specified at index ${indx} is not supported`)
+                        }
+                    })
+                    this.col_data = utils.__get_col_values(this.data)
+                    this.col_data_tensor = tf.tensor(this.col_data) //column wise data saved as tensors used in DataFrame
+                    this.col_types = dtypes
+                } else {
+                    throw new Error(`dtypes: lenght mismatch. Specified dtype has a lenght
                  of ${dtypes.length} but NDframe has ${this.column_names.length} number of columns`)
+                }
             }
         }
     }
 
-  
+
 
 
     /**
@@ -199,6 +202,7 @@ export default class NDframe {
     get dtypes() {
         // let col_data = utils.get_col_values(this.data)
         // this.col_types = utils.__get_t(col_data)
+        // let sf = new Series({dtypes: this.col_types, index: this.column_names})
         return this.col_types
     }
 
@@ -209,6 +213,7 @@ export default class NDframe {
      */
     astype(dtypes) {
         this.__set_col_types(dtypes, false)
+        return this
     }
 
 
@@ -301,6 +306,13 @@ export default class NDframe {
         return this.columns
     }
 
+    // /**
+    //  * Gets the column names of the data
+    //  * @returns {Array} strings of column names
+    //  */
+    // set col_names() {
+
+    // }
 
     /*
      * Gets binary size of the NDFrame
@@ -347,13 +359,13 @@ export default class NDframe {
 
     }
 
-//     /**
-//    * Write object to a JSON Format (csv) file.
-//     * @params {path} File path or object, if None is provided the result is returned as a string
-//     */
-//     to_json(kwargs = {}) {
-//         //TODO
-//     }
+    //     /**
+    //    * Write object to a JSON Format (csv) file.
+    //     * @params {path} File path or object, if None is provided the result is returned as a string
+    //     */
+    //     to_json(kwargs = {}) {
+    //         //TODO
+    //     }
 
     /**
     * Prints the data in a Series as a grid of row and columns
@@ -374,8 +386,8 @@ export default class NDframe {
 
         if (col_len > max_col_in_console) {
             //truncate displayed columns to fit in the console
-            let first_4_cols = this.columns.slice(0, 4)
-            let last_3_cols = this.columns.slice(col_len - 4, col_len)
+            let first_4_cols = this.columns.slice(0, 3)
+            let last_3_cols = this.columns.slice(col_len - 3, col_len)
             //join columns with truncate ellipse in the middle
             header = [""].concat(first_4_cols).concat(["..."]).concat(last_3_cols)
 
@@ -442,7 +454,7 @@ export default class NDframe {
     /**
     * Pretty prints a DataFrame or Series in the console
     */
-    print(){
+    print() {
         console.log(this + "");
     }
 

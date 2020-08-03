@@ -147,18 +147,22 @@ class NDframe {
         this.col_types = utils.__get_t(this.col_data);
       }
     } else {
-      if (Array.isArray(dtypes) && dtypes.length == this.columns.length) {
-        dtypes.map((type, indx) => {
-          if (!__supported_dtypes.includes(type)) {
-            throw new Error(`dtype error: dtype specified at index ${indx} is not supported`);
-          }
-        });
-        this.col_data = utils.__get_col_values(this.data);
-        this.col_data_tensor = tf.tensor(this.col_data);
+      if (this.series) {
         this.col_types = dtypes;
       } else {
-        throw new Error(`dtypes: lenght mismatch. Specified dtype has a lenght
+        if (Array.isArray(dtypes) && dtypes.length == this.columns.length) {
+          dtypes.map((type, indx) => {
+            if (!__supported_dtypes.includes(type)) {
+              throw new Error(`dtype error: dtype specified at index ${indx} is not supported`);
+            }
+          });
+          this.col_data = utils.__get_col_values(this.data);
+          this.col_data_tensor = tf.tensor(this.col_data);
+          this.col_types = dtypes;
+        } else {
+          throw new Error(`dtypes: lenght mismatch. Specified dtype has a lenght
                  of ${dtypes.length} but NDframe has ${this.column_names.length} number of columns`);
+        }
       }
     }
   }
@@ -169,6 +173,8 @@ class NDframe {
 
   astype(dtypes) {
     this.__set_col_types(dtypes, false);
+
+    return this;
   }
 
   get ndim() {
@@ -265,8 +271,8 @@ class NDframe {
     let header = [];
 
     if (col_len > max_col_in_console) {
-      let first_4_cols = this.columns.slice(0, 4);
-      let last_3_cols = this.columns.slice(col_len - 4, col_len);
+      let first_4_cols = this.columns.slice(0, 3);
+      let last_3_cols = this.columns.slice(col_len - 3, col_len);
       header = [""].concat(first_4_cols).concat(["..."]).concat(last_3_cols);
       let sub_idx, values_1, value_2;
 

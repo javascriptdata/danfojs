@@ -615,7 +615,7 @@ describe("Series", function () {
 
             let rslt = ["ok", "okie", "frit", "gop"]
 
-            assert.deepEqual(sf.map(map), rslt)
+            assert.deepEqual(sf.map(map).values, rslt)
         });
 
         it("map series element to a function statement", function () {
@@ -626,7 +626,7 @@ describe("Series", function () {
 
             let rslt = [2, 3, 4, 5]
 
-            assert.deepEqual(sf.map(func_map), rslt)
+            assert.deepEqual(sf.map(func_map).values, rslt)
         });
     });
 
@@ -640,7 +640,7 @@ describe("Series", function () {
             }
 
             let rslt = [2, 4, 6, 8, 10, 12, 14, 16]
-            assert.deepEqual(sf.apply(apply_func), rslt)
+            assert.deepEqual(sf.apply(apply_func).values, rslt)
         });
     });
 
@@ -664,16 +664,16 @@ describe("Series", function () {
             let sf = new Series([1, 2, 3, 4, 5, 6, 7, 8, 1, 1, 22, 8, 5, 5, 5])
             let expected_index = [1, 2, 3, 4, 5, 6, 7, 8, 22]
             let expected_vals = [3, 1, 1, 1, 4, 1, 1, 2, 1]
-            assert.deepEqual(sf.value_count().values, expected_vals)
-            assert.deepEqual(sf.value_count().index, expected_index)
+            assert.deepEqual(sf.value_counts().values, expected_vals)
+            assert.deepEqual(sf.value_counts().index, expected_index)
 
         });
         it("returns the unique values and their counts in a Series of type string", function () {
             let sf = new Series(["a", "a", "b", "c", "c", "d", "e", "d", "d", "e"])
             let expected_vals = [2, 1, 2, 3, 2]
             let expected_index = ["a", "b", "c", "d", "e"]
-            assert.deepEqual(sf.value_count().values, expected_vals)
-            assert.deepEqual(sf.value_count().index, expected_index)
+            assert.deepEqual(sf.value_counts().values, expected_vals)
+            assert.deepEqual(sf.value_counts().index, expected_index)
 
         });
     });

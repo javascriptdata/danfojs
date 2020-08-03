@@ -697,7 +697,8 @@ export class Series extends NDframe {
                 }
             }
         });
-        return data
+        let sf = new Series(data, {columns: this.column_names, index: this.index})
+        return sf
     }
 
     /**
@@ -717,7 +718,7 @@ export class Series extends NDframe {
 
             return callable(val)
         });
-        return data
+        return new Series(data, {columns: this.column_names, index: this.index})
     }
 
     /**
@@ -738,7 +739,7 @@ export class Series extends NDframe {
      * Returns the unique values and their counts in a Series
      * @return {Series}
      */
-    value_count() {
+    value_counts() {
 
         let s_data = this.values
 
