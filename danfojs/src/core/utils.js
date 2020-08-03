@@ -16,6 +16,15 @@ export class Utils {
         return new_arr;
     }
 
+    //filter element present in an aray
+    __remove_arr(arr,index){
+        let new_arr = arr.filter(function (val, i) {
+            return !index.includes(i)
+        });
+
+        return new_arr;
+    }
+
     // Returns if a value is a string
     __is_string(value) {
         return typeof value === 'string' || value instanceof String;
