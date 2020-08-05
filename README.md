@@ -5,7 +5,7 @@
 
 -----------------
 
-# # danfojs: powerful javascript data analysis toolkit 
+## danfojs: powerful javascript data analysis toolkit 
 
 ## What is it?
 
