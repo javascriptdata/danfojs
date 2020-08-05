@@ -273,6 +273,29 @@ export class TimeSeries {
         return series
     }
 
+    /**
+     * @description obtain the seconds in a date
+     * @return Series
+     */
+    seconds() {
+        let series = this.__date_ops(function (date_instance) {
+            return date_instance.getSeconds();
+        });
+
+        return series
+    }
+
+    /**
+     * @description obtain the minutes in a date
+     * @return Series
+     */
+    minutes() {
+        let series = this.__date_ops(function (date_instance) {
+            return date_instance.getMinutes();
+        });
+
+        return series
+    }
 
 }
 
