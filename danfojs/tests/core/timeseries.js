@@ -66,5 +66,25 @@ describe("TimeSeries", function () {
 
         assert.deepEqual(times.monthday().values, new_data);
     });
+    it("check the seconds generated", function () {
+
+        let data = ["06-30-02019 00:00:12", "07-29-2019 00:30:40", "08-28-2019 00:12:04"]
+
+        let times = to_date_time({ "data": data })
+
+        let new_data = [12, 40, 4]
+
+        assert.deepEqual(times.seconds().values, new_data);
+    });
+    it("check the minutes generated", function () {
+
+        let data = ["06-30-02019 00:00:12", "07-29-2019 00:30:40", "08-28-2019 00:12:04"]
+
+        let times = to_date_time({ "data": data })
+
+        let new_data = [0, 30, 12]
+
+        assert.deepEqual(times.minutes().values, new_data);
+    });
 
 });
