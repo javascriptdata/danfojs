@@ -1065,9 +1065,56 @@ describe("DataFrame", function () {
 
 
     describe("Apply", function () {
+        it("Apply math operation on dataframe element wise", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let rslt = [[2, 3, 4], [5, 6, 7], [21, 31, 41], [40, 90, 79]]
+
+            let apply_rslt = df.apply({
+                callable: (x) => {
+                    return x + 1
+                }
+            })
+
+            assert.deepEqual(apply_rslt.values, rslt)
+        });
+
+        it("Apply string function on all elements of a dataframe", function () {
+            let data = [["BOY", "GIRL", "ALL"], ["Man", "Woman", "Girl"]]
+            let df = new DataFrame(data)
+            let rslt = [["boy", "girl", "all"], ["man", "woman", "girl"]]
+
+            let apply_rslt = df.apply({
+                callable: (x) => {
+                    return x.toLowerCase()
+
+                }
+            })
+            assert.deepEqual(apply_rslt.values, rslt)
+        });
+
+        it("Throws error if you try to run a function that does not operate on axis and axis is specified", function () {
+            let data = [["BOY", "GIRL", "ALL"], ["Man", "Woman", "Girl"]]
+            let df = new DataFrame(data)
+        
+            let err = `Callable Error: You can only apply JavaScript functions on DataFrames when axis is not specified. This operation is applied on all element, and returns a DataFrame of the same shape.`
+            
+            assert.throws(() => {
+                df.apply({
+                    axis: 0, callable: (x) => {
+                        return x.toLowerCase()
+                    }
+                })
+            }, Error, err)
+
+        });
 
         it("Apply math operation on dataframe at axis 1", function () {
-            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let data = [[1, 2, 3],
+            [4, 5, 6],
+            [20, 30, 40],
+            [39, 89, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
             let rslt = [64, 126, 127]
@@ -1098,15 +1145,18 @@ describe("DataFrame", function () {
 
         })
 
-        it("Apply math operation element wise dataframe on axis 1", function () {
+        it("Apply add operation element wise dataframe on axis 1", function () {
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
 
-            let result = [[2, 3, 4], [5, 6, 7], [21, 31, 41], [40, 90, 79]]
+            let result = [[2, 3, 4],
+            [5, 6, 7],
+            [21, 31, 41],
+            [40, 90, 79]]
 
             let apply_rslt = df.apply({
-                axis: 1, callable: (x) => {
+                axis: 0, callable: (x) => {
                     return x.add(1)
                 }
             })
@@ -1355,8 +1405,8 @@ describe("DataFrame", function () {
             assert.deepEqual(sf.lt(30).values, expected)
         })
         it("Return Less than of series and DataFrame scalar along axis 1 (column)", function () {
-            let data1 = [[10, 45, 56, 10] ,
-                         [23, 20, 10, 10] ]
+            let data1 = [[10, 45, 56, 10],
+            [23, 20, 10, 10]]
             let sf = new Series([10, 23, 56, 100])
             let df = new DataFrame(data1)
             let expected = [[false, false, false, true], [false, true, true, true]]
@@ -1364,7 +1414,7 @@ describe("DataFrame", function () {
         })
 
         it("Return Less than of Array and DataFrame scalar along axis 1 (column)", function () {
-            let data1 = [[10, 45, 56, 10] , [23, 20, 10, 10] ]
+            let data1 = [[10, 45, 56, 10], [23, 20, 10, 10]]
             let sf = [10, 23, 56, 100]
             let df = new DataFrame(data1)
             let expected = [[false, false, false, true], [false, true, true, true]]
@@ -1392,7 +1442,7 @@ describe("DataFrame", function () {
         })
 
         it("Return Less than of Array and DataFrame scalar along axis 1 (column)", function () {
-            let data1 = [[10, 45, 56, 10] , [23, 20, 10, 10] ]
+            let data1 = [[10, 45, 56, 10], [23, 20, 10, 10]]
             let sf = [10, 23, 56, 100]
             let df = new DataFrame(data1)
             let expected = [[false, true, false, false], [true, false, false, false]]
@@ -1479,7 +1529,7 @@ describe("DataFrame", function () {
             assert.deepEqual(sf.eq(30).values, expected)
         })
         it("Return Equal to of series and DataFrame scalar along axis 1 (column)", function () {
-            let data1 = [{"Col1": [10, 45, 56, 10]}, {"Col2": [23, 20, 10, 10]}]
+            let data1 = [{ "Col1": [10, 45, 56, 10] }, { "Col2": [23, 20, 10, 10] }]
             let sf = new Series([10, 23])
             let df = new DataFrame(data1)
             let expected = [[true, false, false, true], [true, false, false, false]]

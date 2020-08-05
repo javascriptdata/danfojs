@@ -805,6 +805,10 @@ class Series extends _generic.default {
     return first_idx;
   }
 
+  get dtype() {
+    return this.dtypes[0];
+  }
+
   drop_duplicates(kwargs = {}) {
     let params_needed = ["inplace", "keep"];
 

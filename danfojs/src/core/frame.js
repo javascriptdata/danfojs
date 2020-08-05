@@ -7,6 +7,7 @@ import { GroupBy } from "./groupby"
 
 const utils = new Utils
 import { std, variance } from 'mathjs'
+import { util } from "@tensorflow/tfjs-node"
 
 
 
@@ -705,9 +706,9 @@ export class DataFrame extends Ndframe {
      */
     cumsum(kwargs = {}) {
         let axis;
-        if (!utils.__key_in_object(kwargs, "axis")){
+        if (!utils.__key_in_object(kwargs, "axis")) {
             axis = 0
-        }else{
+        } else {
             axis = kwargs['axis']
         }
         // let axis = kwargs["axis"] || 0
@@ -722,11 +723,11 @@ export class DataFrame extends Ndframe {
      */
     cummin(kwargs = {}) {
         let axis;
-        if (!utils.__key_in_object(kwargs, "axis")){
+        if (!utils.__key_in_object(kwargs, "axis")) {
             axis = 0
-        }else{
+        } else {
             axis = kwargs['axis']
-        }        let data = this.__cum_ops(axis, "min");
+        } let data = this.__cum_ops(axis, "min");
         return data
     }
 
@@ -737,11 +738,11 @@ export class DataFrame extends Ndframe {
      */
     cummax(kwargs = {}) {
         let axis;
-        if (!utils.__key_in_object(kwargs, "axis")){
+        if (!utils.__key_in_object(kwargs, "axis")) {
             axis = 0
-        }else{
+        } else {
             axis = kwargs['axis']
-        }        let data = this.__cum_ops(axis, "max");
+        } let data = this.__cum_ops(axis, "max");
         return data
     }
 
@@ -752,11 +753,11 @@ export class DataFrame extends Ndframe {
      */
     cumprod(kwargs = {}) {
         let axis;
-        if (!utils.__key_in_object(kwargs, "axis")){
+        if (!utils.__key_in_object(kwargs, "axis")) {
             axis = 0
-        }else{
+        } else {
             axis = kwargs['axis']
-        }        let data = this.__cum_ops(axis, "prod");
+        } let data = this.__cum_ops(axis, "prod");
         return data
     }
 
@@ -1503,49 +1504,57 @@ export class DataFrame extends Ndframe {
 
 
     /**
-     * Apply a function along an axis of the DataFrame.
-     * @param {kwargs} kargs is defined as {axis: 0 or 1, callable: [FUNCTION]}
+     * Apply a function to each element or along a specified axis of the DataFrame. Supports JavaScipt functions
+     * when axis is not specified, and accepts Tensorflow functions when axis is specified.
+     * @param {kwargs} kargs is defined as {axis: undefined, 0 or 1, callable: [FUNCTION]}
      * @return Array
      */
     apply(kwargs) {
         let is_callable = utils.__is_function(kwargs["callable"]);
-
         if (!is_callable) {
             throw new Error("the arguement most be a function")
         }
 
         let callable = kwargs["callable"]
-
         let data = [];
 
-        if (!(kwargs["axis"] == 0) && !(kwargs["axis"] == 1)) {
-            throw new Error("axis must either be 0 or 1")
-        }
 
-        let axis = kwargs["axis"]
-
-        if (axis == 0) {
-
-            let df_data = this.values
-            for (let i = 0; i < df_data.length; i++) {
-
-                let row_value = tf.tensor(df_data[i])
-
-                let callable_data = callable(row_value).arraySync()
-                data.push(callable_data)
-
+        if (utils.__key_in_object(kwargs, "axis")) {
+            //This accepts all tensorflow operations
+            let axis = kwargs["axis"]
+            let df_data;
+            if (axis == 0) {
+                df_data = this.values
+            } else {
+                df_data = this.col_data
             }
+
+            for (let i = 0; i < df_data.length; i++) {
+                let value = tf.tensor(df_data[i])
+                let callable_data
+                try {
+                    callable_data = callable(value).arraySync()
+                } catch (error) {
+                    throw Error(`Callable Error: You can only apply JavaScript functions on DataFrames when axis is not specified. This operation is applied on all element, and returns a DataFrame of the same shape.`)
+                }
+
+                data.push(callable_data)
+            }
+
+
         } else {
+            //perform element wise operation. This accepts any JavaScript function
+            let df_data = this.values
+            let new_data = []
+            df_data.forEach(row => {
+                let new_row = []
+                row.forEach(val => {
+                    new_row.push(callable(val))
+                })
+                new_data.push(new_row)
+            })
+            data = new_data
 
-            let df_data = this.col_data
-            for (let i = 0; i < df_data.length; i++) {
-
-                let row_value = tf.tensor(df_data[i])
-
-                let callable_data = callable(row_value).arraySync()
-                data.push(callable_data)
-
-            }
         }
 
         if (utils.__is_1D_array(data)) {
@@ -1557,20 +1566,11 @@ export class DataFrame extends Ndframe {
                 return sf
             }
         } else {
-            if (kwargs['axis'] == 0) {
-                let df = new DataFrame(data, { columns: this.column_names, index: this.index })
-                return df
-            } else {
-                let temp_data = []
-                this.column_names.map((cname, i) => {
-                    let _obj = {}
-                    _obj[cname] = data[i]
-                    temp_data.push(_obj)
-                })
-                let df = new DataFrame(temp_data, { index: this.index })
-                return df
-            }
+            let df = new DataFrame(data, { columns: this.column_names, index: this.index })
+            return df
+
         }
+
     }
 
 
