@@ -1251,28 +1251,39 @@ class DataFrame extends _generic.default {
     let callable = kwargs["callable"];
     let data = [];
 
-    if (!(kwargs["axis"] == 0) && !(kwargs["axis"] == 1)) {
-      throw new Error("axis must either be 0 or 1");
-    }
+    if (utils.__key_in_object(kwargs, "axis")) {
+      let axis = kwargs["axis"];
+      let df_data;
 
-    let axis = kwargs["axis"];
-
-    if (axis == 0) {
-      let df_data = this.values;
+      if (axis == 0) {
+        df_data = this.values;
+      } else {
+        df_data = this.col_data;
+      }
 
       for (let i = 0; i < df_data.length; i++) {
-        let row_value = tf.tensor(df_data[i]);
-        let callable_data = callable(row_value).arraySync();
+        let value = tf.tensor(df_data[i]);
+        let callable_data;
+
+        try {
+          callable_data = callable(value).arraySync();
+        } catch (error) {
+          throw Error(`Callable Error: You can only apply JavaScript functions on DataFrames when axis is not specified. This operation is applied on all element, and returns a DataFrame of the same shape.`);
+        }
+
         data.push(callable_data);
       }
     } else {
-      let df_data = this.col_data;
-
-      for (let i = 0; i < df_data.length; i++) {
-        let row_value = tf.tensor(df_data[i]);
-        let callable_data = callable(row_value).arraySync();
-        data.push(callable_data);
-      }
+      let df_data = this.values;
+      let new_data = [];
+      df_data.forEach(row => {
+        let new_row = [];
+        row.forEach(val => {
+          new_row.push(callable(val));
+        });
+        new_data.push(new_row);
+      });
+      data = new_data;
     }
 
     if (utils.__is_1D_array(data)) {
@@ -1288,24 +1299,11 @@ class DataFrame extends _generic.default {
         return sf;
       }
     } else {
-      if (kwargs['axis'] == 0) {
-        let df = new DataFrame(data, {
-          columns: this.column_names,
-          index: this.index
-        });
-        return df;
-      } else {
-        let temp_data = [];
-        this.column_names.map((cname, i) => {
-          let _obj = {};
-          _obj[cname] = data[i];
-          temp_data.push(_obj);
-        });
-        let df = new DataFrame(temp_data, {
-          index: this.index
-        });
-        return df;
-      }
+      let df = new DataFrame(data, {
+        columns: this.column_names,
+        index: this.index
+      });
+      return df;
     }
   }
 

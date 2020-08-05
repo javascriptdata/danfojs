@@ -7,7 +7,6 @@ import { GroupBy } from "./groupby"
 
 const utils = new Utils
 import { std, variance } from 'mathjs'
-import { util } from "@tensorflow/tfjs-node"
 
 
 
