@@ -25,6 +25,23 @@ describe("Series", function () {
             assert.deepEqual(sf.tensor.arraySync(), tf_data.arraySync())
         })
     })
+    describe("tensor", function () {
+        it("Returns the dtype string Series", function () {
+            let data = ["b", "c", "d"]
+            let sf = new Series(data)
+            assert.deepEqual(sf.dtype, 'string')
+        })
+        it("Returns the dtype int Series", function () {
+            let data = [1, 2, 3, 4, 5]
+            let sf = new Series(data)
+            assert.deepEqual(sf.dtype, 'int32')
+        })
+        it("Returns the dtype int Series", function () {
+            let data = [1.1, 2.2, 3.3, 4.5, 5]
+            let sf = new Series(data)
+            assert.deepEqual(sf.dtype, 'float32')
+        })
+    })
 
     describe("head", function () {
         it("Gets the first n rows in a Series", function () {

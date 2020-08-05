@@ -254,8 +254,8 @@ export class Series extends NDframe {
         }
         let values = []
         //remove all NaNS
-        this.values.map(val=>{
-            if(!isNaN(val) && typeof val != "string"){
+        this.values.map(val => {
+            if (!isNaN(val) && typeof val != "string") {
                 values.push(val)
             }
         })
@@ -991,8 +991,13 @@ export class Series extends NDframe {
     }
 
 
-
-
+    /**
+     * Returns dtype of Series
+     * @return {string}
+     */
+    get dtype() {
+        return this.dtypes[0]
+    }
 
     /**
      * Return Series with duplicate values removed
@@ -1220,7 +1225,7 @@ export class Series extends NDframe {
 
     }
 
-    print(){
+    print() {
         console.log(this + "");
     }
 }

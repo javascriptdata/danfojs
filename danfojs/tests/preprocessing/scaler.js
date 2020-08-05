@@ -43,7 +43,6 @@ describe("Preprocessing", function(){
 
             // console.log(scaler.quantile(data2,true))
 
-            console.log(scaler.fit(data2))
         });
     });
 });
