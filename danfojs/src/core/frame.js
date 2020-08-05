@@ -704,7 +704,13 @@ export class DataFrame extends Ndframe {
      * @returns {DataFrame}
      */
     cumsum(kwargs = {}) {
-        let axis = kwargs["axis"] || 0
+        let axis;
+        if (!utils.__key_in_object(kwargs, "axis")){
+            axis = 0
+        }else{
+            axis = kwargs['axis']
+        }
+        // let axis = kwargs["axis"] || 0
         let data = this.__cum_ops(axis, "sum");
         return data
     }
@@ -715,8 +721,12 @@ export class DataFrame extends Ndframe {
      * @returns {DataFrame}
      */
     cummin(kwargs = {}) {
-        let axis = kwargs["axis"] || 0
-        let data = this.__cum_ops(axis, "min");
+        let axis;
+        if (!utils.__key_in_object(kwargs, "axis")){
+            axis = 0
+        }else{
+            axis = kwargs['axis']
+        }        let data = this.__cum_ops(axis, "min");
         return data
     }
 
@@ -726,8 +736,12 @@ export class DataFrame extends Ndframe {
      * @returns {DataFrame}
      */
     cummax(kwargs = {}) {
-        let axis = kwargs["axis"] || 0
-        let data = this.__cum_ops(axis, "max");
+        let axis;
+        if (!utils.__key_in_object(kwargs, "axis")){
+            axis = 0
+        }else{
+            axis = kwargs['axis']
+        }        let data = this.__cum_ops(axis, "max");
         return data
     }
 
@@ -737,8 +751,12 @@ export class DataFrame extends Ndframe {
      * @returns {DataFrame}
      */
     cumprod(kwargs = {}) {
-        let axis = kwargs["axis"] || 0
-        let data = this.__cum_ops(axis, "prod");
+        let axis;
+        if (!utils.__key_in_object(kwargs, "axis")){
+            axis = 0
+        }else{
+            axis = kwargs['axis']
+        }        let data = this.__cum_ops(axis, "prod");
         return data
     }
 
@@ -1270,38 +1288,38 @@ export class DataFrame extends Ndframe {
             })
 
             let final_data = []
-            new_col_data.map((col, i)=>{
+            new_col_data.map((col, i) => {
                 let col_obj = {}
                 col_obj[this.column_names[i]] = col
                 final_data.push(col_obj)
             })
-                // let fil_idx = 0
-                // this.column_names.map((col, idx) => {
-                //     let _obj = {}
-                //     if (kwargs['columns'].includes(col)) {
-                //         console.log(fil_idx);
-                //         console.log(col);
-                //         console.log(kwargs['values'][fil_idx]);
-                //         let temp_col_data = this.col_data[idx]  //retreive the column data
-                //         let __temp = []
-                //         temp_col_data.map(val => {     //fill the column
-                //             if (isNaN(val) && typeof val != "string") {
-                //                 __temp.push(kwargs['values'][fil_idx])
+            // let fil_idx = 0
+            // this.column_names.map((col, idx) => {
+            //     let _obj = {}
+            //     if (kwargs['columns'].includes(col)) {
+            //         console.log(fil_idx);
+            //         console.log(col);
+            //         console.log(kwargs['values'][fil_idx]);
+            //         let temp_col_data = this.col_data[idx]  //retreive the column data
+            //         let __temp = []
+            //         temp_col_data.map(val => {     //fill the column
+            //             if (isNaN(val) && typeof val != "string") {
+            //                 __temp.push(kwargs['values'][fil_idx])
 
-                //             } else {
-                //                 __temp.push(val)
-                //             }
-                //         })
-                //         fil_idx += 1
-                //         _obj[col] = __temp
-                //         new_col_data_obj.push(_obj)
-                //     } else {
-                //         _obj[col] = this.col_data[idx]
-                //         new_col_data_obj.push(_obj)
-                //     }
+            //             } else {
+            //                 __temp.push(val)
+            //             }
+            //         })
+            //         fil_idx += 1
+            //         _obj[col] = __temp
+            //         new_col_data_obj.push(_obj)
+            //     } else {
+            //         _obj[col] = this.col_data[idx]
+            //         new_col_data_obj.push(_obj)
+            //     }
 
             // })
-            return new DataFrame(final_data, {index: this.index })
+            return new DataFrame(final_data, { index: this.index })
 
         } else {
             //fill all columns using same value
@@ -1561,12 +1579,15 @@ export class DataFrame extends Ndframe {
     /**
      * Returns Less than of DataFrame and other. Supports element wise operations
      * @param {other} DataFrame, Series, Scalar 
+     * @param {axis} Number {0 for row, 1 for index} Whether to compare by the index or columns
      * @return {DataFrame}
      */
-    lt(other) {
+    lt(other, axis) {
         if (this.__frame_is_compactible_for_operation()) {
-
-            let df = this.__logical_ops(other, "lt")
+            if (axis == undefined) {
+                axis = 0
+            }
+            let df = this.__logical_ops(other, "lt", axis)
             return df
 
         } else {
@@ -1578,12 +1599,16 @@ export class DataFrame extends Ndframe {
     /**
     * Returns Greater than of DataFrame and other. Supports element wise operations
     * @param {other} DataFrame, Series, Scalar 
+    * @param {axis} Number {0 for row, 1 for index} Whether to compare by the index or columns
     * @return {DataFrame}
     */
-    gt(other) {
+    gt(other, axis) {
         if (this.__frame_is_compactible_for_operation()) {
+            if (axis == undefined) {
+                axis = 0
+            }
 
-            let df = this.__logical_ops(other, "gt")
+            let df = this.__logical_ops(other, "gt", axis)
             return df
 
         } else {
@@ -1595,12 +1620,15 @@ export class DataFrame extends Ndframe {
     /**
     * Returns Less than or Equal to of DataFrame and other. Supports element wise operations
     * @param {other} DataFrame, Series, Scalar 
+    * @param {axis} Number {0 for row, 1 for index} Whether to compare by the index or columns
     * @return {DataFrame}
     */
-    le(other) {
+    le(other, axis) {
         if (this.__frame_is_compactible_for_operation()) {
-
-            let df = this.__logical_ops(other, "le")
+            if (axis == undefined) {
+                axis = 0
+            }
+            let df = this.__logical_ops(other, "le", axis)
             return df
 
         } else {
@@ -1611,12 +1639,15 @@ export class DataFrame extends Ndframe {
     /**
     * Returns Greater than or Equal to of DataFrame and other. Supports element wise operations
     * @param {other} DataFrame, Series, Scalar 
+    * @param {axis} Number {0 for row, 1 for index} Whether to compare by the index or columns
     * @return {DataFrame}
     */
-    ge(other) {
+    ge(other, axis) {
         if (this.__frame_is_compactible_for_operation()) {
-
-            let df = this.__logical_ops(other, "ge")
+            if (axis == undefined) {
+                axis = 0
+            }
+            let df = this.__logical_ops(other, "ge", axis)
             return df
 
         } else {
@@ -1628,12 +1659,15 @@ export class DataFrame extends Ndframe {
     /**
     * Returns Not Equal to of DataFrame and other. Supports element wise operations
     * @param {other} DataFrame, Series, Scalar 
+    * @param {axis} Number {0 for row, 1 for index} Whether to compare by the index or columns
     * @return {DataFrame}
     */
-    ne(other) {
+    ne(other, axis) {
         if (this.__frame_is_compactible_for_operation()) {
-
-            let df = this.__logical_ops(other, "ne")
+            if (axis == undefined) {
+                axis = 0
+            }
+            let df = this.__logical_ops(other, "ne", axis)
             return df
 
         } else {
@@ -1645,12 +1679,15 @@ export class DataFrame extends Ndframe {
     /**
     * Returns Greater than or Equal to of DataFrame and other. Supports element wise operations
     * @param {other} DataFrame, Series, Scalar 
+    * @param {axis} Number {0 for row, 1 for index} Whether to compare by the index or columns
     * @return {DataFrame}
     */
-    eq(other) {
+    eq(other, axis) {
         if (this.__frame_is_compactible_for_operation()) {
-
-            let df = this.__logical_ops(other, "eq")
+            if (axis == undefined) {
+                axis = 0
+            }
+            let df = this.__logical_ops(other, "eq", axis)
             return df
 
         } else {
@@ -1740,13 +1777,31 @@ export class DataFrame extends Ndframe {
 
 
     //performs logical comparisons on DataFrame using Tensorflow.js
-    __logical_ops(val, logical_type) {
+    __logical_ops(val, logical_type, axis) {
         let int_vals, other;
-
-        if (typeof val == "number") {
+        if (utils.__is_number(val)) {
             other = val
         } else {
-            other = val.values
+            if (val.series) {
+                //series
+                if (axis == 0) {
+                    if (val.values.length != this.shape[0]) {
+                        throw Error(`Shape Error: Operands could not be broadcast together with shapes ${this.shape} and ${val.values.length}.`)
+                    }
+                    other = tf.tensor(val.values)
+                } else {
+                    if (val.values.length != this.shape[1]) {
+                        throw Error(`Shape Error: Operands could not be broadcast together with shapes ${this.shape} and ${val.values.length}.`)
+                    }
+                    other = tf.tensor(val.values)
+                }
+            } else if (Array.isArray(val)) {
+                //Array of Array
+                other = tf.tensor(val)
+            } else {
+                //DataFrame
+                other = val.row_data_tensor
+            }
         }
 
         switch (logical_type) {

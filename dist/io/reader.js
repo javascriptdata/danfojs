@@ -38,19 +38,21 @@ const read_json = async source => {
     (0, _nodeFetch.default)(source, {
       method: "Get"
     }).then(res => res.json()).then(json => {
+      console.log(json);
       let df = new _frame.DataFrame(json);
       return df;
     }).catch(err => {
       throw Error(err);
     });
   } else {
-    _fs.default.readFile(source, (err, fileData) => {
+    _fs.default.readFileSync(source, (err, fileData) => {
       if (err) {
         throw Error(err);
       }
 
       try {
         const object = JSON.parse(fileData);
+        console.log(object);
         let df = new _frame.DataFrame(object);
         return df;
       } catch (err) {

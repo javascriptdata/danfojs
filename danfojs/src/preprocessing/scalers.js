@@ -207,7 +207,6 @@ export class RobustScaler{
         }
 
         let [q1, q3, median] = this.quantile(data,isTensor)
-        console.log(q1,q3, median)
         let q3_tensor = tf.tensor(q3)
         let output_data =  tensor_data.sub(median).div(q3_tensor.sub(q1)).arraySync()
 

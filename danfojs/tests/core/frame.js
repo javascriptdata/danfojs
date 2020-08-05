@@ -1354,6 +1354,22 @@ describe("DataFrame", function () {
             [true, true, true, true]]
             assert.deepEqual(sf.lt(30).values, expected)
         })
+        it("Return Less than of series and DataFrame scalar along axis 1 (column)", function () {
+            let data1 = [[10, 45, 56, 10] ,
+                         [23, 20, 10, 10] ]
+            let sf = new Series([10, 23, 56, 100])
+            let df = new DataFrame(data1)
+            let expected = [[false, false, false, true], [false, true, true, true]]
+            assert.deepEqual(df.lt(sf, 1).values, expected)
+        })
+
+        it("Return Less than of Array and DataFrame scalar along axis 1 (column)", function () {
+            let data1 = [[10, 45, 56, 10] , [23, 20, 10, 10] ]
+            let sf = [10, 23, 56, 100]
+            let df = new DataFrame(data1)
+            let expected = [[false, false, false, true], [false, true, true, true]]
+            assert.deepEqual(df.lt(sf, 1).values, expected)
+        })
 
     })
 
@@ -1373,6 +1389,14 @@ describe("DataFrame", function () {
             let sf = new DataFrame(data1)
             let expected = [[false, true, true, false], [false, false, false, false]]
             assert.deepEqual(sf.gt(30).values, expected)
+        })
+
+        it("Return Less than of Array and DataFrame scalar along axis 1 (column)", function () {
+            let data1 = [[10, 45, 56, 10] , [23, 20, 10, 10] ]
+            let sf = [10, 23, 56, 100]
+            let df = new DataFrame(data1)
+            let expected = [[false, true, false, false], [true, false, false, false]]
+            assert.deepEqual(df.gt(sf, 1).values, expected)
         })
 
     })
@@ -1438,7 +1462,7 @@ describe("DataFrame", function () {
     })
 
     describe("eq", function () {
-        it("Return Equal to of series and other series (element-wise)", function () {
+        it("Return Equal to of DataFrame and other DataFrame (element-wise)", function () {
             let data1 = [[10, 45, 56, 10], [25, 23, 20, 10]]
             let data2 = [[100, 450, 590, 5], [25, 2, 0, 10]]
 
@@ -1448,11 +1472,18 @@ describe("DataFrame", function () {
             assert.deepEqual(df.eq(df2).values, expected)
         })
 
-        it("Return Equal to of series scalar (element-wise)", function () {
+        it("Return Equal to of DataFrame with scalar (element-wise)", function () {
             let data1 = [[10, 45, 56, 10], [25, 23, 30, 10]]
             let sf = new DataFrame(data1)
             let expected = [[false, false, false, false], [false, false, true, false]]
             assert.deepEqual(sf.eq(30).values, expected)
+        })
+        it("Return Equal to of series and DataFrame scalar along axis 1 (column)", function () {
+            let data1 = [{"Col1": [10, 45, 56, 10]}, {"Col2": [23, 20, 10, 10]}]
+            let sf = new Series([10, 23])
+            let df = new DataFrame(data1)
+            let expected = [[true, false, false, true], [true, false, false, false]]
+            assert.deepEqual(df.eq(sf, 1).col_data, expected)
         })
 
     })
@@ -1481,28 +1512,28 @@ describe("DataFrame", function () {
         })
         it("Replace values in specified two column(s)", function () {
             let data1 = [["A", "A", 1, "girl"],
-                        ["B", "A", 2, "woman"],
-                        ["A", "B", 3, "man"]]
-            let df = new DataFrame(data1, {columns: ["col1", "col2", "col3", "col4"]})
+            ["B", "A", 2, "woman"],
+            ["A", "B", 3, "man"]]
+            let df = new DataFrame(data1, { columns: ["col1", "col2", "col3", "col4"] })
             let expected = [["boy", "boy", 1, "girl"],
-                            ["B", "boy", 2, "woman"],
-                            ["boy", "B", 3, "man"]]
-            let df_rep = df.replace({ replace: "A", with: "boy", in: ["col1", "col2"]})
+            ["B", "boy", 2, "woman"],
+            ["boy", "B", 3, "man"]]
+            let df_rep = df.replace({ replace: "A", with: "boy", in: ["col1", "col2"] })
             assert.deepEqual(df_rep.values, expected)
         })
 
         it("Replace values in specified single column(s)", function () {
             let data1 = [[2, "A", 1, "girl"],
-                        [3, "A", 2, "woman"],
-                        [4, "B", 3, "man"]]
-            let df = new DataFrame(data1, {columns: ["col1", "col2", "col3", "col4"]})
+            [3, "A", 2, "woman"],
+            [4, "B", 3, "man"]]
+            let df = new DataFrame(data1, { columns: ["col1", "col2", "col3", "col4"] })
             let expected = [[2, "A", 1, "girl"],
-                            [100, "A", 2, "woman"],
-                            [4, "B", 3, "man"]]
-            let df_rep = df.replace({ replace: 3, with: 100, in: ["col1"]})
+            [100, "A", 2, "woman"],
+            [4, "B", 3, "man"]]
+            let df_rep = df.replace({ replace: 3, with: 100, in: ["col1"] })
             assert.deepEqual(df_rep.values, expected)
         })
-       
+
 
     })
 
