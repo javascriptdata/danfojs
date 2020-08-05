@@ -54,7 +54,6 @@ export class LabelEncoder{
         let output_data = in_data.map((x)=>{
             return self.label.indexOf(x)
         });
-
         return new Series(output_data)
     }
 }

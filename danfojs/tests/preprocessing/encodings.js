@@ -13,8 +13,8 @@ describe("Encodings", function(){
                 0, 1, 2, 0,
                 1, 2, 2, 1
               ]
-            assert.deepEqual(encode.fit(data),fit_data)
-            assert.deepEqual(encode.transform(["dog","man"]),[0,2])
+            assert.deepEqual(encode.fit(data).values,fit_data)
+            assert.deepEqual(encode.transform(["dog","man"]).values,[0,2])
         });
         it("test the label encoding on Series", function(){
             let data = ["dog","cat","man","dog","cat","man","man","cat"]
