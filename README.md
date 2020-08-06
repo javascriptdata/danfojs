@@ -1,33 +1,18 @@
 
 <div align="center">
-  <img src="https://dev.pandas.io/static/img/pandas.svg"><br>
+  <img src="logo.png"><br>
 </div>
 
 -----------------
 
-# # danfojs: powerful javascript data analysis toolkit 
-[![PyPI Latest Release](https://img.shields.io/pypi/v/pandas.svg)](https://pypi.org/project/pandas/)
-[![Conda Latest Release](https://anaconda.org/conda-forge/pandas/badges/version.svg)](https://anaconda.org/anaconda/pandas/)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3509134.svg)](https://doi.org/10.5281/zenodo.3509134)
-[![Package Status](https://img.shields.io/pypi/status/pandas.svg)](https://pypi.org/project/pandas/)
-[![License](https://img.shields.io/pypi/l/pandas.svg)](https://github.com/pandas-dev/pandas/blob/master/LICENSE)
-[![Travis Build Status](https://travis-ci.org/pandas-dev/pandas.svg?branch=master)](https://travis-ci.org/pandas-dev/pandas)
-[![Azure Build Status](https://dev.azure.com/pandas-dev/pandas/_apis/build/status/pandas-dev.pandas?branch=master)](https://dev.azure.com/pandas-dev/pandas/_build/latest?definitionId=1&branch=master)
-[![Coverage](https://codecov.io/github/pandas-dev/pandas/coverage.svg?branch=master)](https://codecov.io/gh/pandas-dev/pandas)
-[![Downloads](https://anaconda.org/conda-forge/pandas/badges/downloads.svg)](https://pandas.pydata.org)
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pydata/pandas)
-[![Powered by NumFOCUS](https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A)](https://numfocus.org)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+## danfojs: powerful javascript data analysis toolkit 
 
 ## What is it?
 
 **danfojs** is a javascript package that provides fast, flexible, and expressive data
 structures designed to make working with "relational" or "labeled" data both
 easy and intuitive. It aims to be the fundamental high-level building block for
-doing practical, **real world** data analysis in javascript. Additionally, it has
-the broader goal of becoming **the most powerful and flexible open source data
-analysis / manipulation tool available in javascript for Ai product developers**. It is already well on
-its way towards this goal.
+doing practical, **real world** data analysis in javascript.
 
 ## Main Features
 Here are just a few of the things that danfojs does well:
@@ -57,8 +42,7 @@ Here are just a few of the things that danfojs does well:
   - [**Hierarchical**][mi] labeling of axes (possible to have multiple
     labels per tick)
   - Robust IO tools for loading data from [**flat files**][flat-files]
-    (CSV and delimited), [**Excel files**][excel], [**databases**][db],
-    and saving/loading data from the ultrafast [**HDF5 format**][hdfstore]
+    (CSV and delimited) and JSON data format.
   - [**Time series**][timeseries]-specific functionality: date range
     generation and frequency conversion, moving window statistics,
     date shifting and lagging.
