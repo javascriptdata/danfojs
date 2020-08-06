@@ -798,7 +798,7 @@ describe("DataFrame", function () {
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
 
-            assert.throws(function () { df.query({ "column": "B", "is": ">=" }) }, Error, "specify a value in param [to]");
+            assert.throws(function () { df.query({ "column": "B", "is": ">=" }) }, Error, "value [undefined] cannot be found in the column");
         });
         it("Print Error for operator key not specified", function () {
 

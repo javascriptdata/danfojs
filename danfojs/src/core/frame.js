@@ -1036,9 +1036,16 @@ export class DataFrame extends Ndframe {
             "=="
         ]
 
+
+
         if (Object.prototype.hasOwnProperty.call(kwargs, "column")) {
             if (this.columns.includes(kwargs["column"])) {
-
+                //get the column
+                let col_values = this.column(kwargs['column']).values
+                if (!col_values.includes(kwargs['to'])){
+                    throw new Error(`value [${kwargs["to"]}] cannot be found in the column`);
+                }
+                
                 var column_index = this.columns.indexOf(kwargs["column"]);
             } else {
                 throw new Error(`column ${kwargs["column"]} does not exist`);
@@ -1061,33 +1068,19 @@ export class DataFrame extends Ndframe {
         }
 
         if (Object.prototype.hasOwnProperty.call(kwargs, "to")) {
-            var value;
-            if (typeof kwargs['to'] == "string") {
-                value = `${kwargs["to"]}`
-            } else {
-                value = kwargs["to"]
-            }
-
+            var value = kwargs["to"]
         } else {
             throw new Error("specify a value in param [to]");
         }
 
         let data = this.values
-
         let new_data = []
         let new_index = []
 
         for (var i = 0; i < data.length; i++) {
             let data_value = data[i]
-
             let elem = data_value[column_index]
 
-            //use eval function for easy operation
-            //eval() takes in a string expression e.g eval('2>5')
-            // if (eval(`${elem}${operator}${value}`)) {
-            //     new_data.push(data_value);
-            //     new_index.push(i)
-            // }
             switch (operator) {
                 case ">":
                     if (elem > value) {

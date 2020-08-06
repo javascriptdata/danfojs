@@ -896,6 +896,12 @@ class DataFrame extends _generic.default {
 
     if (Object.prototype.hasOwnProperty.call(kwargs, "column")) {
       if (this.columns.includes(kwargs["column"])) {
+        let col_values = this.column(kwargs['column']).values;
+
+        if (!col_values.includes(kwargs['to'])) {
+          throw new Error(`value [${kwargs["to"]}] cannot be found in the column`);
+        }
+
         var column_index = this.columns.indexOf(kwargs["column"]);
       } else {
         throw new Error(`column ${kwargs["column"]} does not exist`);
@@ -915,13 +921,7 @@ class DataFrame extends _generic.default {
     }
 
     if (Object.prototype.hasOwnProperty.call(kwargs, "to")) {
-      var value;
-
-      if (typeof kwargs['to'] == "string") {
-        value = `${kwargs["to"]}`;
-      } else {
-        value = kwargs["to"];
-      }
+      var value = kwargs["to"];
     } else {
       throw new Error("specify a value in param [to]");
     }
@@ -934,9 +934,49 @@ class DataFrame extends _generic.default {
       let data_value = data[i];
       let elem = data_value[column_index];
 
-      if (eval(`${elem}${operator}${value}`)) {
-        new_data.push(data_value);
-        new_index.push(i);
+      switch (operator) {
+        case ">":
+          if (elem > value) {
+            new_data.push(data_value);
+            new_index.push(i);
+          }
+
+          break;
+
+        case "<":
+          if (elem < value) {
+            new_data.push(data_value);
+            new_index.push(i);
+          }
+
+          break;
+
+        case ">=":
+          if (elem >= value) {
+            new_data.push(data_value);
+            new_index.push(i);
+          }
+
+          break;
+
+        case "<=":
+          if (elem <= value) {
+            new_data.push(data_value);
+            new_index.push(i);
+          }
+
+          break;
+
+        case "==":
+          if (elem == value) {
+            new_data.push(data_value);
+            new_index.push(i);
+          }
+
+          break;
+
+        default:
+          break;
       }
     }
 
