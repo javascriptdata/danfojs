@@ -904,20 +904,20 @@ class DataFrame extends _generic.default {
       throw new Error("specify the column");
     }
 
-    if (Object.prototype.hasOwnProperty.call(kwargs, "operator")) {
-      if (operators.includes(kwargs["operator"])) {
-        var operator = kwargs["operator"];
+    if (Object.prototype.hasOwnProperty.call(kwargs, "is")) {
+      if (operators.includes(kwargs["is"])) {
+        var operator = kwargs["is"];
       } else {
-        throw new Error(` ${kwargs["operator"]} is not identified`);
+        throw new Error(` ${kwargs["is"]} is not a supported logical operator`);
       }
     } else {
-      throw new Error("specify operator");
+      throw new Error("specify an operator in param [is]");
     }
 
-    if (Object.prototype.hasOwnProperty.call(kwargs, "value")) {
-      var value = kwargs["value"];
+    if (Object.prototype.hasOwnProperty.call(kwargs, "to")) {
+      var value = kwargs["to"];
     } else {
-      throw new Error("specify value");
+      throw new Error("specify a value in param [to]");
     }
 
     let data = this.values;

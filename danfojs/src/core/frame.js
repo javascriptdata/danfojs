@@ -1022,7 +1022,7 @@ export class DataFrame extends Ndframe {
 
 
     /**
-     * Filter DataFrame element base on the element in a column
+     * Filter DataFrame element base on result of logical operation
      * @param {kwargs} kwargs {column : coumn name[string], is: String, to: string| int} 
      * @returns {DataFrame}
      */
@@ -1037,8 +1037,6 @@ export class DataFrame extends Ndframe {
         ]
 
         if (Object.prototype.hasOwnProperty.call(kwargs, "column")) {
-
-
             if (this.columns.includes(kwargs["column"])) {
 
                 var column_index = this.columns.indexOf(kwargs["column"]);
@@ -1048,7 +1046,7 @@ export class DataFrame extends Ndframe {
         } else {
             throw new Error("specify the column");
         }
-    
+
         if (Object.prototype.hasOwnProperty.call(kwargs, "is")) {
 
             if (operators.includes(kwargs["is"])) {
@@ -1072,6 +1070,7 @@ export class DataFrame extends Ndframe {
         let data = this.values
 
         let new_data = []
+        let new_index = []
 
         for (var i = 0; i < data.length; i++) {
             let data_value = data[i]
@@ -1082,13 +1081,13 @@ export class DataFrame extends Ndframe {
             //eval() takes in a string expression e.g eval('2>5')
             if (eval(`${elem}${operator}${value}`)) {
                 new_data.push(data_value);
+                new_index.push(i)
             }
 
 
         }
         let columns = this.columns
-        let new_df = new DataFrame(new_data, { "columns": columns })
-
+        let new_df = new DataFrame(new_data, { "columns": columns, index: new_index })
         return new_df;
     }
 

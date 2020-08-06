@@ -825,6 +825,15 @@ describe("DataFrame", function () {
 
             assert.throws(function () { df.query({ "column": "D", "is": ">=", "to": 5 }) }, Error, "column D does not exist");
         });
+        it("confirms that the index of the DataFrame is not changed", function () {
+
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let result = df.query({ "column": "B", "is": ">=", "to": 5 }).index
+            assert.deepEqual(result, [1,2,3])
+
+        });
 
     });
 
