@@ -788,7 +788,7 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            let query_df = df.query({ "column": "B", "operator": ">=", "value": 5 })
+            let query_df = df.query({ "column": "B", "is": ">=", "to": 5 })
             let query_data = [[4, 5, 6], [20, 30, 40], [39, 89, 78]]
             assert.deepEqual(query_df.values, query_data)
         });
@@ -798,7 +798,7 @@ describe("DataFrame", function () {
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
 
-            assert.throws(function () { df.query({ "column": "B", "operator": ">=" }) }, Error, "specify value");
+            assert.throws(function () { df.query({ "column": "B", "is": ">=" }) }, Error, "specify a value in param [to]");
         });
         it("Print Error for operator key not specified", function () {
 
@@ -806,7 +806,7 @@ describe("DataFrame", function () {
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
 
-            assert.throws(function () { df.query({ "column": "B", "value": 5 }) }, Error, "specify operator");
+            assert.throws(function () { df.query({ "column": "B", "to": 5 }) }, Error, "specify an operator in param [is]");
         });
 
         it("Print Error for column key not specified", function () {
@@ -815,7 +815,7 @@ describe("DataFrame", function () {
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
 
-            assert.throws(function () { df.query({ "operator": ">=", "value": 5 }) }, Error, "specify the column");
+            assert.throws(function () { df.query({ "is": ">=", "to": 5 }) }, Error, "specify the column");
         });
         it("Print Error for column name not in dataframe", function () {
 
@@ -823,7 +823,7 @@ describe("DataFrame", function () {
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
 
-            assert.throws(function () { df.query({ "column": "D", "operator": ">=", "value": 5 }) }, Error, "column D does not exist");
+            assert.throws(function () { df.query({ "column": "D", "is": ">=", "to": 5 }) }, Error, "column D does not exist");
         });
 
     });
