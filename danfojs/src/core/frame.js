@@ -588,10 +588,10 @@ export class DataFrame extends Ndframe {
         if (this.__frame_is_compactible_for_operation) { //check if all types are numeric
             let tensor_vals, idx;
             if (axis == 1) {
-                tensor_vals = this.col_data_tensor.arraySync()
+                tensor_vals = this.col_data
                 idx = this.column_names
             } else {
-                tensor_vals = this.row_data_tensor.arraySync()
+                tensor_vals = this.values
                 idx = this.index
             }
             let counts = utils.__count_nan(tensor_vals, true, false)

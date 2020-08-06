@@ -425,7 +425,7 @@ export class Utils {
                 let null_count = 0
                 let val_count = 0
                 ele_arr.map(ele => {
-                    if (Number.isNaN(ele)) {
+                    if (isNaN(ele) && typeof ele != "string") {
                         null_count = null_count + 1
                     } else {
                         val_count = val_count + 1

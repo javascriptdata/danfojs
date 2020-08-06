@@ -621,12 +621,16 @@ describe("DataFrame", function () {
 
     describe("count", function () {
         it("Returns the count of non-nan values in a DataFrame (Default axis is [1:column])", function () {
-            let data = [[0, 2, 4], [360, 180.1, 360.11], [NaN, 2, 4], [360, undefined, 360]]
+            let data = [[0, 2, 4],
+                        [360, 180.1, 360.11],
+                        [NaN, 2, 4],
+               [        360, undefined, 360]]
             let df = new DataFrame(data)
             assert.deepEqual(df.count().values, [3, 3, 4])
         })
         it("Return the count of non NaN values of a DataFrame along axis 0", function () {
-            let data = [[0, 2, 4, NaN], [360, undefined, 360, 70]]
+            let data = [[0, 2, 4, NaN],
+                        [360, undefined, 360, 70]]
             let df = new DataFrame(data)
             assert.deepEqual(df.count(0).values, [3, 3])
         })

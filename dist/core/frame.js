@@ -505,10 +505,10 @@ class DataFrame extends _generic.default {
       let tensor_vals, idx;
 
       if (axis == 1) {
-        tensor_vals = this.col_data_tensor.arraySync();
+        tensor_vals = this.col_data;
         idx = this.column_names;
       } else {
-        tensor_vals = this.row_data_tensor.arraySync();
+        tensor_vals = this.values;
         idx = this.index;
       }
 
