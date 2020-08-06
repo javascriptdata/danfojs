@@ -2,16 +2,16 @@ import {Utils} from "./utils"
 
 const utils = new Utils
 
-/**
- * Generate date range between a specified set of date
- * @param {kwargs}  kwargs {
- *          start : string
- *          end  : string
- *          period: int
- *          freq : string
- * }
- * @returns Array
- */
+// /**
+//  * Generate date range between a specified set of date
+//  * @param {kwargs}  kwargs {
+//  *          start : string
+//  *          end  : string
+//  *          period: int
+//  *          freq : string
+//  * }
+//  * @returns Array
+//  */
 export class date_range {
     constructor(kwargs){
 
