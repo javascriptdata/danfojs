@@ -73,6 +73,13 @@ export class date_range {
             end_date = new Date(end)
             end_range = this.freq_type(end_date, this.freq)
 
+            //check if the end year is greater than start year
+            let start_year = start_date.getFullYear()
+            let end_year = end_date.getFullYear()
+            if(start_year < end_year){
+                end_range = start_range + end_range
+            }
+
             let range_array = utils.__range(start_range, end_range)
 
             if(offset){
