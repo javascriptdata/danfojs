@@ -834,6 +834,14 @@ describe("DataFrame", function () {
             assert.deepEqual(result, [1,2,3])
 
         });
+        it("perform query on string column", function () {
+
+            let data = [{"A": ["Ng", "Yu", "Mo", "Ng"]}, {"B": [34, 4, 5, 6]}, {"C": [20, 20, 30, 40]}]
+            let df = new DataFrame(data)
+            let result = df.query({ "column": "A", "is": "==", "to": "Ng" })
+            assert.deepEqual(result.col_data, [["Ng", "Ng"], [34, 6], [20,40]])
+
+        });
 
     });
 

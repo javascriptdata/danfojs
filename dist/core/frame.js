@@ -915,13 +915,20 @@ class DataFrame extends _generic.default {
     }
 
     if (Object.prototype.hasOwnProperty.call(kwargs, "to")) {
-      var value = kwargs["to"];
+      var value;
+
+      if (typeof kwargs['to'] == "string") {
+        value = `${kwargs["to"]}`;
+      } else {
+        value = kwargs["to"];
+      }
     } else {
       throw new Error("specify a value in param [to]");
     }
 
     let data = this.values;
     let new_data = [];
+    let new_index = [];
 
     for (var i = 0; i < data.length; i++) {
       let data_value = data[i];
@@ -929,12 +936,14 @@ class DataFrame extends _generic.default {
 
       if (eval(`${elem}${operator}${value}`)) {
         new_data.push(data_value);
+        new_index.push(i);
       }
     }
 
     let columns = this.columns;
     let new_df = new DataFrame(new_data, {
-      "columns": columns
+      "columns": columns,
+      index: new_index
     });
     return new_df;
   }

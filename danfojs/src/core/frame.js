@@ -1061,7 +1061,12 @@ export class DataFrame extends Ndframe {
         }
 
         if (Object.prototype.hasOwnProperty.call(kwargs, "to")) {
-            var value = kwargs["to"]
+            var value;
+            if (typeof kwargs['to'] == "string") {
+                value = `${kwargs["to"]}`
+            } else {
+                value = kwargs["to"]
+            }
 
         } else {
             throw new Error("specify a value in param [to]");
@@ -1079,11 +1084,44 @@ export class DataFrame extends Ndframe {
 
             //use eval function for easy operation
             //eval() takes in a string expression e.g eval('2>5')
-            if (eval(`${elem}${operator}${value}`)) {
-                new_data.push(data_value);
-                new_index.push(i)
+            // if (eval(`${elem}${operator}${value}`)) {
+            //     new_data.push(data_value);
+            //     new_index.push(i)
+            // }
+            switch (operator) {
+                case ">":
+                    if (elem > value) {
+                        new_data.push(data_value);
+                        new_index.push(i)
+                    }
+                    break;
+                case "<":
+                    if (elem < value) {
+                        new_data.push(data_value);
+                        new_index.push(i)
+                    }
+                    break;
+                case ">=":
+                    if (elem >= value) {
+                        new_data.push(data_value);
+                        new_index.push(i)
+                    }
+                    break;
+                case "<=":
+                    if (elem <= value) {
+                        new_data.push(data_value);
+                        new_index.push(i)
+                    }
+                    break;
+                case "==":
+                    if (elem == value) {
+                        new_data.push(data_value);
+                        new_index.push(i)
+                    }
+                    break;
+                default:
+                    break;
             }
-
 
         }
         let columns = this.columns
