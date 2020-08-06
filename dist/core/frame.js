@@ -899,7 +899,7 @@ class DataFrame extends _generic.default {
         let col_values = this.column(kwargs['column']).values;
 
         if (!col_values.includes(kwargs['to'])) {
-          throw new Error(`value [${kwargs["to"]}] cannot be found in the column`);
+          throw new Error(`value [${kwargs["to"]}] cannot be found in the column '${kwargs['column']}'`);
         }
 
         var column_index = this.columns.indexOf(kwargs["column"]);
