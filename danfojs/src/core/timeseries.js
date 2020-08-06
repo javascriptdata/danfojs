@@ -204,7 +204,7 @@ export class TimeSeries {
      */
     hour() {
         let series = this.__date_ops(function (date_instance) {
-            return date_instance.getHour();
+            return date_instance.getHours();
         });
 
         return series

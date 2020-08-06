@@ -613,7 +613,13 @@ class DataFrame extends _generic.default {
   }
 
   cumsum(kwargs = {}) {
-    let axis = kwargs["axis"] || 0;
+    let axis;
+
+    if (!utils.__key_in_object(kwargs, "axis")) {
+      axis = 0;
+    } else {
+      axis = kwargs['axis'];
+    }
 
     let data = this.__cum_ops(axis, "sum");
 
@@ -621,7 +627,13 @@ class DataFrame extends _generic.default {
   }
 
   cummin(kwargs = {}) {
-    let axis = kwargs["axis"] || 0;
+    let axis;
+
+    if (!utils.__key_in_object(kwargs, "axis")) {
+      axis = 0;
+    } else {
+      axis = kwargs['axis'];
+    }
 
     let data = this.__cum_ops(axis, "min");
 
@@ -629,7 +641,13 @@ class DataFrame extends _generic.default {
   }
 
   cummax(kwargs = {}) {
-    let axis = kwargs["axis"] || 0;
+    let axis;
+
+    if (!utils.__key_in_object(kwargs, "axis")) {
+      axis = 0;
+    } else {
+      axis = kwargs['axis'];
+    }
 
     let data = this.__cum_ops(axis, "max");
 
@@ -637,7 +655,13 @@ class DataFrame extends _generic.default {
   }
 
   cumprod(kwargs = {}) {
-    let axis = kwargs["axis"] || 0;
+    let axis;
+
+    if (!utils.__key_in_object(kwargs, "axis")) {
+      axis = 0;
+    } else {
+      axis = kwargs['axis'];
+    }
 
     let data = this.__cum_ops(axis, "prod");
 
@@ -1285,9 +1309,13 @@ class DataFrame extends _generic.default {
     }
   }
 
-  lt(other) {
+  lt(other, axis) {
     if (this.__frame_is_compactible_for_operation()) {
-      let df = this.__logical_ops(other, "lt");
+      if (axis == undefined) {
+        axis = 0;
+      }
+
+      let df = this.__logical_ops(other, "lt", axis);
 
       return df;
     } else {
@@ -1295,9 +1323,13 @@ class DataFrame extends _generic.default {
     }
   }
 
-  gt(other) {
+  gt(other, axis) {
     if (this.__frame_is_compactible_for_operation()) {
-      let df = this.__logical_ops(other, "gt");
+      if (axis == undefined) {
+        axis = 0;
+      }
+
+      let df = this.__logical_ops(other, "gt", axis);
 
       return df;
     } else {
@@ -1305,9 +1337,13 @@ class DataFrame extends _generic.default {
     }
   }
 
-  le(other) {
+  le(other, axis) {
     if (this.__frame_is_compactible_for_operation()) {
-      let df = this.__logical_ops(other, "le");
+      if (axis == undefined) {
+        axis = 0;
+      }
+
+      let df = this.__logical_ops(other, "le", axis);
 
       return df;
     } else {
@@ -1315,9 +1351,13 @@ class DataFrame extends _generic.default {
     }
   }
 
-  ge(other) {
+  ge(other, axis) {
     if (this.__frame_is_compactible_for_operation()) {
-      let df = this.__logical_ops(other, "ge");
+      if (axis == undefined) {
+        axis = 0;
+      }
+
+      let df = this.__logical_ops(other, "ge", axis);
 
       return df;
     } else {
@@ -1325,9 +1365,13 @@ class DataFrame extends _generic.default {
     }
   }
 
-  ne(other) {
+  ne(other, axis) {
     if (this.__frame_is_compactible_for_operation()) {
-      let df = this.__logical_ops(other, "ne");
+      if (axis == undefined) {
+        axis = 0;
+      }
+
+      let df = this.__logical_ops(other, "ne", axis);
 
       return df;
     } else {
@@ -1335,9 +1379,13 @@ class DataFrame extends _generic.default {
     }
   }
 
-  eq(other) {
+  eq(other, axis) {
     if (this.__frame_is_compactible_for_operation()) {
-      let df = this.__logical_ops(other, "eq");
+      if (axis == undefined) {
+        axis = 0;
+      }
+
+      let df = this.__logical_ops(other, "eq", axis);
 
       return df;
     } else {
@@ -1414,13 +1462,31 @@ class DataFrame extends _generic.default {
     }
   }
 
-  __logical_ops(val, logical_type) {
+  __logical_ops(val, logical_type, axis) {
     let int_vals, other;
 
-    if (typeof val == "number") {
+    if (utils.__is_number(val)) {
       other = val;
     } else {
-      other = val.values;
+      if (val.series) {
+        if (axis == 0) {
+          if (val.values.length != this.shape[0]) {
+            throw Error(`Shape Error: Operands could not be broadcast together with shapes ${this.shape} and ${val.values.length}.`);
+          }
+
+          other = tf.tensor(val.values);
+        } else {
+          if (val.values.length != this.shape[1]) {
+            throw Error(`Shape Error: Operands could not be broadcast together with shapes ${this.shape} and ${val.values.length}.`);
+          }
+
+          other = tf.tensor(val.values);
+        }
+      } else if (Array.isArray(val)) {
+        other = tf.tensor(val);
+      } else {
+        other = val.row_data_tensor;
+      }
     }
 
     switch (logical_type) {
