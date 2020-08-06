@@ -75,6 +75,12 @@ Object.defineProperty(exports, "StandardScaler", {
     return _scalers.StandardScaler;
   }
 });
+Object.defineProperty(exports, "date_range", {
+  enumerable: true,
+  get: function () {
+    return _date_range.date_range;
+  }
+});
 
 var _series = require("./core/series");
 
@@ -91,3 +97,5 @@ var _concat = require("./core/concat");
 var _encodings = require("./preprocessing/encodings");
 
 var _scalers = require("./preprocessing/scalers");
+
+var _date_range = require("./core/date_range");

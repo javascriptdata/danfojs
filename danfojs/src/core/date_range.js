@@ -128,27 +128,29 @@ export class date_range {
     
     freq_type(date, ftype){
 
+        let rslt = null;
         switch(ftype){
 
             case "M":
-                return date.getMonth()
+                rslt = date.getMonth()
             break;
             case "Y":
-                return date.getFullYear()
+                rslt = date.getFullYear()
             break;
             case "s":
-                return date.getSeconds()
+                rslt =  date.getSeconds()
             break;
             case "D":
-                return date.getDate()
+                rslt =  date.getDate()
             break;
             case "H":
-                return date.getHours()
+                rslt =  date.getHours()
             break;
             case "m":
-                return date.getMinutes()
+                rslt =  date.getMinutes()
             break
         }
+        return rslt;
     }
 
     offset_count(d_array, offset){
