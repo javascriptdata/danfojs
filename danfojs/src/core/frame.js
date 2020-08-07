@@ -429,13 +429,16 @@ export class DataFrame extends Ndframe {
     }
 
     /**
-       * Return division of DataFrame and other, element-wise (binary operator add).
+       * Return division of DataFrame and other, element-wise (binary operator mod).
        * @param {other} DataFrame, Series, Array or Number to add  
        * @returns {DataFrame}
        */
     mod(other, axis) {
         if (this.__frame_is_compactible_for_operation) { //check if all types are numeric
-            let tensors = this.__get_ops_tensors([this, other], axis)
+            if (other == undefined){
+                throw Error("Value Error: Please specify the modulo object")
+            }
+            let tensors = this.__get_ops_tensors([this, other], axis) 
             let result = tensors[0].mod(tensors[1])
             let col_names = this.columns
             return this.__get_df_from_tensor(result, col_names)
@@ -1890,7 +1893,7 @@ export class DataFrame extends Ndframe {
 
     //retreives the corresponding tensors based on specified axis
     __get_ops_tensors(tensors, axis) {
-        if (utils.__is_undefined(tensors[1].series)) { //check if add operation is on a series or DataFrame
+        if (utils.__is_undefined(tensors[1].series)) { //check if operation is on a series or DataFrame
             let tensors_arr = []
             if (utils.__is_undefined(axis) || axis == 1) {
                 //axis = 1 (column)
