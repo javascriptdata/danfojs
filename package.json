@@ -1,6 +1,6 @@
 {
   "name": "danfojs",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Javascript version of Pandas. A library of data manipulation and analysis",
   "contributors": [
     {
