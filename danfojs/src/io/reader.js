@@ -1,5 +1,5 @@
 import { DataFrame } from '../core/frame'
-import * as tf from '@tensorflow/tfjs-node'
+import * as tf from '@tensorflow/tfjs'
 import fetch from "node-fetch"
 import fs from 'fs'
 

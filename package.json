@@ -1,5 +1,5 @@
 {
-  "name": "danfojs-node",
+  "name": "danfojs",
   "version": "0.0.1",
   "description": "Javascript version of Pandas. A library of data manipulation and analysis",
   "contributors": [
@@ -17,7 +17,7 @@
   ],
   "dependencies": {
     "@tensorflow/tfjs-core": "^2.0.0",
-    "@tensorflow/tfjs-node": "^2.0.0",
+    "@tensorflow/tfjs": "^2.0.0",
     "csv-writer": "^1.6.0",
     "mathjs": "^7.1.0",
     "node-fetch": "^2.6.0",

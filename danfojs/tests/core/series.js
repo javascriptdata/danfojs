@@ -1,7 +1,7 @@
 import { assert } from "chai"
 import { Series } from '../../src/core/series'
-import * as tf from '@tensorflow/tfjs-node'
-// import * as tf from '@tensorflow/tfjs'
+// import * as tf from '@tensorflow/tfjs-node'
+import * as tf from '@tensorflow/tfjs'
 
 
 
@@ -125,7 +125,7 @@ describe("Series", function () {
             let data2 = [1, 2, 3, 4, 5, 6]
             let sf = new Series(data)
             let sf2 = new Series(data2)
-            assert.throws(() => { sf.add(sf2) }, Error, " Incompatible shapes: [4] vs. [6]")
+            assert.throws(() => { sf.add(sf2) }, Error, "Operands could not be broadcast together with shapes 4 and 6")
         })
 
     })
@@ -155,7 +155,7 @@ describe("Series", function () {
             let data2 = [1, 2, 3, 4, 5, 6]
             let sf = new Series(data)
             let sf2 = new Series(data2)
-            assert.throws(() => { sf.sub(sf2) }, Error, " Incompatible shapes: [4] vs. [6]")
+            assert.throws(() => { sf.sub(sf2) }, Error, "Operands could not be broadcast together with shapes 4 and 6")
         })
 
     })
@@ -398,7 +398,7 @@ describe("Series", function () {
         it("Computes the descriptive statistics on an int Series", function () {
             let data1 = [10, 45, 56, 25, 23, 20, 10]
             let sf = new Series(data1)
-            assert.deepEqual(sf.describe().values, [7, 27.000001907348633, 17.378147196982766, 10, 23, 56, 302])
+            assert.deepEqual(sf.describe().values, [7, 27, 17.378147196982766, 10, 23, 56, 302])
         })
         it("Computes the descriptive statistics on a float Series", function () {
             let data1 = [30.1, 40.2, 3.1, 5.1]
