@@ -24,13 +24,13 @@
     "table": "^5.4.6"
   },
   "scripts": {
-    "test": "nyc mocha --require @babel/register danfojs/tests/core/frame",
+    "test": "nyc mocha --require @babel/register danfojs/tests/*",
     "dev": "npm run lint && babel ./danfojs/src -d dist --no-comments",
     "build": "babel ./danfojs/src -d ./dist --no-comments",
     "lint": "eslint ./danfojs/src",
     "bundle": "webpack --mode development",
     "prepublishOnly": "npm run build",
-    "version_patch": "npm version patch",
+    "patch": "npm version patch",
     "publish": "npm publish"
   },
   "repository": {

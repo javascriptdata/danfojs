@@ -269,7 +269,7 @@ export class date_range {
         let range = utils.__range(start_date.getMonth(), month_end);
         let m_range = this.month_range(range);
 
-        let s_date = new Date(start_date.getFullYear(),start_date.getMonth(),0)
+        // let s_date = new Date(start_date.getFullYear(),start_date.getMonth(),0)
         let sum = 0;
         for(let i=0; i < m_range.length; i++){
 
