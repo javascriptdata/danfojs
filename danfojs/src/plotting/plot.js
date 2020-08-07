@@ -15,6 +15,10 @@ export class Plot {
         let params = Object.keys(config)
         let this_config = {}
 
+        if (!utils.__key_in_object(config, "layout")){
+            this_config['layout'] = {}
+        }
+
         params.forEach(param => {
             this_config[param] = config[param]
         })
@@ -38,8 +42,17 @@ export class Plot {
                     x: x,
                     y: y,
                     type: config["kind"],
-                    mode: config["mode"]
+                    mode: config["mode"],
                 }
+
+                let xaxis = {}; let yaxis = {}
+                xaxis['title'] = this_config['x']
+                yaxis['title'] = this_config['y']
+
+                this_config['layout']['xaxis'] = xaxis
+                this_config['layout']['yaxis'] = yaxis
+
+
                 Plotly.newPlot(div, [trace], this_config['layout']);
 
             } else {
