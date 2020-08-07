@@ -2,16 +2,16 @@ import {Utils} from "./utils"
 
 const utils = new Utils
 
-// /**
-//  * Generate date range between a specified set of date
-//  * @param {kwargs}  kwargs {
-//  *          start : string
-//  *          end  : string
-//  *          period: int
-//  *          freq : string
-//  * }
-//  * @returns Array
-//  */
+/**
+ * Generate date range between a specified set of date
+ * @param {kwargs}  kwargs {
+ *          start : string
+ *          end  : string
+ *          period: int
+ *          freq : string
+ * }
+ * @returns Array
+ */
 export class date_range {
     constructor(kwargs){
 
@@ -76,21 +76,34 @@ export class date_range {
             //check if the end year is greater than start year
             let start_year = start_date.getFullYear()
             let end_year = end_date.getFullYear()
-            if(start_year < end_year){
-                end_range = start_range + end_range
+            if((start_year < end_year)){
+                // end_range = start_range + end_range
+                if(this.freq =="M"){
+                    end_range = this.month_end(start_date,end_date)
+                }
+                else if(this.freq == "D"){
+                    end_range = this.day_end(start_date,end_date) - start_range;
+                    
+                }
             }
-
+            
             let range_array = utils.__range(start_range, end_range)
 
             if(offset){
                 range_array = this.offset_count(range_array, offset);
             }
 
+            if(this.freq == "M"){
+                range_array = this.month_range(range_array);
+            }
+            
             let date_range = range_array.map((x)=>{
                 return this.set_dateProps(start_date,this.freq,x)
             });
+            date_range[date_range.length -1] = end_date;
 
             let date_string = this.toLocalString(date_range)
+            
             return date_string
         }
         else if(start && !(end)){
@@ -98,6 +111,9 @@ export class date_range {
             start_range = this.freq_type(start_date, this.freq)
             end_range = offset ?  ((period* offset)-1) : period -1
 
+            if(start_range > end_range){
+                end_range = end_range + start_range
+            }
             let range_array = utils.__range(start_range, end_range)
 
 
@@ -176,7 +192,14 @@ export class date_range {
         switch(ftype){
 
             case "M":
-                new_date.setMonth(val)
+                if(val.length == 2){
+
+                    new_date.setYear(new_date.getFullYear()+val[0])
+                    new_date.setMonth(parseInt(val[1]))
+                }else{
+                    new_date.setMonth(val)
+                }
+                
             break;
             case "Y":
                 new_date.setYear(val)
@@ -205,5 +228,59 @@ export class date_range {
         });
 
         return r_array
+    }
+
+    month_end(start_date, end_date){
+
+        let end_month = end_date.getMonth() 
+
+        let diff_year = end_date.getFullYear() - start_date.getFullYear()
+
+        let end_range = (12 * diff_year) + end_month;
+
+        return end_range
+    }
+
+    month_range(range){
+
+        let minus = null
+        let y_val = 0
+        let d_range = range.map((x)=>{
+
+            if(x > 11){
+                if(x % 12 ==0){
+                    minus = x;
+                    y_val = x/12
+                    return [y_val, (x - minus)]
+                }else{
+                    return [y_val,(x - minus)]
+                }
+
+            }
+            return [y_val,x];
+        });
+
+        return d_range;
+    }
+
+    day_end(start_date, end_date){
+        
+        let month_end = this.month_end(start_date,end_date)
+        let range = utils.__range(start_date.getMonth(), month_end);
+        let m_range = this.month_range(range);
+
+        let s_date = new Date(start_date.getFullYear(),start_date.getMonth(),0)
+        let sum = 0;
+        for(let i=0; i < m_range.length; i++){
+
+            let val = m_range[i]
+
+            let d_date = new Date(start_date.getFullYear()+val[0],val[1],0).getDate()
+
+            sum += d_date
+
+        }
+        return sum;
+
     }
 }
