@@ -744,6 +744,17 @@ export class Series extends NDframe {
     }
 
     /**
+     * Return the number of unique value in a series
+     * @return {int}
+     */
+    nunique(){
+
+        let unique = this.unique().values
+
+        return unique.length;
+    }
+
+    /**
      * Returns the unique values and their counts in a Series
      * @return {Series}
      */
