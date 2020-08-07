@@ -377,6 +377,10 @@ class DataFrame extends _generic.default {
 
   mod(other, axis) {
     if (this.__frame_is_compactible_for_operation) {
+      if (other == undefined) {
+        throw Error("Value Error: Please specify the modulo object");
+      }
+
       let tensors = this.__get_ops_tensors([this, other], axis);
 
       let result = tensors[0].mod(tensors[1]);

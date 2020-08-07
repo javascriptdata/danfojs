@@ -2,6 +2,14 @@
   "name": "danfojs",
   "version": "0.0.1",
   "description": "Javascript version of Pandas. A library of data manipulation and analysis",
+  "contributors": [
+    {
+      "name": "Rising Odegua"
+    },
+    {
+      "name": "Stephen Oni"
+    }
+  ],
   "main": "dist/index.js",
   "files": [
     "dist/",
@@ -21,7 +29,9 @@
     "build": "babel ./danfojs/src -d ./dist --no-comments",
     "lint": "eslint ./danfojs/src",
     "bundle": "webpack --mode development",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "version_patch": "npm version patch",
+    "publish": "npm publish"
   },
   "repository": {
     "type": "git",
