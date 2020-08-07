@@ -7,13 +7,12 @@ import NDframe from "./generic"
 import { table } from 'table'
 import { Configs } from '../config/config'
 import { TimeSeries } from './timeseries';
-import {Plot} from '../plotting/plotting'
+import { Plot } from '../plotting/plot'
 
 
 
-const utils = new Utils
+const utils = new Utils()
 const config = new Configs()  //package wide configuration object
-const plt = new Plot()
 
 
 
@@ -1229,13 +1228,23 @@ export class Series extends NDframe {
 
     }
 
+    /**
+     * Displays the data in a console friendly manner
+     */
     print() {
         console.log(this + "");
     }
 
-    
-    scatter(divname){
-        plt.scatter(divname)
+
+    /**
+     * Make plots of Series or DataFrame.
+     * Uses the Plotly as backend, so supoorts Plotly's configuration parameters
+     * @param {string} div Name of the div to show the plot
+     * @param {Object} config configuration options for making Plots, supports Plotly parameters
+     */
+    plot(div, config = {}) {
+        const plt = new Plot()
+        plt.plot(this, div, config)
     }
 }
 

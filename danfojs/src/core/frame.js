@@ -4,6 +4,7 @@ import { Series } from "./series"
 import * as tf from '@tensorflow/tfjs'
 import { Utils } from "./utils"
 import { GroupBy } from "./groupby"
+import { Plot } from '../plotting/plot'
 
 const utils = new Utils
 import { std, variance } from 'mathjs'
@@ -1048,7 +1049,7 @@ export class DataFrame extends Ndframe {
         } else {
             throw new Error("specify the column");
         }
-    
+
         if (Object.prototype.hasOwnProperty.call(kwargs, "is")) {
 
             if (operators.includes(kwargs["is"])) {
@@ -1931,6 +1932,18 @@ export class DataFrame extends Ndframe {
      */
     get T() {
         return this.transpose()
+    }
+
+
+    /**
+     * Make plots of Series or DataFrame.
+     * Uses the Plotly as backend, so supoorts Plotly's configuration parameters
+     * @param {string} div Name of the div to show the plot
+     * @param {Object} config configuration options for making Plots, supports Plotly parameters
+     */
+    plot(div, config = {}) {
+        const plt = new Plot()
+        plt.plot(this, div, config)
     }
 
 
