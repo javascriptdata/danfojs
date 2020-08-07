@@ -1,7 +1,7 @@
 import { DataFrame } from '../core/frame'
 import * as tf from '@tensorflow/tfjs'
-import fetch from "node-fetch"
-import fs from 'fs'
+// import fetch from "node-fetch"
+// import fs from 'fs'
 
 
 // import * as tf from '@tensorflow/tfjs'
@@ -29,42 +29,42 @@ export const read_csv = async (source,chunk) => {
 }
 
 
-/**
- * Reads a JSON file from local or remote address
- * 
- * @param {source} URL or local file path to retreive JSON file.
- * @returns {Promise} DataFrame structure of parsed CSV data
- */
-export const read_json = async (source) => {
-    if (source.startsWith("http")) {
-        //reading from the internet
-        fetch(source, { method: "Get" })
-            .then(res => res.json())
-            .then((json) => {
-                let df = new DataFrame(json)
-                return df
-            }).catch((err) => {
-                throw Error(err)
-            })
-    } else {
-        //reading from local path
-        fs.readFile(source, (err, fileData) => {
-            if (err) {
-                throw Error(err)
-            }
-            try {
-                const object = JSON.parse(fileData)
-                let df = new DataFrame(object)
-                return df
-            } catch (err) {
-                throw Error(err)
-            }
-        })
+// /**
+//  * Reads a JSON file from local or remote address
+//  * 
+//  * @param {source} URL or local file path to retreive JSON file.
+//  * @returns {Promise} DataFrame structure of parsed CSV data
+//  */
+// export const read_json = async (source) => {
+//     if (source.startsWith("http")) {
+//         //reading from the internet
+//         fetch(source, { method: "Get" })
+//             .then(res => res.json())
+//             .then((json) => {
+//                 let df = new DataFrame(json)
+//                 return df
+//             }).catch((err) => {
+//                 throw Error(err)
+//             })
+//     } else {
+//         //reading from local path
+//         fs.readFile(source, (err, fileData) => {
+//             if (err) {
+//                 throw Error(err)
+//             }
+//             try {
+//                 const object = JSON.parse(fileData)
+//                 let df = new DataFrame(object)
+//                 return df
+//             } catch (err) {
+//                 throw Error(err)
+//             }
+//         })
 
 
-    }
+//     }
 
-}
+// }
 
 
 // /**

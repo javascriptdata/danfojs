@@ -3,7 +3,7 @@ import * as tf from '@tensorflow/tfjs'
 import { table } from 'table'
 import { Utils } from './utils'
 import { Configs } from '../config/config'
-import { createArrayCsvWriter, createArrayCsvStringifier } from 'csv-writer'
+// import { createArrayCsvWriter, createArrayCsvStringifier } from 'csv-writer'
 // const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 // const createCsvStringifier = require('csv-writer').createObjectCsvStringifier;
 
@@ -326,38 +326,38 @@ export default class NDframe {
     * Write object to a comma-separated values (csv) file.
      * @params {path} File path or object, if None is provided the result is returned as a string
      */
-    async to_csv(path = "") {
-        let records = this.values
+    // async to_csv(path = "") {
+    //     let records = this.values
 
-        if (path == "" || path == undefined) {
-            //return string version of CSV
-            const csvStringifier = createArrayCsvStringifier({
-                header: this.column_names
-            });
-            let head = csvStringifier.getHeaderString()
-            let csv_string = csvStringifier.stringifyRecords(records)
-            let file = `${head}${csv_string}`
-            return file
+    //     if (path == "" || path == undefined) {
+    //         //return string version of CSV
+    //         const csvStringifier = createArrayCsvStringifier({
+    //             header: this.column_names
+    //         });
+    //         let head = csvStringifier.getHeaderString()
+    //         let csv_string = csvStringifier.stringifyRecords(records)
+    //         let file = `${head}${csv_string}`
+    //         return file
 
-        } else {
-            //save to path and return path uri of CSV
-            const csvWriter = createArrayCsvWriter({
-                header: this.column_names,
-                path: path
-            });
+    //     } else {
+    //         //save to path and return path uri of CSV
+    //         const csvWriter = createArrayCsvWriter({
+    //             header: this.column_names,
+    //             path: path
+    //         });
 
-            csvWriter.writeRecords(records)
-                .then(() => {
-                    console.log(`CSV file saved in ${path}`)
-                    return path
-                }).catch((err) => {
-                    throw Error(err)
-                })
-        }
+    //         csvWriter.writeRecords(records)
+    //             .then(() => {
+    //                 console.log(`CSV file saved in ${path}`)
+    //                 return path
+    //             }).catch((err) => {
+    //                 throw Error(err)
+    //             })
+    //     }
 
 
 
-    }
+    // }
 
     //     /**
     //    * Write object to a JSON Format (csv) file.

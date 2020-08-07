@@ -10,17 +10,15 @@
       "name": "Stephen Oni"
     }
   ],
-  "main": "dist/index.js",
+  "main": "dist/main.js",
   "files": [
     "dist/",
     "danfojs/src/"
   ],
   "dependencies": {
-    "@tensorflow/tfjs-core": "^2.0.0",
-    "@tensorflow/tfjs": "^2.0.0",
-    "csv-writer": "^1.6.0",
+    "@tensorflow/tfjs-core": "^2.1.0",
+    "@tensorflow/tfjs": "^2.1.0",
     "mathjs": "^7.1.0",
-    "node-fetch": "^2.6.0",
     "table": "^5.4.6"
   },
   "scripts": {

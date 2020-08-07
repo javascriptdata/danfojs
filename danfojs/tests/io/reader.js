@@ -26,18 +26,18 @@ import { read_csv, read_json } from '../../src/io/reader';
 //     })
 // })
 
-describe("read_json", async function () {
-    it("reads a json file from local file path", async function () {
-        const json_path = '/Users/mac/Documents/Opensource/web_book_data.json'
+// describe("read_json", async function () {
+//     it("reads a json file from local file path", async function () {
+//         const json_path = '/Users/mac/Documents/Opensource/web_book_data.json'
 
-        read_json(json_path).then((df) => {
-            const columns = df.column_names
-            assert.deepEqual(columns, ["book_id", "title", "image_url", "authors"])
-            assert.equal(df.shape[1], 4)
-        }).catch((err) => {
-            console.log(err);
-        })
-    })
+//         read_json(json_path).then((df) => {
+//             const columns = df.column_names
+//             assert.deepEqual(columns, ["book_id", "title", "image_url", "authors"])
+//             assert.equal(df.shape[1], 4)
+//         }).catch((err) => {
+//             console.log(err);
+//         })
+//     })
 
     // it("reads a json file over the internet", async function () {
     //     const jsonUrl =
@@ -52,6 +52,6 @@ describe("read_json", async function () {
     //     })
 
     // })
-})
+// })
 
 
