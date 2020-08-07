@@ -7,11 +7,14 @@ import NDframe from "./generic"
 import { table } from 'table'
 import { Configs } from '../config/config'
 import { TimeSeries } from './timeseries';
+import {Plot} from '../plotting/plotting'
 
 
 
 const utils = new Utils
 const config = new Configs()  //package wide configuration object
+const plt = new Plot()
+
 
 
 
@@ -1228,6 +1231,11 @@ export class Series extends NDframe {
 
     print() {
         console.log(this + "");
+    }
+
+    
+    scatter(divname){
+        plt.scatter(divname)
     }
 }
 
