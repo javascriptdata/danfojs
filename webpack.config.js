@@ -3,7 +3,7 @@ const path = require('path');
 module.exports = {
     entry: './danfojs/src/index.js',
     output: {
-        path: path.resolve(__dirname, "browser-dist"),
+        path: path.resolve(__dirname, "dist"),
         library: 'dff',
     },
     module: {

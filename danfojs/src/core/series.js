@@ -1,6 +1,6 @@
-import * as tf from '@tensorflow/tfjs-node'
+// import * as tf from '@tensorflow/tfjs-node'
 import { std, variance } from 'mathjs'
-// import * as tf from '@tensorflow/tfjs'
+import * as tf from '@tensorflow/tfjs'
 import { Utils } from "./utils"
 import { Str } from "./strings"
 import NDframe from "./generic"
@@ -973,9 +973,10 @@ export class Series extends NDframe {
      * @return {Number}
      */
     argmax() {
-        let sorted_index = this.sort_values({ ascending: true }).index
-        let last_idx = sorted_index[sorted_index.length - 1]
-        return last_idx
+        // let sorted_index = this.sort_values({ ascending: true }).index
+        // let last_idx = sorted_index[sorted_index.length - 1]
+        // return last_idx
+        return this.values.map((x, i) => [x, i]).reduce((r, a) => (a[0] > r[0] ? a : r))[1];
     }
 
 
