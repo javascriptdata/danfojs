@@ -3,15 +3,17 @@ const path = require('path');
 module.exports = {
     entry: './danfojs/src/index.js',
     output: {
-        path: path.resolve(__dirname, "browser-dist"),
-        library: 'dff',
+        path: path.resolve(__dirname, "dist"),
+        library: 'dfd',
     },
     module: {
         rules: [
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
-                use: ["babel-loader", "source-map-loader"],
+                use: ["babel-loader",
+                    "source-map-loader",
+                    'ify-loader'],
                 enforce: 'pre',
             },
         ]

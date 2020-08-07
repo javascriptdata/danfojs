@@ -1,17 +1,19 @@
-import * as tf from '@tensorflow/tfjs-node'
+// import * as tf from '@tensorflow/tfjs-node'
 import { std, variance } from 'mathjs'
-// import * as tf from '@tensorflow/tfjs'
+import * as tf from '@tensorflow/tfjs'
 import { Utils } from "./utils"
 import { Str } from "./strings"
 import NDframe from "./generic"
 import { table } from 'table'
 import { Configs } from '../config/config'
 import { TimeSeries } from './timeseries';
+import { Plot } from '../plotting/plot'
 
 
 
-const utils = new Utils
+const utils = new Utils()
 const config = new Configs()  //package wide configuration object
+
 
 
 
@@ -984,9 +986,10 @@ export class Series extends NDframe {
      * @return {Number}
      */
     argmax() {
-        let sorted_index = this.sort_values({ ascending: true }).index
-        let last_idx = sorted_index[sorted_index.length - 1]
-        return last_idx
+        // let sorted_index = this.sort_values({ ascending: true }).index
+        // let last_idx = sorted_index[sorted_index.length - 1]
+        // return last_idx
+        return this.values.map((x, i) => [x, i]).reduce((r, a) => (a[0] > r[0] ? a : r))[1];
     }
 
 
@@ -1236,8 +1239,23 @@ export class Series extends NDframe {
 
     }
 
+    /**
+     * Displays the data in a console friendly manner
+     */
     print() {
         console.log(this + "");
+    }
+
+
+    /**
+     * Make plots of Series or DataFrame.
+     * Uses the Plotly as backend, so supoorts Plotly's configuration parameters
+     * @param {string} div Name of the div to show the plot
+     * @param {Object} config configuration options for making Plots, supports Plotly parameters
+     */
+    plot(div, config = {}) {
+        const plt = new Plot()
+        plt.plot(this, div, config)
     }
 }
 
