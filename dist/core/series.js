@@ -21,6 +21,8 @@ var _config = require("../config/config");
 
 var _timeseries = require("./timeseries");
 
+var _plot = require("../plotting/plot");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
@@ -632,6 +634,11 @@ class Series extends _generic.default {
     return series;
   }
 
+  nunique() {
+    let unique = this.unique().values;
+    return unique.length;
+  }
+
   value_counts() {
     let s_data = this.values;
     let data_dict = {};
@@ -790,11 +797,7 @@ class Series extends _generic.default {
   }
 
   argmax() {
-    let sorted_index = this.sort_values({
-      ascending: true
-    }).index;
-    let last_idx = sorted_index[sorted_index.length - 1];
-    return last_idx;
+    return this.values.map((x, i) => [x, i]).reduce((r, a) => a[0] > r[0] ? a : r)[1];
   }
 
   argmin() {
@@ -1027,6 +1030,11 @@ class Series extends _generic.default {
 
   print() {
     console.log(this + "");
+  }
+
+  plot(div, config = {}) {
+    const plt = new _plot.Plot();
+    plt.plot(this, div, config);
   }
 
 }

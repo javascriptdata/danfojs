@@ -1,10 +1,10 @@
 import Ndframe from "./generic"
 import { Series } from "./series"
-// import * as tf from '@tensorflow/tfjs-node'
-import * as tf from '@tensorflow/tfjs'
+import * as tf from '@tensorflow/tfjs-node'
+// import * as tf from '@tensorflow/tfjs'
 import { Utils } from "./utils"
 import { GroupBy } from "./groupby"
-import { Plot } from '../plotting/plot'
+// import { Plot } from '../plotting/plot'
 
 const utils = new Utils
 import { std, variance } from 'mathjs'
@@ -1941,10 +1941,10 @@ export class DataFrame extends Ndframe {
      * @param {string} div Name of the div to show the plot
      * @param {Object} config configuration options for making Plots, supports Plotly parameters
      */
-    plot(div, config = {}) {
-        const plt = new Plot()
-        plt.plot(this, div, config)
-    }
+    // plot(div, config = {}) {
+    //     const plt = new Plot()
+    //     plt.plot(this, div, config)
+    // }
 
 
 
