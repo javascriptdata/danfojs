@@ -53,10 +53,15 @@ export class DataFrame extends Ndframe {
      * @returns null | DataFrame
      *            
      */
-    drop(kwargs = { axis: 0, inplace: false }) {
+    drop(kwargs =  {}) {
 
         utils.__in_object(kwargs, "columns", "value not defined")
-
+        if (!utils.__key_in_object(kwargs, "inplace")){
+            kwargs['inplace'] = false
+        }
+        if (!utils.__key_in_object(kwargs, "axis")){
+            kwargs['axis'] = 1
+        }
         let data = kwargs["columns"];
 
         if (kwargs['axis'] == 1) {
@@ -77,7 +82,7 @@ export class DataFrame extends Ndframe {
 
             if (!kwargs['inplace']) {
                 let columns = utils.__remove_arr(this.columns, index);
-                return new DataFrame(new_data, { columns: columns })
+                return new DataFrame(new_data, { columns: columns, index: this.index })
             } else {
                 this.columns = utils.__remove_arr(this.columns, index);
                 this.data_tensor = tf.tensor(new_data);
@@ -93,12 +98,15 @@ export class DataFrame extends Ndframe {
             const values = this.values
 
             let new_data = utils.__remove_arr(values, data);
+            let new_index = utils.__remove_arr(this.index, data);
+
 
             if (!kwargs['inplace']) {
-                return new DataFrame(new_data, { columns: this.columns })
+                return new DataFrame(new_data, { columns: this.columns, index: new_index })
             } else {
                 this.data_tensor = tf.tensor(new_data);
                 this.data = new_data
+                this.__set_index(new_index) //update index. if throws error, check here first
             }
         }
     }
@@ -855,10 +863,12 @@ export class DataFrame extends Ndframe {
                 this.drop({ columns: [kwargs['key_name']], inplace: true, axis:1})
             }
         } else {
-            let df = this.copy()
+            var df;
+            df = this.copy()
             df.__set_index(kwargs['key'])
+            df.print()
             if (kwargs['drop'] && typeof kwargs['key_name'] == 'string') {
-                df.drop({ columns: [kwargs['key_name']], axis:1, inplace:true})
+                df = df.drop({ columns: [kwargs['key_name']], axis:1})
             }
             df.print()
             return df
