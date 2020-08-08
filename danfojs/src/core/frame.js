@@ -5,6 +5,7 @@ import * as tf from '@tensorflow/tfjs'
 import { Utils } from "./utils"
 import { GroupBy } from "./groupby"
 import { Plot } from '../plotting/plot'
+import { indexLoc } from '../core/indexing'
 
 const utils = new Utils
 import { std, variance } from 'mathjs'
@@ -114,183 +115,7 @@ export class DataFrame extends Ndframe {
         }
     }
 
-    /**
-     * Obtain the defined the set of row and column index 
-     * @param {*} kwargs object {rows:Array, columns:Array of column name, type: ["iloc","loc"]} 
-     * @return Array
-     */
-    __indexLoc(kwargs) {
-        let rows = null;
-        let columns = null;
-        let isColumnSplit = false;
 
-        if (Object.prototype.hasOwnProperty.call(kwargs, "rows")) { //check if the object has the key
-            if (Array.isArray(kwargs["rows"])) {
-
-                if (kwargs["rows"].length == 1 && typeof kwargs["rows"][0] == "string") {
-                    //console.log("here", kwargs["rows"].length)
-                    if (kwargs["rows"][0].includes(":")) {
-
-                        let row_split = kwargs["rows"][0].split(":")
-
-                        if (kwargs['type'] == 'loc') {
-                            //get index of first and last occurence of label
-                            let start, end;
-                            if (isNaN(Number(row_split[0]))){
-                                start = this.index.indexOf(row_split[0])
-                            }else{
-                                start = Number(row_split[0])
-                            }
-
-                            if (isNaN(Number(row_split[1]))){
-                                end = this.index.lastIndexOf(row_split[1]) || (this.values.length - 1);
-                            }else{
-                                end = Number(row_split[1]) || (this.values.length - 1);
-                            }
-                            rows = utils.__range(start, end);
-                        } else {
-                            let start = parseInt(row_split[0]) || 0;
-                            let end = parseInt(row_split[1]) || (this.values.length - 1);
-
-                            if (typeof start == "number" && typeof end == "number") {
-                                rows = utils.__range(start, end);
-                            }
-                        }
-
-                    } else {
-                        if (kwargs["type"] == "loc") {
-                            let row_idx = []
-                            this.index.map((idx, i)=>{
-                                if (kwargs['rows'][0] == idx){
-                                    row_idx.push(i)
-                                }
-                            })
-                            rows = row_idx
-                        } else {
-                            throw new Error("Slice index must be separated by ':'")
-                        }
-                    }
-                } else {
-                    if (kwargs["type"] == "loc") {
-                        //get all the index of specified labels
-                        let row_idx = []
-                        this.index.map((idx, i)=>{
-                            if (kwargs['rows'].includes(idx)){
-                                row_idx.push(i)
-                            }
-                        })
-                        rows = row_idx
-                    } else {
-                        //return int index
-                        rows = kwargs["rows"];
-                    }
-                }
-            } else {
-                throw new Error("rows parameter must be a Array")
-            }
-        } else {
-            if (kwargs["type"] == "loc") {
-                throw new Error("Invalid syntax, please specify a slice label")
-            } else {
-                rows = utils.__range(0, Number(this.shape[0]) - 1);
-            }
-        }
-
-        if (Object.prototype.hasOwnProperty.call(kwargs, "columns")) {
-            if (Array.isArray(kwargs["columns"])) {
-                if (kwargs["columns"].length == 1 && kwargs["columns"][0].includes(":")) {
-
-                    let row_split = kwargs["columns"][0].split(":")
-                    let start, end;
-
-                    if (kwargs["type"] == "iloc" || (row_split[0] == "")) {
-                        start = parseInt(row_split[0]) || 0;
-                        end = parseInt(row_split[1]) || (this.values[0].length - 1);
-                    } else {
-
-                        start = parseInt(this.columns.indexOf(row_split[0]));
-                        end = parseInt(this.columns.indexOf(row_split[1]));
-                    }
-
-
-                    if (typeof start == "number" && typeof end == "number") {
-
-                        columns = utils.__range(start, end);
-                        isColumnSplit = true;
-                    }
-
-                } else {
-                    columns = kwargs["columns"];
-                }
-
-            } else {
-                throw new Error("columns must be a list")
-            }
-        } else {
-            //Return all column
-            if (kwargs["type"] == "loc") {
-                columns = this.column_names
-            } else {
-                columns = utils.__range(0, Number(this.shape[1]) - 1);
-            }
-        }
-
-        let data_values = this.values;
-        let new_data = []; // store the data from the for loop
-
-        for (var index = 0; index < rows.length; index++) {
-            let row_val = rows[index]
-            let max_rowIndex = data_values.length - 1 //obtain the maximum row index
-
-            if (row_val > max_rowIndex) { //check if the input row index is greater than the maximum row index
-                throw new Error(`Specified row index ${row_val} is bigger than maximum row index of ${max_rowIndex}`);
-            }
-
-            let value = data_values[row_val]
-            let row_data = []
-
-            for (var i in columns) {
-                var col_index;
-                if (kwargs["type"] == "loc" && !isColumnSplit) {
-                    col_index = this.columns.indexOf(columns[i]); //obtain the column index
-
-                    if (col_index == -1) {
-                        throw new Error(`Column ${columns[i]} does not exist`);
-                    }
-                } else {
-                    col_index = columns[i];
-                    let max_colIndex = this.columns.length - 1; //assign the maximum column index to a value
-
-                    if (col_index > max_colIndex) {
-                        throw new Error(`column index ${col_index} is bigger than ${max_colIndex}`);
-                    }
-                }
-
-                let elem = value[col_index]; //obtain the element at the column index
-                row_data.push(elem);
-            }
-
-            new_data.push(row_data); //store the data for each row in the new_data
-
-        }
-
-        let column_names = []
-        if (kwargs["type"] == "iloc" || isColumnSplit) {
-            // let axes = this.axes
-            columns.map((col) => {
-                column_names.push(this.columns[col]);
-            })
-        } else {
-            column_names = columns
-        }
-
-        //get index of columns
-        let final_row = []
-        rows.forEach(i=>{
-            final_row.push(this.index[i])
-        })
-        return [new_data, column_names, final_row];
-    }
 
     /**
      * Purely label based indexing. Can accept string label names for both rows and columns 
@@ -303,7 +128,7 @@ export class DataFrame extends Ndframe {
             throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
         }
         kwargs["type"] = "loc"
-        let [new_data, columns, rows] = this.__indexLoc(kwargs);
+        let [new_data, columns, rows] = indexLoc(this, kwargs);
         let df_columns = { "columns": columns }
         let df = new DataFrame(new_data, df_columns);
         df.__set_index(rows)
@@ -324,7 +149,7 @@ export class DataFrame extends Ndframe {
         }
         kwargs["type"] = "iloc";
 
-        let [new_data, columns, rows] = this.__indexLoc(kwargs);
+        let [new_data, columns, rows] = indexLoc(this, kwargs);
         let df_columns = { "columns": columns }
         let df = new DataFrame(new_data, df_columns);
         df.__set_index(rows)
@@ -1251,7 +1076,7 @@ export class DataFrame extends Ndframe {
 
             if (column_names.includes(col[0])) {
                 // eslint-disable-next-line no-unused-vars
-                var [data1, col_name1] = this.__indexLoc({ "rows": [`0:${len}`], "columns": [`${col[0]}`], "type": "loc" });
+                var [data1, col_name1] = indexLoc(this,{ "rows": [`0:${len}`], "columns": [`${col[0]}`], "type": "loc" });
 
             }
             else {
@@ -1259,7 +1084,7 @@ export class DataFrame extends Ndframe {
             }
             if (column_names.includes(col[1])) {
                 // eslint-disable-next-line no-unused-vars
-                var [data2, col_name2] = this.__indexLoc({ "rows": [`0:${len}`], "columns": [`${col[1]}`], "type": "loc" });
+                var [data2, col_name2] = indexLoc(this,{ "rows": [`0:${len}`], "columns": [`${col[1]}`], "type": "loc" });
             }
             else {
                 throw new Error(`column ${col[1]} does not exist`);
@@ -1284,7 +1109,7 @@ export class DataFrame extends Ndframe {
 
             if (column_names.includes(col[0])) {
                 // eslint-disable-next-line no-redeclare
-                var [data1, col_name1] = this.__indexLoc({ "rows": [`0:${len}`], "columns": [`${col[0]}`], "type": "loc" });
+                var [data1, col_name1] = indexLoc(this,{ "rows": [`0:${len}`], "columns": [`${col[0]}`], "type": "loc" });
                 // console.log(data1)
             }
             else {
