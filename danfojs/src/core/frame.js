@@ -1076,7 +1076,7 @@ export class DataFrame extends Ndframe {
 
             if (column_names.includes(col[0])) {
                 // eslint-disable-next-line no-unused-vars
-                var [data1, col_name1] = indexLoc(this,{ "rows": [`0:${len}`], "columns": [`${col[0]}`], "type": "loc" });
+                var [data1, col_name1] = indexLoc(this, { "rows": [`0:${len}`], "columns": [`${col[0]}`], "type": "loc" });
 
             }
             else {
@@ -1084,7 +1084,7 @@ export class DataFrame extends Ndframe {
             }
             if (column_names.includes(col[1])) {
                 // eslint-disable-next-line no-unused-vars
-                var [data2, col_name2] = indexLoc(this,{ "rows": [`0:${len}`], "columns": [`${col[1]}`], "type": "loc" });
+                var [data2, col_name2] = indexLoc(this, { "rows": [`0:${len}`], "columns": [`${col[1]}`], "type": "loc" });
             }
             else {
                 throw new Error(`column ${col[1]} does not exist`);
@@ -1109,7 +1109,7 @@ export class DataFrame extends Ndframe {
 
             if (column_names.includes(col[0])) {
                 // eslint-disable-next-line no-redeclare
-                var [data1, col_name1] = indexLoc(this,{ "rows": [`0:${len}`], "columns": [`${col[0]}`], "type": "loc" });
+                var [data1, col_name1] = indexLoc(this, { "rows": [`0:${len}`], "columns": [`${col[0]}`], "type": "loc" });
                 // console.log(data1)
             }
             else {
@@ -1840,6 +1840,17 @@ export class DataFrame extends Ndframe {
         return this.transpose()
     }
 
+
+    /**
+        * Returns the data types in the DataFrame 
+        * @return {Array} list of data types for each column
+        */
+    get dtypes() {
+        let cols = this.column_names
+        let d_types = this.col_types
+        let sf = new Series(d_types, {index: cols})
+        return sf
+    }
 
     /**
      * Make plots of Series or DataFrame.

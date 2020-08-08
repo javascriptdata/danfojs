@@ -1552,6 +1552,15 @@ class DataFrame extends _generic.default {
     return this.transpose();
   }
 
+  get dtypes() {
+    let cols = this.column_names;
+    let d_types = this.col_types;
+    let sf = new _series.Series(d_types, {
+      index: cols
+    });
+    return sf;
+  }
+
   plot(div, config = {}) {
     const plt = new _plot.Plot();
     plt.plot(this, div, config);

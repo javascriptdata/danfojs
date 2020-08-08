@@ -79,7 +79,8 @@ export const indexLoc = (ndframe, kwargs) => {
         }
     } else {
         if (kwargs["type"] == "loc") {
-            throw new Error("Invalid syntax, please specify a slice label")
+            rows = utils.__range(0, Number(ndframe.shape[0]) - 1);
+            // throw new Error("Invalid syntax, please specify a slice label")
         } else {
             rows = utils.__range(0, Number(ndframe.shape[0]) - 1);
         }
