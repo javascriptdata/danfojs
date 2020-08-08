@@ -5,35 +5,35 @@ import { Series } from "../../src/core/series";
 describe("DataFrame", function () {
 
     describe("drop", function () {
-        // it("throw error for wrong row index", function () {
-        //     let data = [[1, 2, 3], [4, 5, 6]]
-        //     let cols = ["A", "B", "C"]
-        //     let df = new DataFrame(data, { columns: cols })
-        //     assert.throws(function () { df.drop({ columns: [3], axis: 0, inplace: false }) }, Error, '3 does not exist in index');
-        // })
-        // it("throw error for wrong row index", function () {
-        //     let data = [[1, 2, 3], [4, 5, 6]]
-        //     let cols = ["A", "B", "C"]
-        //     let df = new DataFrame(data, { columns: cols })
-        //     assert.throws(function () { df.drop({ columns: ["D"], axis: 1, inplace: false }) }, Error, 'column "D" does not exist');
-        // })
+        it("throw error for wrong row index", function () {
+            let data = [[1, 2, 3], [4, 5, 6]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            assert.throws(function () { df.drop({ columns: [3], axis: 0, inplace: false }) }, Error, '3 does not exist in index');
+        })
+        it("throw error for wrong row index", function () {
+            let data = [[1, 2, 3], [4, 5, 6]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            assert.throws(function () { df.drop({ columns: ["D"], axis: 1, inplace: false }) }, Error, 'column "D" does not exist');
+        })
 
-        // it("drop a column inplace", function () {
-        //     let data = [[1, 2, 3], [4, 5, 6]]
-        //     let cols = ["A", "B", "C"]
-        //     let df = new DataFrame(data, { columns: cols })
-        //     df.drop({ columns: ["C", "B"], axis: 1, inplace: true });
-        //     let column = ["A"]
-        //     assert.deepEqual(df.columns, column);
-        // })
-        // it("check if data is updated after column is dropped", function () {
-        //     let data = [[1, 2, 3], [4, 5, 6]]
-        //     let cols = ["A", "B", "C"]
-        //     let df = new DataFrame(data, { columns: cols })
-        //     df.drop({ columns: ["C"], axis: 1, inplace: true });
-        //     let new_data = [[1, 2], [4, 5]]
-        //     assert.deepEqual(df.values, new_data);
-        // })
+        it("drop a column inplace", function () {
+            let data = [[1, 2, 3], [4, 5, 6]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            df.drop({ columns: ["C", "B"], axis: 1, inplace: true });
+            let column = ["A"]
+            assert.deepEqual(df.columns, column);
+        })
+        it("check if data is updated after column is dropped", function () {
+            let data = [[1, 2, 3], [4, 5, 6]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            df.drop({ columns: ["C"], axis: 1, inplace: true });
+            let new_data = [[1, 2], [4, 5]]
+            assert.deepEqual(df.values, new_data);
+        })
 
         it("check if data is updated after row is dropped", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
@@ -43,17 +43,17 @@ describe("DataFrame", function () {
             let new_data = [[4, 5, 6],]
             assert.deepEqual(df.values, new_data);
         })
-        // it("check if new dataframe is properly created after column is dropped (not-in-inplace)", function () {
-        //     let data = [[1, 2, 3], [4, 5, 6]]
-        //     let cols = ["A", "B", "C"]
-        //     let df = new DataFrame(data, { columns: cols })
-        //     let df_drop = df.drop({ columns: ["C"], axis: 1, inplace: false });
+        it("check if new dataframe is properly created after column is dropped (not-in-inplace)", function () {
+            let data = [[1, 2, 3], [4, 5, 6]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let df_drop = df.drop({ columns: ["C"], axis: 1, inplace: false });
 
-        //     let expected_data = [[1, 2], [4, 5]]
-        //     let expected_cols = ["A", "B"]
-        //     let expected_df = new DataFrame(expected_data, { columns: expected_cols })
-        //     assert.deepEqual(df_drop.values, expected_df.values);
-        // })
+            let expected_data = [[1, 2], [4, 5]]
+            let expected_cols = ["A", "B"]
+            let expected_df = new DataFrame(expected_data, { columns: expected_cols })
+            assert.deepEqual(df_drop.values, expected_df.values);
+        })
     })
 
     describe("head", function () {
@@ -736,30 +736,30 @@ describe("DataFrame", function () {
 
 
     describe("set_index", function () {
-        // it("Sets the index of a DataFrame created from an Object", function () {
-        //     let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
-        //     let df = new DataFrame(data)
-        //     let df_new = df.set_index({ "key": ["one", "two", "three"] })
-        //     assert.deepEqual(df_new.index, ["one", "two", "three"])
-        // })
-        // it("Sets the index of a DataFrame from column name", function () {
-        //     let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
-        //     let df = new DataFrame(data)
-        //     let df_new = df.set_index({ "key": "alpha" })
-        //     assert.deepEqual(df_new.index, ["A", "B", "C"])
-        // })
+        it("Sets the index of a DataFrame created from an Object", function () {
+            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
+            let df = new DataFrame(data)
+            let df_new = df.set_index({ "key": ["one", "two", "three"] })
+            assert.deepEqual(df_new.index, ["one", "two", "three"])
+        })
         it("Sets the index of a DataFrame from column name", function () {
             let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
             let df = new DataFrame(data)
-            let df_new = df.set_index({ "key": "alpha", drop: true })
+            let df_new = df.set_index({ "key": "alpha" })
             assert.deepEqual(df_new.index, ["A", "B", "C"])
         })
-        // it("Sets the index of a DataFrame created from an Array", function () {
-        //     let data = [[0, 2, 4], [360, 180, 360], [0, 2, 4], [360, 180, 360], [0, 2, 4]]
-        //     let df = new DataFrame(data)
-        //     df.set_index({ "key": ["one", "two", "three", "four", "five"], "inplace": true })
-        //     assert.deepEqual(df.index, ["one", "two", "three", "four", "five"])
-        // })
+        it("Sets the index of a DataFrame from column name", function () {
+            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
+            let df = new DataFrame(data)
+            let df_new = df.set_index({ key: "alpha", drop: true })
+            assert.deepEqual(df_new.index, ["A", "B", "C"])
+        })
+        it("Sets the index of a DataFrame created from an Array", function () {
+            let data = [[0, 2, 4], [360, 180, 360], [0, 2, 4], [360, 180, 360], [0, 2, 4]]
+            let df = new DataFrame(data)
+            df.set_index({ "key": ["one", "two", "three", "four", "five"], "inplace": true })
+            assert.deepEqual(df.index, ["one", "two", "three", "four", "five"])
+        })
 
     })
 
@@ -767,14 +767,14 @@ describe("DataFrame", function () {
         it("Resets the index of a DataFrame created from an Object", function () {
             let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
             let df = new DataFrame(data)
-            let df_new = df.set_index({ "index": ["one", "two", "three"] })
+            let df_new = df.set_index({ "key": ["one", "two", "three"] })
             let df_reset = df_new.reset_index()
             assert.deepEqual(df_reset.index, [0, 1, 2])
         })
         it("Resets the index of a DataFrame created from an Array", function () {
             let data = [[0, 2, 4], [360, 180, 360], [0, 2, 4], [360, 180, 360], [0, 2, 4]]
             let df = new DataFrame(data)
-            df.set_index({ "index": ["one", "two", "three", "four", "five"], "inplace": true })
+            df.set_index({ "key": ["one", "two", "three", "four", "five"], "inplace": true })
             let df_new = df.reset_index()
             assert.deepEqual(df_new.index, [0, 1, 2, 3, 4])
         })

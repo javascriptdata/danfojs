@@ -806,18 +806,14 @@ export class DataFrame extends Ndframe {
    * Generate a new DataFrame with the index reset.
    * This is useful when the index needs to be treated as a column, 
    * or when the index is meaningless and needs to be reset to the default before another operation.
-   * @param {kwargs} {inplace: Modify the Series in place (do not create a new object,
-   *                  drop: Just reset the index, without inserting it as a column in the new DataFrame.}
+   * @param {kwargs} {inplace: Modify the Series in place (do not create a new object.}
    */
     reset_index(kwargs = {}) {
-        let options = {}
-        if (utils.__key_in_object(kwargs, 'inplace')) {
-            options['inplace'] = kwargs['inplace']
-        } else {
-            options['inplace'] = false
+        if (!utils.__key_in_object(kwargs, 'inplace')) {
+            kwargs['inplace'] = false
         }
 
-        if (options['inplace']) {
+        if (kwargs['inplace']) {
             this.__reset_index()
         } else {
             let df = this.copy()
