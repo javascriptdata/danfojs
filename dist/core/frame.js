@@ -1552,7 +1552,7 @@ class DataFrame extends _generic.default {
     return this.transpose();
   }
 
-  get dtypes() {
+  get ctypes() {
     let cols = this.column_names;
     let d_types = this.col_types;
     let sf = new _series.Series(d_types, {
@@ -1564,6 +1564,10 @@ class DataFrame extends _generic.default {
   plot(div, config = {}) {
     const plt = new _plot.Plot();
     plt.plot(this, div, config);
+  }
+
+  get tensor() {
+    return this.row_data_tensor;
   }
 
 }

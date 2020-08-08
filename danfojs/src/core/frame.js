@@ -1845,10 +1845,10 @@ export class DataFrame extends Ndframe {
         * Returns the data types in the DataFrame 
         * @return {Array} list of data types for each column
         */
-     get ctypes() {
+    get ctypes() {
         let cols = this.column_names
         let d_types = this.col_types
-        let sf = new Series(d_types, {index: cols})
+        let sf = new Series(d_types, { index: cols })
         return sf
     }
 
@@ -1863,6 +1863,14 @@ export class DataFrame extends Ndframe {
         plt.plot(this, div, config)
     }
 
+
+    /**
+     * Returns the Tensorflow tensor backing the DataFrame Object
+     * @returns {2D tensor}
+     */
+    get tensor() {
+        return this.row_data_tensor
+    }
 
 
 
