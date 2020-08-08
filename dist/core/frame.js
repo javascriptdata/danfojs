@@ -143,7 +143,7 @@ class DataFrame extends _generic.default {
         throw new Error("rows must be a list");
       }
     } else {
-      throw new Error("Kwargs keywords are {rows, columns}");
+      rows = utils.__range(0, Number(this.shape[0]) - 1);
     }
 
     if (Object.prototype.hasOwnProperty.call(kwargs, "columns")) {
@@ -171,7 +171,11 @@ class DataFrame extends _generic.default {
         throw new Error("columns must be a list");
       }
     } else {
-      throw new Error("Kwargs keywords are {rows, columns}");
+      if (kwargs["type"] == "loc") {
+        columns = this.column_names;
+      } else {
+        columns = utils.__range(0, Number(this.shape[1]) - 1);
+      }
     }
 
     let data_values = this.values;
@@ -226,7 +230,13 @@ class DataFrame extends _generic.default {
     return [new_data, column_names, rows];
   }
 
-  loc(kwargs) {
+  loc(kwargs = {}) {
+    let params_needed = ["columns", "rows"];
+
+    if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+      throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`);
+    }
+
     kwargs["type"] = "loc";
 
     let [new_data, columns, rows] = this.__indexLoc(kwargs);
@@ -239,7 +249,13 @@ class DataFrame extends _generic.default {
     return df;
   }
 
-  iloc(kwargs) {
+  iloc(kwargs = {}) {
+    let params_needed = ["columns", "rows"];
+
+    if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+      throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`);
+    }
+
     kwargs["type"] = "iloc";
 
     let [new_data, columns, rows] = this.__indexLoc(kwargs);

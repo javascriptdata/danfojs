@@ -176,7 +176,11 @@ export class DataFrame extends Ndframe {
             }
         } else {
             //Return all column
-            columns = utils.__range(0, Number(this.shape[1]) - 1);
+            if (kwargs["type"] == "loc"){
+                columns = this.column_names
+            }else{
+                columns = utils.__range(0, Number(this.shape[1]) - 1);
+            }
         }
 
         let data_values = this.values;
@@ -236,7 +240,7 @@ export class DataFrame extends Ndframe {
      * @param {kwargs} kwargs object {rows: Array of index, columns: Array of column name(s)} 
      * @return DataFrame data stucture
      */
-    loc(kwargs) {
+    loc(kwargs={}) {
         let params_needed = ["columns", "rows"]
         if (!utils.__right_params_are_passed(kwargs, params_needed)) {
             throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
@@ -257,7 +261,7 @@ export class DataFrame extends Ndframe {
      * @param {*} kwargs object {rows: Array of index, columns: Array of column index}  
      * @return DataFrame data stucture
      */
-    iloc(kwargs) {
+    iloc(kwargs={}) {
         let params_needed = ["columns", "rows"]
         if (!utils.__right_params_are_passed(kwargs, params_needed)) {
             throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
