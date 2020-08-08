@@ -55,14 +55,20 @@ export class DataFrame extends Ndframe {
      */
     drop(kwargs =  {}) {
 
-        utils.__in_object(kwargs, "columns", "value not defined")
+        // utils.__in_object(kwargs, "columns", "value not defined")
         if (!utils.__key_in_object(kwargs, "inplace")){
             kwargs['inplace'] = false
         }
         if (!utils.__key_in_object(kwargs, "axis")){
-            kwargs['axis'] = 1
+            kwargs['axis'] = 0
         }
-        let data = kwargs["columns"];
+        let data;
+        if (utils.__key_in_object(kwargs, "index") && kwargs['axis'] == 0){
+            data = kwargs["index"];
+        }else{
+            data = kwargs["columns"];
+        }
+
 
         if (kwargs['axis'] == 1) {
             let self = this;
@@ -85,14 +91,12 @@ export class DataFrame extends Ndframe {
                 return new DataFrame(new_data, { columns: columns, index: this.index })
             } else {
                 this.columns = utils.__remove_arr(this.columns, index);
-                this.data_tensor = tf.tensor(new_data);
+                this.row_data_tensor = tf.tensor(new_data);
                 this.data = new_data
             }
 
         } else {
-
             data.map((x) => {
-
                 if (!this.index.includes(x)) throw new Error(`${x} does not exist in index`)
             });
             const values = this.values
@@ -100,13 +104,12 @@ export class DataFrame extends Ndframe {
             let new_data = utils.__remove_arr(values, data);
             let new_index = utils.__remove_arr(this.index, data);
 
-
             if (!kwargs['inplace']) {
                 return new DataFrame(new_data, { columns: this.columns, index: new_index })
-            } else {
-                this.data_tensor = tf.tensor(new_data);
+            } else {                
+                this.row_data_tensor = tf.tensor(new_data);
                 this.data = new_data
-                this.__set_index(new_index) //update index. if throws error, check here first
+                this.__set_index(new_index) 
             }
         }
     }
@@ -855,7 +858,6 @@ export class DataFrame extends Ndframe {
             kwargs['key_name'] = kwargs['key']
             kwargs['key'] = this[kwargs['key']].values
         }
-        console.log(kwargs);
         if (kwargs['inplace']) {
             // this.index_arr = kwargs['key']
             this.__set_index(kwargs['key'])
@@ -863,14 +865,11 @@ export class DataFrame extends Ndframe {
                 this.drop({ columns: [kwargs['key_name']], inplace: true, axis:1})
             }
         } else {
-            var df;
-            df = this.copy()
+            let df = this.copy()
             df.__set_index(kwargs['key'])
-            df.print()
             if (kwargs['drop'] && typeof kwargs['key_name'] == 'string') {
-                df = df.drop({ columns: [kwargs['key_name']], axis:1})
+                df.drop({ columns: [kwargs['key_name']], axis:1, inplace: true})
             }
-            df.print()
             return df
         }
     }
