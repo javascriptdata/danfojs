@@ -673,6 +673,16 @@ describe("Series", function () {
             let expected = ["a", "b", "c", "d", "e"]
             assert.deepEqual(sf.unique().values, expected)
         });
+        it("returns the unique values in a Series of type string", function () {
+            let sf = new Series(["a", "a", "b", "c", "c", "d", "e", "d", "d", "e"])
+            let expected = ["a", "b", "c", "d", "e"]
+            assert.deepEqual(sf.unique().values, expected)
+        });
+        it("returns the nunique values in a Series of type string", function () {
+            let sf = new Series(["a", "a", "b", "c", "c", "d", "e", "d", "d", "e"])
+            let expected = 5
+            assert.deepEqual(sf.nunique(), expected)
+        });
     });
 
     describe("value_counts", function () {
