@@ -133,7 +133,6 @@ export class DataFrame extends Ndframe {
 
                         let row_split = kwargs["rows"][0].split(":")
 
-                        console.log(row_split);
                         if (kwargs['type'] == 'loc') {
                             //get index of first and last occurence of label
                             let start, end;
@@ -144,9 +143,9 @@ export class DataFrame extends Ndframe {
                             }
 
                             if (isNaN(Number(row_split[1]))){
-                                end = this.index.lastIndexOf(row_split[1])
+                                end = this.index.lastIndexOf(row_split[1]) || (this.values.length - 1);
                             }else{
-                                end = Number(row_split[1])
+                                end = Number(row_split[1]) || (this.values.length - 1);
                             }
                             rows = utils.__range(start, end);
                         } else {
@@ -197,7 +196,6 @@ export class DataFrame extends Ndframe {
             }
         }
 
-        console.log(rows);
         if (Object.prototype.hasOwnProperty.call(kwargs, "columns")) {
             if (Array.isArray(kwargs["columns"])) {
                 if (kwargs["columns"].length == 1 && kwargs["columns"][0].includes(":")) {
@@ -286,7 +284,12 @@ export class DataFrame extends Ndframe {
             column_names = columns
         }
 
-        return [new_data, column_names, rows];
+        //get index of columns
+        let final_row = []
+        rows.forEach(i=>{
+            final_row.push(this.index[i])
+        })
+        return [new_data, column_names, final_row];
     }
 
     /**

@@ -142,24 +142,63 @@ class DataFrame extends _generic.default {
         if (kwargs["rows"].length == 1 && typeof kwargs["rows"][0] == "string") {
           if (kwargs["rows"][0].includes(":")) {
             let row_split = kwargs["rows"][0].split(":");
-            let start = parseInt(row_split[0]) || 0;
-            let end = parseInt(row_split[1]) || this.values.length - 1;
 
-            if (typeof start == "number" && typeof end == "number") {
+            if (kwargs['type'] == 'loc') {
+              let start, end;
+
+              if (isNaN(Number(row_split[0]))) {
+                start = this.index.indexOf(row_split[0]);
+              } else {
+                start = Number(row_split[0]);
+              }
+
+              if (isNaN(Number(row_split[1]))) {
+                end = this.index.lastIndexOf(row_split[1]) || this.values.length - 1;
+              } else {
+                end = Number(row_split[1]) || this.values.length - 1;
+              }
+
               rows = utils.__range(start, end);
+            } else {
+              let start = parseInt(row_split[0]) || 0;
+              let end = parseInt(row_split[1]) || this.values.length - 1;
+
+              if (typeof start == "number" && typeof end == "number") {
+                rows = utils.__range(start, end);
+              }
             }
           } else {
-            throw new Error("numbers in string must be separated by ':'");
+            if (kwargs["type"] == "loc") {
+              let row_idx = [];
+              this.index.map((idx, i) => {
+                if (kwargs['rows'][0] == idx) {
+                  row_idx.push(i);
+                }
+              });
+              rows = row_idx;
+            } else {
+              throw new Error("Slice index must be separated by ':'");
+            }
           }
         } else {
-          rows = kwargs["rows"];
+          if (kwargs["type"] == "loc") {
+            let row_idx = [];
+            this.index.map((idx, i) => {
+              if (kwargs['rows'].includes(idx)) {
+                row_idx.push(i);
+              }
+            });
+            rows = row_idx;
+          } else {
+            rows = kwargs["rows"];
+          }
         }
       } else {
-        throw new Error("rows must be a list");
+        throw new Error("rows parameter must be a Array");
       }
     } else {
       if (kwargs["type"] == "loc") {
-        rows = this.index;
+        throw new Error("Invalid syntax, please specify a slice label");
       } else {
         rows = utils.__range(0, Number(this.shape[0]) - 1);
       }
@@ -246,7 +285,11 @@ class DataFrame extends _generic.default {
       column_names = columns;
     }
 
-    return [new_data, column_names, rows];
+    let final_row = [];
+    rows.forEach(i => {
+      final_row.push(this.index[i]);
+    });
+    return [new_data, column_names, final_row];
   }
 
   loc(kwargs = {}) {
@@ -264,7 +307,9 @@ class DataFrame extends _generic.default {
       "columns": columns
     };
     let df = new DataFrame(new_data, df_columns);
-    df.index_arr = rows;
+
+    df.__set_index(rows);
+
     return df;
   }
 
@@ -283,7 +328,9 @@ class DataFrame extends _generic.default {
       "columns": columns
     };
     let df = new DataFrame(new_data, df_columns);
-    df.index_arr = rows;
+
+    df.__set_index(rows);
+
     return df;
   }
 
