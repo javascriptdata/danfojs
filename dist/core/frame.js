@@ -61,13 +61,22 @@ class DataFrame extends _generic.default {
     });
   }
 
-  drop(kwargs = {
-    axis: 0,
-    inplace: false
-  }) {
-    utils.__in_object(kwargs, "columns", "value not defined");
+  drop(kwargs = {}) {
+    if (!utils.__key_in_object(kwargs, "inplace")) {
+      kwargs['inplace'] = false;
+    }
 
-    let data = kwargs["columns"];
+    if (!utils.__key_in_object(kwargs, "axis")) {
+      kwargs['axis'] = 0;
+    }
+
+    let data;
+
+    if (utils.__key_in_object(kwargs, "index") && kwargs['axis'] == 0) {
+      data = kwargs["index"];
+    } else {
+      data = kwargs["columns"];
+    }
 
     if (kwargs['axis'] == 1) {
       let self = this;
@@ -91,11 +100,12 @@ class DataFrame extends _generic.default {
         let columns = utils.__remove_arr(this.columns, index);
 
         return new DataFrame(new_data, {
-          columns: columns
+          columns: columns,
+          index: this.index
         });
       } else {
         this.columns = utils.__remove_arr(this.columns, index);
-        this.data_tensor = tf.tensor(new_data);
+        this.row_data_tensor = tf.tensor(new_data);
         this.data = new_data;
       }
     } else {
@@ -106,13 +116,18 @@ class DataFrame extends _generic.default {
 
       let new_data = utils.__remove_arr(values, data);
 
+      let new_index = utils.__remove_arr(this.index, data);
+
       if (!kwargs['inplace']) {
         return new DataFrame(new_data, {
-          columns: this.columns
+          columns: this.columns,
+          index: new_index
         });
       } else {
-        this.data_tensor = tf.tensor(new_data);
+        this.row_data_tensor = tf.tensor(new_data);
         this.data = new_data;
+
+        this.__set_index(new_index);
       }
     }
   }
@@ -700,15 +715,11 @@ class DataFrame extends _generic.default {
   }
 
   reset_index(kwargs = {}) {
-    let options = {};
-
-    if (utils.__key_in_object(kwargs, 'inplace')) {
-      options['inplace'] = kwargs['inplace'];
-    } else {
-      options['inplace'] = false;
+    if (!utils.__key_in_object(kwargs, 'inplace')) {
+      kwargs['inplace'] = false;
     }
 
-    if (options['inplace']) {
+    if (kwargs['inplace']) {
       this.__reset_index();
     } else {
       let df = this.copy();
@@ -720,30 +731,55 @@ class DataFrame extends _generic.default {
   }
 
   set_index(kwargs = {}) {
-    let options = {};
+    let params_needed = ["key", "drop", "inplace"];
 
-    if (utils.__key_in_object(kwargs, 'index')) {
-      options['index'] = kwargs['index'];
-    } else {
+    if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+      throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`);
+    }
+
+    if (!utils.__key_in_object(kwargs, 'key')) {
       throw Error("Index ValueError: You must specify an array of index");
     }
 
-    if (utils.__key_in_object(kwargs, 'inplace')) {
-      options['inplace'] = kwargs['inplace'];
-    } else {
-      options['inplace'] = false;
+    if (!utils.__key_in_object(kwargs, 'inplace')) {
+      kwargs['inplace'] = false;
     }
 
-    if (options['index'].length != this.index.length) {
-      throw Error(`Index LengthError: Lenght of new Index array ${options['index'].length} must match lenght of existing index ${this.index.length}`);
+    if (!utils.__key_in_object(kwargs, 'drop')) {
+      kwargs['drop'] = true;
     }
 
-    if (options['inplace']) {
-      this.index_arr = options['index'];
+    if (Array.isArray(kwargs['key']) && kwargs['key'].length != this.index.length) {
+      throw Error(`Index LengthError: Lenght of new Index array ${kwargs['key'].length} must match lenght of existing index ${this.index.length}`);
+    }
+
+    if (typeof kwargs['key'] == "string" && this.column_names.includes(kwargs['key'])) {
+      kwargs['key_name'] = kwargs['key'];
+      kwargs['key'] = this[kwargs['key']].values;
+    }
+
+    if (kwargs['inplace']) {
+      this.__set_index(kwargs['key']);
+
+      if (kwargs['drop'] && typeof kwargs['key_name'] == 'string') {
+        this.drop({
+          columns: [kwargs['key_name']],
+          inplace: true,
+          axis: 1
+        });
+      }
     } else {
       let df = this.copy();
 
-      df.__set_index(options['index']);
+      df.__set_index(kwargs['key']);
+
+      if (kwargs['drop'] && typeof kwargs['key_name'] == 'string') {
+        df.drop({
+          columns: [kwargs['key_name']],
+          axis: 1,
+          inplace: true
+        });
+      }
 
       return df;
     }

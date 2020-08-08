@@ -139,13 +139,6 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { columns: cols })
             assert.throws(function () { df.loc({ "rows": [0, 1], "columns": ["A", "D"] }) }, Error, "Column D does not exist");
         })
-        it("throw error for wrong row index", function () {
-            let data = [[1, 2, 3], [4, 5, 6]]
-            let cols = ["A", "B", "C"]
-            let df = new DataFrame(data, { columns: cols })
-            assert.throws(function () { df.loc({ "rows": [0, 8], "columns": ["B", "C"] }) }, Error, "Specified row index 8 is bigger than maximum row index of 1");
-        })
-
         it("check data after selecting column", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
@@ -200,6 +193,42 @@ describe("DataFrame", function () {
             assert.deepEqual(col_df.values, col_data)
 
         })
+        it("loc by single string index", function () {
+            let data = [{ "Name": ["Apples", "Mango", "Banana", "Pear"] },
+            { "Count": [21, 5, 30, 10] },
+            { "Price": [200, 300, 40, 250] }]
+
+            let df = new DataFrame(data)
+            df.set_index({ key: ["a", "b", "c", "a"], inplace: true})
+            let sub_df = df.loc({ rows: ["a"], columns: ["Name", "Count"] })
+            let expected = [["Apples", 21], ["Pear", 10]]
+            assert.deepEqual(sub_df.values, expected)
+
+        })
+        it("loc by multiple string index", function () {
+            let data = [{ "Name": ["Apples", "Mango", "Banana", "Pear"] },
+            { "Count": [21, 5, 30, 10] },
+            { "Price": [200, 300, 40, 250] }]
+
+            let df = new DataFrame(data)
+            df.set_index({ key: ["a", "b", "c", "a"], inplace: true})
+            let sub_df = df.loc({ rows: ["a", "b"], columns: ["Name", "Count"] })
+            let expected = [["Apples", 21],["Mango", 5], ["Pear", 10]]
+            assert.deepEqual(sub_df.values, expected)
+
+        })
+        it("loc by slice string index", function () {
+            let data = [{ "Name": ["Apples", "Mango", "Banana", "Pear"] },
+            { "Count": [21, 5, 30, 10] },
+            { "Price": [200, 300, 40, 250] }]
+
+            let df = new DataFrame(data)
+            df.set_index({ key: ["a", "b", "c", "d"], inplace: true})
+            let sub_df = df.loc({ rows: ["a:c"], columns: ["Name", "Count"] })
+            let expected = [["Apples", 21],["Mango", 5], ["Banana", 30]]
+            assert.deepEqual(sub_df.values, expected)
+
+        })
 
 
     });
@@ -213,11 +242,11 @@ describe("DataFrame", function () {
             assert.throws(function () { df.iloc({ "rows": [0, 1], "columns": [0, 3] }) }, Error, "column index 3 is bigger than 2");
         })
 
-        it("throw error for wrong column index", function () {
+        it("throw error for wrong row index", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            assert.throws(function () { df.iloc({ "rows": 0, "columns": [0, 3] }) }, Error, "rows must be a list");
+            assert.throws(function () { df.iloc({ "rows": 0, "columns": [0, 3] }) }, Error, "rows parameter must be a Array");
         })
 
         it("throw error for wrong column index", function () {
@@ -294,7 +323,7 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { columns: cols })
 
             let col_df = df.iloc({ "rows": [0, 1, 2] })
-            let col_data = [[1, 2, 3], [4, 5, 6],[20, 30, 40]]
+            let col_data = [[1, 2, 3], [4, 5, 6], [20, 30, 40]]
             assert.deepEqual(col_df.values, col_data)
 
         })
@@ -303,7 +332,7 @@ describe("DataFrame", function () {
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
 
-            let col_df = df.iloc({ "columns": ["1:2"]})
+            let col_df = df.iloc({ "columns": ["1:2"] })
             let col_data = [[2, 3], [5, 6], [30, 40], [89, 78]]
             assert.deepEqual(col_df.values, col_data)
 

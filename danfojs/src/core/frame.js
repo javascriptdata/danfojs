@@ -53,19 +53,19 @@ export class DataFrame extends Ndframe {
      * @returns null | DataFrame
      *            
      */
-    drop(kwargs =  {}) {
+    drop(kwargs = {}) {
 
         // utils.__in_object(kwargs, "columns", "value not defined")
-        if (!utils.__key_in_object(kwargs, "inplace")){
+        if (!utils.__key_in_object(kwargs, "inplace")) {
             kwargs['inplace'] = false
         }
-        if (!utils.__key_in_object(kwargs, "axis")){
+        if (!utils.__key_in_object(kwargs, "axis")) {
             kwargs['axis'] = 0
         }
         let data;
-        if (utils.__key_in_object(kwargs, "index") && kwargs['axis'] == 0){
+        if (utils.__key_in_object(kwargs, "index") && kwargs['axis'] == 0) {
             data = kwargs["index"];
-        }else{
+        } else {
             data = kwargs["columns"];
         }
 
@@ -106,10 +106,10 @@ export class DataFrame extends Ndframe {
 
             if (!kwargs['inplace']) {
                 return new DataFrame(new_data, { columns: this.columns, index: new_index })
-            } else {                
+            } else {
                 this.row_data_tensor = tf.tensor(new_data);
                 this.data = new_data
-                this.__set_index(new_index) 
+                this.__set_index(new_index)
             }
         }
     }
@@ -133,32 +133,71 @@ export class DataFrame extends Ndframe {
 
                         let row_split = kwargs["rows"][0].split(":")
 
-                        let start = parseInt(row_split[0]) || 0;
-                        let end = parseInt(row_split[1]) || (this.values.length - 1);
+                        console.log(row_split);
+                        if (kwargs['type'] == 'loc') {
+                            //get index of first and last occurence of label
+                            let start, end;
+                            if (isNaN(Number(row_split[0]))){
+                                start = this.index.indexOf(row_split[0])
+                            }else{
+                                start = Number(row_split[0])
+                            }
 
-                        if (typeof start == "number" && typeof end == "number") {
+                            if (isNaN(Number(row_split[1]))){
+                                end = this.index.lastIndexOf(row_split[1])
+                            }else{
+                                end = Number(row_split[1])
+                            }
                             rows = utils.__range(start, end);
-                            // rows = this.index.slice(start, end)
+                        } else {
+                            let start = parseInt(row_split[0]) || 0;
+                            let end = parseInt(row_split[1]) || (this.values.length - 1);
+
+                            if (typeof start == "number" && typeof end == "number") {
+                                rows = utils.__range(start, end);
+                            }
                         }
 
                     } else {
-                        throw new Error("numbers in string must be separated by ':'")
+                        if (kwargs["type"] == "loc") {
+                            let row_idx = []
+                            this.index.map((idx, i)=>{
+                                if (kwargs['rows'][0] == idx){
+                                    row_idx.push(i)
+                                }
+                            })
+                            rows = row_idx
+                        } else {
+                            throw new Error("Slice index must be separated by ':'")
+                        }
                     }
                 } else {
-                    rows = kwargs["rows"];
+                    if (kwargs["type"] == "loc") {
+                        //get all the index of specified labels
+                        let row_idx = []
+                        this.index.map((idx, i)=>{
+                            if (kwargs['rows'].includes(idx)){
+                                row_idx.push(i)
+                            }
+                        })
+                        rows = row_idx
+                    } else {
+                        //return int index
+                        rows = kwargs["rows"];
+                    }
                 }
             } else {
-                throw new Error("rows must be a list")
+                throw new Error("rows parameter must be a Array")
             }
         } else {
             if (kwargs["type"] == "loc") {
-                rows = this.index
+                throw new Error("Invalid syntax, please specify a slice label")
             } else {
                 rows = utils.__range(0, Number(this.shape[0]) - 1);
             }
-            // throw new Error("Kwargs keywords should be one of {rows, columns}")
         }
 
+        console.log(rows);
         if (Object.prototype.hasOwnProperty.call(kwargs, "columns")) {
             if (Array.isArray(kwargs["columns"])) {
                 if (kwargs["columns"].length == 1 && kwargs["columns"][0].includes(":")) {
@@ -251,7 +290,7 @@ export class DataFrame extends Ndframe {
     }
 
     /**
-     * Obtain the defined the set of row and column index 
+     * Purely label based indexing. Can accept string label names for both rows and columns 
      * @param {kwargs} kwargs object {rows: Array of index, columns: Array of column name(s)} 
      * @return DataFrame data stucture
      */
@@ -264,8 +303,7 @@ export class DataFrame extends Ndframe {
         let [new_data, columns, rows] = this.__indexLoc(kwargs);
         let df_columns = { "columns": columns }
         let df = new DataFrame(new_data, df_columns);
-        df.index_arr = rows
-
+        df.__set_index(rows)
         return df;
 
     }
@@ -286,7 +324,7 @@ export class DataFrame extends Ndframe {
         let [new_data, columns, rows] = this.__indexLoc(kwargs);
         let df_columns = { "columns": columns }
         let df = new DataFrame(new_data, df_columns);
-        df.index_arr = rows
+        df.__set_index(rows)
         return df;
 
     }
@@ -833,7 +871,7 @@ export class DataFrame extends Ndframe {
         if (!utils.__right_params_are_passed(kwargs, params_needed)) {
             throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
         }
-        
+
         if (!utils.__key_in_object(kwargs, 'key')) {
             throw Error("Index ValueError: You must specify an array of index")
         }
@@ -858,13 +896,13 @@ export class DataFrame extends Ndframe {
             // this.index_arr = kwargs['key']
             this.__set_index(kwargs['key'])
             if (kwargs['drop'] && typeof kwargs['key_name'] == 'string') {
-                this.drop({ columns: [kwargs['key_name']], inplace: true, axis:1})
+                this.drop({ columns: [kwargs['key_name']], inplace: true, axis: 1 })
             }
         } else {
             let df = this.copy()
             df.__set_index(kwargs['key'])
             if (kwargs['drop'] && typeof kwargs['key_name'] == 'string') {
-                df.drop({ columns: [kwargs['key_name']], axis:1, inplace: true})
+                df.drop({ columns: [kwargs['key_name']], axis: 1, inplace: true })
             }
             return df
         }
