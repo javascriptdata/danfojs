@@ -632,6 +632,11 @@ class Series extends _generic.default {
     return series;
   }
 
+  nunique() {
+    let unique = this.unique().values;
+    return unique.length;
+  }
+
   value_counts() {
     let s_data = this.values;
     let data_dict = {};
