@@ -9,11 +9,13 @@ var _generic = _interopRequireDefault(require("./generic"));
 
 var _series = require("./series");
 
-var tf = _interopRequireWildcard(require("@tensorflow/tfjs-node"));
+var tf = _interopRequireWildcard(require("@tensorflow/tfjs"));
 
 var _utils = require("./utils");
 
 var _groupby = require("./groupby");
+
+var _plot = require("../plotting/plot");
 
 var _mathjs = require("mathjs");
 
@@ -1607,6 +1609,11 @@ class DataFrame extends _generic.default {
 
   get T() {
     return this.transpose();
+  }
+
+  plot(div, config = {}) {
+    const plt = new _plot.Plot();
+    plt.plot(this, div, config);
   }
 
 }

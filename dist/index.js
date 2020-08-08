@@ -27,12 +27,6 @@ Object.defineProperty(exports, "read_csv", {
     return _reader.read_csv;
   }
 });
-Object.defineProperty(exports, "read_json", {
-  enumerable: true,
-  get: function () {
-    return _reader.read_json;
-  }
-});
 Object.defineProperty(exports, "merge", {
   enumerable: true,
   get: function () {

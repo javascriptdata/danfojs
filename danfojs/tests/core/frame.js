@@ -288,6 +288,26 @@ describe("DataFrame", function () {
             assert.deepEqual(col_df.values, col_data)
 
         })
+        it("Return all columns if columns parameter is not specified", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+
+            let col_df = df.iloc({ "rows": [0, 1, 2] })
+            let col_data = [[1, 2, 3], [4, 5, 6],[20, 30, 40]]
+            assert.deepEqual(col_df.values, col_data)
+
+        })
+        it("Return all rows if rows parameter is not specified", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+
+            let col_df = df.iloc({ "columns": ["1:2"]})
+            let col_data = [[2, 3], [5, 6], [30, 40], [89, 78]]
+            assert.deepEqual(col_df.values, col_data)
+
+        })
 
     });
 
@@ -1097,9 +1117,9 @@ describe("DataFrame", function () {
         it("Throws error if you try to run a function that does not operate on axis and axis is specified", function () {
             let data = [["BOY", "GIRL", "ALL"], ["Man", "Woman", "Girl"]]
             let df = new DataFrame(data)
-        
+
             let err = `Callable Error: You can only apply JavaScript functions on DataFrames when axis is not specified. This operation is applied on all element, and returns a DataFrame of the same shape.`
-            
+
             assert.throws(() => {
                 df.apply({
                     axis: 0, callable: (x) => {

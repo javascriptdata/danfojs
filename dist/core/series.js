@@ -5,9 +5,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Series = void 0;
 
-var tf = _interopRequireWildcard(require("@tensorflow/tfjs-node"));
-
 var _mathjs = require("mathjs");
+
+var tf = _interopRequireWildcard(require("@tensorflow/tfjs"));
 
 var _utils = require("./utils");
 
@@ -20,6 +20,8 @@ var _table = require("table");
 var _config = require("../config/config");
 
 var _timeseries = require("./timeseries");
+
+var _plot = require("../plotting/plot");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -790,11 +792,7 @@ class Series extends _generic.default {
   }
 
   argmax() {
-    let sorted_index = this.sort_values({
-      ascending: true
-    }).index;
-    let last_idx = sorted_index[sorted_index.length - 1];
-    return last_idx;
+    return this.values.map((x, i) => [x, i]).reduce((r, a) => a[0] > r[0] ? a : r)[1];
   }
 
   argmin() {
@@ -1027,6 +1025,11 @@ class Series extends _generic.default {
 
   print() {
     console.log(this + "");
+  }
+
+  plot(div, config = {}) {
+    const plt = new _plot.Plot();
+    plt.plot(this, div, config);
   }
 
 }

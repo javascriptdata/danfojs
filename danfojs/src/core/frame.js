@@ -112,6 +112,7 @@ export class DataFrame extends Ndframe {
         let rows = null;
         let columns = null;
         let isColumnSplit = false;
+
         if (Object.prototype.hasOwnProperty.call(kwargs, "rows")) { //check if the object has the key
             if (Array.isArray(kwargs["rows"])) {
 
@@ -139,7 +140,8 @@ export class DataFrame extends Ndframe {
                 throw new Error("rows must be a list")
             }
         } else {
-            throw new Error("Kwargs keywords are {rows, columns}")
+            rows = utils.__range(0, Number(this.shape[0]) - 1);
+            // throw new Error("Kwargs keywords should be one of {rows, columns}")
         }
 
         if (Object.prototype.hasOwnProperty.call(kwargs, "columns")) {
@@ -173,7 +175,8 @@ export class DataFrame extends Ndframe {
                 throw new Error("columns must be a list")
             }
         } else {
-            throw new Error("Kwargs keywords are {rows, columns}")
+            //Return all column
+            columns = utils.__range(0, Number(this.shape[1]) - 1);
         }
 
         let data_values = this.values;
@@ -234,7 +237,10 @@ export class DataFrame extends Ndframe {
      * @return DataFrame data stucture
      */
     loc(kwargs) {
-
+        let params_needed = ["columns", "rows"]
+        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
+        }
         kwargs["type"] = "loc"
         let [new_data, columns, rows] = this.__indexLoc(kwargs);
         let df_columns = { "columns": columns }
@@ -252,7 +258,10 @@ export class DataFrame extends Ndframe {
      * @return DataFrame data stucture
      */
     iloc(kwargs) {
-
+        let params_needed = ["columns", "rows"]
+        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
+        }
         kwargs["type"] = "iloc";
 
         let [new_data, columns, rows] = this.__indexLoc(kwargs);

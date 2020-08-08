@@ -5,15 +5,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var tf = _interopRequireWildcard(require("@tensorflow/tfjs-node"));
+var tf = _interopRequireWildcard(require("@tensorflow/tfjs"));
 
 var _table = require("table");
 
 var _utils = require("./utils");
 
 var _config = require("../config/config");
-
-var _csvWriter = require("csv-writer");
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
@@ -232,31 +230,6 @@ class NDframe {
 
   get size() {
     return this.row_data_tensor.size;
-  }
-
-  async to_csv(path = "") {
-    let records = this.values;
-
-    if (path == "" || path == undefined) {
-      const csvStringifier = (0, _csvWriter.createArrayCsvStringifier)({
-        header: this.column_names
-      });
-      let head = csvStringifier.getHeaderString();
-      let csv_string = csvStringifier.stringifyRecords(records);
-      let file = `${head}${csv_string}`;
-      return file;
-    } else {
-      const csvWriter = (0, _csvWriter.createArrayCsvWriter)({
-        header: this.column_names,
-        path: path
-      });
-      csvWriter.writeRecords(records).then(() => {
-        console.log(`CSV file saved in ${path}`);
-        return path;
-      }).catch(err => {
-        throw Error(err);
-      });
-    }
   }
 
   toString() {
