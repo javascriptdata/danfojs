@@ -568,15 +568,15 @@ describe("Series", function () {
             let sf_copy = sf.copy()
             assert.deepEqual(sf.index, sf_copy.index)
         })
-        it("Checks if copied dtype is the same", function () {
-            let sf = new Series([30.21091, 40.190901, 3.564, 5.0212])
-            sf.round()
-            sf.astype(['int32'])
-            let sf_copy = sf.copy()
-            assert.deepEqual(sf.dtypes[0], sf_copy.dtypes[0])
-            assert.deepEqual(sf.values, sf_copy.values)
+        // it("Checks if copied dtype is the same", function () {
+        //     let sf = new Series([30.21091, 40.190901, 3.564, 5.0212])
+        //     sf.round()
+        //     sf.astype(['int32'])
+        //     let sf_copy = sf.copy()
+        //     assert.deepEqual(sf.dtypes[0], sf_copy.dtypes[0])
+        //     assert.deepEqual(sf.values, sf_copy.values)
 
-        })
+        // })
     })
 
     describe("reset_index", function () {

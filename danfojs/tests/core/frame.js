@@ -1764,5 +1764,60 @@ describe("DataFrame", function () {
     })
 
 
+    describe("astype", function () {
+        it("set type of float column to int", function () {
+            let data = [{ "A": [-20.1, 30, 47.3, -20] },
+            { "B": [34, -4, 5, 6] },
+            { "C": [20.1, -20.23, 30.3, 40.11] },
+            { "D": ["a", "b", "c", "c"] }]
+            let ndframe = new DataFrame(data)
+            let df = ndframe.astype({column: "A", dtype: "int32"})
+
+            assert.deepEqual(df.dtypes, ['int32', 'int32', 'float32', 'string'])
+            assert.deepEqual(df['A'].values, [-20, 30, 47, -20])
+
+        })
+        it("set type of int column to float", function () {
+            let data = [{ "A": [-20.1, 30, 47.3, -20] },
+            { "B": [34, -4, 5, 6] },
+            { "C": [20.1, -20.23, 30.3, 40.11] },
+            { "D": ["a", "b", "c", "c"] }]
+            let ndframe = new DataFrame(data)
+            let df = ndframe.astype({column: "B", dtype: "float32"})
+
+            assert.deepEqual(df.dtypes, ['float32', 'float32', 'float32', 'string'])
+            assert.deepEqual(df['B'].values, [34, -4, 5, 6])
+
+        })
+        it("set type of string column to int", function () {
+            let data = [{ "A": [-20.1, 30, 47.3, -20] },
+            { "B": [34, -4, 5, 6] },
+            { "C": [20.1, -20.23, 30.3, 40.11] },
+            { "D": ["20.1", "21", "23.4", "50.78"] }]
+            let ndframe = new DataFrame(data)
+            let df = ndframe.astype({column: "D", dtype: "int32"})
+
+            assert.deepEqual(df.dtypes, ['float32', 'int32', 'float32', 'int32'])
+            assert.deepEqual(df['D'].values, [20, 21, 23, 51])
+
+        })
+        it("set type of string column to float", function () {
+            let data = [{ "A": [-20.1, 30, 47.3, -20] },
+            { "B": [34, -4, 5, 6] },
+            { "C": [20.1, -20.23, 30.3, 40.11] },
+            { "D": ["20.1", "21", "23.4", "50.78"] }]
+            let ndframe = new DataFrame(data)
+            let df = ndframe.astype({column: "D", dtype: "float32"})
+
+            assert.deepEqual(df.dtypes, ['float32', 'int32', 'float32', 'float32'])
+            assert.deepEqual(df['D'].values, [20.1, 21, 23.4, 50.78])
+
+        })
+
+       
+    })
+
+
+
 
 });

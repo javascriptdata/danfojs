@@ -203,17 +203,6 @@ export default class NDframe {
 
 
     /**
-     * Sets the data types of an NDFrame 
-     * @return {Array} list of data type for each column
-     */
-    astype(dtypes) {
-        this.__set_col_types(dtypes, false)
-        return this
-    }
-
-
-
-    /**
      * Gets dimension of the NDFrame
      * @returns {Integer} dimension of NDFrame
      */
@@ -232,7 +221,7 @@ export default class NDframe {
     */
     get axes() {
         let axes = {
-            "index": [...Array(this.data.length - 1).keys()],
+            "index": this.index,
             "columns": this.columns
         }
         return axes

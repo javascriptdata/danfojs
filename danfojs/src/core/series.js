@@ -569,7 +569,7 @@ export class Series extends NDframe {
     copy() {
         let sf = new Series([...this.values], { columns: [...this.column_names] })
         sf.__set_index([...this.index])
-        sf.astype([...this.dtypes], false)
+        // sf.astype([...this.dtypes], false)
         return sf
     }
 
