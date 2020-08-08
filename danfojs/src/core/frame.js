@@ -140,7 +140,11 @@ export class DataFrame extends Ndframe {
                 throw new Error("rows must be a list")
             }
         } else {
-            rows = utils.__range(0, Number(this.shape[0]) - 1);
+            if (kwargs["type"] == "loc") {
+                rows = this.index
+            } else {
+                rows = utils.__range(0, Number(this.shape[0]) - 1);
+            }
             // throw new Error("Kwargs keywords should be one of {rows, columns}")
         }
 
@@ -176,9 +180,9 @@ export class DataFrame extends Ndframe {
             }
         } else {
             //Return all column
-            if (kwargs["type"] == "loc"){
+            if (kwargs["type"] == "loc") {
                 columns = this.column_names
-            }else{
+            } else {
                 columns = utils.__range(0, Number(this.shape[1]) - 1);
             }
         }
@@ -240,7 +244,7 @@ export class DataFrame extends Ndframe {
      * @param {kwargs} kwargs object {rows: Array of index, columns: Array of column name(s)} 
      * @return DataFrame data stucture
      */
-    loc(kwargs={}) {
+    loc(kwargs = {}) {
         let params_needed = ["columns", "rows"]
         if (!utils.__right_params_are_passed(kwargs, params_needed)) {
             throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
@@ -261,7 +265,7 @@ export class DataFrame extends Ndframe {
      * @param {*} kwargs object {rows: Array of index, columns: Array of column index}  
      * @return DataFrame data stucture
      */
-    iloc(kwargs={}) {
+    iloc(kwargs = {}) {
         let params_needed = ["columns", "rows"]
         if (!utils.__right_params_are_passed(kwargs, params_needed)) {
             throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
@@ -812,33 +816,51 @@ export class DataFrame extends Ndframe {
     }
 
     /**
-    * Generate a new Series with the specified index.
-    * Set the Series index (row labels) using an array of the same length.
+    * Generate a new DataFrame with the specified index.
+    * Set the DataFrame index (row labels) using an array of the same length.
     * @param {kwargs} {index: Array of new index values}
     */
     set_index(kwargs = {}) {
-        let options = {}
-        if (utils.__key_in_object(kwargs, 'index')) {
-            options['index'] = kwargs['index']
-        } else {
+
+        let params_needed = ["key", "drop", "inplace"]
+        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
+        }
+        
+        if (!utils.__key_in_object(kwargs, 'key')) {
             throw Error("Index ValueError: You must specify an array of index")
         }
 
-        if (utils.__key_in_object(kwargs, 'inplace')) {
-            options['inplace'] = kwargs['inplace']
-        } else {
-            options['inplace'] = false
+        if (!utils.__key_in_object(kwargs, 'inplace')) {
+            kwargs['inplace'] = false
         }
 
-        if (options['index'].length != this.index.length) {
-            throw Error(`Index LengthError: Lenght of new Index array ${options['index'].length} must match lenght of existing index ${this.index.length}`)
+        if (!utils.__key_in_object(kwargs, 'drop')) {
+            kwargs['drop'] = true
         }
 
-        if (options['inplace']) {
-            this.index_arr = options['index']
+        if (Array.isArray(kwargs['key']) && kwargs['key'].length != this.index.length) {
+            throw Error(`Index LengthError: Lenght of new Index array ${kwargs['key'].length} must match lenght of existing index ${this.index.length}`)
+        }
+
+        if ((typeof kwargs['key'] == "string" && this.column_names.includes(kwargs['key']))) {
+            kwargs['key_name'] = kwargs['key']
+            kwargs['key'] = this[kwargs['key']].values
+        }
+        console.log(kwargs);
+        if (kwargs['inplace']) {
+            // this.index_arr = kwargs['key']
+            this.__set_index(kwargs['key'])
+            if (kwargs['drop'] && typeof kwargs['key_name'] == 'string') {
+                this.drop({ columns: [kwargs['key_name']], inplace: true, axis:1})
+            }
         } else {
             let df = this.copy()
-            df.__set_index(options['index'])
+            df.__set_index(kwargs['key'])
+            if (kwargs['drop'] && typeof kwargs['key_name'] == 'string') {
+                df.drop({ columns: [kwargs['key_name']], axis:1, inplace:true})
+            }
+            df.print()
             return df
         }
     }

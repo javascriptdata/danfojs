@@ -493,10 +493,8 @@ export class Series extends NDframe {
         })
         if (kwargs['inplace']) {
             this.data = new_values
-            this.print()
         } else {
             let sf = new Series(new_values, { columns: this.column_names, index: this.index, dtypes: this.dtypes })
-            sf.print()
             return sf
         }
     }

@@ -736,18 +736,30 @@ describe("DataFrame", function () {
 
 
     describe("set_index", function () {
-        it("Sets the index of a DataFrame created from an Object", function () {
+        // it("Sets the index of a DataFrame created from an Object", function () {
+        //     let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
+        //     let df = new DataFrame(data)
+        //     let df_new = df.set_index({ "key": ["one", "two", "three"] })
+        //     assert.deepEqual(df_new.index, ["one", "two", "three"])
+        // })
+        // it("Sets the index of a DataFrame from column name", function () {
+        //     let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
+        //     let df = new DataFrame(data)
+        //     let df_new = df.set_index({ "key": "alpha" })
+        //     assert.deepEqual(df_new.index, ["A", "B", "C"])
+        // })
+        it("Sets the index of a DataFrame from column name", function () {
             let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
             let df = new DataFrame(data)
-            let df_new = df.set_index({ "index": ["one", "two", "three"] })
-            assert.deepEqual(df_new.index, ["one", "two", "three"])
+            let df_new = df.set_index({ "key": "alpha", drop: true })
+            assert.deepEqual(df_new.index, ["A", "B", "C"])
         })
-        it("Sets the index of a DataFrame created from an Array", function () {
-            let data = [[0, 2, 4], [360, 180, 360], [0, 2, 4], [360, 180, 360], [0, 2, 4]]
-            let df = new DataFrame(data)
-            df.set_index({ "index": ["one", "two", "three", "four", "five"], "inplace": true })
-            assert.deepEqual(df.index, ["one", "two", "three", "four", "five"])
-        })
+        // it("Sets the index of a DataFrame created from an Array", function () {
+        //     let data = [[0, 2, 4], [360, 180, 360], [0, 2, 4], [360, 180, 360], [0, 2, 4]]
+        //     let df = new DataFrame(data)
+        //     df.set_index({ "key": ["one", "two", "three", "four", "five"], "inplace": true })
+        //     assert.deepEqual(df.index, ["one", "two", "three", "four", "five"])
+        // })
 
     })
 

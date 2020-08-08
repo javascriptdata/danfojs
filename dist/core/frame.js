@@ -143,7 +143,11 @@ class DataFrame extends _generic.default {
         throw new Error("rows must be a list");
       }
     } else {
-      rows = utils.__range(0, Number(this.shape[0]) - 1);
+      if (kwargs["type"] == "loc") {
+        rows = this.index;
+      } else {
+        rows = utils.__range(0, Number(this.shape[0]) - 1);
+      }
     }
 
     if (Object.prototype.hasOwnProperty.call(kwargs, "columns")) {
