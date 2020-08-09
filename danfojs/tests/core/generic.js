@@ -201,22 +201,42 @@ describe("Generic (NDFrame)", function () {
     })
 
 
-    // describe("to_csv", async function () {
-    //     it("Converts DataFrame of Series to csv format and return path", async function () {
-    //         let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
-    //         let df = new NDframe(data)
-    //         let dpath = '/Users/mac/Documents/Opensource/danfojs/temp-out/file.csv'
-    //         df.to_csv(dpath).then((return_path)=>{
-    //             assert.deepEqual(return_path, dpath)
-    //         })
-    //     })
-    //     it("Converts DataFrame of Series to csv format and return string when path is not specified", async function () {
-    //         let data = [[12, 2, 20], [90, 5, 23], [45, 56, 70], [9, 10, 19]]
-    //         let df = new NDframe(data, {columns: ["A", "B",  "C"]})
-    //         let result = `A,B,C\n12,2,20\n90,5,23\n45,56,70\n9,10,19\n`
-    //         assert.deepEqual(await df.to_csv(), result)
-    //     })
-    // })
+    describe("to_csv", async function () {
+        it("Converts DataFrame to csv format and return string", async function () {
+            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
+            let df = new NDframe(data)
+            let result = `alpha,count\nA,1\nB,2\nC,3\n`
+            df.to_csv().then((csv)=>{
+                assert.deepEqual(csv, result)
+            })
+        })
+        it("Converts DataFrame of Series to csv format and return string when path is not specified", async function () {
+            let data = [[12, 2, 20], [90, 5, 23], [45, 56, 70], [9, 10, 19]]
+            let df = new NDframe(data, {columns: ["A", "B",  "C"]})
+            let result = `A,B,C\n12,2,20\n90,5,23\n45,56,70\n9,10,19\n`
+            assert.deepEqual(await df.to_csv(), result)
+        })
+    })
+
+    describe("to_json", async function () {
+        it("Converts DataFrame to json format and return string", async function () {
+            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
+            let result = JSON.stringify([{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }])
+
+            let df = new NDframe(data)
+            df.to_json().then((json)=>{
+                assert.deepEqual(json, result)
+            })
+        })
+        it("Converts DataFrame to json format", async function () {
+            let data = [[12, 2, 20], [90, 5, 23], [45, 56, 70]]
+            let df = new NDframe(data, {columns: ["A", "B",  "C"]})
+            let result = JSON.stringify([{A: 12, B: 2, C: 20},{A: 90, B: 5, C: 23},{A: 45, B: 56, C: 70}])
+            df.to_json().then((json)=>{
+                assert.deepEqual(json, result)
+            })
+        })
+    })
 
 
 })

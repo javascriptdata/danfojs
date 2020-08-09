@@ -452,19 +452,18 @@ class Series extends _generic.default {
     }
 
     let sorted_arr = [];
-    let sorted_idx = [];
-    let arr_tensor = tf.clone(this.tensor);
     let arr_obj = [...this.values];
 
-    for (let i = 0; i < this.shape[0]; i++) {
-      let min_idx = arr_tensor.argMin().arraySync();
-      sorted_arr.push(this.values[min_idx]);
-      sorted_idx.push(this.index[min_idx]);
-      arr_obj[min_idx] = NaN;
-      arr_tensor = tf.tensor(arr_obj);
-    }
+    const dsu = (arr1, arr2) => arr1.map((item, index) => [arr2[index], item]).sort(([arg1], [arg2]) => arg2 - arg1).map(([, item]) => item);
 
-    if (!options['ascending']) {
+    let range_idx = utils.__range(0, this.index.length - 1);
+
+    let sorted_idx = dsu(range_idx, arr_obj);
+    sorted_idx.forEach(idx => {
+      sorted_arr.push(this.values[idx]);
+    });
+
+    if (options['ascending']) {
       sorted_arr = sorted_arr.reverse();
       sorted_idx = sorted_idx.reverse();
     }
