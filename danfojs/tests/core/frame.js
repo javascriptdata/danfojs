@@ -54,6 +54,14 @@ describe("DataFrame", function () {
             let expected_df = new DataFrame(expected_data, { columns: expected_cols })
             assert.deepEqual(df_drop.values, expected_df.values);
         })
+        it("check that the dtype is updated after column drop", function () {
+            let data = [[1, 2, 3], [4, 5, 6]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            df.drop({ columns: ["A"], axis: 1, inplace: true });
+            let dtype = ['int32', 'int32']
+            assert.deepEqual(df.ctypes.values, dtype);
+        })
     })
 
     describe("head", function () {

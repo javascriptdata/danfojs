@@ -64,6 +64,12 @@ class DataFrame extends _generic.default {
   }
 
   drop(kwargs = {}) {
+    let params_needed = ["columns", "index", "inplace", "axis"];
+
+    if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+      throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`);
+    }
+
     if (!utils.__key_in_object(kwargs, "inplace")) {
       kwargs['inplace'] = false;
     }
@@ -92,9 +98,11 @@ class DataFrame extends _generic.default {
         return col_idx;
       });
       const values = this.values;
+      let new_dtype = [];
       let new_data = values.map(function (element) {
         let new_arr = utils.__remove_arr(element, index);
 
+        new_dtype = utils.__remove_arr(self.dtypes, index);
         return new_arr;
       });
 
@@ -103,12 +111,15 @@ class DataFrame extends _generic.default {
 
         return new DataFrame(new_data, {
           columns: columns,
-          index: this.index
+          index: self.index,
+          dtypes: new_dtype
         });
       } else {
         this.columns = utils.__remove_arr(this.columns, index);
         this.row_data_tensor = tf.tensor(new_data);
         this.data = new_data;
+
+        this.__set_col_types(new_dtype, false);
       }
     } else {
       data.map(x => {
@@ -1627,6 +1638,61 @@ class DataFrame extends _generic.default {
       index: this.index
     });
     return df;
+  }
+
+  unique(axis = 1) {
+    if (axis == undefined || axis > 1 || axis < 0) {
+      throw Error(`Axis Error: Please specify a correct axis. Axis must either be '0' or '1', got ${axis}`);
+    }
+
+    let _unique = {};
+
+    if (axis == 1) {
+      let col_names = this.column_names;
+      col_names.forEach(cname => {
+        _unique[cname] = this[cname].unique().values;
+      });
+    } else {
+      let rows = this.values;
+      let _index = this.index;
+      rows.forEach((row, i) => {
+        let data_set = new Set(row);
+        _unique[_index[i]] = Array.from(data_set);
+      });
+    }
+
+    return _unique;
+  }
+
+  nunique(axis = 1) {
+    if (axis == undefined || axis > 1 || axis < 0) {
+      throw Error(`Axis Error: Please specify a correct axis. Axis must either be '0' or '1', got ${axis}`);
+    }
+
+    let _nunique = [];
+
+    if (axis == 1) {
+      let col_names = this.column_names;
+      col_names.forEach(cname => {
+        _nunique.push(this[cname].unique().values.length);
+      });
+      let sf = new _series.Series(_nunique, {
+        index: this.column_names
+      });
+      return sf;
+    } else {
+      let rows = this.values;
+      rows.forEach(row => {
+        let data_set = new Set(row);
+
+        _nunique.push(Array.from(data_set).length);
+      });
+    }
+
+    let sf = new _series.Series(_nunique, {
+      index: this.index
+    });
+    return sf;
   }
 
 }

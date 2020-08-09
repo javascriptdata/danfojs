@@ -55,7 +55,10 @@ export class DataFrame extends Ndframe {
      *            
      */
     drop(kwargs = {}) {
-
+        let params_needed = ["columns", "index", "inplace", "axis"]
+        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
+        }
         // utils.__in_object(kwargs, "columns", "value not defined")
         if (!utils.__key_in_object(kwargs, "inplace")) {
             kwargs['inplace'] = false
@@ -81,19 +84,21 @@ export class DataFrame extends Ndframe {
                 return col_idx
             });
             const values = this.values
-
+            let new_dtype = []
             let new_data = values.map(function (element) {
                 let new_arr = utils.__remove_arr(element, index);
+                new_dtype = utils.__remove_arr(self.dtypes, index);
                 return new_arr;
             });
 
             if (!kwargs['inplace']) {
                 let columns = utils.__remove_arr(this.columns, index);
-                return new DataFrame(new_data, { columns: columns, index: this.index })
+                return new DataFrame(new_data, { columns: columns, index: self.index, dtypes: new_dtype})
             } else {
                 this.columns = utils.__remove_arr(this.columns, index);
                 this.row_data_tensor = tf.tensor(new_data);
                 this.data = new_data
+                this.__set_col_types(new_dtype, false)
             }
 
         } else {
