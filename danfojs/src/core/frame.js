@@ -1887,7 +1887,7 @@ export class DataFrame extends Ndframe {
             throw Error("Value Error: Please specify dtype to cast to")
         }
 
-        
+
         if (!this.column_names.includes(kwargs['column'])) {
             throw Error(`'${kwargs['column']}' not found in columns`)
         }
@@ -1926,15 +1926,77 @@ export class DataFrame extends Ndframe {
         }
 
         let new_col_obj = []
-        this.column_names.forEach((cname, i)=>{
+        this.column_names.forEach((cname, i) => {
             let _obj = {}
             _obj[cname] = col_values[i]
             new_col_obj.push(_obj)
         })
 
-        let df = new DataFrame(new_col_obj, {dtypes: new_types, index: this.index})
+        let df = new DataFrame(new_col_obj, { dtypes: new_types, index: this.index })
         return df
-        
+
+    }
+
+    /**
+    * Return the unique values along an axis
+    * @param {axis} Int, 0 for row, and 1 for column. Default to 1
+    * @return {Object}
+    */
+    unique(axis = 1) {
+        if (axis == undefined || axis > 1 || axis < 0) {
+            throw Error(`Axis Error: Please specify a correct axis. Axis must either be '0' or '1', got ${axis}`)
+        }
+        let _unique = {}
+        if (axis == 1) {
+            //column
+            let col_names = this.column_names
+            col_names.forEach(cname => {
+                _unique[cname] = this[cname].unique().values
+            })
+
+        } else {
+            let rows = this.values
+            let _index = this.index
+            rows.forEach((row, i) => {
+                let data_set = new Set(row)
+                _unique[_index[i]] = Array.from(data_set)
+            })
+        }
+
+        return _unique
+
+    }
+
+    /**
+     * Return the number of unique value along an axis
+     * @param {axis} Int, 0 for row, and 1 for column. Default to 1
+     * @return {Series}
+     */
+    nunique(axis = 1) {
+        if (axis == undefined || axis > 1 || axis < 0) {
+            throw Error(`Axis Error: Please specify a correct axis. Axis must either be '0' or '1', got ${axis}`)
+        }
+
+        let _nunique = []
+        if (axis == 1) {
+            //column
+            let col_names = this.column_names
+            col_names.forEach(cname => {
+                _nunique.push(this[cname].unique().values.length)
+            })
+            let sf = new Series(_nunique, { index: this.column_names })
+            return sf
+
+        } else {
+            let rows = this.values
+            rows.forEach(row => {
+                let data_set = new Set(row)
+                _nunique.push(Array.from(data_set).length)
+            })
+
+        } let sf = new Series(_nunique, { index: this.index })
+        return sf
+
     }
 
 

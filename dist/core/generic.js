@@ -169,52 +169,6 @@ class NDframe {
     return this.col_types;
   }
 
-  astype(kwargs = {}) {
-    if (!utils.__key_in_object(kwargs, "column")) {
-      throw Error("Value Error: Please specify a column to cast");
-    }
-
-    if (!utils.__key_in_object(kwargs, "dtype")) {
-      throw Error("Value Error: Please specify dtype to cast to");
-    }
-
-    if (!this.column_names.includes(kwargs['columns'])) {
-      throw Error(`'${kwargs['column']}' not found in columns`);
-    }
-
-    let col_idx = this.column_names.indexOf(kwargs['columns']);
-    let old_types = this.col_types;
-    let col_values = this.col_data;
-    old_types[col_idx] = kwargs['dtype'];
-    let new_col_values = [];
-
-    switch (kwargs['dtype']) {
-      case "float32":
-        col_values.map(val => {
-          new_col_values.push(Number(val));
-        });
-        col_values[col_idx] = new_col_values;
-        break;
-
-      case "int32":
-        col_values.map(val => {
-          new_col_values.push(Number(Number(val).toFixed()));
-        });
-        col_values[col_idx] = new_col_values;
-        break;
-
-      case "string":
-        col_values.map(val => {
-          new_col_values.push(String(val));
-        });
-        col_values[col_idx] = new_col_values;
-        break;
-
-      default:
-        break;
-    }
-  }
-
   get ndim() {
     if (this.series) {
       return 1;

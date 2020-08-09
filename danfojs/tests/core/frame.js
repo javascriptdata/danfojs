@@ -199,7 +199,7 @@ describe("DataFrame", function () {
             { "Price": [200, 300, 40, 250] }]
 
             let df = new DataFrame(data)
-            df.set_index({ key: ["a", "b", "c", "a"], inplace: true})
+            df.set_index({ key: ["a", "b", "c", "a"], inplace: true })
             let sub_df = df.loc({ rows: ["a"], columns: ["Name", "Count"] })
             let expected = [["Apples", 21], ["Pear", 10]]
             assert.deepEqual(sub_df.values, expected)
@@ -211,9 +211,9 @@ describe("DataFrame", function () {
             { "Price": [200, 300, 40, 250] }]
 
             let df = new DataFrame(data)
-            df.set_index({ key: ["a", "b", "c", "a"], inplace: true})
+            df.set_index({ key: ["a", "b", "c", "a"], inplace: true })
             let sub_df = df.loc({ rows: ["a", "b"], columns: ["Name", "Count"] })
-            let expected = [["Apples", 21],["Mango", 5], ["Pear", 10]]
+            let expected = [["Apples", 21], ["Mango", 5], ["Pear", 10]]
             assert.deepEqual(sub_df.values, expected)
 
         })
@@ -223,9 +223,9 @@ describe("DataFrame", function () {
             { "Price": [200, 300, 40, 250] }]
 
             let df = new DataFrame(data)
-            df.set_index({ key: ["a", "b", "c", "d"], inplace: true})
+            df.set_index({ key: ["a", "b", "c", "d"], inplace: true })
             let sub_df = df.loc({ rows: ["a:c"], columns: ["Name", "Count"] })
-            let expected = [["Apples", 21],["Mango", 5], ["Banana", 30]]
+            let expected = [["Apples", 21], ["Mango", 5], ["Banana", 30]]
             assert.deepEqual(sub_df.values, expected)
 
         })
@@ -1771,7 +1771,7 @@ describe("DataFrame", function () {
             { "C": [20.1, -20.23, 30.3, 40.11] },
             { "D": ["a", "b", "c", "c"] }]
             let ndframe = new DataFrame(data)
-            let df = ndframe.astype({column: "A", dtype: "int32"})
+            let df = ndframe.astype({ column: "A", dtype: "int32" })
 
             assert.deepEqual(df.dtypes, ['int32', 'int32', 'float32', 'string'])
             assert.deepEqual(df['A'].values, [-20, 30, 47, -20])
@@ -1783,7 +1783,7 @@ describe("DataFrame", function () {
             { "C": [20.1, -20.23, 30.3, 40.11] },
             { "D": ["a", "b", "c", "c"] }]
             let ndframe = new DataFrame(data)
-            let df = ndframe.astype({column: "B", dtype: "float32"})
+            let df = ndframe.astype({ column: "B", dtype: "float32" })
 
             assert.deepEqual(df.dtypes, ['float32', 'float32', 'float32', 'string'])
             assert.deepEqual(df['B'].values, [34, -4, 5, 6])
@@ -1795,7 +1795,7 @@ describe("DataFrame", function () {
             { "C": [20.1, -20.23, 30.3, 40.11] },
             { "D": ["20.1", "21", "23.4", "50.78"] }]
             let ndframe = new DataFrame(data)
-            let df = ndframe.astype({column: "D", dtype: "int32"})
+            let df = ndframe.astype({ column: "D", dtype: "int32" })
 
             assert.deepEqual(df.dtypes, ['float32', 'int32', 'float32', 'int32'])
             assert.deepEqual(df['D'].values, [20, 21, 23, 51])
@@ -1807,14 +1807,75 @@ describe("DataFrame", function () {
             { "C": [20.1, -20.23, 30.3, 40.11] },
             { "D": ["20.1", "21", "23.4", "50.78"] }]
             let ndframe = new DataFrame(data)
-            let df = ndframe.astype({column: "D", dtype: "float32"})
+            let df = ndframe.astype({ column: "D", dtype: "float32" })
 
             assert.deepEqual(df.dtypes, ['float32', 'int32', 'float32', 'float32'])
             assert.deepEqual(df['D'].values, [20.1, 21, 23.4, 50.78])
 
         })
+    })
 
-       
+
+    describe("nunique", function () {
+        it("Returns the number of unique elements along axis 1", function () {
+            let data = [{ "A": [-20, 30, 47.3, -20] },
+            { "B": [34, -4, 5, 6] },
+            { "C": [20, 20, 30, 30] },
+            { "D": ["a", "b", "c", "c"] }]
+
+            let ndframe = new DataFrame(data)
+            let df = ndframe.nunique(1)
+            let res = [3, 4, 2, 3]
+            assert.deepEqual(df.values, res)
+
+        })
+        it("Returns the number of unique elements along axis 0", function () {
+            let data = [{ "A": [20, 30, 47.3, 30] },
+            { "B": [34, -4, 5, 30] },
+            { "C": [20, 20, 30, 30] },
+            { "D": ["a", "b", "c", "c"] }]
+
+            let ndframe = new DataFrame(data)
+            let df = ndframe.nunique(0)
+            let res = [3, 4, 4, 2]
+            assert.deepEqual(df.values, res)
+
+        })
+
+    })
+
+
+    describe("unique", function () {
+        it("Returns the unique elements along axis 1", function () {
+            let data = [{ "A": [-20, 30, 47.3, -20] },
+            { "B": [34, -4, 5, 6] },
+            { "C": [20, 20, 30, 30] },
+            { "D": ["a", "b", "c", "c"] }]
+
+            let ndframe = new DataFrame(data)
+            let df = ndframe.unique(1)
+            let res = { "A": [-20, 30, 47.3],
+                        "B": [34, -4, 5, 6] ,
+                        "C": [20, 30] ,
+                        "D": ["a", "b", "c"] }
+            assert.deepEqual(df, res)
+
+        })
+        it("Returns the unique elements along axis 0", function () {
+            let data = [{ "A": [-20, 30, 47.3, -20] },
+                        { "B": [34, -4, 5, 6] },
+                        { "C": [20, 20, 30, 30] },
+                        { "D": ["a", "b", "c", "c"] }]
+
+            let ndframe = new DataFrame(data)
+            let df = ndframe.unique(0)
+            let res = { 0: [-20, 34, 20, "a"] ,
+             1: [30, -4, 20, "b"] ,
+             2: [47.3, 5, 30, "c"] ,
+             3: [-20, 6, 30, "c"] }
+            assert.deepEqual(df, res)
+
+        })
     })
 
 

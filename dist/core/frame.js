@@ -1570,6 +1570,65 @@ class DataFrame extends _generic.default {
     return this.row_data_tensor;
   }
 
+  astype(kwargs = {}) {
+    if (!utils.__key_in_object(kwargs, "column")) {
+      throw Error("Value Error: Please specify a column to cast");
+    }
+
+    if (!utils.__key_in_object(kwargs, "dtype")) {
+      throw Error("Value Error: Please specify dtype to cast to");
+    }
+
+    if (!this.column_names.includes(kwargs['column'])) {
+      throw Error(`'${kwargs['column']}' not found in columns`);
+    }
+
+    let col_idx = this.column_names.indexOf(kwargs['column']);
+    let new_types = this.col_types;
+    let col_values = this.col_data;
+    new_types[col_idx] = kwargs['dtype'];
+    let new_col_values = [];
+    let temp_col = col_values[col_idx];
+
+    switch (kwargs['dtype']) {
+      case "float32":
+        temp_col.map(val => {
+          new_col_values.push(Number(val));
+        });
+        col_values[col_idx] = new_col_values;
+        break;
+
+      case "int32":
+        temp_col.map(val => {
+          new_col_values.push(Number(Number(val).toFixed()));
+        });
+        col_values[col_idx] = new_col_values;
+        break;
+
+      case "string":
+        temp_col.map(val => {
+          new_col_values.push(String(val));
+        });
+        col_values[col_idx] = new_col_values;
+        break;
+
+      default:
+        break;
+    }
+
+    let new_col_obj = [];
+    this.column_names.forEach((cname, i) => {
+      let _obj = {};
+      _obj[cname] = col_values[i];
+      new_col_obj.push(_obj);
+    });
+    let df = new DataFrame(new_col_obj, {
+      dtypes: new_types,
+      index: this.index
+    });
+    return df;
+  }
+
 }
 
 exports.DataFrame = DataFrame;
