@@ -64,7 +64,7 @@ export class DataFrame extends Ndframe {
             kwargs['inplace'] = false
         }
         if (!utils.__key_in_object(kwargs, "axis")) {
-            kwargs['axis'] = 0
+            kwargs['axis'] = 1
         }
         let data;
         if (utils.__key_in_object(kwargs, "index") && kwargs['axis'] == 0) {
@@ -75,7 +75,7 @@ export class DataFrame extends Ndframe {
 
 
         if (kwargs['axis'] == 1) {
-            if (!utils.__key_in_object(kwargs, "columns")){
+            if (!utils.__key_in_object(kwargs, "columns")) {
                 throw Error("No column found. Axis of 1 must be accompanied by an array of column(s) names")
             }
             let self = this;
@@ -96,7 +96,7 @@ export class DataFrame extends Ndframe {
 
             if (!kwargs['inplace']) {
                 let columns = utils.__remove_arr(this.columns, index);
-                return new DataFrame(new_data, { columns: columns, index: self.index, dtypes: new_dtype})
+                return new DataFrame(new_data, { columns: columns, index: self.index, dtypes: new_dtype })
             } else {
                 this.columns = utils.__remove_arr(this.columns, index);
                 this.row_data_tensor = tf.tensor(new_data);
@@ -105,7 +105,7 @@ export class DataFrame extends Ndframe {
             }
 
         } else {
-            if (!utils.__key_in_object(kwargs, "index")){
+            if (!utils.__key_in_object(kwargs, "index")) {
                 throw Error("No index label found. Axis of 0 must be accompanied by an array of index labels")
             }
             data.map((x) => {
@@ -113,22 +113,22 @@ export class DataFrame extends Ndframe {
             });
             const values = this.values
             let data_idx = []; let new_data, new_index;
-            if (typeof data[0] == 'string'){
+            if (typeof data[0] == 'string') {
                 //get index of strings labels in rows
-                this.index.forEach((idx, i) =>{
-                    if (data.includes(idx)){
+                this.index.forEach((idx, i) => {
+                    if (data.includes(idx)) {
                         data_idx.push(i)
                     }
                 })
                 new_data = utils.__remove_arr(values, data_idx);
                 new_index = utils.__remove_arr(this.index, data_idx);
-    
-            }else{
+
+            } else {
                 new_data = utils.__remove_arr(values, data);
-                new_index = utils.__remove_arr(this.index, data);    
+                new_index = utils.__remove_arr(this.index, data);
             }
 
-           
+
             if (!kwargs['inplace']) {
                 return new DataFrame(new_data, { columns: this.columns, index: new_index })
             } else {
@@ -2023,6 +2023,82 @@ export class DataFrame extends Ndframe {
 
     }
 
+
+
+    /**
+     * Change axes labels. Object values must be unique (1-to-1). 
+     * Labels not contained in a dict / Series will be left as-is. Extra labels listed don’t throw an error.
+     * @param {Object} kwargs {mapper: Dict-like or functions transformations to apply to that axis’ values,
+     *                          axis: Int, 0 for row, and 1 for column. Default to 1,
+     *                         inplace: Whether to return a new DataFrame. If True then value of copy is ignored.
+     * @returns {DataFrame}
+     */
+    rename(kwargs = {}) {
+
+        let params_needed = ["mapper", "inplace", "axis"]
+        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
+        }
+        // utils.__in_object(kwargs, "columns", "value not defined")
+        if (!utils.__key_in_object(kwargs, "inplace")) {
+            kwargs['inplace'] = false
+        }
+        if (!utils.__key_in_object(kwargs, "axis")) {
+            kwargs['axis'] = 1
+        }
+        if (!utils.__key_in_object(kwargs, "mapper")) {
+            throw Error("Please specify a mapper object")
+        }
+
+       if (kwargs['axis'] == 1){
+           //columns
+           let old_col_names = Object.keys(kwargs['mapper'])
+           let new_col_names = Object.values(kwargs['mapper'])
+           let col_names = this.column_names
+           
+   
+           old_col_names.forEach((cname,i)=>{
+               if (!col_names.includes(cname)){
+                   throw Error(`Label Error: Specified column '${cname}' not found in column axis`)
+               }
+               let idx = col_names.indexOf(cname)
+               col_names[idx] = new_col_names[i]
+               
+           })
+           if (kwargs['inplace']){
+               this.columns = col_names
+           }else{
+               let df = this.copy()
+               df.columns = col_names
+               return df
+           }
+       }else{
+           //row
+            let old_index = Object.keys(kwargs['mapper'])
+            let row_index = this.index
+            let new_index = []
+           
+            row_index.forEach(idx=>{
+                if (old_index.includes(idx)){
+                    new_index.push(kwargs['mapper'][idx])
+                }else{
+                    new_index.push(idx)
+                }
+            })
+
+            if (kwargs['inplace']){
+                this.__set_index(new_index)
+            }else{
+                let df = this.copy()
+                df.__set_index(new_index)
+                return df
+            }
+
+           
+       }
+
+        
+    }
 
 
 }

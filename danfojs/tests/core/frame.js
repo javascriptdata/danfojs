@@ -71,7 +71,7 @@ describe("DataFrame", function () {
             assert.deepEqual(df.values, new_data);
         })
         it("drop row by two or more string labels", function () {
-            let data = [[1, 2, 3], [4, 5, 6], [20, 34, 5],[2, 3.4, 5],[2.0, 340, 5]]
+            let data = [[1, 2, 3], [4, 5, 6], [20, 34, 5], [2, 3.4, 5], [2.0, 340, 5]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols, index: ["a", "b", "c", "a", "b"] })
             df.drop({ index: ["a", "b"], axis: 0, inplace: true });
@@ -1907,6 +1907,56 @@ describe("DataFrame", function () {
     })
 
 
+    describe("rename", function () {
+        it("Rename columns along axis 1", function () {
+            let data = [{ "A": [-20, 30, 47.3, -20] },
+            { "B": [34, -4, 5, 6] },
+            { "C": [20, 20, 30, 30] },
+            { "D": ["a", "b", "c", "c"] }]
+
+            let ndframe = new DataFrame(data)
+            let df = ndframe.rename({ mapper: { "A": "a1", "B": "b1" } })
+            let res = ["a1", "b1", "C", "D"]
+            assert.deepEqual(df.columns, res)
+
+        })
+        it("Rename columns along axis 1 inplace", function () {
+            let data = [{ "A": [-20, 30, 47.3, -20] },
+            { "B": [34, -4, 5, 6] },
+            { "C": [20, 20, 30, 30] },
+            { "D": ["a", "b", "c", "c"] }]
+
+            let df = new DataFrame(data)
+            df.rename({ mapper: { "A": "a1", "B": "b1" }, inplace: true })
+            let res = ["a1", "b1", "C", "D"]
+            assert.deepEqual(df.columns, res)
+
+        })
+        it("Rename string index along axis 0", function () {
+            let data = [{ "A": [-20, 30, 47.3, -20] },
+            { "B": [34, -4, 5, 6] },
+            { "C": [20, 20, 30, 30] },
+            { "D": ["a", "b", "c", "c"] }]
+
+            let ndframe = new DataFrame(data, { index: ["a", "b", "c", "d"] })
+            let df = ndframe.rename({ mapper: { "a": 0, "b": 1 }, axis: 0 })
+            let res = [0, 1, "c", "d"]
+            assert.deepEqual(df.index, res)
+
+        })
+        it("Rename string index along axis 0 inplace", function () {
+            let data = [{ "A": [-20, 30, 47.3, -20] },
+            { "B": [34, -4, 5, 6] },
+            { "C": [20, 20, 30, 30] },
+            { "D": ["a", "b", "c", "c"] }]
+
+            let df = new DataFrame(data, { index: ["a", "b", "c", "d"] })
+            df.rename({ mapper: { "a": 0, "b": 1 }, axis: 0, inplace: true })
+            let res = [0, 1, "c", "d"]
+            assert.deepEqual(df.index, res)
+
+        })
+    })
 
 
 });

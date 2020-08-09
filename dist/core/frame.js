@@ -134,10 +134,21 @@ class DataFrame extends _generic.default {
         if (!this.index.includes(x)) throw new Error(`${x} does not exist in index`);
       });
       const values = this.values;
+      let data_idx = [];
+      let new_data, new_index;
 
-      let new_data = utils.__remove_arr(values, data);
-
-      let new_index = utils.__remove_arr(this.index, data);
+      if (typeof data[0] == 'string') {
+        this.index.forEach((idx, i) => {
+          if (data.includes(idx)) {
+            data_idx.push(i);
+          }
+        });
+        new_data = utils.__remove_arr(values, data_idx);
+        new_index = utils.__remove_arr(this.index, data_idx);
+      } else {
+        new_data = utils.__remove_arr(values, data);
+        new_index = utils.__remove_arr(this.index, data);
+      }
 
       if (!kwargs['inplace']) {
         return new DataFrame(new_data, {
