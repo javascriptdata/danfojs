@@ -9,7 +9,7 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            assert.throws(function () { df.drop({ columns: [3], axis: 0, inplace: false }) }, Error, '3 does not exist in index');
+            assert.throws(function () { df.drop({ columns: [3], axis: 0, inplace: false }) }, Error, 'No index label found. Axis of 0 must be accompanied by an array of index labels');
         })
         it("throw error for wrong row index", function () {
             let data = [[1, 2, 3], [4, 5, 6]]

@@ -75,6 +75,9 @@ export class DataFrame extends Ndframe {
 
 
         if (kwargs['axis'] == 1) {
+            if (!utils.__key_in_object(kwargs, "columns")){
+                throw Error("No column found. Axis of 1 must be accompanied by an array of column(s) names")
+            }
             let self = this;
             const index = data.map((x) => {
                 let col_idx = self.columns.indexOf(x)
@@ -102,6 +105,9 @@ export class DataFrame extends Ndframe {
             }
 
         } else {
+            if (!utils.__key_in_object(kwargs, "index")){
+                throw Error("No index label found. Axis of 0 must be accompanied by an array of index labels")
+            }
             data.map((x) => {
                 if (!this.index.includes(x)) throw new Error(`${x} does not exist in index`)
             });
