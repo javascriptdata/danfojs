@@ -112,7 +112,7 @@ dfd.read_csv("https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/t
 To install via script tags, copy and paste the CDN below to your HTML file
 
 ```html
-  <script></script>
+  <script src="https://cdn.jsdelivr.net/npm/danfojs@0.0.2/dist/index.min.js"></script>
 ```
 
 ### Example Usage in the Browser
@@ -124,7 +124,7 @@ To install via script tags, copy and paste the CDN below to your HTML file
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/danfojs@0.0.2/dist/index.min.js"></script>
     <title>Document</title>
 </head>
 
