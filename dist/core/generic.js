@@ -226,6 +226,43 @@ class NDframe {
     return this.row_data_tensor.size;
   }
 
+  async to_csv() {
+    if (this.series) {
+      let csv = this.values.join(",");
+      return csv;
+    } else {
+      let records = this.values;
+      let header = this.column_names.join(",");
+      let csv_str = `${header}\n`;
+      records.forEach(val => {
+        let row = `${val.join(",")}\n`;
+        csv_str += row;
+      });
+      return csv_str;
+    }
+  }
+
+  async to_json() {
+    if (this.series) {
+      let obj = {};
+      obj[this.column_names[0]] = this.values;
+      let json = JSON.stringify(obj);
+      return json;
+    } else {
+      let values = this.values;
+      let header = this.column_names;
+      let json_arr = [];
+      values.forEach(val => {
+        let obj = {};
+        header.forEach((h, i) => {
+          obj[h] = val[i];
+        });
+        json_arr.push(obj);
+      });
+      return JSON.stringify(json_arr);
+    }
+  }
+
   toString() {
     let table_width = config.get_width;
     let table_truncate = config.get_truncate;
