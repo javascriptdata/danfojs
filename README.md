@@ -203,4 +203,4 @@ All contributions, bug reports, bug fixes, documentation improvements, enhanceme
 
 #### Licence [MIT](https://github.com/opensource9ja/danfojs/blob/master/LICENCE)
 
-### Logo Design By [Seyi Oniyitan](https://twitter.com/seyioniyitan)
+#### Logo Design By [Seyi Oniyitan](https://twitter.com/seyioniyitan)
