@@ -13,7 +13,8 @@ module.exports = {
                 exclude: /node_modules/,
                 use: ["babel-loader",
                     "source-map-loader",
-                    'ify-loader'],
+                    'ify-loader',
+                    'mocha-loader',],
                 enforce: 'pre',
             },
         ]
