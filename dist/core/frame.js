@@ -958,8 +958,20 @@ class DataFrame extends _generic.default {
       this.data = new_data;
       this.col_data = utils.__get_col_values(new_data);
       this.data_tensor = tf.tensor(new_data);
-      this.columns.push(column_name);
+      let old_col_names = this.columns;
+      old_col_names.push(column_name);
+      let new_cols = old_col_names;
+      this.columns = new_cols;
       this[column_name] = new _series.Series(value);
+      Object.defineProperty(this, column_name, {
+        get() {
+          return new _series.Series(value, {
+            columns: column_name,
+            index: this.index
+          });
+        }
+
+      });
     }
   }
 
@@ -1790,6 +1802,9 @@ class DataFrame extends _generic.default {
   }
 
   __set_col_property(self, col_vals, col_names, old_col_names) {
+    old_col_names.forEach(name => {
+      delete self[name];
+    });
     col_vals.forEach((col, i) => {
       Object.defineProperty(self, col_names[i], {
         get() {
@@ -1800,9 +1815,6 @@ class DataFrame extends _generic.default {
         }
 
       });
-    });
-    old_col_names.forEach(name => {
-      delete self[name];
     });
   }
 

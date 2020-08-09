@@ -11,72 +11,113 @@
 
 **danfojs** is a javascript package that provides fast, flexible, and expressive data
 structures designed to make working with "relational" or "labeled" data both
-easy and intuitive. It aims to be the fundamental high-level building block for
-doing practical, **real world** data analysis in javascript.
+easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org/pandas-docs/stable/) library, and provides a similar API. This means that users familiar with [Pandas](https://pandas.pydata.org/pandas-docs/stable/), can easily pick up danfo.js. 
 
 ## Main Features
-Here are just a few of the things that danfojs does well:
 
-  - Easy handling of [**missing data**][missing-data] (represented as
+  - Easy handling of [missing-data](https://jsdata.gitbook.io/danfojs/api-reference/dataframe#missing-data-handling) (represented as
     `NaN`) in floating point as well as non-floating point data
-  - Size mutability: columns can be [**inserted and
-    deleted**][insertion-deletion] from DataFrame and higher dimensional
-    objects
-  - Automatic and explicit [**data alignment**][alignment]: objects can
+  - Size mutability: columns can be [inserted/deleted](https://jsdata.gitbook.io/danfojs/api-reference/dataframe#indexing-iteration) from DataFrame
+  - Automatic and explicit [alignment](https://jsdata.gitbook.io/danfojs/api-reference/dataframe#reindexing-selection-label-manipulation): objects can
     be explicitly aligned to a set of labels, or the user can simply
     ignore the labels and let `Series`, `DataFrame`, etc. automatically
     align the data for you in computations
-  - Powerful, flexible [**group by**][groupby] functionality to perform
+  - Powerful, flexible [groupby](https://jsdata.gitbook.io/danfojs/api-reference/dataframe/danfo.dataframe.groupby) functionality to perform
     split-apply-combine operations on data sets, for both aggregating
     and transforming data
-  - Make it [**easy to convert**][conversion] ragged,
-    differently-indexed data in other javascript and tensor data structures
+  - Make it easy to convert Arrays, JSONs, List or Objects, Tensors and 
+    differently-indexed data structures
     into DataFrame objects
-  - Intelligent label-based [**slicing**][slicing], [**fancy
-    indexing**][fancy-indexing], and [**subsetting**][subsetting] of
+  - Intelligent label-based [slicing](https://jsdata.gitbook.io/danfojs/api-reference/dataframe/danfo.dataframe.loc), [fancy indexing](https://jsdata.gitbook.io/danfojs/api-reference/dataframe/danfo.dataframe.iloc), and [querying](https://jsdata.gitbook.io/danfojs/api-reference/dataframe/danfo.dataframe.query) of
     large data sets
-  - Intuitive [**merging**][merging] and [**joining**][joining] data
+  - Intuitive [merging](https://jsdata.gitbook.io/danfojs/api-reference/merge-and-joins/danfo.merge) and [joining](https://jsdata.gitbook.io/danfojs/api-reference/merge-and-joins/danfo.concat) data
     sets
-  - Flexible [**reshaping**][reshape] and [**pivoting**][pivot-table] of
-    data sets
-  - [**Hierarchical**][mi] labeling of axes (possible to have multiple
-    labels per tick)
-  - Robust IO tools for loading data from [**flat files**][flat-files]
+  - Robust IO tools for loading data from [flat-files](https://jsdata.gitbook.io/danfojs/api-reference/input-output)
     (CSV and delimited) and JSON data format.
-  - [**Time series**][timeseries]-specific functionality: date range
-    generation and frequency conversion, moving window statistics,
-    date shifting and lagging.
+  - [Timeseries](https://jsdata.gitbook.io/danfojs/api-reference/series#accessors)-specific functionality: date range
+    generation and date and time properties. 
 
 
-   [missing-data]: html#working-with-missing-data
-   [insertion-deletion]: https://pandas.pydata.org/pandas-docs/stable/dsintro.html#column-selection-addition-deletion
-   [alignment]: https://pandas.pydata.org/pandas-docs/stable/dsintro.html?highlight=alignment#intro-to-data-structures
-   [groupby]: https://pandas.pydata.org/pandas-docs/stable/groupby.html#group-by-split-apply-combine
-   [conversion]: https://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe
-   [slicing]: https://pandas.pydata.org/pandas-docs/stable/indexing.html#slicing-ranges
-   [fancy-indexing]: https://pandas.pydata.org/pandas-docs/stable/indexing.html#advanced-indexing-with-ix
-   [subsetting]: https://pandas.pydata.org/pandas-docs/stable/indexing.html#boolean-indexing
-   [merging]: https://pandas.pydata.org/pandas-docs/stable/merging.html#database-style-dataframe-joining-merging
-   [joining]: https://pandas.pydata.org/pandas-docs/stable/merging.html#joining-on-index
-   [reshape]: https://pandas.pydata.org/pandas-docs/stable/reshaping.html#reshaping-and-pivot-tables
-   [pivot-table]: https://pandas.pydata.org/pandas-docs/stable/reshaping.html#pivot-tables-and-cross-tabulations
-   [mi]: https://pandas.pydata.org/pandas-docs/stable/indexing.html#hierarchical-indexing-multiindex
-   [flat-files]: https://pandas.pydata.org/pandas-docs/stable/io.html#csv-text-files
-   [excel]: https://pandas.pydata.org/pandas-docs/stable/io.html#excel-files
-   [db]: https://pandas.pydata.org/pandas-docs/stable/io.html#sql-queries
-   [hdfstore]: https://pandas.pydata.org/pandas-docs/stable/io.html#hdf5-pytables
-   [timeseries]: https://pandas.pydata.org/pandas-docs/stable/timeseries.html#time-series-date-functionality
-
-## Where to get it
-The source code is currently hosted on GitHub at:
-https://github.com/opensource9ja/danfojs
-
-Binary installers for the latest released version are available at the [Python
-package index](npm package link).
+## How to install
+danfojs is hosted on NPM, and can installed via package managers like npm and yarn
 
 ```sh
-#  NPM
 npm install danfojs
+```
+
+//Example usage in Nodejs
+
+```javascript
+ dfd.read_csv("https://raw.githubusercontent.com/risenW/medium_tutorial_notebooks/master/train.csv")
+            .then(df => {
+                df.describe().print()
+
+          
+```
+
+To install via script tags, copy and paste the CDN below to your HTML file
+
+## Example Usage in the Browser
+
+```html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="main.js"></script>
+    <title>Document</title>
+</head>
+
+<body>
+
+    <div id="some_div"></div>
+    <div id="alldiv"></div>
+    <script>
+
+        dfd.read_csv("https://raw.githubusercontent.com/risenW/medium_tutorial_notebooks/master/train.csv")
+            .then(df => {
+                df.describe().print()
+
+                //prints in console
+                //  Shape: (5,5) 
+
+                // ╔════════╤═══════════════════╤═══════════════════╤═══════════════════╤═══════════════════╤═══════════════════╗
+                // ║        │ Product_Weight    │ Product_Shelf...  │ Product_Price     │ Product_Super...  │ Supermarket_O...  ║
+                // ╟────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────╢
+                // ║ count  │ 4188              │ 4990              │ 4990              │ 4990              │ 4990              ║
+                // ╟────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────╢
+                // ║ mean   │ 12.908838         │ 0.066916          │ 391.803772        │ 6103.52002        │ 2004.783447       ║
+                // ╟────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────╢
+                // ║ std    │ NaN               │ 0.053058          │ 119.378259        │ 4447.333835       │ 8.283151          ║
+                // ╟────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────╢
+                // ║ min    │ 4.555             │ 0                 │ 78.730003         │ 83.230003         │ 1992              ║
+                // ╟────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────╢
+                // ║ median │ NaN               │ 0.053564          │ 393.86            │ 5374.675          │ 2006              ║
+                // ╚════════╧═══════════════════╧═══════════════════╧═══════════════════╧═══════════════════╧═══════════════════╝
+
+                var layout = {
+                    title: 'A sample plot',
+                    xaxis: {
+                        title: 'X',
+                    },
+                    yaxis: {
+                        title: 'Y',
+                    }
+                };
+
+                df['Product_Weight'].plot("some_div", { kind: "histogram" })
+                df.plot("alldiv", { x: "Product_Price", y: "Product_Shelf_Visibility", kind: "scatter", mode: 'markers' })
+
+
+            }).catch(err => {
+                console.log(err);
+            })
+    </script>
+</body>
+
+</html>
 ```
 
 

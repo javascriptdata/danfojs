@@ -1,7 +1,7 @@
 {
   "name": "danfojs",
   "version": "0.0.1",
-  "description": "Javascript version of Pandas. A library of data manipulation and analysis",
+  "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
   "main": "dist/index.js",
   "contributors": [
     {
@@ -18,7 +18,6 @@
   "dependencies": {
     "@tensorflow/tfjs": "2.1.0",
     "@tensorflow/tfjs-core": "^2.1.0",
-    "ify-loader": "^1.1.0",
     "mathjs": "^7.1.0",
     "plotly.js": "^1.54.7",
     "table": "^5.4.6"
@@ -51,6 +50,7 @@
   "homepage": "https://github.com/opensource9ja/danfojs#readme",
   "devDependencies": {
     "@babel/cli": "^7.10.5",
+    "ify-loader": "^1.1.0",
     "@babel/core": "^7.10.5",
     "@babel/plugin-transform-modules-umd": "^7.10.4",
     "@babel/preset-env": "^7.10.4",

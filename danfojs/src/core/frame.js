@@ -1083,9 +1083,17 @@ export class DataFrame extends Ndframe {
             this.data = new_data;
             this.col_data = utils.__get_col_values(new_data)
             this.data_tensor = tf.tensor(new_data)
-            this.columns.push(column_name);
+            let old_col_names = this.columns
+            old_col_names.push(column_name)
+            let new_cols = old_col_names
+            this.columns = new_cols
             this[column_name] = new Series(value)
-            // this[column_name] = new Series(value, { columns: column_name, index: this.index })
+            // this.__set_col_property(this, this.col_data, new_cols, old_col_names,true)
+            Object.defineProperty(this, column_name, {
+                get() {
+                    return new Series(value, { columns: column_name, index: this.index })
+                }
+            })
         }
     }
 
@@ -2110,6 +2118,11 @@ export class DataFrame extends Ndframe {
 
     //set all columns to DataFrame Property. This ensures easy access to columns as Series
     __set_col_property(self, col_vals, col_names, old_col_names) {
+        //delete old name
+        old_col_names.forEach(name => {
+            delete self[name]
+        })
+
         col_vals.forEach((col, i) => {
             // self[col_names[i]] = new Series(col, { columns: col_names[i], index: self.index })
             Object.defineProperty(self, col_names[i], {
@@ -2118,10 +2131,7 @@ export class DataFrame extends Ndframe {
                 }
             })
         });
-        //delete old names
-        old_col_names.forEach(name => {
-            delete self[name]
-        })
+
     }
 }
 
