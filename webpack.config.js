@@ -12,9 +12,7 @@ module.exports = {
                 test: /\.js$/,
                 exclude: /node_modules/,
                 use: ["babel-loader",
-                    "source-map-loader",
-                    'ify-loader',
-                    'mocha-loader',],
+                    "source-map-loader"],
                 enforce: 'pre',
             },
         ]
