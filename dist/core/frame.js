@@ -111,19 +111,30 @@ class DataFrame extends _generic.default {
       });
 
       if (!kwargs['inplace']) {
+        let old_cols = this.columns;
+
         let columns = utils.__remove_arr(this.columns, index);
 
-        return new DataFrame(new_data, {
+        let df = new DataFrame(new_data, {
           columns: columns,
           index: self.index,
           dtypes: new_dtype
         });
+
+        df.__set_col_property(df, df.col_data, columns, old_cols);
+
+        return df;
       } else {
-        this.columns = utils.__remove_arr(this.columns, index);
+        let new_cols = utils.__remove_arr(this.columns, index);
+
+        let old_cols = this.columns;
+        this.columns = new_cols;
         this.row_data_tensor = tf.tensor(new_data);
         this.data = new_data;
 
         this.__set_col_types(new_dtype, false);
+
+        this.__set_col_property(this, this.col_data, new_cols, old_cols);
       }
     } else {
       if (!utils.__key_in_object(kwargs, "index")) {
@@ -1749,12 +1760,12 @@ class DataFrame extends _generic.default {
       if (kwargs['inplace']) {
         this.columns = col_names;
 
-        this.__set_col_property(this, this.col_data, col_names);
+        this.__set_col_property(this, this.col_data, col_names, old_col_names);
       } else {
         let df = this.copy();
         df.columns = col_names;
 
-        this.__set_col_property(df, df.col_data, col_names);
+        this.__set_col_property(df, df.col_data, col_names, old_col_names);
 
         return df;
       }
@@ -1782,7 +1793,7 @@ class DataFrame extends _generic.default {
     }
   }
 
-  __set_col_property(self, col_vals, col_names) {
+  __set_col_property(self, col_vals, col_names, old_col_names) {
     col_vals.forEach((col, i) => {
       Object.defineProperty(self, col_names[i], {
         get() {
@@ -1793,6 +1804,9 @@ class DataFrame extends _generic.default {
         }
 
       });
+    });
+    old_col_names.forEach(name => {
+      delete self[name];
     });
   }
 

@@ -95,13 +95,20 @@ export class DataFrame extends Ndframe {
             });
 
             if (!kwargs['inplace']) {
+                let old_cols = this.columns
                 let columns = utils.__remove_arr(this.columns, index);
-                return new DataFrame(new_data, { columns: columns, index: self.index, dtypes: new_dtype })
+                let df = new DataFrame(new_data, { columns: columns, index: self.index, dtypes: new_dtype })
+                df.__set_col_property(df, df.col_data, columns, old_cols)
+                return df
+
             } else {
-                this.columns = utils.__remove_arr(this.columns, index);
+                let new_cols = utils.__remove_arr(this.columns, index);
+                let old_cols = this.columns
+                this.columns = new_cols
                 this.row_data_tensor = tf.tensor(new_data);
                 this.data = new_data
                 this.__set_col_types(new_dtype, false)
+                this.__set_col_property(this, this.col_data, new_cols, old_cols)
             }
 
         } else {
@@ -131,10 +138,12 @@ export class DataFrame extends Ndframe {
 
             if (!kwargs['inplace']) {
                 return new DataFrame(new_data, { columns: this.columns, index: new_index })
+
             } else {
                 this.row_data_tensor = tf.tensor(new_data);
                 this.data = new_data
                 this.__set_index(new_index)
+
             }
         }
     }
@@ -2067,11 +2076,11 @@ export class DataFrame extends Ndframe {
             })
             if (kwargs['inplace']) {
                 this.columns = col_names
-                this.__set_col_property(this, this.col_data, col_names)
+                this.__set_col_property(this, this.col_data, col_names, old_col_names)
             } else {
                 let df = this.copy()
                 df.columns = col_names
-                this.__set_col_property(df, df.col_data, col_names)
+                this.__set_col_property(df, df.col_data, col_names, old_col_names)
                 return df
             }
         } else {
@@ -2104,7 +2113,7 @@ export class DataFrame extends Ndframe {
 
 
     //set all columns to DataFrame Property. This ensures easy access to columns as Series
-    __set_col_property(self, col_vals, col_names) {
+    __set_col_property(self, col_vals, col_names, old_col_names) {
         col_vals.forEach((col, i) => {
             // self[col_names[i]] = new Series(col, { columns: col_names[i], index: self.index })
             Object.defineProperty(self, col_names[i], {
@@ -2113,6 +2122,10 @@ export class DataFrame extends Ndframe {
                 }
             })
         });
+        //delete old names
+        old_col_names.forEach(name=>{
+            delete self[name]
+        })
     }
 }
 
