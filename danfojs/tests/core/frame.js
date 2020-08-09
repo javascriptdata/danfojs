@@ -828,8 +828,8 @@ describe("DataFrame", function () {
             let data = [[0, 2, 4], [360, 180, 360], [0, 2, 4], [360, 180, 360], [0, 2, 4]]
             let df = new DataFrame(data)
             df.set_index({ "key": ["one", "two", "three", "four", "five"], "inplace": true })
-            let df_new = df.reset_index()
-            assert.deepEqual(df_new.index, [0, 1, 2, 3, 4])
+            df.reset_index(true)
+            assert.deepEqual(df.index, [0, 1, 2, 3, 4])
         })
 
     })

@@ -640,12 +640,8 @@ class DataFrame extends _generic.default {
     return df;
   }
 
-  reset_index(kwargs = {}) {
-    if (!utils.__key_in_object(kwargs, 'inplace')) {
-      kwargs['inplace'] = false;
-    }
-
-    if (kwargs['inplace']) {
+  reset_index(inplace = false) {
+    if (inplace) {
       this.__reset_index();
     } else {
       let df = this.copy();

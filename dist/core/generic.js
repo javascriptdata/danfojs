@@ -311,8 +311,8 @@ class NDframe {
     });
   }
 
-  print() {
-    console.log(this + "");
+  print(rows = 2) {
+    console.log(this.head(rows) + "");
   }
 
 }

@@ -702,17 +702,12 @@ export class DataFrame extends Ndframe {
     }
 
     /**
-   * Generate a new DataFrame with the index reset.
-   * This is useful when the index needs to be treated as a column, 
-   * or when the index is meaningless and needs to be reset to the default before another operation.
-   * @param {kwargs} {inplace: Modify the Series in place (do not create a new object.}
+   * Generate a new index for the DataFrame.
+   * This is useful when the index is meaningless and needs to be reset to the default before another operation.
+   * @param {inplace} boolean: Modify the original object or return a new one. Default to false
    */
-    reset_index(kwargs = {}) {
-        if (!utils.__key_in_object(kwargs, 'inplace')) {
-            kwargs['inplace'] = false
-        }
-
-        if (kwargs['inplace']) {
+    reset_index(inplace = false) {
+        if (inplace) {
             this.__reset_index()
         } else {
             let df = this.copy()
@@ -850,8 +845,9 @@ export class DataFrame extends Ndframe {
 
 
     /**
-    * Sort a Dataframe in ascending or descending order by some criterion.
-    *  @param {kwargs} Object, {ascending (Bool): Whether to return sorted values in ascending order or not,
+    * Sort a Dataframe in ascending or descending order by a specified column name.
+    *  @param {kwargs} Object, {by: Column name to sort by
+    *                           ascending (Bool): Whether to return sorted values in ascending order or not,
     *                           inplace (Bool): Whether to perform sorting on the original Series or not}
     * @returns {Series}
     */
@@ -2123,7 +2119,7 @@ export class DataFrame extends Ndframe {
             })
         });
         //delete old names
-        old_col_names.forEach(name=>{
+        old_col_names.forEach(name => {
             delete self[name]
         })
     }

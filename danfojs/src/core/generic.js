@@ -436,10 +436,11 @@ export default class NDframe {
 
 
     /**
-    * Pretty prints a DataFrame or Series in the console
+    * Pretty prints n number of rows in a DataFrame or Series in the console
+    * @param {rows} Number of rows to print
     */
-    print() {
-        console.log(this + "");
+    print(rows = 5) {
+        console.log(this.head(rows) + "");
     }
 
 }
