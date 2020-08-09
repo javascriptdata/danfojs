@@ -62,6 +62,22 @@ describe("DataFrame", function () {
             let dtype = ['int32', 'int32']
             assert.deepEqual(df.ctypes.values, dtype);
         })
+        it("drop row by single string labels", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [20, 34, 5]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols, index: ["a", "b", "c"] })
+            df.drop({ index: ["a"], axis: 0, inplace: true });
+            let new_data = [[4, 5, 6], [20, 34, 5]]
+            assert.deepEqual(df.values, new_data);
+        })
+        it("drop row by two or more string labels", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [20, 34, 5],[2, 3.4, 5],[2.0, 340, 5]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols, index: ["a", "b", "c", "a", "b"] })
+            df.drop({ index: ["a", "b"], axis: 0, inplace: true });
+            let new_data = [[20, 34, 5]]
+            assert.deepEqual(df.values, new_data);
+        })
     })
 
     describe("head", function () {
@@ -1862,25 +1878,29 @@ describe("DataFrame", function () {
 
             let ndframe = new DataFrame(data)
             let df = ndframe.unique(1)
-            let res = { "A": [-20, 30, 47.3],
-                        "B": [34, -4, 5, 6] ,
-                        "C": [20, 30] ,
-                        "D": ["a", "b", "c"] }
+            let res = {
+                "A": [-20, 30, 47.3],
+                "B": [34, -4, 5, 6],
+                "C": [20, 30],
+                "D": ["a", "b", "c"]
+            }
             assert.deepEqual(df, res)
 
         })
         it("Returns the unique elements along axis 0", function () {
             let data = [{ "A": [-20, 30, 47.3, -20] },
-                        { "B": [34, -4, 5, 6] },
-                        { "C": [20, 20, 30, 30] },
-                        { "D": ["a", "b", "c", "c"] }]
+            { "B": [34, -4, 5, 6] },
+            { "C": [20, 20, 30, 30] },
+            { "D": ["a", "b", "c", "c"] }]
 
             let ndframe = new DataFrame(data)
             let df = ndframe.unique(0)
-            let res = { 0: [-20, 34, 20, "a"] ,
-             1: [30, -4, 20, "b"] ,
-             2: [47.3, 5, 30, "c"] ,
-             3: [-20, 6, 30, "c"] }
+            let res = {
+                0: [-20, 34, 20, "a"],
+                1: [30, -4, 20, "b"],
+                2: [47.3, 5, 30, "c"],
+                3: [-20, 6, 30, "c"]
+            }
             assert.deepEqual(df, res)
 
         })

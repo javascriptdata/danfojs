@@ -112,10 +112,23 @@ export class DataFrame extends Ndframe {
                 if (!this.index.includes(x)) throw new Error(`${x} does not exist in index`)
             });
             const values = this.values
+            let data_idx = []; let new_data, new_index;
+            if (typeof data[0] == 'string'){
+                //get index of strings labels in rows
+                this.index.forEach((idx, i) =>{
+                    if (data.includes(idx)){
+                        data_idx.push(i)
+                    }
+                })
+                new_data = utils.__remove_arr(values, data_idx);
+                new_index = utils.__remove_arr(this.index, data_idx);
+    
+            }else{
+                new_data = utils.__remove_arr(values, data);
+                new_index = utils.__remove_arr(this.index, data);    
+            }
 
-            let new_data = utils.__remove_arr(values, data);
-            let new_index = utils.__remove_arr(this.index, data);
-
+           
             if (!kwargs['inplace']) {
                 return new DataFrame(new_data, { columns: this.columns, index: new_index })
             } else {
