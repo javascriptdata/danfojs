@@ -1875,7 +1875,8 @@ export class DataFrame extends Ndframe {
 
     /**
      * Sets the data types of an DataFrame 
-     * @return {Object} kwargs {column: Name of the column to cast, dtype: [float32, int32, string] data type to cast to}
+     * @param {Object} kwargs {column: Name of the column to cast, dtype: [float32, int32, string] data type to cast to}
+     * @returns {DataFrame}
      */
     astype(kwargs = {}) {
         if (!utils.__key_in_object(kwargs, "column")) {
@@ -1931,7 +1932,7 @@ export class DataFrame extends Ndframe {
             new_col_obj.push(_obj)
         })
 
-        let df = new DataFrame(new_col_obj, {dtypes: new_types})
+        let df = new DataFrame(new_col_obj, {dtypes: new_types, index: this.index})
         return df
         
     }

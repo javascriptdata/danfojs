@@ -1107,4 +1107,45 @@ describe("Series", function () {
             assert.deepEqual(sf.dt.monthday().values, new_data);
         });
     })
+
+
+    describe("astype", function () {
+        it("set type of float column to int", function () {
+            let data = [-20.1, 30, 47.3, -20]
+            let ndframe = new Series(data)
+            let df = ndframe.astype("int32")
+
+            assert.deepEqual(df.dtypes, 'int32')
+            assert.deepEqual(df.values, [-20, 30, 47, -20])
+
+        })
+        it("set type of int column to float", function () {
+            let data = [34, -4, 5, 6]
+            let ndframe = new Series(data)
+            let df = ndframe.astype("float32")
+            assert.deepEqual(df.dtypes, 'float32')
+            assert.deepEqual(df.values, [34, -4, 5, 6])
+
+        })
+        it("set type of string column to int", function () {
+            let data = ["20.1", "21", "23.4", "50.78"]
+            let ndframe = new Series(data)
+            let df = ndframe.astype("int32")
+
+            assert.deepEqual(df.dtypes, 'int32')
+            assert.deepEqual(df.values, [20, 21, 23, 51])
+
+        })
+        it("set type of string column to float", function () {
+            let data =  ["20.1", "21", "23.4", "50.78"]
+            let ndframe = new Series(data)
+            let df = ndframe.astype("float32")
+
+            assert.deepEqual(df.dtypes, 'float32')
+            assert.deepEqual(df.values, [20.1, 21, 23.4, 50.78])
+
+        })
+
+       
+    })
 })

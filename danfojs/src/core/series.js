@@ -747,7 +747,7 @@ export class Series extends NDframe {
      * Return the number of unique value in a series
      * @return {int}
      */
-    nunique(){
+    nunique() {
 
         let unique = this.unique().values
 
@@ -1208,6 +1208,54 @@ export class Series extends NDframe {
         }
         return new Series(data)
     }
+
+
+    /**
+     * Sets the data types of a Series 
+     * @param {dtype} String [float32, int32, string] data type to cast to.
+     *@returns {Series}
+     */
+    astype(dtype) {
+        
+        if (dtype == undefined) {
+            throw Error("Value Error: Please specify dtype to cast to")
+        }
+
+        const __supported_dtypes = ['float32', "int32", 'string', 'boolean']
+
+        if (!__supported_dtypes.includes(dtype)){
+            throw Error(`dtype ${dtype} not supported`)
+        }
+
+        let col_values = this.values
+        let new_values = []
+
+        switch (dtype) {
+            case "float32":
+                col_values.map(val => {
+                    new_values.push(Number(val))
+                })
+                break;
+            case "int32":
+                col_values.map(val => {
+                    new_values.push(Number(Number(val).toFixed()))
+                })
+                break;
+            case "string":
+                col_values.map(val => {
+                    new_values.push(String(val))
+                })
+                break;
+            default:
+                break;
+        }
+
+    
+        let sf = new Series(new_values, { dtypes: dtype, index: this.index})
+        return sf
+
+    }
+
 
     /**
      * Returns String Object of series. Has numerous methods to manipulate string Series
