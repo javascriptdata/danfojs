@@ -6,10 +6,12 @@
 -----------------
 
 ## danfojs: powerful javascript data analysis toolkit 
+![Node.js CI](https://github.com/opensource9ja/danfojs/workflows/Node.js%20CI/badge.svg?branch=master)
+
 
 ## What is it?
 
-**danfojs** is a javascript package that provides fast, flexible, and expressive data
+**danfo.js** is a javascript package that provides fast, flexible, and expressive data
 structures designed to make working with "relational" or "labeled" data both
 easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org/pandas-docs/stable/) library, and provides a similar API. This means that users familiar with [Pandas](https://pandas.pydata.org/pandas-docs/stable/), can easily pick up danfo.js. 
 
@@ -39,25 +41,81 @@ easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org
 
 
 ## How to install
-danfojs is hosted on NPM, and can installed via package managers like npm and yarn
+danfo.js is hosted on NPM, and can installed via package managers like npm and yarn
 
 ```sh
 npm install danfojs
 ```
 
-//Example usage in Nodejs
+### Example usage in Nodejs
 
 ```javascript
- dfd.read_csv("https://raw.githubusercontent.com/risenW/medium_tutorial_notebooks/master/train.csv")
-            .then(df => {
-                df.describe().print()
 
-          
+const dfd = require("danfojs")
+
+
+dfd.read_csv("https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/titanic.csv")
+  .then(df => {
+    //prints the first five columns
+    df.head().print()
+
+    //Calculate descriptive statistics for all numerical columns
+    df.describe().print()
+
+    //prints the shape of the data
+    console.log(df.shape);
+
+    //prints all column names
+    console.log(df.column_names);
+
+    //prints the inferred dtypes of each column
+    df.ctypes.print()
+
+    //selecting a column by subsettiing
+    df['Name'].print()
+
+    //drop columns by names
+    cols_2_remove = ['Age', 'Pclass']
+    df_drop = df.drop({ columns: cols_2_remove, axis: 1 })
+    df_drop.print()
+
+
+    //select columns by dtypes
+    let str_cols = df_drop.select_dtypes(["string"])
+    let num_cols = df_drop.select_dtypes(["int32", "float32"])
+    str_cols.print()
+    num_cols.print()
+
+
+    //add new column to Dataframe
+    let new_vals = df['Fare'].round().values
+    df_drop.addColumn({ column: "fare_round", value:  new_vals})
+    df_drop.print()
+
+    df_drop['fare_round'].print(5)
+
+    //prints the number of occurence each value in the column
+    df_drop['Survived'].value_counts().print()
+
+    //print the last ten elementa of a DataFrame
+    df_drop.tail(10).print()
+
+    //prints the number of missing values in a DataFrame
+    df_drop.isna().sum().print()
+
+  }).catch(err => {
+    console.log(err);
+  })
+
 ```
 
 To install via script tags, copy and paste the CDN below to your HTML file
 
-## Example Usage in the Browser
+```html
+  <script></script>
+```
+
+### Example Usage in the Browser
 
 ```html
 
@@ -107,6 +165,7 @@ To install via script tags, copy and paste the CDN below to your HTML file
                     }
                 };
 
+                //Displays plot in the specified div
                 df['Product_Weight'].plot("some_div", { kind: "histogram" })
                 df.plot("alldiv", { x: "Product_Price", y: "Product_Shelf_Visibility", kind: "scatter", mode: 'markers' })
 
@@ -120,74 +179,28 @@ To install via script tags, copy and paste the CDN below to your HTML file
 </html>
 ```
 
-
-See the [full installation instructions](https://pandas.pydata.org/pandas-docs/stable/install.html#dependencies) for minimum supported versions of required, recommended and optional dependencies.
-
 ## Installation from sources
-To install pandas from source you need Cython in addition to the normal
-dependencies above. Cython can be installed from pypi:
+To install danfo in [development mode], clone the repo:
 
 ```sh
-pip install cython
+git clone https://github.com/opensource9ja/danfojs
 ```
 
-In the `pandas` directory (same one where you found this file after
-cloning the git repo), execute:
+cd into danfojs folder and run:
 
 ```sh
-python setup.py install
+npm install
 ```
-
-or for installing in [development mode](https://pip.pypa.io/en/latest/reference/pip_install.html#editable-installs):
-
-
-```sh
-python -m pip install -e . --no-build-isolation --no-use-pep517
-```
-
-If you have `make`, you can also use `make develop` to run the same command.
-
-or alternatively
-
-```sh
-python setup.py develop
-```
-
-See the full instructions for [installing from source](https://pandas.pydata.org/pandas-docs/stable/install.html#installing-from-source).
-
-## License
-[BSD 3](LICENSE)
 
 ## Documentation
-The official documentation is hosted on PyData.org: https://pandas.pydata.org/pandas-docs/stable
-
-## Background
-Work on ``pandas`` started at AQR (a quantitative hedge fund) in 2008 and
-has been under active development since then.
-
-## Getting Help
-
-For usage questions, the best place to go to is [StackOverflow](https://stackoverflow.com/questions/tagged/pandas).
-Further, general questions and discussions can also take place on the [pydata mailing list](https://groups.google.com/forum/?fromgroups#!forum/pydata).
+The official documentation can be found [here](https://jsdata.gitbook.io/danfojs/)
 
 ## Discussion and Development
-Most development discussions take place on github in this repo. Further, the [pandas-dev mailing list](https://mail.python.org/mailman/listinfo/pandas-dev) can also be used for specialized discussions or design issues, and a [Gitter channel](https://gitter.im/pydata/pandas) is available for quick development related questions.
+Most development discussions take place on github in this repo. Feel free to use the issues tab. 
 
-## Contributing to pandas [![Open Source Helpers](https://www.codetriage.com/pandas-dev/pandas/badges/users.svg)](https://www.codetriage.com/pandas-dev/pandas)
+## Contributing to Danfo
+All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome. A detailed overview on how to contribute can be found in the [contributing guide](https://jsdata.gitbook.io/danfojs/contributing-guide). As contributors and maintainers to this project, you are expected to abide by danfo' code of conduct. More information can be found at: [Contributor Code of Conduct](https://github.com/pandas-dev/pandas/blob/master/.github/CODE_OF_CONDUCT.md) Javascript version of Pandas
 
-All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome.
+#### Licence [MIT](https://github.com/opensource9ja/danfojs/blob/master/LICENCE)
 
-A detailed overview on how to contribute can be found in the **[contributing guide](https://pandas.pydata.org/docs/dev/development/contributing.html)**. There is also an [overview](.github/CONTRIBUTING.md) on GitHub.
-
-If you are simply looking to start working with the pandas codebase, navigate to the [GitHub "issues" tab](https://github.com/pandas-dev/pandas/issues) and start looking through interesting issues. There are a number of issues listed under [Docs](https://github.com/pandas-dev/pandas/issues?labels=Docs&sort=updated&state=open) and [good first issue](https://github.com/pandas-dev/pandas/issues?labels=good+first+issue&sort=updated&state=open) where you could start out.
-
-You can also triage issues which may include reproducing bug reports, or asking for vital information such as version numbers or reproduction instructions. If you would like to start triaging issues, one easy way to get started is to [subscribe to pandas on CodeTriage](https://www.codetriage.com/pandas-dev/pandas).
-
-Or maybe through using pandas you have an idea of your own or are looking for something in the documentation and thinking ‘this can be improved’...you can do something about it!
-
-Feel free to ask questions on the [mailing list](https://groups.google.com/forum/?fromgroups#!forum/pydata) or on [Gitter](https://gitter.im/pydata/pandas).
-
-As contributors and maintainers to this project, you are expected to abide by pandas' code of conduct. More information can be found at: [Contributor Code of Conduct](https://github.com/pandas-dev/pandas/blob/master/.github/CODE_OF_CONDUCT.md)
-Javascript version of Pandas
-
-![Node.js CI](https://github.com/opensource9ja/danfojs/workflows/Node.js%20CI/badge.svg?branch=master)
+### Logo Design By [Seyi Oniyitan](https://twitter.com/seyioniyitan)
