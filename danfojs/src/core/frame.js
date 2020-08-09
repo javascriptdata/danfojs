@@ -2050,56 +2050,69 @@ export class DataFrame extends Ndframe {
             throw Error("Please specify a mapper object")
         }
 
-       if (kwargs['axis'] == 1){
-           //columns
-           let old_col_names = Object.keys(kwargs['mapper'])
-           let new_col_names = Object.values(kwargs['mapper'])
-           let col_names = this.column_names
-           
-   
-           old_col_names.forEach((cname,i)=>{
-               if (!col_names.includes(cname)){
-                   throw Error(`Label Error: Specified column '${cname}' not found in column axis`)
-               }
-               let idx = col_names.indexOf(cname)
-               col_names[idx] = new_col_names[i]
-               
-           })
-           if (kwargs['inplace']){
-               this.columns = col_names
-           }else{
-               let df = this.copy()
-               df.columns = col_names
-               return df
-           }
-       }else{
-           //row
+        if (kwargs['axis'] == 1) {
+            //columns
+            let old_col_names = Object.keys(kwargs['mapper'])
+            let new_col_names = Object.values(kwargs['mapper'])
+            let col_names = this.column_names
+
+
+            old_col_names.forEach((cname, i) => {
+                if (!col_names.includes(cname)) {
+                    throw Error(`Label Error: Specified column '${cname}' not found in column axis`)
+                }
+                let idx = col_names.indexOf(cname)
+                col_names[idx] = new_col_names[i]
+
+            })
+            if (kwargs['inplace']) {
+                this.columns = col_names
+                this.__set_col_property(this, this.col_data, col_names)
+            } else {
+                let df = this.copy()
+                df.columns = col_names
+                this.__set_col_property(df, df.col_data, col_names)
+                return df
+            }
+        } else {
+            //row
             let old_index = Object.keys(kwargs['mapper'])
             let row_index = this.index
             let new_index = []
-           
-            row_index.forEach(idx=>{
-                if (old_index.includes(idx)){
+
+            row_index.forEach(idx => {
+                if (old_index.includes(idx)) {
                     new_index.push(kwargs['mapper'][idx])
-                }else{
+                } else {
                     new_index.push(idx)
                 }
             })
 
-            if (kwargs['inplace']){
+            if (kwargs['inplace']) {
                 this.__set_index(new_index)
-            }else{
+            } else {
                 let df = this.copy()
                 df.__set_index(new_index)
                 return df
             }
 
-           
-       }
 
-        
+        }
+
+
     }
 
 
+    //set all columns to DataFrame Property. This ensures easy access to columns as Series
+    __set_col_property(self, col_vals, col_names) {
+        col_vals.forEach((col, i) => {
+            // self[col_names[i]] = new Series(col, { columns: col_names[i], index: self.index })
+            Object.defineProperty(self, col_names[i], {
+                get() {
+                    return new Series(col, { columns: col_names[i], index: self.index })
+                }
+            })
+        });
+    }
 }
 
