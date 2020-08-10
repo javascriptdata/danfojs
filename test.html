@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <script src="https://cdn.jsdelivr.net/npm/danfojs@0.0.10/dist/index.min.js"></script> -->
-        <script src="dist/index.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/danfojs@0.0.11/dist/index.min.js"></script> -->
+    <script src="dist/index.js"></script>
     <title>Document</title>
 </head>
 
@@ -46,9 +46,9 @@
                     }
                 };
 
-                //Displays plot in the specified div
-                // df['Product_Weight'].plot("some_div", { kind: "histogram" })
-                // df.plot("alldiv", { x: "Product_Price", y: "Product_Shelf_Visibility", kind: "scatter", mode: 'markers' })
+                // Displays plot in the specified div
+                df['Product_Weight'].plot("some_div", { kind: "histogram" })
+                df.plot("alldiv", { x: "Product_Price", y: "Product_Shelf_Visibility", kind: "scatter", mode: 'markers' })
 
 
             }).catch(err => {

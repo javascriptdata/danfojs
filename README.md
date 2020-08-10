@@ -40,7 +40,7 @@ easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org
     generation and date and time properties. 
 
 
-## How to install
+<!-- ## How to install
 danfo.js is hosted on NPM, and can installed via package managers like npm and yarn
 
 ```sh
@@ -107,12 +107,12 @@ dfd.read_csv("https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/t
     console.log(err);
   })
 
-```
+``` -->
 
-To install via script tags, copy and paste the CDN below to your HTML file
+To use danfo.js via script tags, copy and paste the CDN below to your HTML file
 
 ```html
-  <script src="https://cdn.jsdelivr.net/npm/danfojs@0.0.9/dist/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/danfojs@0.0.11/dist/index.min.js"></script>
 ```
 
 ### Example Usage in the Browser
@@ -124,7 +124,7 @@ To install via script tags, copy and paste the CDN below to your HTML file
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/danfojs@0.0.9/dist/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/danfojs@0.0.11/dist/index.min.js"></script>
     <title>Document</title>
 </head>
 
@@ -178,6 +178,9 @@ To install via script tags, copy and paste the CDN below to your HTML file
 
 </html>
 ```
+
+### To install Node.js version, go [here](https://www.npmjs.com/package/danfojs-node)
+
 
 ## Installation from sources
 To install danfo in [development mode], clone the repo:
