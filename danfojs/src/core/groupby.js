@@ -306,6 +306,18 @@ export class GroupBy {
         return df
     }
 
+    max(){
+        let value = this.arithemetic("max()")
+        let df = this.to_DataFrame(this.key_col, this.group_col_name,value,"max")
+        return df
+    }
+
+    min(){
+        let value = this.arithemetic("min()")
+        let df = this.to_DataFrame(this.key_col, this.group_col_name,value,"min")
+        return df
+    }
+
     /**
      * returns dataframe of a group
      * @param {*} key [Array] 
@@ -396,7 +408,7 @@ export class GroupBy {
             }
             let column = [...key_col]
             let group_col = col.slice().map((x,i)=>{
-                if(ops.length >1){
+                if(Array.isArray(ops)){
                     return `${x}_${ops[i]}`
                 }
                 return `${x}_${ops}`
