@@ -10,12 +10,18 @@ export class Merge {
         utils.__in_object(kwargs, "left")
         utils.__in_object(kwargs, "right")
         utils.__in_object(kwargs, "on")
-        utils.__in_object(kwargs, "how")
+        // utils.__in_object(kwargs, "how")
+        if(!utils.__key_in_object(kwargs, "how")){
+            this.how = 'inner'
+            kwargs['how'] = 'inner'
+        }else{
+            this.how = kwargs['how']
+        }
 
         this.left = null;
         this.right = null;
         this.on = null;
-        this.how = null;
+        // this.how = null;
 
         let how_keys = ["outer", "inner", "left", "right"]
 

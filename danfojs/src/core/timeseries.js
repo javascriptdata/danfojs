@@ -300,7 +300,7 @@ export class TimeSeries {
 }
 
 
-export const to_date_time = (kwargs)=>{
+export const to_datetime = (kwargs)=>{
 
     let timeseries = new TimeSeries(kwargs); // parsed to date-time
     timeseries.preprocessed() // generate date-time list
