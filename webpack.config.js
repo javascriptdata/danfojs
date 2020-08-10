@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-    entry: './danfojs/src/index.js',
+    entry: './dist/index.js',
     output: {
         path: path.resolve(__dirname, "dist"),
         library: 'dfd',
