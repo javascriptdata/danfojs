@@ -40,7 +40,7 @@ easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org
     generation and date and time properties. 
 
 
-<!-- ## How to install
+## How to install
 danfo.js is hosted on NPM, and can installed via package managers like npm and yarn
 
 ```sh
@@ -107,7 +107,7 @@ dfd.read_csv("https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/t
     console.log(err);
   })
 
-``` -->
+```
 
 To use danfo.js via script tags, copy and paste the CDN below to your HTML file
 
