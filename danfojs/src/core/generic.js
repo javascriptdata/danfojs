@@ -1,5 +1,5 @@
-import * as tf from '@tensorflow/tfjs-node'
-// import * as tf from '@tensorflow/tfjs'
+// import * as tf from '@tensorflow/tfjs-node'
+import * as tf from '@tensorflow/tfjs'
 import { table } from 'table'
 import { Utils } from './utils'
 import { Configs } from '../config/config'
@@ -203,17 +203,6 @@ export default class NDframe {
 
 
     /**
-     * Sets the data types of an NDFrame 
-     * @return {Array} list of data type for each column
-     */
-    astype(dtypes) {
-        this.__set_col_types(dtypes, false)
-        return this
-    }
-
-
-
-    /**
      * Gets dimension of the NDFrame
      * @returns {Integer} dimension of NDFrame
      */
@@ -232,7 +221,7 @@ export default class NDframe {
     */
     get axes() {
         let axes = {
-            "index": [...Array(this.data.length - 1).keys()],
+            "index": this.index,
             "columns": this.columns
         }
         return axes
@@ -317,50 +306,56 @@ export default class NDframe {
         return this.row_data_tensor.size
     }
 
-    // /**
-    // * Write object to a comma-separated values (csv) file.
-    //  * @params {path} File path or object, if None is provided the result is returned as a string
-    //  */
-    // async to_csv(path = "") {
-    //     let records = this.values
+    /**
+    * Return object data as comma-separated values (csv).
+     * @returns {String} CSV representation of Object data
+     */
+    async to_csv() {
+        if (this.series) {
+            let csv = this.values.join(",")
+            return csv
+        } else {
+            let records = this.values
+            let header = this.column_names.join(",")
 
-    //     if (path == "" || path == undefined) {
-    //         //return string version of CSV
-    //         const csvStringifier = createArrayCsvStringifier({
-    //             header: this.column_names
-    //         });
-    //         let head = csvStringifier.getHeaderString()
-    //         let csv_string = csvStringifier.stringifyRecords(records)
-    //         let file = `${head}${csv_string}`
-    //         return file
-
-    //     } else {
-    //         //save to path and return path uri of CSV
-    //         const csvWriter = createArrayCsvWriter({
-    //             header: this.column_names,
-    //             path: path
-    //         });
-
-    //         csvWriter.writeRecords(records)
-    //             .then(() => {
-    //                 console.log(`CSV file saved in ${path}`)
-    //                 return path
-    //             }).catch((err) => {
-    //                 throw Error(err)
-    //             })
-    //     }
+            let csv_str = `${header}\n`
+            records.forEach(val => {
+                let row = `${val.join(",")}\n`
+                csv_str += row
+            })
+            return csv_str
+        }
 
 
+    }
 
-    // }
 
-    //     /**
-    //    * Write object to a JSON Format (csv) file.
-    //     * @params {path} File path or object, if None is provided the result is returned as a string
-    //     */
-    //     to_json(kwargs = {}) {
-    //         //TODO
-    //     }
+    /**
+    * Return object as JSON string.
+    * @returns {JSON} JSON representation of Object data
+    */
+    async to_json() {
+        if (this.series) {
+            let obj = {}
+            obj[this.column_names[0]] = this.values
+            let json = JSON.stringify(obj)
+            return json
+        } else {
+            let values = this.values
+            let header = this.column_names
+            let json_arr = []
+            values.forEach(val => {
+                let obj = {}
+                header.forEach((h, i) => {
+                    obj[h] = val[i]
+                })
+                json_arr.push(obj)
+
+            })
+            return JSON.stringify(json_arr)
+        }
+    }
+    
 
     /**
     * Prints the data in a Series as a grid of row and columns
@@ -447,10 +442,11 @@ export default class NDframe {
 
 
     /**
-    * Pretty prints a DataFrame or Series in the console
+    * Pretty prints n number of rows in a DataFrame or Series in the console
+    * @param {rows} Number of rows to print
     */
-    print() {
-        console.log(this + "");
+    print(rows = 5) {
+        console.log(this.head(rows) + "");
     }
 
 }

@@ -4,6 +4,7 @@ module.exports = {
     entry: './danfojs/src/index.js',
     output: {
         path: path.resolve(__dirname, "dist"),
+        filename: 'index.js',
         library: 'dfd',
     },
     module: {
@@ -12,8 +13,7 @@ module.exports = {
                 test: /\.js$/,
                 exclude: /node_modules/,
                 use: ["babel-loader",
-                    "source-map-loader",
-                    'ify-loader'],
+                    "source-map-loader"],
                 enforce: 'pre',
             },
         ]

@@ -1,7 +1,7 @@
 import Ndframe from "./generic"
 import { Series } from "./series"
-import * as tf from '@tensorflow/tfjs-node'
-// import * as tf from '@tensorflow/tfjs'
+// import * as tf from '@tensorflow/tfjs-node'
+import * as tf from '@tensorflow/tfjs'
 import { Utils } from "./utils"
 import { GroupBy } from "./groupby"
 // import { Plot } from '../plotting/plot'
@@ -55,13 +55,16 @@ export class DataFrame extends Ndframe {
      *            
      */
     drop(kwargs = {}) {
-
+        let params_needed = ["columns", "index", "inplace", "axis"]
+        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
+        }
         // utils.__in_object(kwargs, "columns", "value not defined")
         if (!utils.__key_in_object(kwargs, "inplace")) {
             kwargs['inplace'] = false
         }
         if (!utils.__key_in_object(kwargs, "axis")) {
-            kwargs['axis'] = 0
+            kwargs['axis'] = 1
         }
         let data;
         if (utils.__key_in_object(kwargs, "index") && kwargs['axis'] == 0) {
@@ -72,6 +75,9 @@ export class DataFrame extends Ndframe {
 
 
         if (kwargs['axis'] == 1) {
+            if (!utils.__key_in_object(kwargs, "columns")) {
+                throw Error("No column found. Axis of 1 must be accompanied by an array of column(s) names")
+            }
             let self = this;
             const index = data.map((x) => {
                 let col_idx = self.columns.indexOf(x)
@@ -81,36 +87,63 @@ export class DataFrame extends Ndframe {
                 return col_idx
             });
             const values = this.values
-
+            let new_dtype = []
             let new_data = values.map(function (element) {
                 let new_arr = utils.__remove_arr(element, index);
+                new_dtype = utils.__remove_arr(self.dtypes, index);
                 return new_arr;
             });
 
             if (!kwargs['inplace']) {
+                let old_cols = this.columns
                 let columns = utils.__remove_arr(this.columns, index);
-                return new DataFrame(new_data, { columns: columns, index: this.index })
+                let df = new DataFrame(new_data, { columns: columns, index: self.index, dtypes: new_dtype })
+                df.__set_col_property(df, df.col_data, columns, old_cols)
+                return df
+
             } else {
-                this.columns = utils.__remove_arr(this.columns, index);
+                let new_cols = utils.__remove_arr(this.columns, index);
+                let old_cols = this.columns
+                this.columns = new_cols
                 this.row_data_tensor = tf.tensor(new_data);
                 this.data = new_data
+                this.__set_col_types(new_dtype, false)
+                this.__set_col_property(this, this.col_data, new_cols, old_cols)
             }
 
         } else {
+            if (!utils.__key_in_object(kwargs, "index")) {
+                throw Error("No index label found. Axis of 0 must be accompanied by an array of index labels")
+            }
             data.map((x) => {
                 if (!this.index.includes(x)) throw new Error(`${x} does not exist in index`)
             });
             const values = this.values
+            let data_idx = []; let new_data, new_index;
+            if (typeof data[0] == 'string') {
+                //get index of strings labels in rows
+                this.index.forEach((idx, i) => {
+                    if (data.includes(idx)) {
+                        data_idx.push(i)
+                    }
+                })
+                new_data = utils.__remove_arr(values, data_idx);
+                new_index = utils.__remove_arr(this.index, data_idx);
 
-            let new_data = utils.__remove_arr(values, data);
-            let new_index = utils.__remove_arr(this.index, data);
+            } else {
+                new_data = utils.__remove_arr(values, data);
+                new_index = utils.__remove_arr(this.index, data);
+            }
+
 
             if (!kwargs['inplace']) {
                 return new DataFrame(new_data, { columns: this.columns, index: new_index })
+
             } else {
                 this.row_data_tensor = tf.tensor(new_data);
                 this.data = new_data
                 this.__set_index(new_index)
+
             }
         }
     }
@@ -669,17 +702,12 @@ export class DataFrame extends Ndframe {
     }
 
     /**
-   * Generate a new DataFrame with the index reset.
-   * This is useful when the index needs to be treated as a column, 
-   * or when the index is meaningless and needs to be reset to the default before another operation.
-   * @param {kwargs} {inplace: Modify the Series in place (do not create a new object.}
+   * Generate a new index for the DataFrame.
+   * This is useful when the index is meaningless and needs to be reset to the default before another operation.
+   * @param {inplace} boolean: Modify the original object or return a new one. Default to false
    */
-    reset_index(kwargs = {}) {
-        if (!utils.__key_in_object(kwargs, 'inplace')) {
-            kwargs['inplace'] = false
-        }
-
-        if (kwargs['inplace']) {
+    reset_index(inplace = false) {
+        if (inplace) {
             this.__reset_index()
         } else {
             let df = this.copy()
@@ -817,8 +845,9 @@ export class DataFrame extends Ndframe {
 
 
     /**
-    * Sort a Dataframe in ascending or descending order by some criterion.
-    *  @param {kwargs} Object, {ascending (Bool): Whether to return sorted values in ascending order or not,
+    * Sort a Dataframe in ascending or descending order by a specified column name.
+    *  @param {kwargs} Object, {by: Column name to sort by
+    *                           ascending (Bool): Whether to return sorted values in ascending order or not,
     *                           inplace (Bool): Whether to perform sorting on the original Series or not}
     * @returns {Series}
     */
@@ -1054,9 +1083,17 @@ export class DataFrame extends Ndframe {
             this.data = new_data;
             this.col_data = utils.__get_col_values(new_data)
             this.data_tensor = tf.tensor(new_data)
-            this.columns.push(column_name);
+            let old_col_names = this.columns
+            old_col_names.push(column_name)
+            let new_cols = old_col_names
+            this.columns = new_cols
             this[column_name] = new Series(value)
-            // this[column_name] = new Series(value, { columns: column_name, index: this.index })
+            // this.__set_col_property(this, this.col_data, new_cols, old_col_names,true)
+            Object.defineProperty(this, column_name, {
+                get() {
+                    return new Series(value, { columns: column_name, index: this.index })
+                }
+            })
         }
     }
 
@@ -1845,10 +1882,10 @@ export class DataFrame extends Ndframe {
         * Returns the data types in the DataFrame 
         * @return {Array} list of data types for each column
         */
-     get ctypes() {
+    get ctypes() {
         let cols = this.column_names
         let d_types = this.col_types
-        let sf = new Series(d_types, {index: cols})
+        let sf = new Series(d_types, { index: cols })
         return sf
     }
 
@@ -1864,7 +1901,237 @@ export class DataFrame extends Ndframe {
     // }
 
 
+    /**
+     * Returns the Tensorflow tensor backing the DataFrame Object
+     * @returns {2D tensor}
+     */
+    get tensor() {
+        return this.row_data_tensor
+    }
 
 
+    /**
+     * Sets the data types of an DataFrame 
+     * @param {Object} kwargs {column: Name of the column to cast, dtype: [float32, int32, string] data type to cast to}
+     * @returns {DataFrame}
+     */
+    astype(kwargs = {}) {
+        if (!utils.__key_in_object(kwargs, "column")) {
+            throw Error("Value Error: Please specify a column to cast")
+        }
+
+        if (!utils.__key_in_object(kwargs, "dtype")) {
+            throw Error("Value Error: Please specify dtype to cast to")
+        }
+
+
+        if (!this.column_names.includes(kwargs['column'])) {
+            throw Error(`'${kwargs['column']}' not found in columns`)
+        }
+
+        let col_idx = this.column_names.indexOf(kwargs['column'])
+        let new_types = this.col_types
+        let col_values = this.col_data
+
+        new_types[col_idx] = kwargs['dtype']
+        let new_col_values = []
+        let temp_col = col_values[col_idx]
+
+
+        switch (kwargs['dtype']) {
+            case "float32":
+                temp_col.map(val => {
+                    new_col_values.push(Number(val))
+                })
+                col_values[col_idx] = new_col_values
+                break;
+            case "int32":
+                temp_col.map(val => {
+                    new_col_values.push(Number(Number(val).toFixed()))
+                })
+                col_values[col_idx] = new_col_values
+
+                break;
+            case "string":
+                temp_col.map(val => {
+                    new_col_values.push(String(val))
+                })
+                col_values[col_idx] = new_col_values
+                break;
+            default:
+                break;
+        }
+
+        let new_col_obj = []
+        this.column_names.forEach((cname, i) => {
+            let _obj = {}
+            _obj[cname] = col_values[i]
+            new_col_obj.push(_obj)
+        })
+
+        let df = new DataFrame(new_col_obj, { dtypes: new_types, index: this.index })
+        return df
+
+    }
+
+    /**
+    * Return the unique values along an axis
+    * @param {axis} Int, 0 for row, and 1 for column. Default to 1
+    * @return {Object}
+    */
+    unique(axis = 1) {
+        if (axis == undefined || axis > 1 || axis < 0) {
+            throw Error(`Axis Error: Please specify a correct axis. Axis must either be '0' or '1', got ${axis}`)
+        }
+        let _unique = {}
+        if (axis == 1) {
+            //column
+            let col_names = this.column_names
+            col_names.forEach(cname => {
+                _unique[cname] = this[cname].unique().values
+            })
+
+        } else {
+            let rows = this.values
+            let _index = this.index
+            rows.forEach((row, i) => {
+                let data_set = new Set(row)
+                _unique[_index[i]] = Array.from(data_set)
+            })
+        }
+
+        return _unique
+
+    }
+
+    /**
+     * Return the number of unique value along an axis
+     * @param {axis} Int, 0 for row, and 1 for column. Default to 1
+     * @return {Series}
+     */
+    nunique(axis = 1) {
+        if (axis == undefined || axis > 1 || axis < 0) {
+            throw Error(`Axis Error: Please specify a correct axis. Axis must either be '0' or '1', got ${axis}`)
+        }
+
+        let _nunique = []
+        if (axis == 1) {
+            //column
+            let col_names = this.column_names
+            col_names.forEach(cname => {
+                _nunique.push(this[cname].unique().values.length)
+            })
+            let sf = new Series(_nunique, { index: this.column_names })
+            return sf
+
+        } else {
+            let rows = this.values
+            rows.forEach(row => {
+                let data_set = new Set(row)
+                _nunique.push(Array.from(data_set).length)
+            })
+
+        } let sf = new Series(_nunique, { index: this.index })
+        return sf
+
+    }
+
+
+
+    /**
+     * Change axes labels. Object values must be unique (1-to-1). 
+     * Labels not contained in a dict / Series will be left as-is. Extra labels listed don’t throw an error.
+     * @param {Object} kwargs {mapper: Dict-like or functions transformations to apply to that axis’ values,
+     *                          axis: Int, 0 for row, and 1 for column. Default to 1,
+     *                         inplace: Whether to return a new DataFrame. If True then value of copy is ignored.
+     * @returns {DataFrame}
+     */
+    rename(kwargs = {}) {
+
+        let params_needed = ["mapper", "inplace", "axis"]
+        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
+        }
+        // utils.__in_object(kwargs, "columns", "value not defined")
+        if (!utils.__key_in_object(kwargs, "inplace")) {
+            kwargs['inplace'] = false
+        }
+        if (!utils.__key_in_object(kwargs, "axis")) {
+            kwargs['axis'] = 1
+        }
+        if (!utils.__key_in_object(kwargs, "mapper")) {
+            throw Error("Please specify a mapper object")
+        }
+
+        if (kwargs['axis'] == 1) {
+            //columns
+            let old_col_names = Object.keys(kwargs['mapper'])
+            let new_col_names = Object.values(kwargs['mapper'])
+            let col_names = this.column_names
+
+
+            old_col_names.forEach((cname, i) => {
+                if (!col_names.includes(cname)) {
+                    throw Error(`Label Error: Specified column '${cname}' not found in column axis`)
+                }
+                let idx = col_names.indexOf(cname)
+                col_names[idx] = new_col_names[i]
+
+            })
+            if (kwargs['inplace']) {
+                this.columns = col_names
+                this.__set_col_property(this, this.col_data, col_names, old_col_names)
+            } else {
+                let df = this.copy()
+                df.columns = col_names
+                this.__set_col_property(df, df.col_data, col_names, old_col_names)
+                return df
+            }
+        } else {
+            //row
+            let old_index = Object.keys(kwargs['mapper'])
+            let row_index = this.index
+            let new_index = []
+
+            row_index.forEach(idx => {
+                if (old_index.includes(idx)) {
+                    new_index.push(kwargs['mapper'][idx])
+                } else {
+                    new_index.push(idx)
+                }
+            })
+
+            if (kwargs['inplace']) {
+                this.__set_index(new_index)
+            } else {
+                let df = this.copy()
+                df.__set_index(new_index)
+                return df
+            }
+
+
+        }
+
+
+    }
+
+
+    //set all columns to DataFrame Property. This ensures easy access to columns as Series
+    __set_col_property(self, col_vals, col_names, old_col_names) {
+        //delete old name
+        old_col_names.forEach(name => {
+            delete self[name]
+        })
+
+        col_vals.forEach((col, i) => {
+            // self[col_names[i]] = new Series(col, { columns: col_names[i], index: self.index })
+            Object.defineProperty(self, col_names[i], {
+                get() {
+                    return new Series(col, { columns: col_names[i], index: self.index })
+                }
+            })
+        });
+
+    }
 }
 

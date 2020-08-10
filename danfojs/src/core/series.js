@@ -1,6 +1,6 @@
-import * as tf from '@tensorflow/tfjs-node'
+// import * as tf from '@tensorflow/tfjs-node'
 import { std, variance } from 'mathjs'
-// import * as tf from '@tensorflow/tfjs'
+import * as tf from '@tensorflow/tfjs'
 import { Utils } from "./utils"
 import { Str } from "./strings"
 import NDframe from "./generic"
@@ -537,19 +537,20 @@ export class Series extends NDframe {
 
 
         let sorted_arr = []
-        let sorted_idx = []
-        let arr_tensor = tf.clone(this.tensor)
         let arr_obj = [...this.values]
 
-        for (let i = 0; i < this.shape[0]; i++) {
-            let min_idx = arr_tensor.argMin().arraySync() //TODO Use JS Array implementation instead of TF 
-            sorted_arr.push(this.values[min_idx])
-            sorted_idx.push(this.index[min_idx])
-            arr_obj[min_idx] = NaN  //replace with NaN string
-            arr_tensor = tf.tensor(arr_obj)
-        }
+        const dsu = (arr1, arr2) => arr1
+            .map((item, index) => [arr2[index], item]) // add the args to sort by
+            .sort(([arg1], [arg2]) => arg2 - arg1) // sort by the args
+            .map(([, item]) => item); // extract the sorted items
 
-        if (!options['ascending']) {
+        let range_idx = utils.__range(0, this.index.length - 1)
+        let sorted_idx = dsu(range_idx, arr_obj);
+
+        sorted_idx.forEach(idx=>{
+            sorted_arr.push(this.values[idx])
+        })
+        if (options['ascending']) {
             sorted_arr = sorted_arr.reverse()
             sorted_idx = sorted_idx.reverse()
         }
@@ -571,7 +572,7 @@ export class Series extends NDframe {
     copy() {
         let sf = new Series([...this.values], { columns: [...this.column_names] })
         sf.__set_index([...this.index])
-        sf.astype([...this.dtypes], false)
+        // sf.astype([...this.dtypes], false)
         return sf
     }
 
@@ -749,7 +750,7 @@ export class Series extends NDframe {
      * Return the number of unique value in a series
      * @return {int}
      */
-    nunique(){
+    nunique() {
 
         let unique = this.unique().values
 
@@ -1210,6 +1211,54 @@ export class Series extends NDframe {
         }
         return new Series(data)
     }
+
+
+    /**
+     * Sets the data types of a Series 
+     * @param {dtype} String [float32, int32, string] data type to cast to.
+     *@returns {Series}
+     */
+    astype(dtype) {
+
+        if (dtype == undefined) {
+            throw Error("Value Error: Please specify dtype to cast to")
+        }
+
+        const __supported_dtypes = ['float32', "int32", 'string', 'boolean']
+
+        if (!__supported_dtypes.includes(dtype)) {
+            throw Error(`dtype ${dtype} not supported`)
+        }
+
+        let col_values = this.values
+        let new_values = []
+
+        switch (dtype) {
+            case "float32":
+                col_values.map(val => {
+                    new_values.push(Number(val))
+                })
+                break;
+            case "int32":
+                col_values.map(val => {
+                    new_values.push(Number(Number(val).toFixed()))
+                })
+                break;
+            case "string":
+                col_values.map(val => {
+                    new_values.push(String(val))
+                })
+                break;
+            default:
+                break;
+        }
+
+
+        let sf = new Series(new_values, { dtypes: dtype, index: this.index })
+        return sf
+
+    }
+
 
     /**
      * Returns String Object of series. Has numerous methods to manipulate string Series

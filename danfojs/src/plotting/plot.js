@@ -1,5 +1,5 @@
 // //perform plotting
-// import * as Plotly from 'plotly.js/dist/plotly'
+// // import {newPlot} from 'plotly.js/dist/plotly'
 // import { Utils } from "../core/utils"
 // const utils = new Utils()
 
@@ -30,7 +30,7 @@
 //                 type: this_config["kind"],
 //                 mode: this_config["mode"]
 //             }
-//             Plotly.newPlot(div, [trace], this_config['layout']);
+//             newPlot(div, [trace], this_config['layout']);
 
 //         } else {
 //             //DataFrame
@@ -53,7 +53,7 @@
 //                 this_config['layout']['yaxis'] = yaxis
 
 
-//                 Plotly.newPlot(div, [trace], this_config['layout']);
+//                 newPlot(div, [trace], this_config['layout']);
 
 //             } else {
 //                 //plot all
@@ -70,7 +70,7 @@
 //                     data.push(trace)
 
 //                 })
-//                 Plotly.newPlot(div, data, this_config['layout']);
+//                 newPlot(div, data, this_config['layout']);
 //             }
 
 

@@ -4,4 +4,4 @@ coverage
 .nyc_output
 dist
 danfojs/data
-dist/test.html
+test.html

@@ -1,7 +1,7 @@
 {
-  "name": "danfojs",
-  "version": "0.0.1",
-  "description": "Javascript version of Pandas. A library of data manipulation and analysis",
+  "name": "danfojs-node",
+  "version": "0.0.4",
+  "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
   "main": "dist/index.js",
   "contributors": [
     {
@@ -16,19 +16,17 @@
     "danfojs/src/"
   ],
   "dependencies": {
-    "@tensorflow/tfjs-node": "^2.1.0",
-    "ify-loader": "^1.1.0",
+    "@tensorflow/tfjs": "2.1.0",
+    "@tensorflow/tfjs-core": "^2.1.0",
     "mathjs": "^7.1.0",
-    "plotly.js": "^1.54.7",
     "table": "^5.4.6"
   },
   "scripts": {
-    "test": "nyc mocha --require @babel/register danfojs/tests/core/groupby",
+    "test": "nyc mocha --require @babel/register danfojs/tests/*",
     "dev": "npm run lint && babel ./danfojs/src -d dist --no-comments",
     "build": "babel ./danfojs/src -d ./dist --no-comments",
     "lint": "eslint ./danfojs/src",
-    "bundle": "webpack --mode development",
-    "prepublishOnly": "npm run bundle",
+    "bundle": "webpack --mode production",
     "patch": "npm version patch",
     "publish": "npm publish"
   },
@@ -58,9 +56,12 @@
     "chai": "^4.2.0",
     "eslint": "^7.1.0",
     "mocha": "^7.2.0",
+    "mocha-loader": "^5.1.2",
+    "mocha-webpack": "^1.1.0",
     "nyc": "^15.1.0",
-    "source-map-loader": "^1.0.0",
     "parcel-bundler": "^1.12.4",
+    "source-map-loader": "^1.0.0",
+    "transform-loader": "^0.2.4",
     "webpack": "^4.44.0",
     "webpack-cli": "^3.3.12"
   },

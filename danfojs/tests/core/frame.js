@@ -9,7 +9,7 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            assert.throws(function () { df.drop({ columns: [3], axis: 0, inplace: false }) }, Error, '3 does not exist in index');
+            assert.throws(function () { df.drop({ columns: [3], axis: 0, inplace: false }) }, Error, 'No index label found. Axis of 0 must be accompanied by an array of index labels');
         })
         it("throw error for wrong row index", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
@@ -53,6 +53,30 @@ describe("DataFrame", function () {
             let expected_cols = ["A", "B"]
             let expected_df = new DataFrame(expected_data, { columns: expected_cols })
             assert.deepEqual(df_drop.values, expected_df.values);
+        })
+        it("check that the dtype is updated after column drop", function () {
+            let data = [[1, 2, 3], [4, 5, 6]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            df.drop({ columns: ["A"], axis: 1, inplace: true });
+            let dtype = ['int32', 'int32']
+            assert.deepEqual(df.ctypes.values, dtype);
+        })
+        it("drop row by single string labels", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [20, 34, 5]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols, index: ["a", "b", "c"] })
+            df.drop({ index: ["a"], axis: 0, inplace: true });
+            let new_data = [[4, 5, 6], [20, 34, 5]]
+            assert.deepEqual(df.values, new_data);
+        })
+        it("drop row by two or more string labels", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [20, 34, 5], [2, 3.4, 5], [2.0, 340, 5]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols, index: ["a", "b", "c", "a", "b"] })
+            df.drop({ index: ["a", "b"], axis: 0, inplace: true });
+            let new_data = [[20, 34, 5]]
+            assert.deepEqual(df.values, new_data);
         })
     })
 
@@ -199,7 +223,7 @@ describe("DataFrame", function () {
             { "Price": [200, 300, 40, 250] }]
 
             let df = new DataFrame(data)
-            df.set_index({ key: ["a", "b", "c", "a"], inplace: true})
+            df.set_index({ key: ["a", "b", "c", "a"], inplace: true })
             let sub_df = df.loc({ rows: ["a"], columns: ["Name", "Count"] })
             let expected = [["Apples", 21], ["Pear", 10]]
             assert.deepEqual(sub_df.values, expected)
@@ -211,9 +235,9 @@ describe("DataFrame", function () {
             { "Price": [200, 300, 40, 250] }]
 
             let df = new DataFrame(data)
-            df.set_index({ key: ["a", "b", "c", "a"], inplace: true})
+            df.set_index({ key: ["a", "b", "c", "a"], inplace: true })
             let sub_df = df.loc({ rows: ["a", "b"], columns: ["Name", "Count"] })
-            let expected = [["Apples", 21],["Mango", 5], ["Pear", 10]]
+            let expected = [["Apples", 21], ["Mango", 5], ["Pear", 10]]
             assert.deepEqual(sub_df.values, expected)
 
         })
@@ -223,9 +247,9 @@ describe("DataFrame", function () {
             { "Price": [200, 300, 40, 250] }]
 
             let df = new DataFrame(data)
-            df.set_index({ key: ["a", "b", "c", "d"], inplace: true})
+            df.set_index({ key: ["a", "b", "c", "d"], inplace: true })
             let sub_df = df.loc({ rows: ["a:c"], columns: ["Name", "Count"] })
-            let expected = [["Apples", 21],["Mango", 5], ["Banana", 30]]
+            let expected = [["Apples", 21], ["Mango", 5], ["Banana", 30]]
             assert.deepEqual(sub_df.values, expected)
 
         })
@@ -804,8 +828,8 @@ describe("DataFrame", function () {
             let data = [[0, 2, 4], [360, 180, 360], [0, 2, 4], [360, 180, 360], [0, 2, 4]]
             let df = new DataFrame(data)
             df.set_index({ "key": ["one", "two", "three", "four", "five"], "inplace": true })
-            let df_new = df.reset_index()
-            assert.deepEqual(df_new.index, [0, 1, 2, 3, 4])
+            df.reset_index(true)
+            assert.deepEqual(df.index, [0, 1, 2, 3, 4])
         })
 
     })
@@ -1763,6 +1787,176 @@ describe("DataFrame", function () {
 
     })
 
+
+    describe("astype", function () {
+        it("set type of float column to int", function () {
+            let data = [{ "A": [-20.1, 30, 47.3, -20] },
+            { "B": [34, -4, 5, 6] },
+            { "C": [20.1, -20.23, 30.3, 40.11] },
+            { "D": ["a", "b", "c", "c"] }]
+            let ndframe = new DataFrame(data)
+            let df = ndframe.astype({ column: "A", dtype: "int32" })
+
+            assert.deepEqual(df.dtypes, ['int32', 'int32', 'float32', 'string'])
+            assert.deepEqual(df['A'].values, [-20, 30, 47, -20])
+
+        })
+        it("set type of int column to float", function () {
+            let data = [{ "A": [-20.1, 30, 47.3, -20] },
+            { "B": [34, -4, 5, 6] },
+            { "C": [20.1, -20.23, 30.3, 40.11] },
+            { "D": ["a", "b", "c", "c"] }]
+            let ndframe = new DataFrame(data)
+            let df = ndframe.astype({ column: "B", dtype: "float32" })
+
+            assert.deepEqual(df.dtypes, ['float32', 'float32', 'float32', 'string'])
+            assert.deepEqual(df['B'].values, [34, -4, 5, 6])
+
+        })
+        it("set type of string column to int", function () {
+            let data = [{ "A": [-20.1, 30, 47.3, -20] },
+            { "B": [34, -4, 5, 6] },
+            { "C": [20.1, -20.23, 30.3, 40.11] },
+            { "D": ["20.1", "21", "23.4", "50.78"] }]
+            let ndframe = new DataFrame(data)
+            let df = ndframe.astype({ column: "D", dtype: "int32" })
+
+            assert.deepEqual(df.dtypes, ['float32', 'int32', 'float32', 'int32'])
+            assert.deepEqual(df['D'].values, [20, 21, 23, 51])
+
+        })
+        it("set type of string column to float", function () {
+            let data = [{ "A": [-20.1, 30, 47.3, -20] },
+            { "B": [34, -4, 5, 6] },
+            { "C": [20.1, -20.23, 30.3, 40.11] },
+            { "D": ["20.1", "21", "23.4", "50.78"] }]
+            let ndframe = new DataFrame(data)
+            let df = ndframe.astype({ column: "D", dtype: "float32" })
+
+            assert.deepEqual(df.dtypes, ['float32', 'int32', 'float32', 'float32'])
+            assert.deepEqual(df['D'].values, [20.1, 21, 23.4, 50.78])
+
+        })
+    })
+
+
+    describe("nunique", function () {
+        it("Returns the number of unique elements along axis 1", function () {
+            let data = [{ "A": [-20, 30, 47.3, -20] },
+            { "B": [34, -4, 5, 6] },
+            { "C": [20, 20, 30, 30] },
+            { "D": ["a", "b", "c", "c"] }]
+
+            let ndframe = new DataFrame(data)
+            let df = ndframe.nunique(1)
+            let res = [3, 4, 2, 3]
+            assert.deepEqual(df.values, res)
+
+        })
+        it("Returns the number of unique elements along axis 0", function () {
+            let data = [{ "A": [20, 30, 47.3, 30] },
+            { "B": [34, -4, 5, 30] },
+            { "C": [20, 20, 30, 30] },
+            { "D": ["a", "b", "c", "c"] }]
+
+            let ndframe = new DataFrame(data)
+            let df = ndframe.nunique(0)
+            let res = [3, 4, 4, 2]
+            assert.deepEqual(df.values, res)
+
+        })
+
+    })
+
+
+    describe("unique", function () {
+        it("Returns the unique elements along axis 1", function () {
+            let data = [{ "A": [-20, 30, 47.3, -20] },
+            { "B": [34, -4, 5, 6] },
+            { "C": [20, 20, 30, 30] },
+            { "D": ["a", "b", "c", "c"] }]
+
+            let ndframe = new DataFrame(data)
+            let df = ndframe.unique(1)
+            let res = {
+                "A": [-20, 30, 47.3],
+                "B": [34, -4, 5, 6],
+                "C": [20, 30],
+                "D": ["a", "b", "c"]
+            }
+            assert.deepEqual(df, res)
+
+        })
+        it("Returns the unique elements along axis 0", function () {
+            let data = [{ "A": [-20, 30, 47.3, -20] },
+            { "B": [34, -4, 5, 6] },
+            { "C": [20, 20, 30, 30] },
+            { "D": ["a", "b", "c", "c"] }]
+
+            let ndframe = new DataFrame(data)
+            let df = ndframe.unique(0)
+            let res = {
+                0: [-20, 34, 20, "a"],
+                1: [30, -4, 20, "b"],
+                2: [47.3, 5, 30, "c"],
+                3: [-20, 6, 30, "c"]
+            }
+            assert.deepEqual(df, res)
+
+        })
+    })
+
+
+    describe("rename", function () {
+        it("Rename columns along axis 1", function () {
+            let data = [{ "A": [-20, 30, 47.3, -20] },
+            { "B": [34, -4, 5, 6] },
+            { "C": [20, 20, 30, 30] },
+            { "D": ["a", "b", "c", "c"] }]
+
+            let ndframe = new DataFrame(data)
+            let df = ndframe.rename({ mapper: { "A": "a1", "B": "b1" } })
+            let res = ["a1", "b1", "C", "D"]
+            assert.deepEqual(df.columns, res)
+
+        })
+        it("Rename columns along axis 1 inplace", function () {
+            let data = [{ "A": [-20, 30, 47.3, -20] },
+            { "B": [34, -4, 5, 6] },
+            { "C": [20, 20, 30, 30] },
+            { "D": ["a", "b", "c", "c"] }]
+
+            let df = new DataFrame(data)
+            df.rename({ mapper: { "A": "a1", "B": "b1" }, inplace: true })
+            let res = ["a1", "b1", "C", "D"]
+            assert.deepEqual(df.columns, res)
+
+        })
+        it("Rename string index along axis 0", function () {
+            let data = [{ "A": [-20, 30, 47.3, -20] },
+            { "B": [34, -4, 5, 6] },
+            { "C": [20, 20, 30, 30] },
+            { "D": ["a", "b", "c", "c"] }]
+
+            let ndframe = new DataFrame(data, { index: ["a", "b", "c", "d"] })
+            let df = ndframe.rename({ mapper: { "a": 0, "b": 1 }, axis: 0 })
+            let res = [0, 1, "c", "d"]
+            assert.deepEqual(df.index, res)
+
+        })
+        it("Rename string index along axis 0 inplace", function () {
+            let data = [{ "A": [-20, 30, 47.3, -20] },
+            { "B": [34, -4, 5, 6] },
+            { "C": [20, 20, 30, 30] },
+            { "D": ["a", "b", "c", "c"] }]
+
+            let df = new DataFrame(data, { index: ["a", "b", "c", "d"] })
+            df.rename({ mapper: { "a": 0, "b": 1 }, axis: 0, inplace: true })
+            let res = [0, 1, "c", "d"]
+            assert.deepEqual(df.index, res)
+
+        })
+    })
 
 
 });
