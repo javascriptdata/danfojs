@@ -32,9 +32,11 @@ export default class NDframe {
         } else {
             this.series = false
             if (utils.__is_object(data[0])) { //check the type of the first object in the data
-                this.__read_object(data)
+                this.__read_object(data, 1) //type 1 object are of JSON form [{a: 1, b: 2}, {a: 30, b: 20}]
             } else if (Array.isArray(data[0]) || utils.__is_number(data[0]) || utils.__is_string(data[0])) {
                 this.__read_array(data)
+            } else if (utils.__is_object(data)) {
+                this.__read_object(data, 2)  //type 2 object are of the form {a: [1,2,3,4], b: [30,20, 30, 20}]
             } else {
                 throw "File format not supported for now"
             }
@@ -92,19 +94,19 @@ export default class NDframe {
 
 
     //Reads a Javascript Object of arrays of data points
-    __read_object(data) {
-        let data_arr = []
-        //check format of objects
-        let _key = Object.keys(data[0])[0]  //get first column name in data
-        if (Array.isArray(data[0][_key])) {
-            // format of data is [{"a": [1,2,3,4]}, {"b": [2,4,5,7]}]
+    __read_object(data, type) {
+        if (type == 2) {
+            let data_arr = []
+
+            // format of data is {"a": [1,2,3,4], "b": [2,4,5,7]}
             let result = utils.__get_row_values(data)
             data_arr = result[0]
             this.kwargs['columns'] = result[1]
-            //call read array on result since it is an array of array format
             this.__read_array(data_arr)
         } else {
             //format of data is [{"a": 1, "b" : 2}, {"a": 2, "b" : 4}, {"a": 4, "b" : 5}]
+            let data_arr = []
+
             data.forEach((item) => {
                 data_arr.push(Object.values(item))
             });
@@ -355,7 +357,7 @@ export default class NDframe {
             return JSON.stringify(json_arr)
         }
     }
-    
+
 
     /**
     * Prints the data in a Series as a grid of row and columns
