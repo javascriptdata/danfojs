@@ -21,6 +21,9 @@ export class MinMaxScaler {
             tensor_data = tf.tensor(data)
         }
         else if ((data instanceof DataFrame) || (data instanceof Series)) {
+            if (data.dtypes.includes("string")) {
+                throw Error("Dtype Error: Cannot perform operation on string dtypes")
+            }
             tensor_data = tf.tensor(data.values)
         }
         else {
@@ -50,6 +53,9 @@ export class MinMaxScaler {
     transform(data) {
 
         if (data instanceof Series) {
+            if (data.dtypes.includes("string")) {
+                throw Error("Dtype Error: Cannot perform operation on string dtypes")
+            }
             let tensor_data = tf.tensor(data.values)
             let output_data = tensor_data.sub(this.min).div(this.max.sub(this.min)).arraySync()
             return new Series(output_data)
@@ -63,6 +69,9 @@ export class MinMaxScaler {
             }
 
         } else if (data instanceof DataFrame) {
+            if (data.dtypes.includes("string")) {
+                throw Error("Dtype Error: Cannot perform operation on string dtypes")
+            }
             let tensor_data = tf.tensor(data.values);
             let output_data = tensor_data.sub(this.min).div(this.max.sub(this.min)).arraySync()
             return new DataFrame(output_data)
@@ -85,6 +94,9 @@ export class StandardScaler {
             tensor_data = tf.tensor(data)
         }
         else if ((data instanceof DataFrame) || (data instanceof Series)) {
+            if (data.dtypes.includes("string")) {
+                throw Error("Dtype Error: Cannot perform operation on string dtypes")
+            }
             tensor_data = tf.tensor(data.values)
         }
         else {
@@ -109,6 +121,9 @@ export class StandardScaler {
         // }
 
         if (data instanceof Series) {
+            if (data.dtypes.includes("string")) {
+                throw Error("Dtype Error: Cannot perform operation on string dtypes")
+            }
             let tensor_data = tf.tensor(data.values)
             let output_data = tensor_data.sub(this.mean).div(this.std).arraySync()
             return new Series(output_data)
@@ -121,6 +136,9 @@ export class StandardScaler {
                 return new DataFrame(output_data)
             }
         } else if (data instanceof DataFrame) {
+            if (data.dtypes.includes("string")) {
+                throw Error("Dtype Error: Cannot perform operation on string dtypes")
+            }
             let tensor_data = tf.tensor(data.values);
             let output_data = tensor_data.sub(this.mean).div(this.std).arraySync()
             return new DataFrame(output_data)
