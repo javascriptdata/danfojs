@@ -92,9 +92,8 @@ class Series extends _generic.default {
       let idx = this.index;
       let new_values = [];
       let new_idx = [];
-      let counts = [...Array(idx.length).keys()];
 
-      let rand_nums = utils.__randgen(num, 0, counts.length);
+      let rand_nums = utils.__shuffle(num, idx);
 
       rand_nums.map(i => {
         new_values.push(values[i]);
@@ -416,14 +415,12 @@ class Series extends _generic.default {
 
     if (kwargs['inplace']) {
       this.data = new_values;
-      this.print();
     } else {
       let sf = new Series(new_values, {
         columns: this.column_names,
         index: this.index,
         dtypes: this.dtypes
       });
-      sf.print();
       return sf;
     }
   }

@@ -5,6 +5,7 @@ import * as tf from '@tensorflow/tfjs-node'
 import { Utils } from "./utils"
 import { GroupBy } from "./groupby"
 // import { Plot } from '../plotting/plot'
+import { indexLoc } from '../core/indexing'
 
 const utils = new Utils
 import { std, variance } from 'mathjs'
@@ -53,11 +54,22 @@ export class DataFrame extends Ndframe {
      * @returns null | DataFrame
      *            
      */
-    drop(kwargs = { axis: 0, inplace: false }) {
+    drop(kwargs = {}) {
 
-        utils.__in_object(kwargs, "columns", "value not defined")
+        // utils.__in_object(kwargs, "columns", "value not defined")
+        if (!utils.__key_in_object(kwargs, "inplace")) {
+            kwargs['inplace'] = false
+        }
+        if (!utils.__key_in_object(kwargs, "axis")) {
+            kwargs['axis'] = 0
+        }
+        let data;
+        if (utils.__key_in_object(kwargs, "index") && kwargs['axis'] == 0) {
+            data = kwargs["index"];
+        } else {
+            data = kwargs["columns"];
+        }
 
-        let data = kwargs["columns"];
 
         if (kwargs['axis'] == 1) {
             let self = this;
@@ -77,170 +89,49 @@ export class DataFrame extends Ndframe {
 
             if (!kwargs['inplace']) {
                 let columns = utils.__remove_arr(this.columns, index);
-                return new DataFrame(new_data, { columns: columns })
+                return new DataFrame(new_data, { columns: columns, index: this.index })
             } else {
                 this.columns = utils.__remove_arr(this.columns, index);
-                this.data_tensor = tf.tensor(new_data);
+                this.row_data_tensor = tf.tensor(new_data);
                 this.data = new_data
             }
 
         } else {
-
             data.map((x) => {
-
                 if (!this.index.includes(x)) throw new Error(`${x} does not exist in index`)
             });
             const values = this.values
 
             let new_data = utils.__remove_arr(values, data);
+            let new_index = utils.__remove_arr(this.index, data);
 
             if (!kwargs['inplace']) {
-                return new DataFrame(new_data, { columns: this.columns })
+                return new DataFrame(new_data, { columns: this.columns, index: new_index })
             } else {
-                this.data_tensor = tf.tensor(new_data);
+                this.row_data_tensor = tf.tensor(new_data);
                 this.data = new_data
+                this.__set_index(new_index)
             }
         }
     }
 
-    /**
-     * Obtain the defined the set of row and column index 
-     * @param {*} kwargs object {rows:Array, columns:Array of column name, type: ["iloc","loc"]} 
-     * @return Array
-     */
-    __indexLoc(kwargs) {
-        let rows = null;
-        let columns = null;
-        let isColumnSplit = false;
-        if (Object.prototype.hasOwnProperty.call(kwargs, "rows")) { //check if the object has the key
-            if (Array.isArray(kwargs["rows"])) {
 
-                if (kwargs["rows"].length == 1 && typeof kwargs["rows"][0] == "string") {
-                    //console.log("here", kwargs["rows"].length)
-                    if (kwargs["rows"][0].includes(":")) {
-
-                        let row_split = kwargs["rows"][0].split(":")
-
-                        let start = parseInt(row_split[0]) || 0;
-                        let end = parseInt(row_split[1]) || (this.values.length - 1);
-
-                        if (typeof start == "number" && typeof end == "number") {
-                            rows = utils.__range(start, end);
-                            // rows = this.index.slice(start, end)
-                        }
-
-                    } else {
-                        throw new Error("numbers in string must be separated by ':'")
-                    }
-                } else {
-                    rows = kwargs["rows"];
-                }
-            } else {
-                throw new Error("rows must be a list")
-            }
-        } else {
-            throw new Error("Kwargs keywords are {rows, columns}")
-        }
-
-        if (Object.prototype.hasOwnProperty.call(kwargs, "columns")) {
-            if (Array.isArray(kwargs["columns"])) {
-                if (kwargs["columns"].length == 1 && kwargs["columns"][0].includes(":")) {
-
-                    let row_split = kwargs["columns"][0].split(":")
-                    let start, end;
-
-                    if (kwargs["type"] == "iloc" || (row_split[0] == "")) {
-                        start = parseInt(row_split[0]) || 0;
-                        end = parseInt(row_split[1]) || (this.values[0].length - 1);
-                    } else {
-
-                        start = parseInt(this.columns.indexOf(row_split[0]));
-                        end = parseInt(this.columns.indexOf(row_split[1]));
-                    }
-
-
-                    if (typeof start == "number" && typeof end == "number") {
-
-                        columns = utils.__range(start, end);
-                        isColumnSplit = true;
-                    }
-
-                } else {
-                    columns = kwargs["columns"];
-                }
-
-            } else {
-                throw new Error("columns must be a list")
-            }
-        } else {
-            throw new Error("Kwargs keywords are {rows, columns}")
-        }
-
-        let data_values = this.values;
-        let new_data = []; // store the data from the for loop
-
-        for (var index = 0; index < rows.length; index++) {
-            let row_val = rows[index]
-            let max_rowIndex = data_values.length - 1 //obtain the maximum row index
-
-            if (row_val > max_rowIndex) { //check if the input row index is greater than the maximum row index
-                throw new Error(`Specified row index ${row_val} is bigger than maximum row index of ${max_rowIndex}`);
-            }
-
-            let value = data_values[row_val]
-            let row_data = []
-
-            for (var i in columns) {
-                var col_index;
-                if (kwargs["type"] == "loc" && !isColumnSplit) {
-                    col_index = this.columns.indexOf(columns[i]); //obtain the column index
-
-                    if (col_index == -1) {
-                        throw new Error(`Column ${columns[i]} does not exist`);
-                    }
-                } else {
-                    col_index = columns[i];
-                    let max_colIndex = this.columns.length - 1; //assign the maximum column index to a value
-
-                    if (col_index > max_colIndex) {
-                        throw new Error(`column index ${col_index} is bigger than ${max_colIndex}`);
-                    }
-                }
-
-                let elem = value[col_index]; //obtain the element at the column index
-                row_data.push(elem);
-            }
-
-            new_data.push(row_data); //store the data for each row in the new_data
-
-        }
-
-        let column_names = []
-        if (kwargs["type"] == "iloc" || isColumnSplit) {
-            // let axes = this.axes
-            columns.map((col) => {
-                column_names.push(this.columns[col]);
-            })
-        } else {
-            column_names = columns
-        }
-
-        return [new_data, column_names, rows];
-    }
 
     /**
-     * Obtain the defined the set of row and column index 
+     * Purely label based indexing. Can accept string label names for both rows and columns 
      * @param {kwargs} kwargs object {rows: Array of index, columns: Array of column name(s)} 
      * @return DataFrame data stucture
      */
-    loc(kwargs) {
-
+    loc(kwargs = {}) {
+        let params_needed = ["columns", "rows"]
+        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
+        }
         kwargs["type"] = "loc"
-        let [new_data, columns, rows] = this.__indexLoc(kwargs);
+        let [new_data, columns, rows] = indexLoc(this, kwargs);
         let df_columns = { "columns": columns }
         let df = new DataFrame(new_data, df_columns);
-        df.index_arr = rows
-
+        df.__set_index(rows)
         return df;
 
     }
@@ -251,14 +142,17 @@ export class DataFrame extends Ndframe {
      * @param {*} kwargs object {rows: Array of index, columns: Array of column index}  
      * @return DataFrame data stucture
      */
-    iloc(kwargs) {
-
+    iloc(kwargs = {}) {
+        let params_needed = ["columns", "rows"]
+        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
+        }
         kwargs["type"] = "iloc";
 
-        let [new_data, columns, rows] = this.__indexLoc(kwargs);
+        let [new_data, columns, rows] = indexLoc(this, kwargs);
         let df_columns = { "columns": columns }
         let df = new DataFrame(new_data, df_columns);
-        df.index_arr = rows
+        df.__set_index(rows)
         return df;
 
     }
@@ -778,18 +672,14 @@ export class DataFrame extends Ndframe {
    * Generate a new DataFrame with the index reset.
    * This is useful when the index needs to be treated as a column, 
    * or when the index is meaningless and needs to be reset to the default before another operation.
-   * @param {kwargs} {inplace: Modify the Series in place (do not create a new object,
-   *                  drop: Just reset the index, without inserting it as a column in the new DataFrame.}
+   * @param {kwargs} {inplace: Modify the Series in place (do not create a new object.}
    */
     reset_index(kwargs = {}) {
-        let options = {}
-        if (utils.__key_in_object(kwargs, 'inplace')) {
-            options['inplace'] = kwargs['inplace']
-        } else {
-            options['inplace'] = false
+        if (!utils.__key_in_object(kwargs, 'inplace')) {
+            kwargs['inplace'] = false
         }
 
-        if (options['inplace']) {
+        if (kwargs['inplace']) {
             this.__reset_index()
         } else {
             let df = this.copy()
@@ -799,33 +689,49 @@ export class DataFrame extends Ndframe {
     }
 
     /**
-    * Generate a new Series with the specified index.
-    * Set the Series index (row labels) using an array of the same length.
+    * Generate a new DataFrame with the specified index.
+    * Set the DataFrame index (row labels) using an array of the same length.
     * @param {kwargs} {index: Array of new index values}
     */
     set_index(kwargs = {}) {
-        let options = {}
-        if (utils.__key_in_object(kwargs, 'index')) {
-            options['index'] = kwargs['index']
-        } else {
+
+        let params_needed = ["key", "drop", "inplace"]
+        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
+        }
+
+        if (!utils.__key_in_object(kwargs, 'key')) {
             throw Error("Index ValueError: You must specify an array of index")
         }
 
-        if (utils.__key_in_object(kwargs, 'inplace')) {
-            options['inplace'] = kwargs['inplace']
-        } else {
-            options['inplace'] = false
+        if (!utils.__key_in_object(kwargs, 'inplace')) {
+            kwargs['inplace'] = false
         }
 
-        if (options['index'].length != this.index.length) {
-            throw Error(`Index LengthError: Lenght of new Index array ${options['index'].length} must match lenght of existing index ${this.index.length}`)
+        if (!utils.__key_in_object(kwargs, 'drop')) {
+            kwargs['drop'] = true
         }
 
-        if (options['inplace']) {
-            this.index_arr = options['index']
+        if (Array.isArray(kwargs['key']) && kwargs['key'].length != this.index.length) {
+            throw Error(`Index LengthError: Lenght of new Index array ${kwargs['key'].length} must match lenght of existing index ${this.index.length}`)
+        }
+
+        if ((typeof kwargs['key'] == "string" && this.column_names.includes(kwargs['key']))) {
+            kwargs['key_name'] = kwargs['key']
+            kwargs['key'] = this[kwargs['key']].values
+        }
+        if (kwargs['inplace']) {
+            // this.index_arr = kwargs['key']
+            this.__set_index(kwargs['key'])
+            if (kwargs['drop'] && typeof kwargs['key_name'] == 'string') {
+                this.drop({ columns: [kwargs['key_name']], inplace: true, axis: 1 })
+            }
         } else {
             let df = this.copy()
-            df.__set_index(options['index'])
+            df.__set_index(kwargs['key'])
+            if (kwargs['drop'] && typeof kwargs['key_name'] == 'string') {
+                df.drop({ columns: [kwargs['key_name']], axis: 1, inplace: true })
+            }
             return df
         }
     }
@@ -1170,7 +1076,7 @@ export class DataFrame extends Ndframe {
 
             if (column_names.includes(col[0])) {
                 // eslint-disable-next-line no-unused-vars
-                var [data1, col_name1] = this.__indexLoc({ "rows": [`0:${len}`], "columns": [`${col[0]}`], "type": "loc" });
+                var [data1, col_name1] = indexLoc(this, { "rows": [`0:${len}`], "columns": [`${col[0]}`], "type": "loc" });
 
             }
             else {
@@ -1178,7 +1084,7 @@ export class DataFrame extends Ndframe {
             }
             if (column_names.includes(col[1])) {
                 // eslint-disable-next-line no-unused-vars
-                var [data2, col_name2] = this.__indexLoc({ "rows": [`0:${len}`], "columns": [`${col[1]}`], "type": "loc" });
+                var [data2, col_name2] = indexLoc(this, { "rows": [`0:${len}`], "columns": [`${col[1]}`], "type": "loc" });
             }
             else {
                 throw new Error(`column ${col[1]} does not exist`);
@@ -1203,7 +1109,7 @@ export class DataFrame extends Ndframe {
 
             if (column_names.includes(col[0])) {
                 // eslint-disable-next-line no-redeclare
-                var [data1, col_name1] = this.__indexLoc({ "rows": [`0:${len}`], "columns": [`${col[0]}`], "type": "loc" });
+                var [data1, col_name1] = indexLoc(this, { "rows": [`0:${len}`], "columns": [`${col[0]}`], "type": "loc" });
                 // console.log(data1)
             }
             else {
@@ -1934,6 +1840,17 @@ export class DataFrame extends Ndframe {
         return this.transpose()
     }
 
+
+    /**
+        * Returns the data types in the DataFrame 
+        * @return {Array} list of data types for each column
+        */
+     get ctypes() {
+        let cols = this.column_names
+        let d_types = this.col_types
+        let sf = new Series(d_types, {index: cols})
+        return sf
+    }
 
     /**
      * Make plots of Series or DataFrame.

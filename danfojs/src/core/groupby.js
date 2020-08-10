@@ -120,7 +120,7 @@ export class GroupBy {
             throw new Error(`Col_name must be an array of column`)
         }
 
-
+        this.group_col_name = col_names // store the column name
         if(this.key_col.length ==2){
 
             this.group_col = {}
@@ -241,12 +241,14 @@ export class GroupBy {
     count(){
 
         let value = this.arithemetic("count()");
-        return value;
+        let df = this.to_DataFrame(this.key_col, this.group_col_name,value,"count")
+        return df
     }
 
     sum(){
         let value = this.arithemetic("sum()")
-        return value
+        let df = this.to_DataFrame(this.key_col, this.group_col_name,value,"sum")
+        return df
     }
 
 
@@ -293,8 +295,62 @@ export class GroupBy {
         this.col(columns)
 
         let data = this.arithemetic(operations)
+        let df = this.to_DataFrame(this.key_col,this.group_col_name,data,operations)
 
-        return data;
+        return df;
+    }
+
+    to_DataFrame(key_col,col,data,ops){
+
+        if(key_col.length ==2){
+
+            let df_data = []
+            for(let key_1 in data){
+
+                let key_val = data[key_1]
+
+                for(let key_2 in key_val){
+                    let k_data = key_val[key_2]
+                    let kk = []
+                    kk[0] = key_1
+                    kk[1] = key_2
+                    kk.push(...k_data)
+                    df_data.push(kk)
+
+                }
+                
+            }
+            let column = [...key_col]
+
+            let group_col = col.slice().map((x,i)=>{
+                if(Array.isArray(ops)){
+                    return `${x}_${ops[i]}`
+                }
+                return `${x}_${ops}`
+            });
+            column.push(...group_col);
+            return new DataFrame(df_data,{columns: column})
+        }else{
+            let df_data = []
+            for(let key_1 in data){
+
+                let key_val = data[key_1]
+
+                let key_data = [key_1]
+                key_data.push(...key_val)
+                df_data.push(key_data)
+            }
+            let column = [...key_col]
+            let group_col = col.slice().map((x,i)=>{
+                if(ops.length >1){
+                    return `${x}_${ops[i]}`
+                }
+                return `${x}_${ops}`
+            });
+            column.push(...group_col);
+
+            return new DataFrame(df_data,{columns: column})
+        }
     }
 
 }

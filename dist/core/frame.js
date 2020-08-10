@@ -15,6 +15,8 @@ var _utils = require("./utils");
 
 var _groupby = require("./groupby");
 
+var _indexing = require("../core/indexing");
+
 var _mathjs = require("mathjs");
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
@@ -59,13 +61,22 @@ class DataFrame extends _generic.default {
     });
   }
 
-  drop(kwargs = {
-    axis: 0,
-    inplace: false
-  }) {
-    utils.__in_object(kwargs, "columns", "value not defined");
+  drop(kwargs = {}) {
+    if (!utils.__key_in_object(kwargs, "inplace")) {
+      kwargs['inplace'] = false;
+    }
 
-    let data = kwargs["columns"];
+    if (!utils.__key_in_object(kwargs, "axis")) {
+      kwargs['axis'] = 0;
+    }
+
+    let data;
+
+    if (utils.__key_in_object(kwargs, "index") && kwargs['axis'] == 0) {
+      data = kwargs["index"];
+    } else {
+      data = kwargs["columns"];
+    }
 
     if (kwargs['axis'] == 1) {
       let self = this;
@@ -89,11 +100,12 @@ class DataFrame extends _generic.default {
         let columns = utils.__remove_arr(this.columns, index);
 
         return new DataFrame(new_data, {
-          columns: columns
+          columns: columns,
+          index: this.index
         });
       } else {
         this.columns = utils.__remove_arr(this.columns, index);
-        this.data_tensor = tf.tensor(new_data);
+        this.row_data_tensor = tf.tensor(new_data);
         this.data = new_data;
       }
     } else {
@@ -104,149 +116,57 @@ class DataFrame extends _generic.default {
 
       let new_data = utils.__remove_arr(values, data);
 
+      let new_index = utils.__remove_arr(this.index, data);
+
       if (!kwargs['inplace']) {
         return new DataFrame(new_data, {
-          columns: this.columns
+          columns: this.columns,
+          index: new_index
         });
       } else {
-        this.data_tensor = tf.tensor(new_data);
+        this.row_data_tensor = tf.tensor(new_data);
         this.data = new_data;
+
+        this.__set_index(new_index);
       }
     }
   }
 
-  __indexLoc(kwargs) {
-    let rows = null;
-    let columns = null;
-    let isColumnSplit = false;
+  loc(kwargs = {}) {
+    let params_needed = ["columns", "rows"];
 
-    if (Object.prototype.hasOwnProperty.call(kwargs, "rows")) {
-      if (Array.isArray(kwargs["rows"])) {
-        if (kwargs["rows"].length == 1 && typeof kwargs["rows"][0] == "string") {
-          if (kwargs["rows"][0].includes(":")) {
-            let row_split = kwargs["rows"][0].split(":");
-            let start = parseInt(row_split[0]) || 0;
-            let end = parseInt(row_split[1]) || this.values.length - 1;
-
-            if (typeof start == "number" && typeof end == "number") {
-              rows = utils.__range(start, end);
-            }
-          } else {
-            throw new Error("numbers in string must be separated by ':'");
-          }
-        } else {
-          rows = kwargs["rows"];
-        }
-      } else {
-        throw new Error("rows must be a list");
-      }
-    } else {
-      throw new Error("Kwargs keywords are {rows, columns}");
+    if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+      throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`);
     }
 
-    if (Object.prototype.hasOwnProperty.call(kwargs, "columns")) {
-      if (Array.isArray(kwargs["columns"])) {
-        if (kwargs["columns"].length == 1 && kwargs["columns"][0].includes(":")) {
-          let row_split = kwargs["columns"][0].split(":");
-          let start, end;
-
-          if (kwargs["type"] == "iloc" || row_split[0] == "") {
-            start = parseInt(row_split[0]) || 0;
-            end = parseInt(row_split[1]) || this.values[0].length - 1;
-          } else {
-            start = parseInt(this.columns.indexOf(row_split[0]));
-            end = parseInt(this.columns.indexOf(row_split[1]));
-          }
-
-          if (typeof start == "number" && typeof end == "number") {
-            columns = utils.__range(start, end);
-            isColumnSplit = true;
-          }
-        } else {
-          columns = kwargs["columns"];
-        }
-      } else {
-        throw new Error("columns must be a list");
-      }
-    } else {
-      throw new Error("Kwargs keywords are {rows, columns}");
-    }
-
-    let data_values = this.values;
-    let new_data = [];
-
-    for (var index = 0; index < rows.length; index++) {
-      let row_val = rows[index];
-      let max_rowIndex = data_values.length - 1;
-
-      if (row_val > max_rowIndex) {
-        throw new Error(`Specified row index ${row_val} is bigger than maximum row index of ${max_rowIndex}`);
-      }
-
-      let value = data_values[row_val];
-      let row_data = [];
-
-      for (var i in columns) {
-        var col_index;
-
-        if (kwargs["type"] == "loc" && !isColumnSplit) {
-          col_index = this.columns.indexOf(columns[i]);
-
-          if (col_index == -1) {
-            throw new Error(`Column ${columns[i]} does not exist`);
-          }
-        } else {
-          col_index = columns[i];
-          let max_colIndex = this.columns.length - 1;
-
-          if (col_index > max_colIndex) {
-            throw new Error(`column index ${col_index} is bigger than ${max_colIndex}`);
-          }
-        }
-
-        let elem = value[col_index];
-        row_data.push(elem);
-      }
-
-      new_data.push(row_data);
-    }
-
-    let column_names = [];
-
-    if (kwargs["type"] == "iloc" || isColumnSplit) {
-      columns.map(col => {
-        column_names.push(this.columns[col]);
-      });
-    } else {
-      column_names = columns;
-    }
-
-    return [new_data, column_names, rows];
-  }
-
-  loc(kwargs) {
     kwargs["type"] = "loc";
-
-    let [new_data, columns, rows] = this.__indexLoc(kwargs);
-
+    let [new_data, columns, rows] = (0, _indexing.indexLoc)(this, kwargs);
     let df_columns = {
       "columns": columns
     };
     let df = new DataFrame(new_data, df_columns);
-    df.index_arr = rows;
+
+    df.__set_index(rows);
+
     return df;
   }
 
-  iloc(kwargs) {
+  iloc(kwargs = {}) {
+    let params_needed = ["columns", "rows"];
+
+    if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+      throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`);
+    }
+
     kwargs["type"] = "iloc";
-
-    let [new_data, columns, rows] = this.__indexLoc(kwargs);
-
+    let [new_data, columns, rows] = (0, _indexing.indexLoc)(this, kwargs);
     let df_columns = {
       "columns": columns
     };
     let df = new DataFrame(new_data, df_columns);
-    df.index_arr = rows;
+
+    df.__set_index(rows);
+
     return df;
   }
 
@@ -678,15 +598,11 @@ class DataFrame extends _generic.default {
   }
 
   reset_index(kwargs = {}) {
-    let options = {};
-
-    if (utils.__key_in_object(kwargs, 'inplace')) {
-      options['inplace'] = kwargs['inplace'];
-    } else {
-      options['inplace'] = false;
+    if (!utils.__key_in_object(kwargs, 'inplace')) {
+      kwargs['inplace'] = false;
     }
 
-    if (options['inplace']) {
+    if (kwargs['inplace']) {
       this.__reset_index();
     } else {
       let df = this.copy();
@@ -698,30 +614,55 @@ class DataFrame extends _generic.default {
   }
 
   set_index(kwargs = {}) {
-    let options = {};
+    let params_needed = ["key", "drop", "inplace"];
 
-    if (utils.__key_in_object(kwargs, 'index')) {
-      options['index'] = kwargs['index'];
-    } else {
+    if (!utils.__right_params_are_passed(kwargs, params_needed)) {
+      throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`);
+    }
+
+    if (!utils.__key_in_object(kwargs, 'key')) {
       throw Error("Index ValueError: You must specify an array of index");
     }
 
-    if (utils.__key_in_object(kwargs, 'inplace')) {
-      options['inplace'] = kwargs['inplace'];
-    } else {
-      options['inplace'] = false;
+    if (!utils.__key_in_object(kwargs, 'inplace')) {
+      kwargs['inplace'] = false;
     }
 
-    if (options['index'].length != this.index.length) {
-      throw Error(`Index LengthError: Lenght of new Index array ${options['index'].length} must match lenght of existing index ${this.index.length}`);
+    if (!utils.__key_in_object(kwargs, 'drop')) {
+      kwargs['drop'] = true;
     }
 
-    if (options['inplace']) {
-      this.index_arr = options['index'];
+    if (Array.isArray(kwargs['key']) && kwargs['key'].length != this.index.length) {
+      throw Error(`Index LengthError: Lenght of new Index array ${kwargs['key'].length} must match lenght of existing index ${this.index.length}`);
+    }
+
+    if (typeof kwargs['key'] == "string" && this.column_names.includes(kwargs['key'])) {
+      kwargs['key_name'] = kwargs['key'];
+      kwargs['key'] = this[kwargs['key']].values;
+    }
+
+    if (kwargs['inplace']) {
+      this.__set_index(kwargs['key']);
+
+      if (kwargs['drop'] && typeof kwargs['key_name'] == 'string') {
+        this.drop({
+          columns: [kwargs['key_name']],
+          inplace: true,
+          axis: 1
+        });
+      }
     } else {
       let df = this.copy();
 
-      df.__set_index(options['index']);
+      df.__set_index(kwargs['key']);
+
+      if (kwargs['drop'] && typeof kwargs['key_name'] == 'string') {
+        df.drop({
+          columns: [kwargs['key_name']],
+          axis: 1,
+          inplace: true
+        });
+      }
 
       return df;
     }
@@ -991,7 +932,7 @@ class DataFrame extends _generic.default {
 
     if (col.length == 2) {
       if (column_names.includes(col[0])) {
-        var [data1, col_name1] = this.__indexLoc({
+        var [data1, col_name1] = (0, _indexing.indexLoc)(this, {
           "rows": [`0:${len}`],
           "columns": [`${col[0]}`],
           "type": "loc"
@@ -1001,7 +942,7 @@ class DataFrame extends _generic.default {
       }
 
       if (column_names.includes(col[1])) {
-        var [data2, col_name2] = this.__indexLoc({
+        var [data2, col_name2] = (0, _indexing.indexLoc)(this, {
           "rows": [`0:${len}`],
           "columns": [`${col[1]}`],
           "type": "loc"
@@ -1027,7 +968,7 @@ class DataFrame extends _generic.default {
       }
     } else {
       if (column_names.includes(col[0])) {
-        var [data1, col_name1] = this.__indexLoc({
+        var [data1, col_name1] = (0, _indexing.indexLoc)(this, {
           "rows": [`0:${len}`],
           "columns": [`${col[0]}`],
           "type": "loc"
@@ -1607,6 +1548,15 @@ class DataFrame extends _generic.default {
 
   get T() {
     return this.transpose();
+  }
+
+  get ctypes() {
+    let cols = this.column_names;
+    let d_types = this.col_types;
+    let sf = new _series.Series(d_types, {
+      index: cols
+    });
+    return sf;
   }
 
 }

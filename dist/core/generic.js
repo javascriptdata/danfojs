@@ -200,7 +200,7 @@ class NDframe {
       throw Error("Value Error: index must be an array");
     }
 
-    if (labels.length > this.row_data_tensor.shape[0] || labels.length < this.row_data_tensor.shape[0]) {
+    if (labels.length > this.shape[0] || labels.length < this.shape[0]) {
       throw Error("Value Error: length of labels must match row shape of data");
     }
 

@@ -39,7 +39,7 @@ describe("DataFrame", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            df.drop({ columns: [0], axis: 0, inplace: true });
+            df.drop({ index: [0], axis: 0, inplace: true });
             let new_data = [[4, 5, 6],]
             assert.deepEqual(df.values, new_data);
         })
@@ -139,13 +139,6 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { columns: cols })
             assert.throws(function () { df.loc({ "rows": [0, 1], "columns": ["A", "D"] }) }, Error, "Column D does not exist");
         })
-        it("throw error for wrong row index", function () {
-            let data = [[1, 2, 3], [4, 5, 6]]
-            let cols = ["A", "B", "C"]
-            let df = new DataFrame(data, { columns: cols })
-            assert.throws(function () { df.loc({ "rows": [0, 8], "columns": ["B", "C"] }) }, Error, "Specified row index 8 is bigger than maximum row index of 1");
-        })
-
         it("check data after selecting column", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
@@ -200,6 +193,42 @@ describe("DataFrame", function () {
             assert.deepEqual(col_df.values, col_data)
 
         })
+        it("loc by single string index", function () {
+            let data = [{ "Name": ["Apples", "Mango", "Banana", "Pear"] },
+            { "Count": [21, 5, 30, 10] },
+            { "Price": [200, 300, 40, 250] }]
+
+            let df = new DataFrame(data)
+            df.set_index({ key: ["a", "b", "c", "a"], inplace: true})
+            let sub_df = df.loc({ rows: ["a"], columns: ["Name", "Count"] })
+            let expected = [["Apples", 21], ["Pear", 10]]
+            assert.deepEqual(sub_df.values, expected)
+
+        })
+        it("loc by multiple string index", function () {
+            let data = [{ "Name": ["Apples", "Mango", "Banana", "Pear"] },
+            { "Count": [21, 5, 30, 10] },
+            { "Price": [200, 300, 40, 250] }]
+
+            let df = new DataFrame(data)
+            df.set_index({ key: ["a", "b", "c", "a"], inplace: true})
+            let sub_df = df.loc({ rows: ["a", "b"], columns: ["Name", "Count"] })
+            let expected = [["Apples", 21],["Mango", 5], ["Pear", 10]]
+            assert.deepEqual(sub_df.values, expected)
+
+        })
+        it("loc by slice string index", function () {
+            let data = [{ "Name": ["Apples", "Mango", "Banana", "Pear"] },
+            { "Count": [21, 5, 30, 10] },
+            { "Price": [200, 300, 40, 250] }]
+
+            let df = new DataFrame(data)
+            df.set_index({ key: ["a", "b", "c", "d"], inplace: true})
+            let sub_df = df.loc({ rows: ["a:c"], columns: ["Name", "Count"] })
+            let expected = [["Apples", 21],["Mango", 5], ["Banana", 30]]
+            assert.deepEqual(sub_df.values, expected)
+
+        })
 
 
     });
@@ -213,11 +242,11 @@ describe("DataFrame", function () {
             assert.throws(function () { df.iloc({ "rows": [0, 1], "columns": [0, 3] }) }, Error, "column index 3 is bigger than 2");
         })
 
-        it("throw error for wrong column index", function () {
+        it("throw error for wrong row index", function () {
             let data = [[1, 2, 3], [4, 5, 6]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
-            assert.throws(function () { df.iloc({ "rows": 0, "columns": [0, 3] }) }, Error, "rows must be a list");
+            assert.throws(function () { df.iloc({ "rows": 0, "columns": [0, 3] }) }, Error, "rows parameter must be a Array");
         })
 
         it("throw error for wrong column index", function () {
@@ -285,6 +314,26 @@ describe("DataFrame", function () {
 
             let col_df = df.iloc({ "rows": [0, 1, 2], "columns": ["1:2"] })
             let col_data = [[2, 3], [5, 6], [30, 40]]
+            assert.deepEqual(col_df.values, col_data)
+
+        })
+        it("Return all columns if columns parameter is not specified", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+
+            let col_df = df.iloc({ "rows": [0, 1, 2] })
+            let col_data = [[1, 2, 3], [4, 5, 6], [20, 30, 40]]
+            assert.deepEqual(col_df.values, col_data)
+
+        })
+        it("Return all rows if rows parameter is not specified", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+
+            let col_df = df.iloc({ "columns": ["1:2"] })
+            let col_data = [[2, 3], [5, 6], [30, 40], [89, 78]]
             assert.deepEqual(col_df.values, col_data)
 
         })
@@ -719,13 +768,25 @@ describe("DataFrame", function () {
         it("Sets the index of a DataFrame created from an Object", function () {
             let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
             let df = new DataFrame(data)
-            let df_new = df.set_index({ "index": ["one", "two", "three"] })
+            let df_new = df.set_index({ "key": ["one", "two", "three"] })
             assert.deepEqual(df_new.index, ["one", "two", "three"])
+        })
+        it("Sets the index of a DataFrame from column name", function () {
+            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
+            let df = new DataFrame(data)
+            let df_new = df.set_index({ "key": "alpha" })
+            assert.deepEqual(df_new.index, ["A", "B", "C"])
+        })
+        it("Sets the index of a DataFrame from column name", function () {
+            let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
+            let df = new DataFrame(data)
+            let df_new = df.set_index({ key: "alpha", drop: true })
+            assert.deepEqual(df_new.index, ["A", "B", "C"])
         })
         it("Sets the index of a DataFrame created from an Array", function () {
             let data = [[0, 2, 4], [360, 180, 360], [0, 2, 4], [360, 180, 360], [0, 2, 4]]
             let df = new DataFrame(data)
-            df.set_index({ "index": ["one", "two", "three", "four", "five"], "inplace": true })
+            df.set_index({ "key": ["one", "two", "three", "four", "five"], "inplace": true })
             assert.deepEqual(df.index, ["one", "two", "three", "four", "five"])
         })
 
@@ -735,14 +796,14 @@ describe("DataFrame", function () {
         it("Resets the index of a DataFrame created from an Object", function () {
             let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }]
             let df = new DataFrame(data)
-            let df_new = df.set_index({ "index": ["one", "two", "three"] })
+            let df_new = df.set_index({ "key": ["one", "two", "three"] })
             let df_reset = df_new.reset_index()
             assert.deepEqual(df_reset.index, [0, 1, 2])
         })
         it("Resets the index of a DataFrame created from an Array", function () {
             let data = [[0, 2, 4], [360, 180, 360], [0, 2, 4], [360, 180, 360], [0, 2, 4]]
             let df = new DataFrame(data)
-            df.set_index({ "index": ["one", "two", "three", "four", "five"], "inplace": true })
+            df.set_index({ "key": ["one", "two", "three", "four", "five"], "inplace": true })
             let df_new = df.reset_index()
             assert.deepEqual(df_new.index, [0, 1, 2, 3, 4])
         })
@@ -874,121 +935,121 @@ describe("DataFrame", function () {
 
     });
 
-    describe("groupby", function () {
-        it("Check group by One column data", function () {
+    // describe("groupby", function () {
+    //     it("Check group by One column data", function () {
 
-            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-            let cols = ["A", "B", "C"]
-            let df = new DataFrame(data, { columns: cols })
-            let group_df = df.groupby(["A"]);
+    //         let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+    //         let cols = ["A", "B", "C"]
+    //         let df = new DataFrame(data, { columns: cols })
+    //         let group_df = df.groupby(["A"]);
 
-            let group_dict = {
-                '1': [[1, 2, 3]],
-                '4': [[4, 5, 6]],
-                '20': [[20, 30, 40]],
-                '39': [[39, 89, 78]]
-            }
+    //         let group_dict = {
+    //             '1': [[1, 2, 3]],
+    //             '4': [[4, 5, 6]],
+    //             '20': [[20, 30, 40]],
+    //             '39': [[39, 89, 78]]
+    //         }
 
-            assert.deepEqual(group_df.col_dict, group_dict);
-        });
-        it("Obtain the DataFrame of one of the group", function () {
+    //         assert.deepEqual(group_df.col_dict, group_dict);
+    //     });
+    //     it("Obtain the DataFrame of one of the group", function () {
 
-            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-            let cols = ["A", "B", "C"]
-            let df = new DataFrame(data, { columns: cols })
-            let group_df = df.groupby(["A"]);
-            let new_data = [[1, 2, 3]]
+    //         let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+    //         let cols = ["A", "B", "C"]
+    //         let df = new DataFrame(data, { columns: cols })
+    //         let group_df = df.groupby(["A"]);
+    //         let new_data = [[1, 2, 3]]
 
-            assert.deepEqual(group_df.get_groups([1]).values, new_data);
-        });
-        it("Check group by Two column data", function () {
+    //         assert.deepEqual(group_df.get_groups([1]).values, new_data);
+    //     });
+    //     it("Check group by Two column data", function () {
 
-            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-            let cols = ["A", "B", "C"]
-            let df = new DataFrame(data, { columns: cols })
-            let group_df = df.groupby(["A", "B"]);
-            let new_data = {
-                '1': { '2': [[1, 2, 3]] },
-                '4': { '5': [[4, 5, 6]] },
-                '20': { '30': [[20, 30, 40]] },
-                '39': { '89': [[39, 89, 78]] }
-            }
+    //         let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+    //         let cols = ["A", "B", "C"]
+    //         let df = new DataFrame(data, { columns: cols })
+    //         let group_df = df.groupby(["A", "B"]);
+    //         let new_data = {
+    //             '1': { '2': [[1, 2, 3]] },
+    //             '4': { '5': [[4, 5, 6]] },
+    //             '20': { '30': [[20, 30, 40]] },
+    //             '39': { '89': [[39, 89, 78]] }
+    //         }
 
-            assert.deepEqual(group_df.col_dict, new_data);
-        });
+    //         assert.deepEqual(group_df.col_dict, new_data);
+    //     });
 
-        it("Obtain the DataFrame of one of the group, grouped by two column", function () {
+    //     it("Obtain the DataFrame of one of the group, grouped by two column", function () {
 
-            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-            let cols = ["A", "B", "C"]
-            let df = new DataFrame(data, { columns: cols })
-            let group_df = df.groupby(["A", "B"]);
-            let new_data = [[1, 2, 3]]
+    //         let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+    //         let cols = ["A", "B", "C"]
+    //         let df = new DataFrame(data, { columns: cols })
+    //         let group_df = df.groupby(["A", "B"]);
+    //         let new_data = [[1, 2, 3]]
 
-            assert.deepEqual(group_df.get_groups([1, 2]).values, new_data);
-        });
+    //         assert.deepEqual(group_df.get_groups([1, 2]).values, new_data);
+    //     });
 
-        it("Count column in group", function () {
+    //     it("Count column in group", function () {
 
-            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-            let cols = ["A", "B", "C"]
-            let df = new DataFrame(data, { columns: cols })
-            let group_df = df.groupby(["A", "B"]);
-            let new_data = {
-                '1': { '2': [1] },
-                '4': { '5': [1] },
-                '20': { '30': [1] },
-                '39': { '89': [1] }
-            }
+    //         let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+    //         let cols = ["A", "B", "C"]
+    //         let df = new DataFrame(data, { columns: cols })
+    //         let group_df = df.groupby(["A", "B"]);
+    //         let new_data = {
+    //             '1': { '2': [1] },
+    //             '4': { '5': [1] },
+    //             '20': { '30': [1] },
+    //             '39': { '89': [1] }
+    //         }
 
-            assert.deepEqual(group_df.col(["C"]).count(), new_data);
-        });
-        it("sum column element in group", function () {
+    //         assert.deepEqual(group_df.col(["C"]).count(), new_data);
+    //     });
+    //     it("sum column element in group", function () {
 
-            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-            let cols = ["A", "B", "C"]
-            let df = new DataFrame(data, { columns: cols })
-            let group_df = df.groupby(["A", "B"]);
-            let new_data = {
-                '1': { '2': [3] },
-                '4': { '5': [6] },
-                '20': { '30': [40] },
-                '39': { '89': [78] }
-            }
+    //         let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+    //         let cols = ["A", "B", "C"]
+    //         let df = new DataFrame(data, { columns: cols })
+    //         let group_df = df.groupby(["A", "B"]);
+    //         let new_data = {
+    //             '1': { '2': [3] },
+    //             '4': { '5': [6] },
+    //             '20': { '30': [40] },
+    //             '39': { '89': [78] }
+    //         }
 
-            assert.deepEqual(group_df.col(["C"]).sum(), new_data);
-        });
+    //         assert.deepEqual(group_df.col(["C"]).sum(), new_data);
+    //     });
 
-        it("sum column element group by one column", function () {
+    //     it("sum column element group by one column", function () {
 
-            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-            let cols = ["A", "B", "C"]
-            let df = new DataFrame(data, { columns: cols })
-            let group_df = df.groupby(["A"]);
+    //         let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+    //         let cols = ["A", "B", "C"]
+    //         let df = new DataFrame(data, { columns: cols })
+    //         let group_df = df.groupby(["A"]);
 
-            let new_data = { '1': [2, 3], '4': [5, 6], '20': [30, 40], '39': [89, 78] }
+    //         let new_data = { '1': [2, 3], '4': [5, 6], '20': [30, 40], '39': [89, 78] }
 
-            assert.deepEqual(group_df.col(["B", "C"]).sum(), new_data);
-        });
+    //         assert.deepEqual(group_df.col(["B", "C"]).sum(), new_data);
+    //     });
 
-        it("Perform aggregate on column for groupby", function () {
+    //     it("Perform aggregate on column for groupby", function () {
 
-            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-            let cols = ["A", "B", "C"]
-            let df = new DataFrame(data, { columns: cols })
-            let group_df = df.groupby(["A", "B"]);
-            let new_data = {
-                '1': { '2': [2, 1] },
-                '4': { '5': [5, 1] },
-                '20': { '30': [30, 1] },
-                '39': { '89': [89, 1] }
-            }
+    //         let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+    //         let cols = ["A", "B", "C"]
+    //         let df = new DataFrame(data, { columns: cols })
+    //         let group_df = df.groupby(["A", "B"]);
+    //         let new_data = {
+    //             '1': { '2': [2, 1] },
+    //             '4': { '5': [5, 1] },
+    //             '20': { '30': [30, 1] },
+    //             '39': { '89': [89, 1] }
+    //         }
 
-            assert.deepEqual(group_df.agg({ "B": "mean", "C": "count" }), new_data);
-        });
+    //         assert.deepEqual(group_df.agg({ "B": "mean", "C": "count" }), new_data);
+    //     });
 
 
-    });
+    // });
 
     describe("column", function () {
         it("Obtain a column from a dataframe created from object", function () {
@@ -1097,9 +1158,9 @@ describe("DataFrame", function () {
         it("Throws error if you try to run a function that does not operate on axis and axis is specified", function () {
             let data = [["BOY", "GIRL", "ALL"], ["Man", "Woman", "Girl"]]
             let df = new DataFrame(data)
-        
+
             let err = `Callable Error: You can only apply JavaScript functions on DataFrames when axis is not specified. This operation is applied on all element, and returns a DataFrame of the same shape.`
-            
+
             assert.throws(() => {
                 df.apply({
                     axis: 0, callable: (x) => {

@@ -106,9 +106,11 @@ export class Series extends NDframe {
             let new_values = []
             let new_idx = []
 
-            let counts = [...Array(idx.length).keys()]   //set index
+            // let counts = [...Array(idx.length).keys()]   //set index
             //get random sampled numbers
-            let rand_nums = utils.__randgen(num, 0, counts.length)
+            // let index_arr = utils.__range(0,counts.length)
+            let rand_nums = utils.__shuffle(num,idx)
+            // console.log(rand_nums)
             rand_nums.map(i => {
                 new_values.push(values[i])
                 new_idx.push(idx[i])
@@ -493,10 +495,8 @@ export class Series extends NDframe {
         })
         if (kwargs['inplace']) {
             this.data = new_values
-            this.print()
         } else {
             let sf = new Series(new_values, { columns: this.column_names, index: this.index, dtypes: this.dtypes })
-            sf.print()
             return sf
         }
     }
