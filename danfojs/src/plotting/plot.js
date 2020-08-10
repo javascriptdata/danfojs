@@ -1,5 +1,5 @@
 //perform plotting
-import {newPlot} from 'plotly.js/dist/plotly'
+// import {newPlot} from 'plotly.js/dist/plotly'
 import { Utils } from "../core/utils"
 const utils = new Utils()
 
