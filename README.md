@@ -7,6 +7,8 @@
 
 ## danfojs: powerful javascript data analysis toolkit 
 ![Node.js CI](https://github.com/opensource9ja/danfojs/workflows/Node.js%20CI/badge.svg?branch=master)
+[![](https://data.jsdelivr.com/v1/package/npm/danfojs/badge?style=rounded)](https://www.jsdelivr.com/package/npm/danfojs)
+
 
 
 ## What is it?
@@ -178,9 +180,6 @@ To use danfo.js via script tags, copy and paste the CDN below to your HTML file
 
 </html>
 ```
-
-### To install Node.js version, go [here](https://www.npmjs.com/package/danfojs-node)
-
 
 ## Installation from sources
 To install danfo in [development mode], clone the repo:
