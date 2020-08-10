@@ -9,3 +9,4 @@ export {concat} from './core/concat'
 export {LabelEncoder, OneHotEncoder} from './preprocessing/encodings' //TODO Create js file to expose functions
 export {RobustScaler, MinMaxScaler, StandardScaler} from './preprocessing/scalers'
 export {date_range} from './core/date_range'
+export {get_dummies} from './core/get_dummies'

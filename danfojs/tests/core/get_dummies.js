@@ -9,7 +9,7 @@ describe("get_dummies", function(){
 
         let data = ["dog","male","female","male","female","male","dog"]
 
-        let df = get_dummies({data:data,prefix:"test",prefix_sep:"/"})
+        let df = get_dummies({data:data})
 
         let df_values = [
             [ 1, 0, 0 ],
@@ -20,7 +20,7 @@ describe("get_dummies", function(){
             [ 0, 1, 0 ],
             [ 1, 0, 0 ]
           ]
-        let df_columns = [ 'test/dog', 'test/male', 'test/female' ]       
+        let df_columns = [ 'dog_0', 'male_1', 'female_2' ]       
 
         assert.deepEqual(df.values, df_values)
         assert.deepEqual(df.columns, df_columns)

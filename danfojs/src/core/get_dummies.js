@@ -12,7 +12,12 @@ function oneHot(in_data, prefix, prefix_sep){
         prefix_labels = labels.map((x)=>{
             return prefix + prefix_sep + x
         })
+    }else{
+        prefix_labels = labels.map((x,i)=>{
+            return x+ prefix_sep + i
+        })
     }
+   
     let onehot_data = utils.__zeros(in_data.length, labels.length)
 
     for(let i=0; i < in_data.length; i++){
@@ -38,7 +43,7 @@ function get_dummy(kwargs={}){
         utils.__in_object(kwargs,"data", "data not provided")
 
         let prefix = kwargs["prefix"] || null
-        let prefix_sep = kwargs["prefix_sep"] || "_"
+        let prefix_sep = kwargs["prefix_sep"] || ["_"]
         let columns = kwargs["columns"] || null
 
         let is_dataframe = false
@@ -56,8 +61,8 @@ function get_dummy(kwargs={}){
         }
 
         if(!is_dataframe){
-
             let [onehot_data, prefix_labels] = oneHot(in_data, prefix, prefix_sep)
+           
             return new DataFrame(onehot_data,{columns: prefix_labels})
         }
         else{

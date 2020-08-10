@@ -21,7 +21,7 @@ export class Concat {
 
             df_list = kwargs["df_list"];
         } else {
-            throw new Error("df_list must be an Array of dataFrames");
+            throw new Error("df_list must be an Array of dataFrames/Series");
         }
 
         //check if axis is int and is either 0 or 1
@@ -31,7 +31,8 @@ export class Concat {
 
                 axis = kwargs["axis"];
             } else {
-                throw new Error("Invalid axis: axis must be 0 or 1")
+                axis = 1
+                // throw new Error("Invalid axis: axis must be 0 or 1")
             }
 
         } else {
@@ -176,6 +177,7 @@ export class Concat {
             return df;
 
         }
+        
     }
 }
 
