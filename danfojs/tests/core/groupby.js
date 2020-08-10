@@ -62,10 +62,10 @@ describe("groupby", function () {
         let df = new DataFrame(data, { columns: cols })
         let group_df = df.groupby(["A", "B"]);
         let new_data = [
-            [ '1', '2', 1 ],
-            [ '4', '5', 1 ],
-            [ '20', '30', 1 ],
-            [ '39', '89', 1 ]
+            [ 1, 2, 1 ],
+            [ 4, 5, 1 ],
+            [ 20, 30, 1 ],
+            [ 39, 89, 1 ]
           ]
 
         assert.deepEqual(group_df.col(["C"]).count().values, new_data);
@@ -77,10 +77,10 @@ describe("groupby", function () {
         let df = new DataFrame(data, { columns: cols })
         let group_df = df.groupby(["A", "B"]);
         let new_data = [
-            [ '1', '2', 3 ],
-            [ '4', '5', 6 ],
-            [ '20', '30', 40 ],
-            [ '39', '89', 78 ]
+            [ 1, 2, 3 ],
+            [ 4, 5, 6 ],
+            [ 20, 30, 40 ],
+            [ 39, 89, 78 ]
           ]
         assert.deepEqual(group_df.col(["C"]).sum().values, new_data);
     });
@@ -93,10 +93,10 @@ describe("groupby", function () {
         let group_df = df.groupby(["A","B"]);
 
         let new_data = [
-            [ '1', '2', 2, 3 ],
-            [ '1', '5', 5, 6 ],
-            [ '20', '30', 30, 40 ],
-            [ '39', '89', 89, 78 ]
+            [ 1, 2, 2, 3 ],
+            [ 1, 5, 5, 6 ],
+            [ 20, 30, 30, 40 ],
+            [ 39, 89, 89, 78 ]
           ]
 
         assert.deepEqual(group_df.col(["B", "C"]).sum().values, new_data);
@@ -109,14 +109,76 @@ describe("groupby", function () {
         let df = new DataFrame(data, { columns: cols })
         let group_df = df.groupby(["A", "B"]);
         let new_data = [
-            [ '1', '2', 2, 1 ],
-            [ '4', '5', 5, 1 ],
-            [ '20', '30', 30, 1 ],
-            [ '39', '89', 89, 1 ]
+            [ 1, 2, 2, 1 ],
+            [ 4, 5, 5, 1 ],
+            [ 20, 30, 30, 1 ],
+            [39, 89, 89, 1 ]
           ]
 
         assert.deepEqual(group_df.agg({ "B": "mean", "C": "count" }).values, new_data);
     });
+    it("cummulative sum for groupby", function () {
 
+        let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+        let cols = ["A", "B", "C"]
+        let df = new DataFrame(data, { columns: cols })
+        let group_df = df.groupby(["A", "B"]);
+        let new_data = [
+            [ 1, 2, 2, 3 ],
+            [ 4, 5, 5 , 6  ],
+            [ 20, 30, 30, 40 ],
+            [ 39, 89, 89 , 78 ]
+          ]
+
+        assert.deepEqual(group_df.col(["B", "C"]).cumsum().values, new_data);
+    });
+    it("cummulative max for groupby", function () {
+
+        let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+        let cols = ["A", "B", "C"]
+        let df = new DataFrame(data, { columns: cols })
+        let group_df = df.groupby(["A"]);
+        let new_data = [ [ 1, 3 ], [ 4, 6 ], [ 20, 40 ], [ 39, 78 ] ]
+        
+
+    
+        assert.deepEqual(group_df.col(["C"]).cummax().values, new_data);
+    });
+    it("cummulative min for groupby", function () {
+
+        let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+        let cols = ["A", "B", "C"]
+        let df = new DataFrame(data, { columns: cols })
+        let group_df = df.groupby(["A"]);
+        let new_data = [ [ 1, 3 ], [ 4, 6 ], [ 20, 40 ], [ 39, 78 ] ]
+        
+        assert.deepEqual(group_df.col(["C"]).cummin().values, new_data);
+    });
+
+    it("cummulative prod for groupby", function () {
+
+        let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+        let cols = ["A", "B", "C"]
+        let df = new DataFrame(data, { columns: cols })
+        let group_df = df.groupby(["A"]);
+        let new_data = [ [ 1, 3 ], [ 4, 6 ], [ 20, 40 ], [ 39, 78 ] ]
+        
+        assert.deepEqual(group_df.col(["C"]).cumprod().values, new_data);
+    });
+    it("mean for groupby", function () {
+
+        let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+        let cols = ["A", "B", "C"]
+        let df = new DataFrame(data, { columns: cols })
+        let group_df = df.groupby(["A", "B"]);
+        let new_data = [
+            [ 1, 2, 2, 3 ],
+            [ 4, 5, 5 , 6  ],
+            [ 20, 30, 30, 40 ],
+            [ 39, 89, 89 , 78 ]
+          ]
+
+        assert.deepEqual(group_df.col(["B", "C"]).mean().values, new_data);
+    });
 
 });

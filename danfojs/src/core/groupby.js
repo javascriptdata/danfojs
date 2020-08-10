@@ -165,13 +165,20 @@ export class GroupBy {
      */
     arithemetic(operation){
 
-        let ops_name = ["mean","sum","count","mode"]
+        let ops_name = ["mean","sum","count","mode","std","var","cumsum","cumprod",
+                        "cummax","cummin"]
 
         let ops_map = {
             "mean": "mean()",
             "sum": "sum()",
             "mode": "mode()",
-            "count": "count()"
+            "count": "count()",
+            "std" : "std()",
+            "var" : "var()",
+            "cumsum" : "cumsum().values",
+            "cumprod": "cumprod().values",
+            "cummax" : "cummax().values",
+            "cummin" : "cummin().values"
         }
         let is_array = false;
 
@@ -201,8 +208,11 @@ export class GroupBy {
                         }else{
                             data = eval(`this.group_col[key1][key2][i].${operation}`)
                         }
-                        
-                        count_group[key1][key2].push(data)
+                        if(Array.isArray(data)){
+                            count_group[key1][key2].push(...data)
+                        }else{
+                            count_group[key1][key2].push(data)
+                        }
                     }
                     
                 }
@@ -227,8 +237,12 @@ export class GroupBy {
                     }else{
                         data = eval(`this.group_col[key1][i].${operation}`)
                     }
+                    if(Array.isArray(data)){
+                        count_group[key1].push(...data)
+                    }else{
+                        count_group[key1].push(data)
+                    }
                     
-                    count_group[key1].push(data)
                 }
             }
 
@@ -251,7 +265,46 @@ export class GroupBy {
         return df
     }
 
+    std(){
+        let value = this.arithemetic("std()")
+        let df = this.to_DataFrame(this.key_col, this.group_col_name,value,"std")
+        return df
+    }
 
+    var(){
+        let value = this.arithemetic("var()")
+        let df = this.to_DataFrame(this.key_col, this.group_col_name,value,"var")
+        return df
+    }
+
+    mean(){
+        let value = this.arithemetic("mean()")
+        let df = this.to_DataFrame(this.key_col, this.group_col_name,value,"mean")
+        return df
+    }
+
+    cumsum(){
+        let value = this.arithemetic("cumsum().values")
+        let df = this.to_DataFrame(this.key_col, this.group_col_name,value,"cumsum")
+        return df
+    }
+    cummax(){
+        let value = this.arithemetic("cummax().values")
+        let df = this.to_DataFrame(this.key_col, this.group_col_name,value,"cummax")
+        return df
+    }
+
+    cumprod(){
+        let value = this.arithemetic("cumprod().values")
+        let df = this.to_DataFrame(this.key_col, this.group_col_name,value,"cumprod")
+        return df
+    }
+
+    cummin(){
+        let value = this.arithemetic("cummin().values")
+        let df = this.to_DataFrame(this.key_col, this.group_col_name,value,"cummin")
+        return df
+    }
 
     /**
      * returns dataframe of a group
@@ -312,8 +365,8 @@ export class GroupBy {
                 for(let key_2 in key_val){
                     let k_data = key_val[key_2]
                     let kk = []
-                    kk[0] = key_1
-                    kk[1] = key_2
+                    kk[0] = isNaN(parseInt(key_1)) ? key_1 : parseInt(key_1)
+                    kk[1] = isNaN(parseInt(key_2)) ? key_1 : parseInt(key_2)
                     kk.push(...k_data)
                     df_data.push(kk)
 
@@ -336,7 +389,8 @@ export class GroupBy {
 
                 let key_val = data[key_1]
 
-                let key_data = [key_1]
+                let key_data = []
+                key_data[0] = isNaN(parseInt(key_1)) ? key_1 : parseInt(key_1)
                 key_data.push(...key_val)
                 df_data.push(key_data)
             }
