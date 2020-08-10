@@ -637,6 +637,26 @@ export class Utils {
         }
         return zero_data
     }
+
+    __shuffle(num,array) {
+        //https://stackoverflow.com/questions/18806210/generating-non-repeating-random-numbers-in-js/18806417
+        var i = array.length,
+            j = 0,
+            temp;
+    
+        while (i--) {
+    
+            j = Math.floor(Math.random() * (i+1));
+    
+            // swap randomly chosen element with current element
+            temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+    
+        }
+    
+        return array.slice(0,num);
+    }
 }
 
 

@@ -1,7 +1,7 @@
 import { assert } from "chai"
 import { Series } from '../../src/core/series'
-// import * as tf from '@tensorflow/tfjs-node'
-import * as tf from '@tensorflow/tfjs'
+import * as tf from '@tensorflow/tfjs-node'
+// import * as tf from '@tensorflow/tfjs'
 
 
 
@@ -86,7 +86,7 @@ describe("Series", function () {
         it("Samples n number of random elements from a DataFrame", function () {
             let data = [1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78]
             let sf = new Series(data)
-            assert.deepEqual(sf.sample(5).values.length, 5)
+            assert.deepEqual(sf.sample(7).values.length, 7)
         })
         it("Return all values if n of sample is greater than lenght of Dataframe", function () {
             let data = [1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78]
