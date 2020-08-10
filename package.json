@@ -27,7 +27,6 @@
     "build": "babel ./danfojs/src -d ./dist --no-comments",
     "lint": "eslint ./danfojs/src",
     "bundle": "webpack --mode production",
-    "prepublishOnly": "npm run bundle",
     "patch": "npm version patch",
     "publish": "npm publish"
   },
