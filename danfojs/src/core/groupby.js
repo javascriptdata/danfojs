@@ -378,7 +378,7 @@ export class GroupBy {
                     let k_data = key_val[key_2]
                     let kk = []
                     kk[0] = isNaN(parseInt(key_1)) ? key_1 : parseInt(key_1)
-                    kk[1] = isNaN(parseInt(key_2)) ? key_1 : parseInt(key_2)
+                    kk[1] = isNaN(parseInt(key_2)) ? key_2 : parseInt(key_2)
                     kk.push(...k_data)
                     df_data.push(kk)
 
