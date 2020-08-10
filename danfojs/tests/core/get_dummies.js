@@ -20,7 +20,7 @@ describe("get_dummies", function(){
             [ 0, 1, 0 ],
             [ 1, 0, 0 ]
           ]
-        let df_columns = [ 'dog_0', 'male_1', 'female_2' ]       
+        let df_columns = [ 'dog', 'male', 'female' ]       
 
         assert.deepEqual(df.values, df_values)
         assert.deepEqual(df.columns, df_columns)

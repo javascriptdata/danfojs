@@ -13,8 +13,8 @@ function oneHot(in_data, prefix, prefix_sep){
             return prefix + prefix_sep + x
         })
     }else{
-        prefix_labels = labels.map((x,i)=>{
-            return x+ prefix_sep + i
+        prefix_labels = labels.map((x)=>{
+            return x
         })
     }
    
