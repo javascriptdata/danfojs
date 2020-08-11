@@ -583,6 +583,112 @@ export class Plot {
     }
 
 
+    /**
+    * Makes Pie Plots from two Columns in a DataFrame.
+   * Uses the Plotly as backend, so supoorts Plotly's configuration parameters
+   * @param {string} div Name of the div to show the plot
+   * @param {Object} config configuration options for making Plots, supports Plotly parameters
+    */
+    pie(config = {}) {
+
+        let ret_params = this.__get_plot_params(config)
+        let this_config = ret_params[0]
+
+    
+        if (this.ndframe instanceof Series) {
+            let data = [{
+                values: this.ndframe.values,
+                labels: this.ndframe.index,
+                type: 'pie',
+                name: this_config['labels'],
+                hoverinfo: 'label+percent+name',
+                automargin: true
+            }];
+
+            newPlot(this.div, data, this_config['layout'])
+
+        } else if (utils.__key_in_object(this_config, 'values') && utils.__key_in_object(this_config, 'labels')) {
+            if (!this.ndframe.column_names.includes(this_config['labels'])) {
+                throw Error(`Column Error: ${this_config['labels']} not found in columns. labels name must be one of [ ${this.ndframe.column_names}]`)
+            }
+            if (!this.ndframe.column_names.includes(this_config['values'])) {
+                throw Error(`Column Error: ${this_config['values']} not found in columns. value name must be one of [ ${this.ndframe.column_names}]`)
+            }
+            let data = [{
+                values: this.ndframe[this_config['values']].values,
+                labels: this.ndframe[this_config['labels']].values,
+                type: 'pie',
+                name: this_config['labels'],
+                hoverinfo: 'label+percent+name',
+                automargin: true
+            }];
+
+            newPlot(this.div, data, this_config['layout'])
+
+        } else {
+            let cols_to_plot;
+
+            if (utils.__key_in_object(this_config, "columns")) {
+                cols_to_plot = this.____check_if_cols_exist(this_config['columns'])
+            } else {
+                cols_to_plot = this.ndframe.column_names
+            }
+
+            if (utils.__key_in_object(this_config, 'row_pos')) {
+                if (this_config['row_pos'].length != cols_to_plot.length - 1) {
+                    throw Error(`Lenght of row_pos array must be equal to number of columns. Got ${this_config['row_pos'].length}, expected ${cols_to_plot.length -1}`)
+                }
+            } else {
+                let temp_arr = []
+                for (let i = 0; i < cols_to_plot.length - 1; i++) {
+                    temp_arr.push(0)
+                }
+                this_config['row_pos'] = temp_arr
+
+            }
+
+            if (utils.__key_in_object(this_config, 'col_pos')) {
+                if (this_config['col_pos'].length != cols_to_plot.length - 1) {
+                    throw Error(`Lenght of col_pos array must be equal to number of columns. Got ${this_config['col_pos'].length}, expected ${cols_to_plot.length - 1}`)
+                }
+            } else {
+                let temp_arr = []
+                for (let i = 0; i < cols_to_plot.length - 1; i++) {
+                    temp_arr.push(i)
+                }
+                this_config['col_pos'] = temp_arr
+
+            }
+            let data = []
+
+            cols_to_plot.forEach((c_name, i) => {
+                let trace = {}
+                trace["values"] = this.ndframe[c_name].values
+                trace['labels'] = this.ndframe[this_config['labels']].values
+                trace['name'] = c_name
+                trace['type'] = "pie"
+                trace['domain'] = { row: this_config['row_pos'][i], column: this_config['col_pos'][i] }
+                trace["hoverinfo"] = 'label+percent+name'
+                trace['textposition'] = "outside"
+                trace['automargin'] = true
+                data.push(trace)
+
+            })
+
+            if (!utils.__key_in_object(this_config, "grid")) {
+                //set default grid
+                let size = Number((this.ndframe.shape[1] / 2).toFixed()) + 1
+                this_config['grid'] = { rows: size, columns: size }
+            }
+            this_config['layout']['grid'] = this_config['grid']
+            newPlot(this.div, data, this_config['layout']);
+
+
+        }
+
+    }
+
+
     __get_plot_params(config) {
         let params = Object.keys(config)
         let this_config = {}
