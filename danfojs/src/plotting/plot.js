@@ -594,7 +594,7 @@ export class Plot {
         let ret_params = this.__get_plot_params(config)
         let this_config = ret_params[0]
 
-    
+
         if (this.ndframe instanceof Series) {
             let data = [{
                 values: this.ndframe.values,
@@ -636,7 +636,7 @@ export class Plot {
 
             if (utils.__key_in_object(this_config, 'row_pos')) {
                 if (this_config['row_pos'].length != cols_to_plot.length - 1) {
-                    throw Error(`Lenght of row_pos array must be equal to number of columns. Got ${this_config['row_pos'].length}, expected ${cols_to_plot.length -1}`)
+                    throw Error(`Lenght of row_pos array must be equal to number of columns. Got ${this_config['row_pos'].length}, expected ${cols_to_plot.length - 1}`)
                 }
             } else {
                 let temp_arr = []
@@ -689,6 +689,117 @@ export class Plot {
     }
 
 
+
+    /**
+     * Plot Box plots from Series or DataFrame as lines.
+    * Uses the Plotly as backend, so supoorts Plotly's configuration parameters
+    * @param {Object} config configuration options for making Plots, supports Plotly parameters
+     */
+    box(config = {}) {
+
+        let ret_params = this.__get_plot_params(config)
+        let this_config = ret_params[0]
+        let params = ret_params[1]
+
+        if (this.ndframe instanceof Series) {
+            let trace = {}
+            let y = this.ndframe.values
+
+            params.forEach(param => {
+                if (!param == "layout") {
+                    trace[param] = config[param]
+                }
+            })
+
+            trace["y"] = y
+            trace['type'] = "box"
+
+            newPlot(this.div, [trace], this_config['layout']);
+
+        } else {
+            //check if plotting two columns against each other
+            if (utils.__key_in_object(this_config, 'x') && utils.__key_in_object(this_config, 'y')) {
+                if (!this.ndframe.column_names.includes(this_config['x'])) {
+                    throw Error(`Column Error: ${this_config['x']} not found in columns`)
+                }
+                if (!this.ndframe.column_names.includes(this_config['y'])) {
+                    throw Error(`Column Error: ${this_config['y']} not found in columns`)
+                }
+
+
+                let x = this.ndframe[this_config['x']].values
+                let y = this.ndframe[this_config['y']].values
+
+                let trace = {}
+                trace["x"] = x
+                trace['y'] = y
+                trace['type'] = 'box'
+
+
+                let xaxis = {}; let yaxis = {}
+                xaxis['title'] = this_config['x']
+                yaxis['title'] = this_config['y']
+
+                this_config['layout']['xaxis'] = xaxis
+                this_config['layout']['yaxis'] = yaxis
+
+                newPlot(this.div, [trace], this_config['layout']);
+
+            } else if (utils.__key_in_object(this_config, 'x') || utils.__key_in_object(this_config, 'y')) {
+                //plot single column specified in either of param [x | y] against index
+                let trace = {}
+
+                params.forEach(param => {
+                    if (!param == "layout") {
+                        trace[param] = config[param]
+                    }
+                })
+
+                if (utils.__key_in_object(this_config, 'x')) {
+                    trace['x'] = this.ndframe[this_config['x']].values
+                    trace['y'] = this.ndframe.index
+                    trace['type'] = 'box'
+                } else {
+                    trace['x'] = this.ndframe.index
+                    trace['y'] = this_config['y']
+                    trace['type'] = 'box'
+                }
+
+                newPlot(this.div, [trace], this_config['layout']);
+
+            } else {
+                //plot columns against index
+                let data = []
+                let cols_to_plot;
+
+                if (utils.__key_in_object(this_config, "columns")) {
+                    cols_to_plot = this.____check_if_cols_exist(this_config['columns'])
+                } else {
+                    cols_to_plot = this.ndframe.column_names
+                }
+
+                cols_to_plot.forEach(c_name => {
+                    let trace = {}
+
+                    params.forEach(param => { //TODO accept individual configuration for traces
+                        trace[param] = config[param]
+                    })
+                    trace["y"] = this.ndframe[c_name].values
+                    trace['name'] = c_name
+                    trace['type'] = 'box'
+                    data.push(trace)
+
+                })
+                newPlot(this.div, data, this_config['layout']);
+
+            }
+
+        }
+
+
+    }
+
+
     __get_plot_params(config) {
         let params = Object.keys(config)
         let this_config = {}
@@ -714,5 +825,9 @@ export class Plot {
         })
         return cols
     }
+
+
+
+
 
 }
