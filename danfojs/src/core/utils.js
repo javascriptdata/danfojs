@@ -153,6 +153,13 @@ export class Utils {
     __get_row_values(data) {
         let col_names = Object.keys(data)
         let col_data = Object.values(data)
+        //check lengths to ensure they are equal
+        let first_col_len = col_data[0].length
+        col_data.forEach(data=>{
+            if (data.length != first_col_len){
+                throw Error("Length Error: Length of columns must be the same!")
+            }
+        })
         let rows_len = col_data[0].length
         let cols_len = col_names.length
         var rows_arr = []
