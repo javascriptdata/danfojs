@@ -773,12 +773,12 @@ export class DataFrame extends Ndframe {
     */
     describe() {
         let numeric_df = this.select_dtypes(['float32', 'int32'])
-        let col_names = numeric_df.columns
+        let col_names = numeric_df.column_names
         let index = ['count', 'mean', 'std', 'min', 'median', 'max', 'variance']
 
         let stats_arr = []
         col_names.forEach(name => {
-            let col_series = numeric_df.column(name)
+            let col_series = numeric_df[name]
             let count = col_series.count()
             let mean = col_series.mean()
             let std = col_series.std()
