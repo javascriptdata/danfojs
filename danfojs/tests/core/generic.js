@@ -112,15 +112,23 @@ describe("Generic (NDFrame)", function () {
 
     describe("NDframe Created from JavaScript Object of Arrays", function () {
 
-        it("prints the shape of a 2D ", function () {
+        it("retrieves the col data created from OA ", function () {
             let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4] }
             let ndframe = new NDframe(data)
-            assert.deepEqual(ndframe.shape, [4, 2])
+            // assert.deepEqual(ndframe.shape, [4, 2])
+            assert.deepEqual(ndframe.col_data, [["A", "B", "C", "D"],[1, 2, 3, 4]])
         })
-        it("prints the shape of a 2D ", function () {
+        it("retrieves the col data ", function () {
             let data = { alpha: ["A", "B", "C", "D"], count: [1,2,3,4], sum: [20.3, 30.456, 40.90, 90.1]}
             let ndframe = new NDframe(data)
-            assert.deepEqual(ndframe.shape, [4, 3])
+            let res = [["A", "B", "C", "D"],[1,2,3,4],[20.3, 30.456, 40.90, 90.1]]
+            assert.deepEqual(ndframe.col_data, res)
+        })
+        it("retrieves the row data created from OA ", function () {
+            let data = { alpha: ["A", "B"], count: [1, 2] }
+            let ndframe = new NDframe(data)
+            // assert.deepEqual(ndframe.shape, [4, 2])
+            assert.deepEqual(ndframe.values, [["A", 1], ["B", 2]])
         })
     })
 

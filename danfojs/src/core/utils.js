@@ -144,6 +144,7 @@ export class Utils {
         }
         return cols_arr
 
+
     }
 
     // let data = [{ alpha: ["A", "B", "C", "D"] }, { count: [1,2,3,4]}, {sum: [20.3, 30.456, 40.90, 90.1]}]

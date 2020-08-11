@@ -208,11 +208,8 @@ export class GroupBy {
                         }else{
                             data = eval(`this.group_col[key1][key2][i].${operation}`)
                         }
-                        if(Array.isArray(data)){
-                            count_group[key1][key2].push(...data)
-                        }else{
-                            count_group[key1][key2].push(data)
-                        }
+                        count_group[key1][key2].push(data)
+                    
                     }
                     
                 }
@@ -237,11 +234,8 @@ export class GroupBy {
                     }else{
                         data = eval(`this.group_col[key1][i].${operation}`)
                     }
-                    if(Array.isArray(data)){
-                        count_group[key1].push(...data)
-                    }else{
-                        count_group[key1].push(data)
-                    }
+                    
+                    count_group[key1].push(data)
                     
                 }
             }
@@ -367,8 +361,8 @@ export class GroupBy {
 
     to_DataFrame(key_col,col,data,ops){
 
+        // console.log(data);
         if(key_col.length ==2){
-
             let df_data = []
             for(let key_1 in data){
 
@@ -376,11 +370,34 @@ export class GroupBy {
 
                 for(let key_2 in key_val){
                     let k_data = key_val[key_2]
-                    let kk = []
-                    kk[0] = isNaN(parseInt(key_1)) ? key_1 : parseInt(key_1)
-                    kk[1] = isNaN(parseInt(key_2)) ? key_2 : parseInt(key_2)
-                    kk.push(...k_data)
-                    df_data.push(kk)
+                    let key_data = []
+                    
+
+                    if(Array.isArray(k_data[0])){
+                        for(let i=0; i < k_data.length; i++){
+                            let col_data = k_data[i]
+    
+                            for (let j=0; j < col_data.length; j++ ){
+                                
+                                if(typeof key_data[j] === "undefined" ){
+                                    key_data[j] = []
+                                    key_data[j][0] = isNaN(parseInt(key_1)) ? key_1 : parseInt(key_1)
+                                    key_data[j][1] = isNaN(parseInt(key_2)) ? key_2 : parseInt(key_2)
+                                    key_data[j].push(col_data[j])
+                                }else{
+                                    key_data[j].push(col_data[j]);
+                                }
+                            }
+                        }
+                        df_data.push(...key_data)
+    
+                    }else{
+                        key_data[0] = isNaN(parseInt(key_1)) ? key_1 : parseInt(key_1)
+                        key_data[1] = isNaN(parseInt(key_2)) ? key_2 : parseInt(key_2)
+                        key_data.push(...k_data)
+                        df_data.push(key_data)
+                    }
+                    
 
                 }
                 
@@ -402,9 +419,29 @@ export class GroupBy {
                 let key_val = data[key_1]
 
                 let key_data = []
-                key_data[0] = isNaN(parseInt(key_1)) ? key_1 : parseInt(key_1)
-                key_data.push(...key_val)
-                df_data.push(key_data)
+                if(Array.isArray(key_val[0])){
+                    for(let i=0; i < key_val.length; i++){
+                        let col_data = key_val[i]
+
+                        for (let j=0; j < col_data.length; j++ ){
+
+                            if(typeof key_data[j] === "undefined" ){
+                                key_data[j] = []
+                                key_data[j][0] = isNaN(parseInt(key_1)) ? key_1 : parseInt(key_1)
+                                key_data[j].push(col_data[j])
+                            }else{
+                                key_data[j].push(col_data[j]);
+                            }
+                        }
+                        df_data.push(...key_data)
+                    }
+
+                }else{
+                    key_data[0] = isNaN(parseInt(key_1)) ? key_1 : parseInt(key_1)
+                    key_data.push(...key_val)
+                    df_data.push(key_data)
+                }
+                
             }
             let column = [...key_col]
             let group_col = col.slice().map((x,i)=>{

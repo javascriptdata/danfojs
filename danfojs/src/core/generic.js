@@ -33,10 +33,10 @@ export default class NDframe {
             this.series = false
             if (utils.__is_object(data[0])) { //check the type of the first object in the data
                 this.__read_object(data, 1) //type 1 object are of JSON form [{a: 1, b: 2}, {a: 30, b: 20}]
-            } else if (Array.isArray(data[0]) || utils.__is_number(data[0]) || utils.__is_string(data[0])) {
-                this.__read_array(data)
             } else if (utils.__is_object(data)) {
                 this.__read_object(data, 2)  //type 2 object are of the form {a: [1,2,3,4], b: [30,20, 30, 20}]
+            } else if (Array.isArray(data[0]) || utils.__is_number(data[0]) || utils.__is_string(data[0])) {
+                this.__read_array(data)
             } else {
                 throw "File format not supported for now"
             }
@@ -165,7 +165,7 @@ export default class NDframe {
     __set_col_types(dtypes, infer) {
         //set data type for each column in an NDFrame
         const __supported_dtypes = ['float32', "int32", 'string', 'boolean']
-       
+
 
         if (infer) {
             if (this.series) {
@@ -178,7 +178,7 @@ export default class NDframe {
                 this.col_types = utils.__get_t(this.col_data)
             }
         } else {
-            
+
             if (this.series) {
                 this.col_types = dtypes
                 this.col_data = [this.values]
