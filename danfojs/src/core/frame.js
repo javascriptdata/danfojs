@@ -1891,15 +1891,16 @@ export class DataFrame extends Ndframe {
 
     /**
      * Make plots of Series or DataFrame.
-     * Uses the Plotly as backend, so supoorts Plotly's configuration parameters
+     * Uses the Plotly as backend, so supports Plotly's configuration parameters
      * @param {string} div Name of the div to show the plot
-     * @param {Object} config configuration options for making Plots, supports Plotly parameters
+     * @returns {Class} Plot class that expoese different plot type
      */
-    plot(div, config = {}) {
-        const plt = new Plot()
-        plt.plot(this, div, config)
+    plot(div) {
+        const plt = new Plot(this, div)
+        return plt
     }
 
+    
 
     /**
      * Returns the Tensorflow tensor backing the DataFrame Object
