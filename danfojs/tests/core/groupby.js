@@ -182,16 +182,15 @@ describe("groupby", function () {
     });
 
     it("printing multiindex table, example with cumsum operation for dataframe group by one column",function(){
-        let data =[{'A': ['foo', 'bar', 'foo', 'bar',
-                         'foo', 'bar', 'foo', 'foo']},
-            {'B': ['one', 'one', 'two', 'three',
-                    'two', 'two', 'one', 'three']},
-            {'C': [1,3,2,4,5,2,6,7]},
-            {'D': [3,2,4,1,5,6,7,8]}
-        ]
+        let data ={'A': ['foo', 'bar', 'foo', 'bar',
+                         'foo', 'bar', 'foo', 'foo'],
+            'B': ['one', 'one', 'two', 'three',
+                    'two', 'two', 'one', 'three'],
+            'C': [1,3,2,4,5,2,6,7],
+            'D': [3,2,4,1,5,6,7,8]}
+    
 
-            let df = new DataFrame(data)
-
+        let df = new DataFrame(data)
 
         let grp = df.groupby(["A"])
         let rslt = [
@@ -208,13 +207,12 @@ describe("groupby", function () {
 
     })
     it("printing multiindex table, example with cumsum operation for dataframe group by one column",function(){
-        let data =[{'A': ['foo', 'bar', 'foo', 'bar',
-                         'foo', 'bar', 'foo', 'foo']},
-            {'B': ['one', 'one', 'two', 'three',
-                    'two', 'two', 'one', 'three']},
-            {'C': [1,3,2,4,5,2,6,7]},
-            {'D': [3,2,4,1,5,6,7,8]}
-        ]
+        let data ={'A': ['foo', 'bar', 'foo', 'bar',
+                         'foo', 'bar', 'foo', 'foo'],
+            'B': ['one', 'one', 'two', 'three',
+                    'two', 'two', 'one', 'three'],
+            'C': [1,3,2,4,5,2,6,7],
+            'D': [3,2,4,1,5,6,7,8]}
 
             let df = new DataFrame(data)
 
