@@ -486,7 +486,7 @@ export class Plot {
                     // params.forEach(param => { //TODO accept individual configuration for traces
                     //     trace[param] = config[param]
                     // })
-                    trace['x'] = this.ndframe.index
+                    trace['y'] = this.ndframe.index
                     trace["x"] = this.ndframe[c_name].values
                     trace['name'] = c_name
                     trace['type'] = "scatter"
@@ -504,6 +504,83 @@ export class Plot {
     }
 
 
+    /**
+    * Plot columns in a Series/DataFrame as Histograms.
+   * Uses the Plotly as backend, so supoorts Plotly's configuration parameters
+   * @param {string} div Name of the div to show the plot
+   * @param {Object} config configuration options for making Plots, supports Plotly parameters
+    */
+    hist(config = {}) {
+
+        let ret_params = this.__get_plot_params(config)
+        let this_config = ret_params[0]
+        let params = ret_params[1]
+
+        if (this.ndframe instanceof Series) {
+            let trace = {}
+
+            params.forEach(param => {
+                if (!param == "layout") {
+                    trace[param] = config[param]
+                }
+            })
+
+            trace["x"] = this.ndframe.values
+            trace['type'] = "histogram"
+
+            newPlot(this.div, [trace], this_config['layout']);
+
+        } else if (utils.__key_in_object(this_config, 'x')) {
+            //plot as vertical histogram
+            let trace = {}
+            params.forEach(param => {
+                if (!param == "layout") {
+                    trace[param] = config[param]
+                }
+            })
+
+            trace['x'] = this.ndframe[this_config['y']].values
+            trace['type'] = "histogram"
+
+            newPlot(this.div, [trace], this_config['layout']);
+
+        } else if (utils.__key_in_object(this_config, 'y')) {
+            //plot as vertical histogram
+            let trace = {}
+            params.forEach(param => {
+                if (!param == "layout") {
+                    trace[param] = config[param]
+                }
+            })
+
+            trace['y'] = this.ndframe[this_config['y']].values
+            trace['type'] = "histogram"
+
+            newPlot(this.div, [trace], this_config['layout']);
+
+        } else {
+            let data = []
+            let cols_to_plot;
+
+            if (utils.__key_in_object(this_config, "columns")) {
+                cols_to_plot = this.____check_if_cols_exist(this_config['columns'])
+            } else {
+                cols_to_plot = this.ndframe.column_names
+            }
+
+            cols_to_plot.forEach(c_name => {
+                let trace = {}
+                trace["x"] = this.ndframe[c_name].values
+                trace['name'] = c_name
+                trace['type'] = "histogram"
+                data.push(trace)
+
+            })
+            newPlot(this.div, data, this_config['layout']);
+
+        }
+
+    }
 
 
     __get_plot_params(config) {
