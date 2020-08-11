@@ -181,4 +181,57 @@ describe("groupby", function () {
         assert.deepEqual(group_df.col(["B", "C"]).mean().values, new_data);
     });
 
+    it("printing multiindex table, example with cumsum operation for dataframe group by one column",function(){
+        let data =[{'A': ['foo', 'bar', 'foo', 'bar',
+                         'foo', 'bar', 'foo', 'foo']},
+            {'B': ['one', 'one', 'two', 'three',
+                    'two', 'two', 'one', 'three']},
+            {'C': [1,3,2,4,5,2,6,7]},
+            {'D': [3,2,4,1,5,6,7,8]}
+        ]
+
+            let df = new DataFrame(data)
+
+
+        let grp = df.groupby(["A"])
+        let rslt = [
+            [ 'foo', 1 ],
+            [ 'foo', 3 ],
+            [ 'foo', 8 ],
+            [ 'foo', 14 ],
+            [ 'foo', 21 ],
+            [ 'bar', 3 ],
+            [ 'bar', 7 ],
+            [ 'bar', 9 ]
+          ]
+        assert.deepEqual(grp.col(["C"]).cumsum().values, rslt);
+
+    })
+    it("printing multiindex table, example with cumsum operation for dataframe group by one column",function(){
+        let data =[{'A': ['foo', 'bar', 'foo', 'bar',
+                         'foo', 'bar', 'foo', 'foo']},
+            {'B': ['one', 'one', 'two', 'three',
+                    'two', 'two', 'one', 'three']},
+            {'C': [1,3,2,4,5,2,6,7]},
+            {'D': [3,2,4,1,5,6,7,8]}
+        ]
+
+            let df = new DataFrame(data)
+
+
+        let grp = df.groupby(["A","B"])
+        let rslt = [
+            [ 'foo', 'one', 1, 3 ],
+            [ 'foo', 'one', 7, 10 ],
+            [ 'foo', 'two', 2, 4 ],
+            [ 'foo', 'two', 7, 9 ],
+            [ 'foo', 'three', 7, 8 ],
+            [ 'bar', 'one', 3, 2 ],
+            [ 'bar', 'two', 2, 6 ],
+            [ 'bar', 'three', 4, 1 ]
+          ]
+        assert.deepEqual(grp.col(["C","D"]).cumsum().values,rslt)
+
+    })
+
 });
