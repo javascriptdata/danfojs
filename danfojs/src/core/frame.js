@@ -4,7 +4,7 @@ import { Series } from "./series"
 import * as tf from '@tensorflow/tfjs'
 import { Utils } from "./utils"
 import { GroupBy } from "./groupby"
-// import { Plot } from '../plotting/plot'
+import { Plot } from '../plotting/plot'
 import { indexLoc } from '../core/indexing'
 
 const utils = new Utils
