@@ -16,132 +16,6 @@ export class Plot {
         this.ndframe = ndframe
     }
 
-    plot(config) {
-        let params = Object.keys(config)
-        let this_config = {}
-
-        params.forEach(param => {
-            this_config[param] = config[param]
-        })
-
-        if (!utils.__key_in_object(config, "layout")) {
-            this_config['layout'] = {}
-        }
-
-        if (this.ndframe instanceof Series) {
-            let trace = {}
-
-            if (this_config['type'] == 'histogram') {
-                let x = this.ndframe.values
-                trace["x"] = x
-            } else {
-                let y = this.ndframe.values
-                trace["y"] = y
-            }
-
-            params.forEach(param => {
-                trace[param] = config[param]
-            })
-            newPlot(this.div, [trace], this_config['layout']);
-
-        } else {
-
-            //DataFrame
-            if (utils.__key_in_object(this_config, 'x') && utils.__key_in_object(this_config, 'y')) {
-                if (!this.ndframe.column_names.includes(this_config['x'])) {
-                    throw Error(`Column Error: ${this_config['x']} not found in columns`)
-                }
-                if (!this.ndframe.column_names.includes(this_config['y'])) {
-                    throw Error(`Column Error: ${this_config['y']} not found in columns`)
-                }
-
-
-                let x = this.ndframe[this_config['x']].values
-                let y = this.ndframe[this_config['y']].values
-
-                let trace = {
-                    x: x,
-                    y: y,
-                    type: config["type"],
-                    mode: config["mode"],
-                }
-
-                let xaxis = {}; let yaxis = {}
-                xaxis['title'] = this_config['x']
-                yaxis['title'] = this_config['y']
-
-                this_config['layout']['xaxis'] = xaxis
-                this_config['layout']['yaxis'] = yaxis
-
-
-                newPlot(this.div, [trace], this_config['layout']);
-
-
-            } else if (this_config['type'] == 'pie') {
-                if (!this.ndframe.column_names.includes(this_config['values'])) {
-                    throw Error(`Column Error: ${this_config['values']} not found in columns`)
-                }
-                if (!this.ndframe.column_names.includes(this_config['labels'])) {
-                    throw Error(`Column Error: ${this_config['labels']} not found in columns`)
-                }
-                let data = [{
-                    values: this.ndframe[this_config['values']].values,
-                    labels: this.ndframe[this_config['labels']].values,
-                    type: 'pie'
-                }];
-
-                newPlot(this.div, data, this_config['layout'])
-
-            } else if (this_config['type'] == 'box') {
-                let cols_2_show = []
-                let data = []
-
-                if (this_config['columns'] != undefined) {
-                    cols_2_show = this_config['columns']
-                    cols_2_show.forEach(col => {
-                        if (!this.ndframe.column_names.includes(col)) {
-                            throw Error(`Column Error: ${this_config['labels']} not found in columns`)
-                        }
-                    })
-                } else {
-                    cols_2_show = this.ndframe.column_names
-                }
-
-
-                cols_2_show.forEach(col => {
-                    let col_idx = this.ndframe.column_names.indexOf(col)
-                    let trace = []
-                    trace['y'] = this.ndframe.col_data[col_idx]
-                    trace["type"] = 'box'
-                    trace["name"] = col
-
-                    data.push(trace)
-                })
-                newPlot(this.div, data, this_config['layout']);
-
-            } else {
-                //plot all
-                let x = this.ndframe.index
-                let data = []
-                this.ndframe.column_names.forEach(c_name => {
-                    let trace = {}
-                    trace["x"] = x
-                    trace["y"] = this.ndframe[c_name].values
-                    trace['name'] = c_name
-                    params.forEach(param => {
-                        trace[param] = config[param]
-                    })
-                    data.push(trace)
-
-                })
-                newPlot(this.div, data, this_config['layout']);
-            }
-
-
-        }
-    }
-
-
 
     /**
      * Plot Series or DataFrame as lines. This function is useful to plot lines using DataFrame’s values as coordinates.
@@ -701,6 +575,7 @@ export class Plot {
 
             trace["y"] = y
             trace['type'] = "box"
+            
 
             newPlot(this.div, [trace], this_config['layout']);
 
