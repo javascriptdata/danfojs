@@ -1,6 +1,7 @@
 import { DataFrame } from './frame'
 // import { Series } from "../../src/core/series";
 import { Utils } from "./utils"
+import { Series } from './series'
 
 const utils = new Utils()
 
@@ -89,9 +90,19 @@ export class Concat {
                     let val = values[index]
                     if (typeof data[index] === "undefined") {
 
-                        data[index] = val;
+                        if(Array.isArray(val)){
+                            data[index] = val
+                        }else{
+                            data[index] = [val];
+                        }
+                        
                     } else {
-                        data[index].push(...val);
+                        if(Array.isArray(val)){
+                            data[index].push(...val);
+                        }else{
+                            data[index].push(val);
+                        }
+                        
                     }
                 }
 
@@ -147,7 +158,6 @@ export class Concat {
                         not_exist.push(col_name);
                     }
                 }
-
                 if (not_exist.length > 0) {
                     for (let i = 0; i < value.length; i++) {
                         let row_value = value[i]
@@ -161,7 +171,12 @@ export class Concat {
                                 new_arr[j] = NaN
                             } else {
                                 let index = df_columns.indexOf(col_name)
-                                new_arr[j] = row_value[index]
+                                if(Array.isArray(row_value)){
+                                    new_arr[j] = row_value[index]
+                                }else{
+                                    new_arr[j] = row_value;
+                                }
+                                
                             }
 
                         }
@@ -172,9 +187,16 @@ export class Concat {
                 }
 
             }
+            
+            if(Array.isArray(data[0])){
+                let df = new DataFrame(data, { columns: columns });
+                return df;
+            }else{
+                let sf = new Series(data)
+                return sf
+            }
 
-            let df = new DataFrame(data, { columns: columns });
-            return df;
+            
 
         }
         

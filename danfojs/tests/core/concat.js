@@ -1,6 +1,7 @@
 import { assert } from "chai"
 import { DataFrame } from '../../src/core/frame'
 import {concat} from '../../src/core/concat'
+import { Series } from "../../src/core/series";
 
 
 
@@ -48,4 +49,89 @@ describe("Concatenate", function () {
             NaN, NaN, NaN]]
         assert.deepEqual(new_df.values, data_values);
     });
+
+    it("concatenate dataframe and series along 0 axis",function(){
+
+        let data1 = [1,2,3,4]
+        let data2 = [3,4,5,6]
+
+        let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+        let cols = ["A", "B", "C"]
+        let df = new DataFrame(data, { columns: cols })
+
+        let s1 = new Series(data1)
+        let s2 = new Series(data2)
+        let rslt = [
+            [ 1, 2, 3, NaN ],
+            [ 4, 5, 6, NaN ],
+            [ 20, 30, 40, NaN ],
+            [ 39, 89, 78, NaN ],
+            [ NaN, NaN, NaN, 1 ],
+            [ NaN, NaN, NaN, 2 ],
+            [ NaN, NaN, NaN, 3 ],
+            [ NaN, NaN, NaN, 4 ]
+          ]
+           
+
+        let con = concat({ "df_list": [df,s1], "axis": 0 })
+
+        assert.deepEqual(con.values, rslt)
+
+    })
+
+    it("concatenate dataframe and series along axis 1",function(){
+
+        let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+        let cols = ["A", "B", "C"]
+        let df = new DataFrame(data, { columns: cols })
+
+        let data1 = [1,2,3,4]
+        let s1 = new Series(data1)
+        let rslt = [
+            [ 1, 2, 3, 1 ],
+            [ 4, 5, 6, 2 ],
+            [ 20, 30, 40, 3 ],
+            [ 39, 89, 78, 4 ]
+          ]
+           
+
+        let con = concat({ "df_list": [df,s1], "axis": 1 })
+
+        assert.deepEqual(con.values, rslt)
+
+    })
+    it("concatenate series along axis 1",function(){
+
+        let data1 = [1,2,3,4]
+        let data2 = [3,4,5,6]
+
+        let s1 = new Series(data1)
+        let s2 = new Series(data2)
+        let rslt = [ [ 1, 3 ], [ 2, 4 ], [ 3, 5 ], [ 4, 6 ] ]
+           
+
+        let con = concat({ "df_list": [s1,s2], "axis": 1 })
+
+        assert.deepEqual(con.values, rslt)
+
+    })
+    it("concatenate series along axis 0",function(){
+
+        let data1 = [1,2,3,4]
+        let data2 = [3,4,5,6]
+
+        let s1 = new Series(data1)
+        let s2 = new Series(data2)
+        let rslt = [
+            1, 2, 3, 4,
+            3, 4, 5, 6
+          ]
+           
+        let con = concat({ "df_list": [s1,s2], "axis": 0 })
+
+        assert.deepEqual(con.values, rslt)
+
+    })
+
+
 });
