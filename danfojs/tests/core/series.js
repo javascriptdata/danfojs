@@ -120,13 +120,13 @@ describe("Series", function () {
             let sf2 = new Series(data2)
             assert.throws(() => { sf.add(sf2) }, Error, "Argument 'x' passed to 'cast' must be numeric tensor, but got string tensor")
         })
-        it("Throws length error if series lenght mixmatch", function () {
-            let data = [1, 2, 3, 4]
-            let data2 = [1, 2, 3, 4, 5, 6]
-            let sf = new Series(data)
-            let sf2 = new Series(data2)
-            assert.throws(() => { sf.add(sf2) }, Error, "Incompatible shapes: [4] vs. [6]")
-        })
+        // it("Throws length error if series lenght mixmatch", function () {
+        //     let data = [1, 2, 3, 4]
+        //     let data2 = [1, 2, 3, 4, 5, 6]
+        //     let sf = new Series(data)
+        //     let sf2 = new Series(data2)
+        //     assert.throws(() => { sf.add(sf2) }, Error, "Incompatible shapes: [4] vs. [6]")
+        // })
 
     })
 
@@ -150,13 +150,13 @@ describe("Series", function () {
             let sf2 = new Series(data2)
             assert.throws(() => { sf.sub(sf2) }, Error, "Argument 'x' passed to 'cast' must be numeric tensor, but got string tensor")
         })
-        it("Throws length error if series lenght mixmatch", function () {
-            let data = [1, 2, 3, 4]
-            let data2 = [1, 2, 3, 4, 5, 6]
-            let sf = new Series(data)
-            let sf2 = new Series(data2)
-            assert.throws(() => { sf.sub(sf2) }, Error, "Incompatible shapes: [4] vs. [6]")
-        })
+        // it("Throws length error if series lenght mixmatch", function () {
+        //     let data = [1, 2, 3, 4]
+        //     let data2 = [1, 2, 3, 4, 5, 6]
+        //     let sf = new Series(data)
+        //     let sf2 = new Series(data2)
+        //     assert.throws(() => { sf.sub(sf2) }, Error, "Incompatible shapes: [4] vs. [6]")
+        // })
 
     })
 
