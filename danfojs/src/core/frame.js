@@ -823,12 +823,10 @@ export class DataFrame extends Ndframe {
 
             dtypes.forEach((dtype, i) => {
                 if (include.includes(dtype)) {
-                    console.log(dtype);
                     col_vals[col_names[i]] = original_col_vals[i]
                 }
             })
             let df = new DataFrame(col_vals)
-            df.print()
             return df
 
         }
