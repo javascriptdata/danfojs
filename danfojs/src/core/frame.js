@@ -4,7 +4,7 @@ import { Series } from "./series"
 import * as tf from '@tensorflow/tfjs'
 import { Utils } from "./utils"
 import { GroupBy } from "./groupby"
-// import { Plot } from '../plotting/plot'
+import { Plot } from '../plotting/plot'
 import { indexLoc } from '../core/indexing'
 
 const utils = new Utils
@@ -1895,10 +1895,10 @@ export class DataFrame extends Ndframe {
      * @param {string} div Name of the div to show the plot
      * @param {Object} config configuration options for making Plots, supports Plotly parameters
      */
-    // plot(div, config = {}) {
-    //     const plt = new Plot()
-    //     plt.plot(this, div, config)
-    // }
+    plot(div, config = {}) {
+        const plt = new Plot()
+        plt.plot(this, div, config)
+    }
 
 
     /**

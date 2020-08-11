@@ -149,28 +149,22 @@ export class Utils {
     // let data = [{ alpha: ["A", "B", "C", "D"] }, { count: [1,2,3,4]}, {sum: [20.3, 30.456, 40.90, 90.1]}]
 
 
-    //transpose column array into row array
+    //retrieve row array from column object
     __get_row_values(data) {
-        let rows_len = Object.values(data[0])[0].length
-        let cols_len = data.length
+        let col_names = Object.keys(data)
+        let col_data = Object.values(data)
+        let rows_len = col_data[0].length
+        let cols_len = col_names.length
         var rows_arr = []
 
         for (var i = 0; i <= rows_len - 1; i++) {
             var temp_row = []
             for (let j = 0; j < cols_len; j++) {
-                let _arr = Object.values(data[j])[0]
+                let _arr = col_data[j]
                 temp_row.push(_arr[i])
             }
             rows_arr.push(temp_row)
         }
-        //get column names
-        let col_names = []
-        for (let i = 0; i < cols_len; i++) {
-            let _key = Object.keys(data[i])[0]
-            col_names.push(_key)
-
-        }
-
         return [rows_arr, col_names]
 
     }
@@ -638,24 +632,24 @@ export class Utils {
         return zero_data
     }
 
-    __shuffle(num,array) {
+    __shuffle(num, array) {
         //https://stackoverflow.com/questions/18806210/generating-non-repeating-random-numbers-in-js/18806417
         var i = array.length,
             j = 0,
             temp;
-    
+
         while (i--) {
-    
-            j = Math.floor(Math.random() * (i+1));
-    
+
+            j = Math.floor(Math.random() * (i + 1));
+
             // swap randomly chosen element with current element
             temp = array[i];
             array[i] = array[j];
             array[j] = temp;
-    
+
         }
-    
-        return array.slice(0,num);
+
+        return array.slice(0, num);
     }
 }
 

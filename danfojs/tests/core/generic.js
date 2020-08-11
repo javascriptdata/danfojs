@@ -113,15 +113,15 @@ describe("Generic (NDFrame)", function () {
     describe("NDframe Created from JavaScript Object of Arrays", function () {
 
         it("prints the shape of a 2D ", function () {
-            let data = [{ alpha: ["A", "B", "C", "D"] }, { count: [1, 2, 3, 4] }]
+            let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4] }
             let ndframe = new NDframe(data)
             assert.deepEqual(ndframe.shape, [4, 2])
         })
-        // it("prints the shape of a 2D ", function () {
-        //     let data = [{ alpha: ["A", "B", "C", "D"] }, { count: [1,2,3,4]}, {sum: [20.3, 30.456, 40.90, 90.1]}]
-        //     let ndframe = new NDframe(data)
-        //     assert.deepEqual(ndframe.shape, [4, 3])
-        // })
+        it("prints the shape of a 2D ", function () {
+            let data = { alpha: ["A", "B", "C", "D"], count: [1,2,3,4], sum: [20.3, 30.456, 40.90, 90.1]}
+            let ndframe = new NDframe(data)
+            assert.deepEqual(ndframe.shape, [4, 3])
+        })
     })
 
     describe("__set_index", function () {
