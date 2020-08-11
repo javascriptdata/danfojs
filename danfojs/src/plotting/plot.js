@@ -201,23 +201,36 @@ export class Plot {
 
             } else if (utils.__key_in_object(this_config, 'x') || utils.__key_in_object(this_config, 'y')) {
                 //plot single column specified in either of param [x | y] against index
-                let trace = {}
+                //plot columns against index
+                let data = []
+                let cols_to_plot;
 
-                params.forEach(param => {
-                    if (!param == "layout") {
-                        trace[param] = config[param]
-                    }
-                })
-
-                if (utils.__key_in_object(this_config, 'x')) {
-                    trace['x'] = this.ndframe[this_config['x']].values
-                    trace['y'] = this.ndframe.index
+                if (utils.__key_in_object(this_config, "columns")) {
+                    cols_to_plot = this.____check_if_cols_exist(this_config['columns'])
                 } else {
-                    trace['x'] = this.ndframe.index
-                    trace['y'] = this_config['y']
+                    cols_to_plot = this.ndframe.column_names
                 }
 
-                newPlot(this.div, [trace], this_config['layout']);
+                cols_to_plot.forEach(c_name => {
+                    let trace = {}
+
+                    params.forEach(param => { //TODO accept individual configuration for traces
+                        trace[param] = config[param]
+                    })
+                    if (utils.__key_in_object(this_config, 'x')) {
+                        trace["x"] = this.ndframe[this_config['x']].values
+                        trace["y"] = this.ndframe[c_name].values
+                        trace['name'] = c_name
+                    } else {
+                        trace["y"] = this.ndframe[this_config['y']].values
+                        trace["x"] = this.ndframe[c_name].values
+                        trace['name'] = c_name
+                    }
+
+                    data.push(trace)
+
+                })
+                newPlot(this.div, data, this_config['layout']);
 
             } else {
                 //plot columns against index
