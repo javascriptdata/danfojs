@@ -162,15 +162,12 @@ To use danfo.js via script tags, copy and paste the CDN below to your HTML file
 </html>
 ```
 
-Output:
-![](danfo-sample.gif)
-
 
 ## Documentation
 The official documentation can be found [here](https://jsdata.gitbook.io/danfojs/)
 
 ## Discussion and Development
-Most development discussions take place on our [issues](https://github.com/opensource9ja/danfojs/issues) tab. 
+Development discussions take place on our [issues](https://github.com/opensource9ja/danfojs/issues) tab. 
 
 ## Contributing to Danfo
 All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome. A detailed overview on how to contribute can be found in the [contributing guide](https://jsdata.gitbook.io/danfojs/contributing-guide).
