@@ -109,7 +109,7 @@ export class Series extends NDframe {
             // let counts = [...Array(idx.length).keys()]   //set index
             //get random sampled numbers
             // let index_arr = utils.__range(0,counts.length)
-            let rand_nums = utils.__shuffle(num,idx)
+            let rand_nums = utils.__shuffle(num, idx)
             // console.log(rand_nums)
             rand_nums.map(i => {
                 new_values.push(values[i])
@@ -547,7 +547,7 @@ export class Series extends NDframe {
         let range_idx = utils.__range(0, this.index.length - 1)
         let sorted_idx = dsu(range_idx, arr_obj);
 
-        sorted_idx.forEach(idx=>{
+        sorted_idx.forEach(idx => {
             sorted_arr.push(this.values[idx])
         })
         if (options['ascending']) {
@@ -1297,14 +1297,15 @@ export class Series extends NDframe {
 
 
     /**
-     * Make plots of Series or DataFrame.
-     * Uses the Plotly as backend, so supoorts Plotly's configuration parameters
-     * @param {string} div Name of the div to show the plot
-     * @param {Object} config configuration options for making Plots, supports Plotly parameters
-     */
-    plot(div, config = {}) {
-        const plt = new Plot()
-        plt.plot(this, div, config)
+      * Make plots of Series or DataFrame.
+      * Uses the Plotly as backend, so supports Plotly's configuration parameters
+      * @param {string} div Name of the div to show the plot
+      * @returns {Class} Plot class that expoese different plot type
+      */
+    plot(div) {
+        const plt = new Plot(this, div)
+        return plt
     }
+
 }
 

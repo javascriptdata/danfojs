@@ -218,9 +218,11 @@ describe("DataFrame", function () {
 
         })
         it("loc by single string index", function () {
-            let data = [{ "Name": ["Apples", "Mango", "Banana", "Pear"] },
-            { "Count": [21, 5, 30, 10] },
-            { "Price": [200, 300, 40, 250] }]
+            let data = {
+                "Name": ["Apples", "Mango", "Banana", "Pear"],
+                "Count": [21, 5, 30, 10],
+                "Price": [200, 300, 40, 250]
+            }
 
             let df = new DataFrame(data)
             df.set_index({ key: ["a", "b", "c", "a"], inplace: true })
@@ -230,9 +232,11 @@ describe("DataFrame", function () {
 
         })
         it("loc by multiple string index", function () {
-            let data = [{ "Name": ["Apples", "Mango", "Banana", "Pear"] },
-            { "Count": [21, 5, 30, 10] },
-            { "Price": [200, 300, 40, 250] }]
+            let data = {
+                "Name": ["Apples", "Mango", "Banana", "Pear"],
+                "Count": [21, 5, 30, 10],
+                "Price": [200, 300, 40, 250]
+            }
 
             let df = new DataFrame(data)
             df.set_index({ key: ["a", "b", "c", "a"], inplace: true })
@@ -242,9 +246,11 @@ describe("DataFrame", function () {
 
         })
         it("loc by slice string index", function () {
-            let data = [{ "Name": ["Apples", "Mango", "Banana", "Pear"] },
-            { "Count": [21, 5, 30, 10] },
-            { "Price": [200, 300, 40, 250] }]
+            let data = {
+                "Name": ["Apples", "Mango", "Banana", "Pear"],
+                "Count": [21, 5, 30, 10],
+                "Price": [200, 300, 40, 250]
+            }
 
             let df = new DataFrame(data)
             df.set_index({ key: ["a", "b", "c", "d"], inplace: true })
@@ -662,8 +668,9 @@ describe("DataFrame", function () {
     describe("describe", function () {
         it("Returns descriptive statistics of columns in a DataFrame created from an array", function () {
             let data = [[0, 2, 4, "a"],
-            [360, 180, 360, "b"],
-            [2, 4, 6, "c"]]
+                        [360, 180, 360, "b"],
+                        [2, 4, 6, "c"]]
+                        
             let df = new DataFrame(data)
             let res = [[3, 3, 3], [120.666664, 62, 123.333336],
             [207.271159, 102.19589, 204.961785],
@@ -674,11 +681,13 @@ describe("DataFrame", function () {
             assert.deepEqual(df.describe().values, res)
         })
         it("Returns descriptive statistics of columns in a DataFrame created from an Object", function () {
-            let data = [{ "col1": [0, 2, 4] },
-            { "col2": [360, 180, 360] },
-            { "col3": [2, 4, 6] },
-            { "col4": ["boy", "girl", "man"] },
-            { "col5": ["apple", "car", "bee"] }]
+            let data = {
+                "col1": [0, 2, 4],
+                "col2": [360, 180, 360],
+                "col3": [2, 4, 6],
+                "col4": ["boy", "girl", "man"],
+                "col5": ["apple", "car", "bee"]
+            }
             let df = new DataFrame(data)
 
             let res = [[3, 3, 3], [2, 300, 4],
@@ -1337,9 +1346,9 @@ describe("DataFrame", function () {
 
         it("Fills only a specified column", function () {
             let data = [[1, 2, 3],
-            [4, 5, 6],
-            [20, NaN, 40],
-            [39, NaN, 78]]
+                        [4, 5, 6],
+                        [20, NaN, 40],
+                        [39, NaN, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
             let new_vals = [[1, 2, 3], [4, 5, 6], [20, 2, 40], [39, 2, 78]]
@@ -1387,7 +1396,7 @@ describe("DataFrame", function () {
             let column = ["A", "B", "C", "D"]
             let df = new DataFrame(data, { columns: column })
             let df_sub = df.select_dtypes(['float32'])
-            assert.deepEqual(df_sub.values, [30, 3.2, 5.09])
+            assert.deepEqual(df_sub.col_data, [[30, 3.2, 5.09]])
         });
 
         it("Returns int columns in a DataFrame", function () {
@@ -1407,27 +1416,27 @@ describe("DataFrame", function () {
             let column = ["A", "B", "C", "D"]
             let df = new DataFrame(data, { columns: column })
             let df_sub = df.select_dtypes(['string'])
-            assert.deepEqual(df_sub.values, ["boy", "girl", "cat"])
+            assert.deepEqual(df_sub.col_data, [["boy", "girl", "cat"]])
         });
 
         it("Returns string and float columns in a DataFrame", function () {
             let data = [[30, 1, 2, "boy"],
-            [3.2, 4, 30, "girl"],
-            [5.09, 6, 7, "cat"]]
+                        [3.2, 4, 30, "girl"],
+                        [5.09, 6, 7, "cat"]]
             let column = ["A", "B", "C", "D"]
             let df = new DataFrame(data, { columns: column })
             let df_sub = df.select_dtypes(['string', 'float32'])
-            assert.deepEqual(df_sub.values, [["boy", 30], ["girl", 3.2], ["cat", 5.09]])
+            assert.deepEqual(df_sub.col_data, [[30, 3.2, 5.09], ["boy", "girl", "cat"]])
         });
 
         it("Returns int and float columns in a DataFrame", function () {
             let data = [[30, 1, 2, "boy"],
-            [3.2, 4, 30, "girl"],
-            [5.09, 6, 7, "cat"]]
+                       [3.2, 4, 30, "girl"],
+                       [5.09, 6, 7, "cat"]]
             let column = ["A", "B", "C", "D"]
             let df = new DataFrame(data, { columns: column })
             let df_sub = df.select_dtypes(['int32', 'float32'])
-            assert.deepEqual(df_sub.values, [[1, 2, 30], [4, 30, 3.2], [6, 7, 5.09]])
+            assert.deepEqual(df_sub.values, [[30, 1, 2], [3.2, 4, 30], [5.09, 6, 7]])
         });
     })
 
@@ -1614,7 +1623,7 @@ describe("DataFrame", function () {
             assert.deepEqual(sf.eq(30).values, expected)
         })
         it("Return Equal to of series and DataFrame scalar along axis 1 (column)", function () {
-            let data1 = [{ "Col1": [10, 45, 56, 10] }, { "Col2": [23, 20, 10, 10] }]
+            let data1 = { "Col1": [10, 45, 56, 10], "Col2": [23, 20, 10, 10] }
             let sf = new Series([10, 23])
             let df = new DataFrame(data1)
             let expected = [[true, false, false, true], [true, false, false, false]]
@@ -1790,10 +1799,12 @@ describe("DataFrame", function () {
 
     describe("astype", function () {
         it("set type of float column to int", function () {
-            let data = [{ "A": [-20.1, 30, 47.3, -20] },
-            { "B": [34, -4, 5, 6] },
-            { "C": [20.1, -20.23, 30.3, 40.11] },
-            { "D": ["a", "b", "c", "c"] }]
+            let data = {
+                "A": [-20.1, 30, 47.3, -20],
+                "B": [34, -4, 5, 6],
+                "C": [20.1, -20.23, 30.3, 40.11],
+                "D": ["a", "b", "c", "c"]
+            }
             let ndframe = new DataFrame(data)
             let df = ndframe.astype({ column: "A", dtype: "int32" })
 
@@ -1802,10 +1813,12 @@ describe("DataFrame", function () {
 
         })
         it("set type of int column to float", function () {
-            let data = [{ "A": [-20.1, 30, 47.3, -20] },
-            { "B": [34, -4, 5, 6] },
-            { "C": [20.1, -20.23, 30.3, 40.11] },
-            { "D": ["a", "b", "c", "c"] }]
+            let data = {
+                "A": [-20.1, 30, 47.3, -20],
+                "B": [34, -4, 5, 6],
+                "C": [20.1, -20.23, 30.3, 40.11],
+                "D": ["a", "b", "c", "c"]
+            }
             let ndframe = new DataFrame(data)
             let df = ndframe.astype({ column: "B", dtype: "float32" })
 
@@ -1814,10 +1827,12 @@ describe("DataFrame", function () {
 
         })
         it("set type of string column to int", function () {
-            let data = [{ "A": [-20.1, 30, 47.3, -20] },
-            { "B": [34, -4, 5, 6] },
-            { "C": [20.1, -20.23, 30.3, 40.11] },
-            { "D": ["20.1", "21", "23.4", "50.78"] }]
+            let data = {
+                "A": [-20.1, 30, 47.3, -20],
+                "B": [34, -4, 5, 6],
+                "C": [20.1, -20.23, 30.3, 40.11],
+                "D": ["20.1", "21", "23.4", "50.78"]
+            }
             let ndframe = new DataFrame(data)
             let df = ndframe.astype({ column: "D", dtype: "int32" })
 
@@ -1826,10 +1841,12 @@ describe("DataFrame", function () {
 
         })
         it("set type of string column to float", function () {
-            let data = [{ "A": [-20.1, 30, 47.3, -20] },
-            { "B": [34, -4, 5, 6] },
-            { "C": [20.1, -20.23, 30.3, 40.11] },
-            { "D": ["20.1", "21", "23.4", "50.78"] }]
+            let data = {
+                "A": [-20.1, 30, 47.3, -20],
+                "B": [34, -4, 5, 6],
+                "C": [20.1, -20.23, 30.3, 40.11],
+                "D": ["20.1", "21", "23.4", "50.78"]
+            }
             let ndframe = new DataFrame(data)
             let df = ndframe.astype({ column: "D", dtype: "float32" })
 
@@ -1842,10 +1859,12 @@ describe("DataFrame", function () {
 
     describe("nunique", function () {
         it("Returns the number of unique elements along axis 1", function () {
-            let data = [{ "A": [-20, 30, 47.3, -20] },
-            { "B": [34, -4, 5, 6] },
-            { "C": [20, 20, 30, 30] },
-            { "D": ["a", "b", "c", "c"] }]
+            let data = {
+                "A": [-20, 30, 47.3, -20],
+                "B": [34, -4, 5, 6],
+                "C": [20, 20, 30, 30],
+                "D": ["a", "b", "c", "c"]
+            }
 
             let ndframe = new DataFrame(data)
             let df = ndframe.nunique(1)
@@ -1854,10 +1873,12 @@ describe("DataFrame", function () {
 
         })
         it("Returns the number of unique elements along axis 0", function () {
-            let data = [{ "A": [20, 30, 47.3, 30] },
-            { "B": [34, -4, 5, 30] },
-            { "C": [20, 20, 30, 30] },
-            { "D": ["a", "b", "c", "c"] }]
+            let data = {
+                "A": [20, 30, 47.3, 30],
+                "B": [34, -4, 5, 30],
+                "C": [20, 20, 30, 30],
+                "D": ["a", "b", "c", "c"]
+            }
 
             let ndframe = new DataFrame(data)
             let df = ndframe.nunique(0)
@@ -1871,10 +1892,12 @@ describe("DataFrame", function () {
 
     describe("unique", function () {
         it("Returns the unique elements along axis 1", function () {
-            let data = [{ "A": [-20, 30, 47.3, -20] },
-            { "B": [34, -4, 5, 6] },
-            { "C": [20, 20, 30, 30] },
-            { "D": ["a", "b", "c", "c"] }]
+            let data = {
+                "A": [-20, 30, 47.3, -20],
+                "B": [34, -4, 5, 6],
+                "C": [20, 20, 30, 30],
+                "D": ["a", "b", "c", "c"]
+            }
 
             let ndframe = new DataFrame(data)
             let df = ndframe.unique(1)
@@ -1884,14 +1907,17 @@ describe("DataFrame", function () {
                 "C": [20, 30],
                 "D": ["a", "b", "c"]
             }
+
             assert.deepEqual(df, res)
 
         })
         it("Returns the unique elements along axis 0", function () {
-            let data = [{ "A": [-20, 30, 47.3, -20] },
-            { "B": [34, -4, 5, 6] },
-            { "C": [20, 20, 30, 30] },
-            { "D": ["a", "b", "c", "c"] }]
+            let data = {
+                "A": [-20, 30, 47.3, -20],
+                "B": [34, -4, 5, 6],
+                "C": [20, 20, 30, 30],
+                "D": ["a", "b", "c", "c"]
+            }
 
             let ndframe = new DataFrame(data)
             let df = ndframe.unique(0)
@@ -1909,10 +1935,10 @@ describe("DataFrame", function () {
 
     describe("rename", function () {
         it("Rename columns along axis 1", function () {
-            let data = [{ "A": [-20, 30, 47.3, -20] },
-            { "B": [34, -4, 5, 6] },
-            { "C": [20, 20, 30, 30] },
-            { "D": ["a", "b", "c", "c"] }]
+            let data = { "A": [-20, 30, 47.3, -20],
+             "B": [34, -4, 5, 6] ,
+             "C": [20, 20, 30, 30] ,
+             "D": ["a", "b", "c", "c"] }
 
             let ndframe = new DataFrame(data)
             let df = ndframe.rename({ mapper: { "A": "a1", "B": "b1" } })
@@ -1921,10 +1947,10 @@ describe("DataFrame", function () {
 
         })
         it("Rename columns along axis 1 inplace", function () {
-            let data = [{ "A": [-20, 30, 47.3, -20] },
-            { "B": [34, -4, 5, 6] },
-            { "C": [20, 20, 30, 30] },
-            { "D": ["a", "b", "c", "c"] }]
+            let data = { "A": [-20, 30, 47.3, -20] ,
+            "B": [34, -4, 5, 6] ,
+             "C": [20, 20, 30, 30] ,
+            "D": ["a", "b", "c", "c"] }
 
             let df = new DataFrame(data)
             df.rename({ mapper: { "A": "a1", "B": "b1" }, inplace: true })
@@ -1933,10 +1959,10 @@ describe("DataFrame", function () {
 
         })
         it("Rename string index along axis 0", function () {
-            let data = [{ "A": [-20, 30, 47.3, -20] },
-            { "B": [34, -4, 5, 6] },
-            { "C": [20, 20, 30, 30] },
-            { "D": ["a", "b", "c", "c"] }]
+            let data = { "A": [-20, 30, 47.3, -20] ,
+             "B": [34, -4, 5, 6] ,
+             "C": [20, 20, 30, 30] ,
+             "D": ["a", "b", "c", "c"] }
 
             let ndframe = new DataFrame(data, { index: ["a", "b", "c", "d"] })
             let df = ndframe.rename({ mapper: { "a": 0, "b": 1 }, axis: 0 })
@@ -1945,10 +1971,10 @@ describe("DataFrame", function () {
 
         })
         it("Rename string index along axis 0 inplace", function () {
-            let data = [{ "A": [-20, 30, 47.3, -20] },
-            { "B": [34, -4, 5, 6] },
-            { "C": [20, 20, 30, 30] },
-            { "D": ["a", "b", "c", "c"] }]
+            let data = { "A": [-20, 30, 47.3, -20] ,
+             "B": [34, -4, 5, 6] ,
+             "C": [20, 20, 30, 30] ,
+            "D": ["a", "b", "c", "c"] }
 
             let df = new DataFrame(data, { index: ["a", "b", "c", "d"] })
             df.rename({ mapper: { "a": 0, "b": 1 }, axis: 0, inplace: true })

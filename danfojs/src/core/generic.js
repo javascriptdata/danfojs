@@ -33,10 +33,10 @@ export default class NDframe {
             this.series = false
             if (utils.__is_object(data[0])) { //check the type of the first object in the data
                 this.__read_object(data, 1) //type 1 object are of JSON form [{a: 1, b: 2}, {a: 30, b: 20}]
-            } else if (Array.isArray(data[0]) || utils.__is_number(data[0]) || utils.__is_string(data[0])) {
-                this.__read_array(data)
             } else if (utils.__is_object(data)) {
                 this.__read_object(data, 2)  //type 2 object are of the form {a: [1,2,3,4], b: [30,20, 30, 20}]
+            } else if (Array.isArray(data[0]) || utils.__is_number(data[0]) || utils.__is_string(data[0])) {
+                this.__read_array(data)
             } else {
                 throw "File format not supported for now"
             }
@@ -129,6 +129,13 @@ export default class NDframe {
                     this.columns = this.kwargs['columns']
                 }
 
+                if (utils.__key_in_object(this.kwargs, 'dtypes')) {
+                    this.__set_col_types(this.kwargs['dtypes'], false)
+                } else {
+                    //infer dtypes
+                    this.__set_col_types(null, true)
+                }
+
             } else {
                 //2D or more array
                 if (!utils.__key_in_object(this.kwargs, 'columns')) {
@@ -159,27 +166,34 @@ export default class NDframe {
         //set data type for each column in an NDFrame
         const __supported_dtypes = ['float32', "int32", 'string', 'boolean']
 
+
         if (infer) {
-            //saves array data in column form for easy access
             if (this.series) {
                 this.col_types = utils.__get_t(this.values)
+                this.col_data = [this.values]
+                this.col_data_tensor = tf.tensor(this.col_data)
             } else {
-                this.col_data = utils.__get_col_values(this.data)
+                this.col_data = utils.__get_col_values(this.data)   //saves array data in column form for easy access
                 this.col_data_tensor = tf.tensor(this.col_data) //column wise data saved as tensors used in DataFrame
                 this.col_types = utils.__get_t(this.col_data)
             }
         } else {
+
             if (this.series) {
                 this.col_types = dtypes
+                this.col_data = [this.values]
+                this.col_data_tensor = tf.tensor(this.col_data)
+
             } else {
+                this.col_data = utils.__get_col_values(this.data)   //saves array data in column form for easy access
+                this.col_data_tensor = tf.tensor(this.col_data) //column wise data saved as tensors used in DataFrame
+
                 if (Array.isArray(dtypes) && dtypes.length == this.columns.length) {
                     dtypes.map((type, indx) => {
                         if (!__supported_dtypes.includes(type)) {
                             throw new Error(`dtype error: dtype specified at index ${indx} is not supported`)
                         }
                     })
-                    this.col_data = utils.__get_col_values(this.data)
-                    this.col_data_tensor = tf.tensor(this.col_data) //column wise data saved as tensors used in DataFrame
                     this.col_types = dtypes
                 } else {
                     throw new Error(`dtypes: lenght mismatch. Specified dtype has a lenght

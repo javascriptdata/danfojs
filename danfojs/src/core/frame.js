@@ -773,12 +773,12 @@ export class DataFrame extends Ndframe {
     */
     describe() {
         let numeric_df = this.select_dtypes(['float32', 'int32'])
-        let col_names = numeric_df.columns
+        let col_names = numeric_df.column_names
         let index = ['count', 'mean', 'std', 'min', 'median', 'max', 'variance']
 
-        let stats_arr = []
+        let stats_arr = {}
         col_names.forEach(name => {
-            let col_series = numeric_df.column(name)
+            let col_series = numeric_df[name]
             let count = col_series.count()
             let mean = col_series.mean()
             let std = col_series.std()
@@ -788,9 +788,7 @@ export class DataFrame extends Ndframe {
             let variance = col_series.var()
 
             let _stats = [count, mean, std, min, median, max, variance]
-            let col_obj = {}
-            col_obj[name] = _stats
-            stats_arr.push(col_obj)
+            stats_arr[name] = _stats
 
         })
         let df = new DataFrame(stats_arr, { "index": index })
@@ -803,14 +801,14 @@ export class DataFrame extends Ndframe {
      * @param {include} scalar or array-like. A selection of dtypes or strings to be included. At least one of these parameters must be supplied.
      * @returns {DataFrame, Series} The subset of the frame including the dtypes.
      */
-    select_dtypes(include = [""]) {
+    select_dtypes(include) {
         let dtypes = this.dtypes
-        // let dtype_index = [...Array(this.dtypes.length - 1).keys()]
-        let col_vals = []
+        let col_names = this.column_names
+        let col_vals = {}
         let original_col_vals = this.col_data
-        const __supported_dtypes = ['float32', "int32", 'string', 'datetime']
+        const __supported_dtypes = ['float32', "int32", 'string', 'boolean']
 
-        if (include == [""] || include == []) {
+        if (include == undefined) {
             //return all
             let df = this.copy()
             return df
@@ -818,27 +816,21 @@ export class DataFrame extends Ndframe {
             //check if the right types are included
             include.forEach(type => {
                 if (!__supported_dtypes.includes(type)) {
-                    throw Error(`Dtype Error: dtype ${type} not found in dtypes`)
+                    throw Error(`Dtype Error: dtype ${type} not supported.`)
                 }
-                dtypes.map((dtype, i) => {
-                    if (dtype == type) {
-                        let _obj = {}
-                        _obj[this.column_names[i]] = original_col_vals[i]
-                        col_vals.push(_obj)
-                    }
-                })
+            })
 
-            });
-            if (col_vals.length == 1) {
-                let _key = Object.keys(col_vals[0])[0]
-                let data = col_vals[0][_key]
-                let column_name = [_key]
-                let sf = new Series(data, { columns: column_name, index: this.index })
-                return sf
-            } else {
-                let df = new DataFrame(col_vals, { index: this.index })
-                return df
-            }
+
+            dtypes.forEach((dtype, i) => {
+                if (include.includes(dtype)) {
+                    console.log(dtype);
+                    col_vals[col_names[i]] = original_col_vals[i]
+                }
+            })
+            let df = new DataFrame(col_vals)
+            df.print()
+            return df
+
         }
 
     }
@@ -1209,6 +1201,7 @@ export class DataFrame extends Ndframe {
                 }
             })
 
+
             if (kwargs['columns'].length != kwargs['values'].length) {
                 throw Error(`Lenght Error: The lenght of the columns names must be equal to the lenght of the values,
                  got column of length ${kwargs['columns'].length} but values of length ${kwargs['values'].length}`)
@@ -1231,38 +1224,11 @@ export class DataFrame extends Ndframe {
 
             })
 
-            let final_data = []
+            let final_data = {}
             new_col_data.map((col, i) => {
-                let col_obj = {}
-                col_obj[this.column_names[i]] = col
-                final_data.push(col_obj)
+                final_data[this.column_names[i]] = col
             })
-            // let fil_idx = 0
-            // this.column_names.map((col, idx) => {
-            //     let _obj = {}
-            //     if (kwargs['columns'].includes(col)) {
-            //         console.log(fil_idx);
-            //         console.log(col);
-            //         console.log(kwargs['values'][fil_idx]);
-            //         let temp_col_data = this.col_data[idx]  //retreive the column data
-            //         let __temp = []
-            //         temp_col_data.map(val => {     //fill the column
-            //             if (isNaN(val) && typeof val != "string") {
-            //                 __temp.push(kwargs['values'][fil_idx])
 
-            //             } else {
-            //                 __temp.push(val)
-            //             }
-            //         })
-            //         fil_idx += 1
-            //         _obj[col] = __temp
-            //         new_col_data_obj.push(_obj)
-            //     } else {
-            //         _obj[col] = this.col_data[idx]
-            //         new_col_data_obj.push(_obj)
-            //     }
-
-            // })
             return new DataFrame(final_data, { index: this.index })
 
         } else {
@@ -1663,9 +1629,8 @@ export class DataFrame extends Ndframe {
             })
 
             if (utils.__key_in_object(kwargs, "replace") && utils.__key_in_object(kwargs, "with")) {
-                let new_col_data_obj = []
+                let new_col_data_obj = {}
                 this.column_names.map((col, idx) => {
-                    let _obj = {}
                     if (kwargs['in'].includes(col)) {
                         let temp_col_data = this.col_data[idx]  //retreive the column data
                         let __temp = []
@@ -1676,11 +1641,9 @@ export class DataFrame extends Ndframe {
                                 __temp.push(val)
                             }
                         })
-                        _obj[col] = __temp
-                        new_col_data_obj.push(_obj)
+                        new_col_data_obj[col] = __temp
                     } else {
-                        _obj[col] = this.col_data[idx]
-                        new_col_data_obj.push(_obj)
+                        new_col_data_obj[col] = this.col_data[idx]
                     }
                 })
                 return new DataFrame(new_col_data_obj, { columns: this.column_names, index: this.index })
@@ -1891,14 +1854,15 @@ export class DataFrame extends Ndframe {
 
     /**
      * Make plots of Series or DataFrame.
-     * Uses the Plotly as backend, so supoorts Plotly's configuration parameters
+     * Uses the Plotly as backend, so supports Plotly's configuration parameters
      * @param {string} div Name of the div to show the plot
-     * @param {Object} config configuration options for making Plots, supports Plotly parameters
+     * @returns {Class} Plot class that expoese different plot type
      */
-    // plot(div, config = {}) {
-    //     const plt = new Plot()
-    //     plt.plot(this, div, config)
-    // }
+    plot(div) {
+        const plt = new Plot(this, div)
+        return plt
+    }
+
 
 
     /**
@@ -1962,11 +1926,9 @@ export class DataFrame extends Ndframe {
                 break;
         }
 
-        let new_col_obj = []
+        let new_col_obj = {}
         this.column_names.forEach((cname, i) => {
-            let _obj = {}
-            _obj[cname] = col_values[i]
-            new_col_obj.push(_obj)
+            new_col_obj[cname] = col_values[i]
         })
 
         let df = new DataFrame(new_col_obj, { dtypes: new_types, index: this.index })

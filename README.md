@@ -1,6 +1,6 @@
 
 <div align="center">
-  <img src="logo.png"><br>
+  <img src="assets/logo.png"><br>
 </div>
 
 -----------------
@@ -8,7 +8,8 @@
 ## danfojs: powerful javascript data analysis toolkit 
 ![Node.js CI](https://github.com/opensource9ja/danfojs/workflows/Node.js%20CI/badge.svg?branch=master)
 [![](https://data.jsdelivr.com/v1/package/npm/danfojs/badge?style=rounded)](https://www.jsdelivr.com/package/npm/danfojs)
-
+[![Build Status](https://travis-ci.org/opensource9ja/danfojs.svg?branch=master)](https://travis-ci.org/opensource9ja/danfojs)
+![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2FDanfoJs) 
 
 
 ## What is it?
@@ -38,6 +39,7 @@ easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org
     sets
   - Robust IO tools for loading data from [flat-files](https://jsdata.gitbook.io/danfojs/api-reference/input-output)
     (CSV and delimited) and JSON data format.
+  - Powerful, flexible and intutive API for [plotting](https://app.gitbook.com/@jsdata/s/danfojs/~/drafts/-MESZnq3_VBU0EW71MxS/api-reference/plotting) DataFrames and Series interactively.
   - [Timeseries](https://jsdata.gitbook.io/danfojs/api-reference/series#accessors)-specific functionality: date range
     generation and date and time properties. 
 
@@ -114,7 +116,7 @@ dfd.read_csv("https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/t
 To use danfo.js via script tags, copy and paste the CDN below to your HTML file
 
 ```html
-  <script src="https://cdn.jsdelivr.net/npm/danfojs@0.0.13/dist/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/danfojs@0.0.14/dist/index.min.js"></script>
 ```
 
 ### Example Usage in the Browser
@@ -126,83 +128,54 @@ To use danfo.js via script tags, copy and paste the CDN below to your HTML file
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/danfojs@0.0.13/dist/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/danfojs@0.0.14/dist/index.min.js"></script>
     <title>Document</title>
 </head>
 
 <body>
 
-    <div id="some_div"></div>
-    <div id="alldiv"></div>
+    <div id="div1"></div>
+    <div id="div2"></div>
+    <div id="div3"></div>
+
     <script>
 
-        dfd.read_csv("https://raw.githubusercontent.com/risenW/medium_tutorial_notebooks/master/train.csv")
+        dfd.read_csv("https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv")
             .then(df => {
-                df.describe().print()
 
-                //prints in console
-                //  Shape: (5,5) 
+                df['AAPL.Open'].plot("div1").box() //makes a box plot
 
-                // ╔════════╤═══════════════════╤═══════════════════╤═══════════════════╤═══════════════════╤═══════════════════╗
-                // ║        │ Product_Weight    │ Product_Shelf...  │ Product_Price     │ Product_Super...  │ Supermarket_O...  ║
-                // ╟────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────╢
-                // ║ count  │ 4188              │ 4990              │ 4990              │ 4990              │ 4990              ║
-                // ╟────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────╢
-                // ║ mean   │ 12.908838         │ 0.066916          │ 391.803772        │ 6103.52002        │ 2004.783447       ║
-                // ╟────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────╢
-                // ║ std    │ NaN               │ 0.053058          │ 119.378259        │ 4447.333835       │ 8.283151          ║
-                // ╟────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────╢
-                // ║ min    │ 4.555             │ 0                 │ 78.730003         │ 83.230003         │ 1992              ║
-                // ╟────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────╢
-                // ║ median │ NaN               │ 0.053564          │ 393.86            │ 5374.675          │ 2006              ║
-                // ╚════════╧═══════════════════╧═══════════════════╧═══════════════════╧═══════════════════╧═══════════════════╝
+                df.plot("div2").table() //display csv as table
 
-                var layout = {
-                    title: 'A sample plot',
-                    xaxis: {
-                        title: 'X',
-                    },
-                    yaxis: {
-                        title: 'Y',
-                    }
-                };
-
-                //Displays plot in the specified div
-                df['Product_Weight'].plot("some_div", { kind: "histogram" })
-                df.plot("alldiv", { x: "Product_Price", y: "Product_Shelf_Visibility", kind: "scatter", mode: 'markers' })
-
+                new_df = df.set_index({ key: "Date" }) //resets the index to Date column
+                new_df.plot("div3").line({ columns: ["AAPL.Open", "AAPL.High"] })  //makes a timeseries plot
 
             }).catch(err => {
                 console.log(err);
             })
+
     </script>
+    
 </body>
 
 </html>
 ```
 
-## Installation from sources
-To install danfo in [development mode], clone the repo:
+Output:
+![](danfo-sample.gif)
 
-```sh
-git clone https://github.com/opensource9ja/danfojs
-```
-
-cd into danfojs folder and run:
-
-```sh
-npm install
-```
 
 ## Documentation
 The official documentation can be found [here](https://jsdata.gitbook.io/danfojs/)
 
 ## Discussion and Development
-Most development discussions take place on github in this repo. Feel free to use the issues tab. 
+Most development discussions take place on our [issues](https://github.com/opensource9ja/danfojs/issues) tab. 
 
 ## Contributing to Danfo
-All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome. A detailed overview on how to contribute can be found in the [contributing guide](https://jsdata.gitbook.io/danfojs/contributing-guide). As contributors and maintainers to this project, you are expected to abide by danfo' code of conduct. More information can be found at: [Contributor Code of Conduct](https://github.com/pandas-dev/pandas/blob/master/.github/CODE_OF_CONDUCT.md) Javascript version of Pandas
+All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome. A detailed overview on how to contribute can be found in the [contributing guide](https://jsdata.gitbook.io/danfojs/contributing-guide).
 
 #### Licence [MIT](https://github.com/opensource9ja/danfojs/blob/master/LICENCE)
+
+#### Created by [Rising Odegua](https://github.com/risenW) and [Stephen Oni](https://github.com/steveoni)
 
 #### Logo Design By [Seyi Oniyitan](https://twitter.com/seyioniyitan)
