@@ -125,7 +125,7 @@ describe("Series", function () {
             let data2 = [1, 2, 3, 4, 5, 6]
             let sf = new Series(data)
             let sf2 = new Series(data2)
-            assert.throws(() => { sf.add(sf2) }, Error, "Operands could not be broadcast together with shapes 4 and 6")
+            assert.throws(() => { sf.add(sf2) }, Error, "Incompatible shapes: [4] vs. [6]")
         })
 
     })
@@ -155,7 +155,7 @@ describe("Series", function () {
             let data2 = [1, 2, 3, 4, 5, 6]
             let sf = new Series(data)
             let sf2 = new Series(data2)
-            assert.throws(() => { sf.sub(sf2) }, Error, "Operands could not be broadcast together with shapes 4 and 6")
+            assert.throws(() => { sf.sub(sf2) }, Error, "Incompatible shapes: [4] vs. [6]")
         })
 
     })
@@ -398,12 +398,12 @@ describe("Series", function () {
         it("Computes the descriptive statistics on an int Series", function () {
             let data1 = [10, 45, 56, 25, 23, 20, 10]
             let sf = new Series(data1)
-            assert.deepEqual(sf.describe().values, [7, 27, 17.378147196982766, 10, 23, 56, 302])
+            assert.deepEqual(sf.describe().round().values, [7, 27, 17, 10, 23, 56, 302])
         })
         it("Computes the descriptive statistics on a float Series", function () {
             let data1 = [30.1, 40.2, 3.1, 5.1]
             let sf = new Series(data1)
-            assert.deepEqual(sf.describe().values, [4, 19.625, 18.412925713566906, 3.0999999046325684, 17.6, 40.20000076293945, 339.03583333333336])
+            assert.deepEqual(sf.describe().round().values, [4, 20, 18, 3, 18, 40, 339])
         })
         it("Computes the descriptive statistics on a float Series", function () {
             let data1 = [30.1, 40.2, 3.1, 5.1]

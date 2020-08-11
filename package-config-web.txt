@@ -1,80 +1,84 @@
 //package for browser verion
 {
-    "name": "danfojs",
-    "version": "0.0.13",
-    "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
-    "main": "dist/index.js",
-    "contributors": [
-      {
-        "name": "Rising Odegua"
-      },
-      {
-        "name": "Stephen Oni"
-      }
-    ],
-    "files": [
-      "dist/",
-      "danfojs/src/"
-    ],
-    "dependencies": {
-      "@tensorflow/tfjs": "2.1.0",
-      "@tensorflow/tfjs-core": "^2.1.0",
-      "mathjs": "^7.1.0",
-      "table": "^5.4.6"
+  "name": "danfojs",
+  "version": "0.0.13",
+  "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
+  "main": "dist/index.js",
+  "contributors": [
+    {
+      "name": "Rising Odegua"
     },
-    "scripts": {
-      "test": "nyc mocha --require @babel/register danfojs/tests/*",
-      "dev": "npm run lint && babel ./danfojs/src -d dist --no-comments",
-      "build": "babel ./danfojs/src -d ./dist --no-comments",
-      "lint": "eslint ./danfojs/src",
-      "bundle": "webpack --mode production",
-      "patch": "npm version patch",
-      "prepublishOnly": "npm run bundle",
-      "publish": "npm publish"
-    },
-    "repository": {
-      "type": "git",
-      "url": "git+https://github.com/opensource9ja/danfojs.git"
-    },
-    "keywords": [
-      "pandas",
-      "data-analysis",
-      "data-manipulation",
-      "analysis"
-    ],
-    "author": "Rising Odegua <risingodegua@gmail.com>",
-    "license": "MIT",
-    "bugs": {
-      "url": "https://github.com/opensource9ja/danfojs/issues"
-    },
-    "homepage": "https://github.com/opensource9ja/danfojs#readme",
-    "devDependencies": {
-      "@babel/cli": "^7.10.5",
-      "@babel/core": "^7.10.5",
-      "@babel/plugin-transform-modules-umd": "^7.10.4",
-      "@babel/preset-env": "^7.10.4",
-      "@babel/register": "^7.10.1",
-      "babel-loader": "^8.1.0",
-      "chai": "^4.2.0",
-      "eslint": "^7.1.0",
-      "mocha": "^7.2.0",
-      "mocha-loader": "^5.1.2",
-      "mocha-webpack": "^1.1.0",
-      "nyc": "^15.1.0",
-      "parcel-bundler": "^1.12.4",
-      "source-map-loader": "^1.0.0",
-      "transform-loader": "^0.2.4",
-      "webpack": "^4.44.0",
-      "webpack-cli": "^3.3.12"
-    },
-    "nyc": {
-      "reporter": [
-        "lcov",
-        "text"
-      ]
+    {
+      "name": "Stephen Oni"
     }
+  ],
+  "files": [
+    "dist/",
+    "danfojs/src/"
+  ],
+  "dependencies": {
+    "@tensorflow/tfjs": "2.1.0",
+    "@tensorflow/tfjs-core": "^2.1.0",
+    "mathjs": "^7.1.0",
+    "plotly.js": "^1.54.7",
+    "table": "^5.4.6"
+  },
+  "scripts": {
+    "test": "nyc mocha --require @babel/register danfojs/tests/*",
+    "dev": "npm run lint && babel ./danfojs/src -d dist --no-comments",
+    "build": "babel ./danfojs/src -d ./dist --no-comments",
+    "lint": "eslint ./danfojs/src",
+    "bundle": "webpack --mode development",
+    "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
+    "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
+    "patch": "npm version patch",
+    "prepublishOnly": "npm run bundle",
+    "publish": "npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/opensource9ja/danfojs.git"
+  },
+  "keywords": [
+    "pandas",
+    "data-analysis",
+    "data-manipulation",
+    "analysis"
+  ],
+  "author": "Rising Odegua <risingodegua@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/opensource9ja/danfojs/issues"
+  },
+  "homepage": "https://github.com/opensource9ja/danfojs#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.10.5",
+    "@babel/plugin-transform-modules-umd": "^7.10.4",
+    "@babel/preset-env": "^7.10.4",
+    "@babel/register": "^7.10.1",
+    "babel-loader": "^8.1.0",
+    "chai": "^4.2.0",
+    "coveralls": "^3.1.0",
+    "eslint": "^7.1.0",
+    "mocha": "^7.2.0",
+    "mocha-lcov-reporter": "^1.3.0",
+    "mocha-loader": "^5.1.2",
+    "mocha-webpack": "^1.1.0",
+    "nyc": "^15.1.0",
+    "parcel-bundler": "^1.12.4",
+    "source-map-loader": "^1.0.0",
+    "transform-loader": "^0.2.4",
+    "webpack": "^4.44.0",
+    "webpack-cli": "^3.3.12"
+  },
+  "nyc": {
+    "reporter": [
+      "lcov",
+      "text"
+    ]
   }
-  
+}
 
 
 
