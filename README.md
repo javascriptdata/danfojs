@@ -115,6 +115,10 @@ dfd.read_csv("https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/t
   })
 
 ```
+Output in Node Console:
+
+![](assets/node-rec.gif)
+
 
 To use danfo.js via script tags, copy and paste the CDN below to your HTML file
 
@@ -164,7 +168,12 @@ To use danfo.js via script tags, copy and paste the CDN below to your HTML file
 </html>
 ```
 
-#### [See the Getting Started Guide](https://jsdata.gitbook.io/danfojs/getting-started)
+Output in Browser:
+
+![](assets/browser-out.gif)
+
+
+#### [See the Official Getting Started Guide](https://jsdata.gitbook.io/danfojs/getting-started)
 
 ## Documentation
 The official documentation can be found [here](https://jsdata.gitbook.io/danfojs/)
