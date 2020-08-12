@@ -164,6 +164,7 @@ To use danfo.js via script tags, copy and paste the CDN below to your HTML file
 </html>
 ```
 
+#### [See the Getting Started Guide](https://jsdata.gitbook.io/danfojs/getting-started)
 
 ## Documentation
 The official documentation can be found [here](https://jsdata.gitbook.io/danfojs/)
