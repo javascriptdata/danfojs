@@ -21,6 +21,7 @@ easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org
 
 ## Main Features
 
+  - Danfo.js is fast. It is built on Tensorflow.js, and supports tensors out of the box. This means you can [convert Danfo data structure](https://jsdata.gitbook.io/danfojs/api-reference/dataframe/dataframe.tensor) to Tensors.
   - Easy handling of [missing-data](https://jsdata.gitbook.io/danfojs/api-reference/dataframe#missing-data-handling) (represented as
     `NaN`) in floating point as well as non-floating point data
   - Size mutability: columns can be [inserted/deleted](https://jsdata.gitbook.io/danfojs/api-reference/dataframe#indexing-iteration) from DataFrame
@@ -43,6 +44,7 @@ easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org
   - Powerful, flexible and intutive API for [plotting](https://app.gitbook.com/@jsdata/s/danfojs/~/drafts/-MESZnq3_VBU0EW71MxS/api-reference/plotting) DataFrames and Series interactively.
   - [Timeseries](https://jsdata.gitbook.io/danfojs/api-reference/series#accessors)-specific functionality: date range
     generation and date and time properties. 
+  - Robust data preprocessing functions like [OneHotEncoders](https://jsdata.gitbook.io/danfojs/api-reference/general-functions/danfo.onehotencoder), [LabelEncoders](https://jsdata.gitbook.io/danfojs/api-reference/general-functions/danfo.labelencoder), and scalers like [StandardSaler](https://jsdata.gitbook.io/danfojs/api-reference/general-functions/danfo.standardscaler) and [MinMaxScaler](https://jsdata.gitbook.io/danfojs/api-reference/general-functions/danfo.minmaxscaler) are supported on DataFrame and Series
 
 
 ## How to install
@@ -162,15 +164,12 @@ To use danfo.js via script tags, copy and paste the CDN below to your HTML file
 </html>
 ```
 
-Output:
-![](danfo-sample.gif)
-
 
 ## Documentation
 The official documentation can be found [here](https://jsdata.gitbook.io/danfojs/)
 
 ## Discussion and Development
-Most development discussions take place on our [issues](https://github.com/opensource9ja/danfojs/issues) tab. 
+Development discussions take place on our [issues](https://github.com/opensource9ja/danfojs/issues) tab. 
 
 ## Contributing to Danfo
 All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome. A detailed overview on how to contribute can be found in the [contributing guide](https://jsdata.gitbook.io/danfojs/contributing-guide).
