@@ -1,7 +1,7 @@
 import Ndframe from "./generic"
 import { Series } from "./series"
-// import * as tf from '@tensorflow/tfjs-node'
-import * as tf from '@tensorflow/tfjs'
+import * as tf from '@tensorflow/tfjs-node'
+// import * as tf from '@tensorflow/tfjs'
 import { Utils } from "./utils"
 import { GroupBy } from "./groupby"
 import { Plot } from '../plotting/plot'
@@ -199,14 +199,14 @@ export class DataFrame extends Ndframe {
     head(rows = 5) {
         if (rows > this.values.length || rows < 1) {
             //return all values
-            let config = { columns: this.column_names }
-            return new DataFrame(this.values, config)
+            return this
         } else {
             //Creates a new dataframe with first [rows]
             let data = this.values.slice(0, rows)
             let idx = this.index.slice(0, rows)
             let config = { columns: this.column_names, index: idx }
-            return new DataFrame(data, config)
+            let df = new DataFrame(data, config)
+            return df
         }
 
     }
@@ -220,8 +220,7 @@ export class DataFrame extends Ndframe {
         let row_len = this.values.length
         if (rows > row_len || rows < 1) {
             //return all values
-            let config = { columns: this.column_names }
-            return new DataFrame(this.values, config)
+            return this
         } else {
             //Creates a new dataframe with last [rows]
             let data = this.values.slice(row_len - rows)

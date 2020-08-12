@@ -1,5 +1,5 @@
-// import * as tf from '@tensorflow/tfjs-node'
-import * as tf from '@tensorflow/tfjs'
+import * as tf from '@tensorflow/tfjs-node'
+// import * as tf from '@tensorflow/tfjs'
 import { table } from 'table'
 import { Utils } from './utils'
 import { Configs } from '../config/config'
@@ -461,8 +461,9 @@ export default class NDframe {
     * Pretty prints n number of rows in a DataFrame or Series in the console
     * @param {rows} Number of rows to print
     */
-    print(rows = 5) {
-        console.log(this.head(rows) + "");
+    print() {
+        console.log(this + "")
+        // console.log(this.head(rows) + "");
     }
 
 }
