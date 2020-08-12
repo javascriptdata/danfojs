@@ -1,6 +1,6 @@
 {
-  "name": "danfojs-node",
-  "version": "0.1.2",
+  "name": "danfojs",
+  "version": "0.0.14",
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
   "main": "dist/index.js",
   "contributors": [
@@ -16,9 +16,10 @@
     "danfojs/src/"
   ],
   "dependencies": {
-    "@tensorflow/tfjs-node": "2.1.0",
+    "@tensorflow/tfjs": "2.1.0",
     "@tensorflow/tfjs-core": "^2.1.0",
     "mathjs": "^7.1.0",
+    "plotly.js": "^1.54.7",
     "table": "^5.4.6"
   },
   "scripts": {
@@ -26,11 +27,11 @@
     "dev": "npm run lint && babel ./danfojs/src -d dist --no-comments",
     "build": "babel ./danfojs/src -d ./dist --no-comments",
     "lint": "eslint ./danfojs/src",
-    "bundle": "webpack --mode development",
+    "bundle": "webpack --mode production",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
     "patch": "npm version patch",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "npm run bundle",
     "publish": "npm publish"
   },
   "repository": {
