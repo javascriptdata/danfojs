@@ -188,4 +188,4 @@ All contributions, bug reports, bug fixes, documentation improvements, enhanceme
 
 #### Created by [Rising Odegua](https://github.com/risenW) and [Stephen Oni](https://github.com/steveoni)
 
-#### Logo Design By [Seyi Oniyitan](https://twitter.com/seyioniyitan)
+<a href="https://www.producthunt.com/posts/danfo-js?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-danfo-js" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=233871&theme=light" alt="Danfo.js - Open Source JavaScript library for manipulating data. | Product Hunt Embed" style="width: 250px; height: 54px;" width="250px" height="54px" /></a>
