@@ -78,7 +78,7 @@ dfd.read_csv("https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/t
     //prints the inferred dtypes of each column
     df.ctypes.print()
 
-    //selecting a column by subsettiing
+    //selecting a column by subsetting
     df['Name'].print()
 
     //drop columns by names
