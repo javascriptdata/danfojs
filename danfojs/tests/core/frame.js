@@ -1946,6 +1946,18 @@ describe("DataFrame", function () {
             assert.deepEqual(df.columns, res)
 
         })
+        it("confirms original column name is not modified along axis 1", function () {
+            let data = { "A": [-20, 30, 47.3, -20],
+             "B": [34, -4, 5, 6] ,
+             "C": [20, 20, 30, 30] ,
+             "D": ["a", "b", "c", "c"] }
+
+            let ndframe = new DataFrame(data)
+            let df = ndframe.rename({ mapper: { "A": "a1", "B": "b1" } })
+            let res = ["A", "B", "C", "D"]
+            assert.deepEqual(ndframe.columns, res)
+
+        })
         it("Rename columns along axis 1 inplace", function () {
             let data = { "A": [-20, 30, 47.3, -20] ,
             "B": [34, -4, 5, 6] ,
