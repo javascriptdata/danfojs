@@ -91,6 +91,11 @@ describe("Utils Functions", function () {
             let result = ['boolean', 'string', 'int32']
             assert.deepEqual(utils.__get_t(data), result)
         })
+        it("Returns string type if values are NaN", function () {
+            let data = [[true, false, true], ["boy", "girl", "boy"], [NaN, undefined, NaN]]
+            let result = ['boolean', 'string', 'string']
+            assert.deepEqual(utils.__get_t(data), result)
+        })
     })
 
     describe("__map_int_to_bool", function () {
