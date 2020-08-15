@@ -1095,7 +1095,7 @@ export class DataFrame extends Ndframe {
      */
     groupby(col) {
 
-        let len = this.shape[0] - 1
+        let len = this.shape[0]
 
         let column_names = this.column_names
         let col_dict = {};

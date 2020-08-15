@@ -32,14 +32,14 @@ export const indexLoc = (ndframe, kwargs) => {
                         }
 
                         if (isNaN(Number(row_split[1]))) {
-                            end = ndframe.index.lastIndexOf(row_split[1]) || (ndframe.values.length - 1);
+                            end = ndframe.index.lastIndexOf(row_split[1])-1 || (ndframe.values.length - 1);
                         } else {
-                            end = Number(row_split[1]) || (ndframe.values.length - 1);
+                            end = Number(row_split[1])-1 || (ndframe.values.length - 1);
                         }
                         rows = utils.__range(start, end);
                     } else {
                         let start = parseInt(row_split[0]) || 0;
-                        let end = parseInt(row_split[1]) || (ndframe.values.length - 1);
+                        let end = parseInt(row_split[1]) - 1 || (ndframe.values.length - 1);
 
                         if (typeof start == "number" && typeof end == "number") {
                             rows = utils.__range(start, end);
@@ -95,11 +95,11 @@ export const indexLoc = (ndframe, kwargs) => {
 
                 if (kwargs["type"] == "iloc" || (row_split[0] == "")) {
                     start = parseInt(row_split[0]) || 0;
-                    end = parseInt(row_split[1]) || (ndframe.values[0].length - 1);
+                    end = parseInt(row_split[1]) -1 || (ndframe.values[0].length - 1);
                 } else {
 
                     start = parseInt(ndframe.columns.indexOf(row_split[0]));
-                    end = parseInt(ndframe.columns.indexOf(row_split[1]));
+                    end = parseInt(ndframe.columns.indexOf(row_split[1]))-1;
                 }
 
 
