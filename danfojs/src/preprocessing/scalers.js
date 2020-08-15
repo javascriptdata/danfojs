@@ -92,8 +92,8 @@ export class StandardScaler {
         let tensor_data = null
         if (Array.isArray(data)) {
             tensor_data = tf.tensor(data)
-        }
-        else if ((data instanceof DataFrame) || (data instanceof Series)) {
+
+        }else if ((data instanceof DataFrame) || (data instanceof Series)) {
             if (data.dtypes.includes("string")) {
                 throw Error("Dtype Error: Cannot perform operation on string dtypes")
             }
@@ -145,7 +145,6 @@ export class StandardScaler {
         } else {
             throw Error("Value Error: Data type not supoorted")
         }
-        // return new DataFrame(data=output_data)
 
     }
 }
