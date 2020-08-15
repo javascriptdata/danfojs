@@ -4,7 +4,7 @@ import { Series } from "./series"
 import * as tf from '@tensorflow/tfjs'
 import { Utils } from "./utils"
 import { GroupBy } from "./groupby"
-// import { Plot } from '../plotting/plot'
+import { Plot } from '../plotting/plot'
 import { indexLoc } from '../core/indexing'
 
 const utils = new Utils
@@ -199,14 +199,14 @@ export class DataFrame extends Ndframe {
     head(rows = 5) {
         if (rows > this.values.length || rows < 1) {
             //return all values
-            let config = { columns: this.column_names }
-            return new DataFrame(this.values, config)
+            return this
         } else {
             //Creates a new dataframe with first [rows]
             let data = this.values.slice(0, rows)
             let idx = this.index.slice(0, rows)
             let config = { columns: this.column_names, index: idx }
-            return new DataFrame(data, config)
+            let df = new DataFrame(data, config)
+            return df
         }
 
     }
@@ -220,8 +220,7 @@ export class DataFrame extends Ndframe {
         let row_len = this.values.length
         if (rows > row_len || rows < 1) {
             //return all values
-            let config = { columns: this.column_names }
-            return new DataFrame(this.values, config)
+            return this
         } else {
             //Creates a new dataframe with last [rows]
             let data = this.values.slice(row_len - rows)
@@ -823,12 +822,10 @@ export class DataFrame extends Ndframe {
 
             dtypes.forEach((dtype, i) => {
                 if (include.includes(dtype)) {
-                    console.log(dtype);
                     col_vals[col_names[i]] = original_col_vals[i]
                 }
             })
             let df = new DataFrame(col_vals)
-            df.print()
             return df
 
         }
@@ -2024,12 +2021,14 @@ export class DataFrame extends Ndframe {
         if (!utils.__key_in_object(kwargs, "mapper")) {
             throw Error("Please specify a mapper object")
         }
-
+        this.print()
+        console.log(kwargs['axis']);
+        console.log(kwargs['inplace']);
         if (kwargs['axis'] == 1) {
             //columns
             let old_col_names = Object.keys(kwargs['mapper'])
             let new_col_names = Object.values(kwargs['mapper'])
-            let col_names = this.column_names
+            let col_names = [...this.column_names]
 
 
             old_col_names.forEach((cname, i) => {
@@ -2040,13 +2039,19 @@ export class DataFrame extends Ndframe {
                 col_names[idx] = new_col_names[i]
 
             })
+            console.log("Before rename");
+            this.print()
             if (kwargs['inplace']) {
                 this.columns = col_names
                 this.__set_col_property(this, this.col_data, col_names, old_col_names)
+                console.log("after rename inplace");
+                this.print()
             } else {
                 let df = this.copy()
                 df.columns = col_names
-                this.__set_col_property(df, df.col_data, col_names, old_col_names)
+                df.__set_col_property(df, df.col_data, col_names, old_col_names)
+                console.log("after rename not inplace");
+                df.print()
                 return df
             }
         } else {

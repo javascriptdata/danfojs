@@ -3,7 +3,7 @@
 import { Utils } from "../core/utils"
 import { Series } from "../core/series"
 
-// const utils = new Utils()
+const utils = new Utils()
 
 
 

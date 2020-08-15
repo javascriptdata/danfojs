@@ -9,6 +9,7 @@
 ![Node.js CI](https://github.com/opensource9ja/danfojs/workflows/Node.js%20CI/badge.svg?branch=master)
 [![](https://data.jsdelivr.com/v1/package/npm/danfojs/badge?style=rounded)](https://www.jsdelivr.com/package/npm/danfojs)
 [![Build Status](https://travis-ci.org/opensource9ja/danfojs.svg?branch=master)](https://travis-ci.org/opensource9ja/danfojs)
+[![Coverage Status](https://coveralls.io/repos/github/opensource9ja/danfojs/badge.svg)](https://coveralls.io/github/opensource9ja/danfojs)
 ![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2FDanfoJs) 
 
 
@@ -20,6 +21,7 @@ easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org
 
 ## Main Features
 
+  - Danfo.js is fast. It is built on Tensorflow.js, and supports tensors out of the box. This means you can [convert Danfo data structure](https://jsdata.gitbook.io/danfojs/api-reference/dataframe/dataframe.tensor) to Tensors.
   - Easy handling of [missing-data](https://jsdata.gitbook.io/danfojs/api-reference/dataframe#missing-data-handling) (represented as
     `NaN`) in floating point as well as non-floating point data
   - Size mutability: columns can be [inserted/deleted](https://jsdata.gitbook.io/danfojs/api-reference/dataframe#indexing-iteration) from DataFrame
@@ -42,6 +44,7 @@ easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org
   - Powerful, flexible and intutive API for [plotting](https://app.gitbook.com/@jsdata/s/danfojs/~/drafts/-MESZnq3_VBU0EW71MxS/api-reference/plotting) DataFrames and Series interactively.
   - [Timeseries](https://jsdata.gitbook.io/danfojs/api-reference/series#accessors)-specific functionality: date range
     generation and date and time properties. 
+  - Robust data preprocessing functions like [OneHotEncoders](https://jsdata.gitbook.io/danfojs/api-reference/general-functions/danfo.onehotencoder), [LabelEncoders](https://jsdata.gitbook.io/danfojs/api-reference/general-functions/danfo.labelencoder), and scalers like [StandardSaler](https://jsdata.gitbook.io/danfojs/api-reference/general-functions/danfo.standardscaler) and [MinMaxScaler](https://jsdata.gitbook.io/danfojs/api-reference/general-functions/danfo.minmaxscaler) are supported on DataFrame and Series
 
 
 ## How to install
@@ -75,7 +78,7 @@ dfd.read_csv("https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/t
     //prints the inferred dtypes of each column
     df.ctypes.print()
 
-    //selecting a column by subsettiing
+    //selecting a column by subsetting
     df['Name'].print()
 
     //drop columns by names
@@ -112,11 +115,15 @@ dfd.read_csv("https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/t
   })
 
 ```
+Output in Node Console:
+
+![](assets/node-rec.gif)
+
 
 To use danfo.js via script tags, copy and paste the CDN below to your HTML file
 
 ```html
-  <script src="https://cdn.jsdelivr.net/npm/danfojs@0.0.14/dist/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/danfojs@0.0.15/dist/index.min.js"></script>
 ```
 
 ### Example Usage in the Browser
@@ -128,7 +135,7 @@ To use danfo.js via script tags, copy and paste the CDN below to your HTML file
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/danfojs@0.0.14/dist/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/danfojs@0.0.15/dist/index.min.js"></script>
     <title>Document</title>
 </head>
 
@@ -161,15 +168,18 @@ To use danfo.js via script tags, copy and paste the CDN below to your HTML file
 </html>
 ```
 
-Output:
-![](danfo-sample.gif)
+Output in Browser:
 
+![](assets/browser-out.gif)
+
+
+#### [See the Official Getting Started Guide](https://jsdata.gitbook.io/danfojs/getting-started)
 
 ## Documentation
 The official documentation can be found [here](https://jsdata.gitbook.io/danfojs/)
 
 ## Discussion and Development
-Most development discussions take place on our [issues](https://github.com/opensource9ja/danfojs/issues) tab. 
+Development discussions take place on our [issues](https://github.com/opensource9ja/danfojs/issues) tab. 
 
 ## Contributing to Danfo
 All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome. A detailed overview on how to contribute can be found in the [contributing guide](https://jsdata.gitbook.io/danfojs/contributing-guide).
@@ -178,4 +188,4 @@ All contributions, bug reports, bug fixes, documentation improvements, enhanceme
 
 #### Created by [Rising Odegua](https://github.com/risenW) and [Stephen Oni](https://github.com/steveoni)
 
-#### Logo Design By [Seyi Oniyitan](https://twitter.com/seyioniyitan)
+<a href="https://www.producthunt.com/posts/danfo-js?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-danfo-js" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=233871&theme=light" alt="Danfo.js - Open Source JavaScript library for manipulating data. | Product Hunt Embed" style="width: 250px; height: 54px;" width="250px" height="54px" /></a>
