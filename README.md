@@ -47,6 +47,60 @@ easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org
   - Robust data preprocessing functions like [OneHotEncoders](https://jsdata.gitbook.io/danfojs/api-reference/general-functions/danfo.onehotencoder), [LabelEncoders](https://jsdata.gitbook.io/danfojs/api-reference/general-functions/danfo.labelencoder), and scalers like [StandardSaler](https://jsdata.gitbook.io/danfojs/api-reference/general-functions/danfo.standardscaler) and [MinMaxScaler](https://jsdata.gitbook.io/danfojs/api-reference/general-functions/danfo.minmaxscaler) are supported on DataFrame and Series
 
 
+
+To use danfo.js via script tags, copy and paste the CDN below to your HTML file
+
+```html
+  <script src="https://cdn.jsdelivr.net/npm/danfojs@0.1.0/dist/index.min.js"></script>
+```
+
+### Example Usage in the Browser
+
+```html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/danfojs@0.1.0/dist/index.min.js"></script>
+    <title>Document</title>
+</head>
+
+<body>
+
+    <div id="div1"></div>
+    <div id="div2"></div>
+    <div id="div3"></div>
+
+    <script>
+
+        dfd.read_csv("https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv")
+            .then(df => {
+
+                df['AAPL.Open'].plot("div1").box() //makes a box plot
+
+                df.plot("div2").table() //display csv as table
+
+                new_df = df.set_index({ key: "Date" }) //resets the index to Date column
+                new_df.plot("div3").line({ columns: ["AAPL.Open", "AAPL.High"] })  //makes a timeseries plot
+
+            }).catch(err => {
+                console.log(err);
+            })
+
+    </script>
+    
+</body>
+
+</html>
+```
+
+Output in Browser:
+
+![](assets/browser-out.gif)
+
+
 ## How to install
 danfo.js is hosted on NPM, and can installed via package managers like npm and yarn
 
@@ -118,59 +172,6 @@ dfd.read_csv("https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/t
 Output in Node Console:
 
 ![](assets/node-rec.gif)
-
-
-To use danfo.js via script tags, copy and paste the CDN below to your HTML file
-
-```html
-  <script src="https://cdn.jsdelivr.net/npm/danfojs@0.0.15/dist/index.min.js"></script>
-```
-
-### Example Usage in the Browser
-
-```html
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/danfojs@0.0.15/dist/index.min.js"></script>
-    <title>Document</title>
-</head>
-
-<body>
-
-    <div id="div1"></div>
-    <div id="div2"></div>
-    <div id="div3"></div>
-
-    <script>
-
-        dfd.read_csv("https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv")
-            .then(df => {
-
-                df['AAPL.Open'].plot("div1").box() //makes a box plot
-
-                df.plot("div2").table() //display csv as table
-
-                new_df = df.set_index({ key: "Date" }) //resets the index to Date column
-                new_df.plot("div3").line({ columns: ["AAPL.Open", "AAPL.High"] })  //makes a timeseries plot
-
-            }).catch(err => {
-                console.log(err);
-            })
-
-    </script>
-    
-</body>
-
-</html>
-```
-
-Output in Browser:
-
-![](assets/browser-out.gif)
 
 
 #### [See the Official Getting Started Guide](https://jsdata.gitbook.io/danfojs/getting-started)
