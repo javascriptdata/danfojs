@@ -961,12 +961,15 @@ export class DataFrame extends Ndframe {
             "=="
         ]
 
-        if (Object.prototype.hasOwnProperty.call(kwargs, "column")) {
+        if (!utils.__key_in_object(kwargs, "inplace")) {
+            kwargs['inplace'] = false
+        }
 
+        let column_index, operator, value;
 
+        if (utils.__key_in_object(kwargs, "column")) {
             if (this.columns.includes(kwargs["column"])) {
-
-                var column_index = this.columns.indexOf(kwargs["column"]);
+                column_index = this.columns.indexOf(kwargs["column"]);
             } else {
                 throw new Error(`column ${kwargs["column"]} does not exist`);
             }
@@ -974,11 +977,9 @@ export class DataFrame extends Ndframe {
             throw new Error("specify the column");
         }
 
-        if (Object.prototype.hasOwnProperty.call(kwargs, "is")) {
-
+        if (utils.__key_in_object(kwargs, "is")) {
             if (operators.includes(kwargs["is"])) {
-
-                var operator = kwargs["is"];
+                operator = kwargs["is"];
             }
             else {
                 throw new Error(` ${kwargs["is"]} is not a supported logical operator`);
@@ -987,34 +988,37 @@ export class DataFrame extends Ndframe {
             throw new Error("specify an operator in param [is]");
         }
 
-        if (Object.prototype.hasOwnProperty.call(kwargs, "to")) {
-            var value = kwargs["to"]
+        if (utils.__key_in_object(kwargs, "to")) {
+            value = kwargs["to"]
 
         } else {
             throw new Error("specify a value in param [to]");
         }
 
         let data = this.values
-
+        let index = this.index
         let new_data = []
+        let new_index = []
 
         for (var i = 0; i < data.length; i++) {
             let data_value = data[i]
-
             let elem = data_value[column_index]
-
             //use eval function for easy operation
             //eval() takes in a string expression e.g eval('2>5')
             if (eval(`${elem}${operator}${value}`)) {
                 new_data.push(data_value);
+                new_index.push(index[i])
+
             }
 
-
         }
-        let columns = this.columns
-        let new_df = new DataFrame(new_data, { "columns": columns })
 
-        return new_df;
+        if (kwargs['inplace']) {
+            this.__update_frame_in_place(new_data, this.columns, null, new_index, null)
+        } else {
+            let new_df = new DataFrame(new_data, { "columns": this.columns, index: new_index })
+            return new_df;
+        }
     }
 
 
@@ -1081,6 +1085,8 @@ export class DataFrame extends Ndframe {
             Object.defineProperty(this, column_name, {
                 get() {
                     return new Series(value, { columns: column_name, index: this.index })
+                }, set(value) {
+                    this.addColumn({ column: column_name, value: value });
                 }
             })
         }
@@ -2021,9 +2027,6 @@ export class DataFrame extends Ndframe {
         if (!utils.__key_in_object(kwargs, "mapper")) {
             throw Error("Please specify a mapper object")
         }
-        this.print()
-        console.log(kwargs['axis']);
-        console.log(kwargs['inplace']);
         if (kwargs['axis'] == 1) {
             //columns
             let old_col_names = Object.keys(kwargs['mapper'])
@@ -2039,19 +2042,13 @@ export class DataFrame extends Ndframe {
                 col_names[idx] = new_col_names[i]
 
             })
-            console.log("Before rename");
-            this.print()
             if (kwargs['inplace']) {
                 this.columns = col_names
                 this.__set_col_property(this, this.col_data, col_names, old_col_names)
-                console.log("after rename inplace");
-                this.print()
             } else {
                 let df = this.copy()
                 df.columns = col_names
                 df.__set_col_property(df, df.col_data, col_names, old_col_names)
-                console.log("after rename not inplace");
-                df.print()
                 return df
             }
         } else {
@@ -2095,10 +2092,33 @@ export class DataFrame extends Ndframe {
             Object.defineProperty(self, col_names[i], {
                 get() {
                     return new Series(col, { columns: col_names[i], index: self.index })
+                }, set(value) {
+                    this.addColumn({ column: col_names[i], value: value });
                 }
             })
         });
 
+    }
+
+    //update a DataFrame in place
+    __update_frame_in_place(values, column_names, col_data, index, dtypes) {
+        if (values != undefined) {
+            this.data = values
+            if (col_data == undefined || col_data == null) {
+                this.col_data = utils.__get_col_values(values) //update column values
+            } else {
+                this.col_data = col_data
+            }
+        }
+        if (column_names != undefined) {
+            this.columns = column_names
+        }
+        if (index != undefined) {
+            this.index_arr = index
+        }
+        if (dtypes != undefined) {
+            this.col_types = dtypes
+        }
     }
 }
 

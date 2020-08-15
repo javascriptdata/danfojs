@@ -668,9 +668,9 @@ describe("DataFrame", function () {
     describe("describe", function () {
         it("Returns descriptive statistics of columns in a DataFrame created from an array", function () {
             let data = [[0, 2, 4, "a"],
-                        [360, 180, 360, "b"],
-                        [2, 4, 6, "c"]]
-                        
+            [360, 180, 360, "b"],
+            [2, 4, 6, "c"]]
+
             let df = new DataFrame(data)
             let res = [[3, 3, 3], [120.666664, 62, 123.333336],
             [207.271159, 102.19589, 204.961785],
@@ -918,6 +918,39 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { columns: cols })
 
             assert.throws(function () { df.query({ "column": "D", "is": ">=", "to": 5 }) }, Error, "column D does not exist");
+        });
+        it("Confirms that query index are updated", function () {
+
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let df_query = df.query({ "column": "B", "is": ">=", "to": 5 })
+            assert.deepEqual(df_query.index, [1, 2, 3])
+        });
+        it("Confirms that columns data are updated inplace", function () {
+
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            df.query({ "column": "B", "is": ">=", "to": 5, inplace: true })
+            assert.deepEqual(df.col_data, [[4, 20, 39], [5, 30, 89], [6, 40, 78]])
+        });
+        it("Confirms that query happens inplace", function () {
+
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            df.query({ "column": "B", "is": ">=", "to": 5, inplace: true })
+            let query_data = [[4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            assert.deepEqual(df.values, query_data)
+        });
+        it("Confirms that query happens inplace and index are updated", function () {
+
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            df.query({ "column": "B", "is": ">=", "to": 5, inplace: true })
+            assert.deepEqual(df.index, [1, 2, 3])
         });
 
     });
@@ -1346,9 +1379,9 @@ describe("DataFrame", function () {
 
         it("Fills only a specified column", function () {
             let data = [[1, 2, 3],
-                        [4, 5, 6],
-                        [20, NaN, 40],
-                        [39, NaN, 78]]
+            [4, 5, 6],
+            [20, NaN, 40],
+            [39, NaN, 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
             let new_vals = [[1, 2, 3], [4, 5, 6], [20, 2, 40], [39, 2, 78]]
@@ -1421,8 +1454,8 @@ describe("DataFrame", function () {
 
         it("Returns string and float columns in a DataFrame", function () {
             let data = [[30, 1, 2, "boy"],
-                        [3.2, 4, 30, "girl"],
-                        [5.09, 6, 7, "cat"]]
+            [3.2, 4, 30, "girl"],
+            [5.09, 6, 7, "cat"]]
             let column = ["A", "B", "C", "D"]
             let df = new DataFrame(data, { columns: column })
             let df_sub = df.select_dtypes(['string', 'float32'])
@@ -1431,8 +1464,8 @@ describe("DataFrame", function () {
 
         it("Returns int and float columns in a DataFrame", function () {
             let data = [[30, 1, 2, "boy"],
-                       [3.2, 4, 30, "girl"],
-                       [5.09, 6, 7, "cat"]]
+            [3.2, 4, 30, "girl"],
+            [5.09, 6, 7, "cat"]]
             let column = ["A", "B", "C", "D"]
             let df = new DataFrame(data, { columns: column })
             let df_sub = df.select_dtypes(['int32', 'float32'])
@@ -1935,10 +1968,12 @@ describe("DataFrame", function () {
 
     describe("rename", function () {
         it("Rename columns along axis 1", function () {
-            let data = { "A": [-20, 30, 47.3, -20],
-             "B": [34, -4, 5, 6] ,
-             "C": [20, 20, 30, 30] ,
-             "D": ["a", "b", "c", "c"] }
+            let data = {
+                "A": [-20, 30, 47.3, -20],
+                "B": [34, -4, 5, 6],
+                "C": [20, 20, 30, 30],
+                "D": ["a", "b", "c", "c"]
+            }
 
             let ndframe = new DataFrame(data)
             let df = ndframe.rename({ mapper: { "A": "a1", "B": "b1" } })
@@ -1947,10 +1982,12 @@ describe("DataFrame", function () {
 
         })
         it("confirms original column name is not modified along axis 1", function () {
-            let data = { "A": [-20, 30, 47.3, -20],
-             "B": [34, -4, 5, 6] ,
-             "C": [20, 20, 30, 30] ,
-             "D": ["a", "b", "c", "c"] }
+            let data = {
+                "A": [-20, 30, 47.3, -20],
+                "B": [34, -4, 5, 6],
+                "C": [20, 20, 30, 30],
+                "D": ["a", "b", "c", "c"]
+            }
 
             let ndframe = new DataFrame(data)
             let df = ndframe.rename({ mapper: { "A": "a1", "B": "b1" } })
@@ -1959,10 +1996,12 @@ describe("DataFrame", function () {
 
         })
         it("Rename columns along axis 1 inplace", function () {
-            let data = { "A": [-20, 30, 47.3, -20] ,
-            "B": [34, -4, 5, 6] ,
-             "C": [20, 20, 30, 30] ,
-            "D": ["a", "b", "c", "c"] }
+            let data = {
+                "A": [-20, 30, 47.3, -20],
+                "B": [34, -4, 5, 6],
+                "C": [20, 20, 30, 30],
+                "D": ["a", "b", "c", "c"]
+            }
 
             let df = new DataFrame(data)
             df.rename({ mapper: { "A": "a1", "B": "b1" }, inplace: true })
@@ -1971,10 +2010,12 @@ describe("DataFrame", function () {
 
         })
         it("Rename string index along axis 0", function () {
-            let data = { "A": [-20, 30, 47.3, -20] ,
-             "B": [34, -4, 5, 6] ,
-             "C": [20, 20, 30, 30] ,
-             "D": ["a", "b", "c", "c"] }
+            let data = {
+                "A": [-20, 30, 47.3, -20],
+                "B": [34, -4, 5, 6],
+                "C": [20, 20, 30, 30],
+                "D": ["a", "b", "c", "c"]
+            }
 
             let ndframe = new DataFrame(data, { index: ["a", "b", "c", "d"] })
             let df = ndframe.rename({ mapper: { "a": 0, "b": 1 }, axis: 0 })
@@ -1983,10 +2024,12 @@ describe("DataFrame", function () {
 
         })
         it("Rename string index along axis 0 inplace", function () {
-            let data = { "A": [-20, 30, 47.3, -20] ,
-             "B": [34, -4, 5, 6] ,
-             "C": [20, 20, 30, 30] ,
-            "D": ["a", "b", "c", "c"] }
+            let data = {
+                "A": [-20, 30, 47.3, -20],
+                "B": [34, -4, 5, 6],
+                "C": [20, 20, 30, 30],
+                "D": ["a", "b", "c", "c"]
+            }
 
             let df = new DataFrame(data, { index: ["a", "b", "c", "d"] })
             df.rename({ mapper: { "a": 0, "b": 1 }, axis: 0, inplace: true })
