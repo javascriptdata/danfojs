@@ -2021,9 +2021,8 @@ export class DataFrame extends Ndframe {
         if (!utils.__key_in_object(kwargs, "mapper")) {
             throw Error("Please specify a mapper object")
         }
-        this.print()
-        console.log(kwargs['axis']);
-        console.log(kwargs['inplace']);
+        // console.log(kwargs['axis']);
+        // console.log(kwargs['inplace']);
         if (kwargs['axis'] == 1) {
             //columns
             let old_col_names = Object.keys(kwargs['mapper'])
@@ -2039,19 +2038,15 @@ export class DataFrame extends Ndframe {
                 col_names[idx] = new_col_names[i]
 
             })
-            console.log("Before rename");
-            this.print()
+       
             if (kwargs['inplace']) {
                 this.columns = col_names
                 this.__set_col_property(this, this.col_data, col_names, old_col_names)
-                console.log("after rename inplace");
-                this.print()
+     
             } else {
                 let df = this.copy()
                 df.columns = col_names
                 df.__set_col_property(df, df.col_data, col_names, old_col_names)
-                console.log("after rename not inplace");
-                df.print()
                 return df
             }
         } else {
