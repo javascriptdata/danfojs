@@ -33,7 +33,7 @@ export class DataFrame extends Ndframe {
         let col_names = this.column_names
 
         col_vals.forEach((col, i) => {
-            this[col_names[i]] = new Series(col, { columns: col_names[i], index: this.index })
+            this[col_names[i]] = null
             Object.defineProperty(this, col_names[i], {
                 get() {
                     return new Series(this.col_data[i], { columns: col_names[i], index: this.index })
@@ -1029,34 +1029,33 @@ export class DataFrame extends Ndframe {
      */
     addColumn(kwargs) {
 
-        let data_length = this.shape[0]
-
         utils.__in_object(kwargs, "column", "column name not specified");
         utils.__in_object(kwargs, "value", "column value not specified");
 
-        let value = kwargs["value"]
         let column_name = kwargs["column"]
+        let data_length = this.shape[0]
+        let value;
+
+        if (kwargs['value'] instanceof Series) {
+            value = kwargs['value'].values
+        } else {
+            value = kwargs["value"]
+        }
 
         if (value.length != data_length) {
             throw new Error(`Array length ${value.length} not equal to ${data_length}`);
         }
 
-
         if (this.columns.includes(column_name)) {
-
             let col_idx = this.columns.indexOf(column_name);
-
             let new_data = []
+
             this.values.map((val, index) => {
                 let new_val = val.slice();
                 new_val[col_idx] = value[index]
                 new_data.push(new_val);
             })
-            this.data = new_data;
-            // console.log(this.data)
-            this.col_data[col_idx] = value
-            // this.col_data[col_idx] = utils.__get_t(value)[0]
-            this.data_tensor = tf.tensor(new_data)
+            this.__update_frame_in_place(new_data, null, null, null, null)
 
 
         } else {
@@ -1070,18 +1069,13 @@ export class DataFrame extends Ndframe {
             });
 
             //add new dtype
-            let old_type_list = [...this.dtypes]
-            old_type_list.push(utils.__get_t(value)[0])
-            this.col_types = old_type_list
-            this.data = new_data;
-            this.col_data = utils.__get_col_values(new_data)
-            this.data_tensor = tf.tensor(new_data)
-            let old_col_names = this.columns
-            old_col_names.push(column_name)
-            let new_cols = old_col_names
-            this.columns = new_cols
-            this[column_name] = new Series(value)
-            // this.__set_col_property(this, this.col_data, new_cols, old_col_names,true)
+            let new_dtypes = [...this.dtypes]
+            new_dtypes.push(utils.__get_t(value)[0])
+
+            let new_col_names = [...this.columns]
+            new_col_names.push(column_name)
+
+            this.__update_frame_in_place(new_data, new_col_names, null, null, new_dtypes)
             Object.defineProperty(this, column_name, {
                 get() {
                     return new Series(value, { columns: column_name, index: this.index })
@@ -1191,9 +1185,13 @@ export class DataFrame extends Ndframe {
     */
     fillna(kwargs = {}) {
 
-        let params_needed = ["columns", "values"]
+        let params_needed = ["columns", "values", "inplace"]
         if (!utils.__right_params_are_passed(kwargs, params_needed)) {
             throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
+        }
+
+        if (!utils.__key_in_object(kwargs, "inplace")) {
+            kwargs['inplace'] = false
         }
 
         if (utils.__key_in_object(kwargs, "columns")) {
@@ -1232,7 +1230,12 @@ export class DataFrame extends Ndframe {
                 final_data[this.column_names[i]] = col
             })
 
-            return new DataFrame(final_data, { index: this.index })
+            if (kwargs['inplace']) {
+                this.__update_frame_in_place(null, null, final_data, null, null)
+            } else {
+                return new DataFrame(final_data, { index: this.index })
+
+            }
 
         } else {
             //fill all columns using same value
@@ -1873,7 +1876,7 @@ export class DataFrame extends Ndframe {
      * @returns {2D tensor}
      */
     get tensor() {
-        return this.row_data_tensor
+        return tf.tensor(this.values)
     }
 
 
@@ -2101,15 +2104,31 @@ export class DataFrame extends Ndframe {
     }
 
     //update a DataFrame in place
-    __update_frame_in_place(values, column_names, col_data, index, dtypes) {
-        if (values != undefined) {
-            this.data = values
-            if (col_data == undefined || col_data == null) {
-                this.col_data = utils.__get_col_values(values) //update column values
-            } else {
-                this.col_data = col_data
+    __update_frame_in_place(row_data, column_names, col_obj, index, dtypes) {
+        if (row_data != undefined) {
+            this.data = row_data
+        } else {
+            //check column is available and create row from column
+            if (col_obj != undefined) {
+                let _res = utils.__get_row_values(col_obj)
+                this.data = _res[0]
+                this.columns = _res[1]
+                column_names = _res[1]
             }
         }
+
+        if (col_obj != undefined) {
+            this.col_data = Object.values(col_obj)
+            this.columns = Object.keys(col_obj)
+            column_names = Object.keys(col_obj)
+        } else {
+            //check if row data is available and create column data from rows
+            if (row_data != undefined) {
+                this.col_data = utils.__get_col_values(row_data) //get column data from row
+            }
+        }
+
+
         if (column_names != undefined) {
             this.columns = column_names
         }

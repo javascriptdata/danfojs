@@ -999,6 +999,30 @@ describe("DataFrame", function () {
             assert.throws(function () { df.addColumn({ "column": "D", "value": new_col }); }, Error, "Array length 3 not equal to 4");
         });
 
+        it("Check that dtype is updated after a new column is added ", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let new_col = ["n", "b", "c", "f"]
+
+            df.addColumn({ "column": "D", "value": new_col });
+            let dtype = ["int32", "int32", "int32", "string"]
+
+            assert.deepEqual(df.dtypes, dtype);
+        });
+
+        it("add series as value to a new column ", function () {
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let sf = new Series(["n", "b", "c", "f"])
+
+            df.addColumn({ "column": "D", "value": sf });
+            let dtype = ["int32", "int32", "int32", "string"]
+
+            assert.deepEqual(df.dtypes, dtype);
+        });
+
     });
 
     // describe("groupby", function () {
@@ -1399,13 +1423,21 @@ describe("DataFrame", function () {
             assert.deepEqual(df_filled.values, new_vals);
         });
 
-        it("Fills a list of columns with specified values inplace", function () {
+        it("Fills a list of columns with specified values", function () {
             let data = [[1, undefined, 3], [4, undefined, 6], [NaN, "boy", 40], [NaN, "girl", 78]]
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
             let new_vals = [[1, "girl", 3], [4, "girl", 6], [200, "boy", 40], [200, "girl", 78]]
             let df_filled = df.fillna({ columns: ["A", "B"], values: [200, "girl"] })
             assert.deepEqual(df_filled.values, new_vals);
+        });
+        it("Fills a list of columns with specified values inplace", function () {
+            let data = [[1, undefined, 3], [4, undefined, 6], [NaN, "boy", 40], [NaN, "girl", 78]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })
+            let new_vals = [[1, "girl", 3], [4, "girl", 6], [200, "boy", 40], [200, "girl", 78]]
+            df.fillna({ columns: ["A", "B"], values: [200, "girl"], inplace: true })
+            assert.deepEqual(df.values, new_vals);
         });
     })
 
