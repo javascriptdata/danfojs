@@ -306,11 +306,13 @@ export class Utils {
                 let string_tracker = []
                 let bool_tracker = []
 
-                //remove NaNs from array
+                //remove NaNs from array before checking dtype
                 let arr = []
                 ele.map(val => {
                     if (!(isNaN(val) && typeof val != "string")) {
                         arr.push(val)
+                    }else{
+                        arr.push("NaN") //set NaN to string and return dtype ""string". The caller should explicitly convert the dtype
                     }
                 })
 
@@ -321,6 +323,7 @@ export class Utils {
                         int_tracker.push(false)
                         string_tracker.push(false)
                         bool_tracker.push(true)
+
                     } else if (!isNaN(Number(ele))) {
 
                         if (ele.toString().includes(".")) {

@@ -1,33 +1,32 @@
 // import * as tf from '@tensorflow/tfjs-node'
 import { Series } from "../core/series"
-import { Utils} from "../core/utils"
+import { Utils } from "../core/utils"
 import { DataFrame } from "../core/frame"
 
 const utils = new Utils
 
-export class LabelEncoder{
+export class LabelEncoder {
 
     /**
      * 
      * @param {data} data [Array|Series]
      * @returns Array. 
      */
-    fit(data){
+    fit(data) {
         let in_data = null;
-        if(Array.isArray(data)){
+        if (Array.isArray(data)) {
             in_data = data;
-        }
-        else if(data instanceof Series){
+        } else if (data instanceof Series) {
             in_data = data.values;
-        }else{
-            throw new Error("data must be an array")
+        } else {
+            throw new Error("data must be an array or a Series")
         }
 
         let data_set = new Set(in_data);
         this.label = Array.from(data_set);
 
         let self = this;
-        let output_data = in_data.map((x)=>{
+        let output_data = in_data.map((x) => {
             return self.label.indexOf(x)
         });
 
@@ -39,19 +38,18 @@ export class LabelEncoder{
      * @param {data} data [Array|Series]
      * @returns Array
      */
-    transform(data){
+    transform(data) {
         let in_data = null;
-        if(Array.isArray(data)){
+        if (Array.isArray(data)) {
             in_data = data;
-        }
-        else if(in_data instanceof Series){
-            in_data = in_data.values;
-        }else{
-            throw new Error("data must be an array")
+        } else if (data instanceof Series) {
+            in_data = data.values;
+        } else {
+            throw new Error("data must be an array or a Series")
         }
 
         let self = this;
-        let output_data = in_data.map((x)=>{
+        let output_data = in_data.map((x) => {
             return self.label.indexOf(x)
         });
         return new Series(output_data)
@@ -60,14 +58,13 @@ export class LabelEncoder{
 
 export class OneHotEncoder {
 
-    fit(data){
+    fit(data) {
         let in_data = null;
-        if(Array.isArray(data)){
+        if (Array.isArray(data)) {
             in_data = data;
-        }
-        else if(data instanceof Series){
+        } else if (data instanceof Series) {
             in_data = data.values;
-        }else{
+        } else {
             throw new Error("data must be an array")
         }
 
@@ -76,38 +73,37 @@ export class OneHotEncoder {
 
         let onehot_data = utils.__zeros(in_data.length, this.label.length)
 
-        for(let i=0; i < in_data.length; i++){
+        for (let i = 0; i < in_data.length; i++) {
 
             let elem = in_data[i]
             let elem_index = this.label.indexOf(elem)
             onehot_data[i][elem_index] = 1
         }
 
-        return new DataFrame(onehot_data,{columns: this.label});
+        return new DataFrame(onehot_data, { columns: this.label });
 
     }
 
-    transform(data){
+    transform(data) {
         let in_data = null;
-        if(Array.isArray(data)){
+
+        if (Array.isArray(data)) {
             in_data = data;
-        }
-        else if(data instanceof Series){
+        } else if (data instanceof Series) {
             in_data = data.values;
-        }else{
+        } else {
             throw new Error("data must be an array")
         }
 
         let onehot_data = utils.__zeros(in_data.length, this.label.length)
 
-        for(let i=0; i < in_data.length; i++){
-
+        for (let i = 0; i < in_data.length; i++) {
             let elem = in_data[i]
             let elem_index = this.label.indexOf(elem)
             onehot_data[i][elem_index] = 1
         }
 
-        return new DataFrame(onehot_data,{columns: this.label});
+        return new DataFrame(onehot_data, { columns: this.label });
 
     }
 }
