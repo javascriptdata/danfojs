@@ -33,6 +33,8 @@ describe("DataFrame", function () {
             df.drop({ columns: ["C"], axis: 1, inplace: true });
             let new_data = [[1, 2], [4, 5]]
             assert.deepEqual(df.values, new_data);
+            assert.deepEqual(df.dtypes.length, 2);
+
         })
 
         it("check if data is updated after row is dropped", function () {
@@ -77,6 +79,7 @@ describe("DataFrame", function () {
             df.drop({ index: ["a", "b"], axis: 0, inplace: true });
             let new_data = [[20, 34, 5]]
             assert.deepEqual(df.values, new_data);
+
         })
     })
 

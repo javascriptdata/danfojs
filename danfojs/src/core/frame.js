@@ -79,6 +79,9 @@ export class DataFrame extends Ndframe {
                 throw Error("No column found. Axis of 1 must be accompanied by an array of column(s) names")
             }
             let self = this;
+            let new_col_data = {}
+            let new_dtype = []
+
             const index = data.map((x) => {
                 let col_idx = self.columns.indexOf(x)
                 if (col_idx == -1) {
@@ -86,29 +89,27 @@ export class DataFrame extends Ndframe {
                 }
                 return col_idx
             });
-            const values = this.values
-            let new_dtype = []
-            let new_data = values.map(function (element) {
-                let new_arr = utils.__remove_arr(element, index);
-                new_dtype = utils.__remove_arr(self.dtypes, index);
-                return new_arr;
-            });
+            
+            this.col_data.forEach((col, idx) => {
+                if (!index.includes(idx)) {
+                    new_col_data[self.column_names[idx]] = col
+                    new_dtype.push(self.dtypes[idx])
+                }
+            })
 
             if (!kwargs['inplace']) {
-                let old_cols = this.columns
-                let columns = utils.__remove_arr(this.columns, index);
-                let df = new DataFrame(new_data, { columns: columns, index: self.index, dtypes: new_dtype })
-                df.__set_col_property(df, df.col_data, columns, old_cols)
+                let old_cols = self.columns
+                let new_columns = Object.keys(new_col_data)
+                let df = new DataFrame(new_col_data, { index: self.index, dtypes: new_dtype })
+                df.__set_col_property(df, df.col_data, new_columns, old_cols)
                 return df
 
             } else {
-                let new_cols = utils.__remove_arr(this.columns, index);
-                let old_cols = this.columns
-                this.columns = new_cols
-                this.row_data_tensor = tf.tensor(new_data);
-                this.data = new_data
-                this.__set_col_types(new_dtype, false)
-                this.__set_col_property(this, this.col_data, new_cols, old_cols)
+                let old_cols = self.columns
+                let new_columns = Object.keys(new_col_data)
+                this.__update_frame_in_place(null, null, new_col_data, null,new_dtype)
+                this.__set_col_property(self, self.col_data, new_columns, old_cols)
+
             }
 
         } else {
