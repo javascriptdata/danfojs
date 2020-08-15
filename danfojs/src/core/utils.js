@@ -663,12 +663,17 @@ export class Utils {
         return array.slice(0, num);
     }
 
-    __sort(arr){
+    __sort(arr, ascending=true){
 
         let collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
         let sorted = arr.slice()
 
-        return sorted.sort(collator.compare)
+        if( ascending){
+            return sorted.sort(collator.compare)
+        }else{
+            return sorted.sort((a,b)=> collator.compare(b,a));
+        }
+        
 
     }
 }

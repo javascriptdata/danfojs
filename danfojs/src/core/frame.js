@@ -840,39 +840,39 @@ export class DataFrame extends Ndframe {
     *                           inplace (Bool): Whether to perform sorting on the original Series or not}
     * @returns {Series}
     */
-    sort_values(kwargs = {}) {
-        if (utils.__key_in_object(kwargs, "by")) {
-            let sort_col = this.column(kwargs["by"])
-            let sorted_col, sorted_index;
-            let new_row_data = []
+    // sort_values(kwargs = {}) {
+    //     if (utils.__key_in_object(kwargs, "by")) {
+    //         let sort_col = this.column(kwargs["by"])
+    //         let sorted_col, sorted_index;
+    //         let new_row_data = []
 
-            if (utils.__key_in_object(kwargs, "inplace") && kwargs['inplace'] == true) {
-                sort_col.sort_values(kwargs)
-                sorted_index = sort_col.index
+    //         if (utils.__key_in_object(kwargs, "inplace") && kwargs['inplace'] == true) {
+    //             sort_col.sort_values(kwargs)
+    //             sorted_index = sort_col.index
 
-            } else {
-                sorted_col = sort_col.sort_values(kwargs)
-                sorted_index = sorted_col.index
-            }
+    //         } else {
+    //             sorted_col = sort_col.sort_values(kwargs)
+    //             sorted_index = sorted_col.index
+    //         }
 
-            sorted_index.map(idx => {
-                new_row_data.push(this.values[idx])
-            })
+    //         sorted_index.map(idx => {
+    //             new_row_data.push(this.values[idx])
+    //         })
 
-            if (utils.__key_in_object(kwargs, "inplace") && kwargs['inplace'] == true) {
-                this.data = new_row_data
-                this.index_arr = sorted_index
-                return null
-            } else {
-                let df = new DataFrame(new_row_data, { columns: this.column_names, index: sorted_index, dtype: this.dtypes })
-                return df
-            }
+    //         if (utils.__key_in_object(kwargs, "inplace") && kwargs['inplace'] == true) {
+    //             this.data = new_row_data
+    //             this.index_arr = sorted_index
+    //             return null
+    //         } else {
+    //             let df = new DataFrame(new_row_data, { columns: this.column_names, index: sorted_index, dtype: this.dtypes })
+    //             return df
+    //         }
 
-        } else {
-            throw Error("Value Error: must specify the column to sort by")
-        }
+    //     } else {
+    //         throw Error("Value Error: must specify the column to sort by")
+    //     }
 
-    }
+    // }
 
 
     /**
@@ -2081,6 +2081,57 @@ export class DataFrame extends Ndframe {
 
 
     }
+    /**
+     * Sort DataFrame by index
+     * @param {*} kwargs {inplace: Boolean, ascending: Bool}
+     * @returns DataFrame
+     */
+    sortIndex(kwargs={}){
+
+        let inplace = typeof kwargs["inplace"] == "undefined" ? false : kwargs["inplace"]
+        let asc = typeof kwargs["ascending"] == "undefined" ? true : kwargs["ascending"]
+
+        let index_val = this.index
+        let [data, index] =this.__sort_by(index_val,index_val,asc)
+
+        if(inplace){
+            this.__update_frame_in_place(data,null,null,index,null)
+        }else{
+
+            let df = this.copy()
+            df.__update_frame_in_place(data,null,null,index,null)
+            return df
+        }
+    }
+
+    /**
+    * Sort a Dataframe in ascending or descending order by a specified column name.
+    *  @param {kwargs} Object, {by: Column name to sort by
+    *                           ascending (Bool): Whether to return sorted values in ascending order or not,
+    *                           inplace (Bool): Whether to perform sorting on the original Series or not}
+    * @returns {Series}
+    */
+    sort_values(kwargs={}){
+
+        if (!utils.__key_in_object(kwargs,"by")) {
+            throw Error(`use col_name to specify column name`)
+        }
+
+        let inplace = typeof kwargs["inplace"] == "undefined" ? false : kwargs["inplace"]
+        let asc = typeof kwargs["ascending"] == "undefined" ? true : kwargs["ascending"]
+        let index_val = this.index
+        let column_val = this.column(kwargs["by"]).values
+        let [data, index] = this.__sort_by(column_val,index_val,asc)
+
+        if(inplace){
+            this.__update_frame_in_place(data,null,null,index,null)
+        }else{
+
+            let df = this.copy()
+            df.__update_frame_in_place(data,null,null,index,null)
+            return df
+        }
+    }
 
 
     //set all columns to DataFrame Property. This ensures easy access to columns as Series
@@ -2138,6 +2189,27 @@ export class DataFrame extends Ndframe {
         if (dtypes != undefined) {
             this.col_types = dtypes
         }
+    }
+
+    __sort_by(col_value,df_index, asc){
+
+        let values = this.values
+        
+        
+        let sorted_val = utils.__sort(col_value,asc)
+
+        let data = []
+        let indexs = []
+        for(let row_i=0; row_i < sorted_val.length; row_i++){
+
+            let index = col_value.indexOf(sorted_val[row_i])
+
+            data.push(values[index])
+            indexs.push(df_index[index])
+        }
+        
+        return [data, indexs]
+
     }
 }
 

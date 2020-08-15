@@ -776,6 +776,16 @@ describe("DataFrame", function () {
             let expected = [[2, 4, 6, "c"], [0, 2, 4, "a"], [360, 180, 1, "b"]]
             assert.deepEqual(df.sort_values({ "by": "col3", "ascending": false }).values, expected)
         })
+        it("Sort values in DataFrame by specified column containing alpha(numeric) values", function () {
+            let data = [[0, 2, 4, "a"],
+            [360, 180, 1, "b"],
+            [2, 4, 6, "c"]]
+
+            let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] })
+            let expected = [ [ 2, 4, 6, 'c' ], [ 360, 180, 1, 'b' ], [ 0, 2, 4, 'a' ] ]
+            assert.deepEqual(df.sort_values({ "by": "col4", "ascending": false }).values, expected)
+        })
+
 
     })
 
@@ -2071,5 +2081,45 @@ describe("DataFrame", function () {
         })
     })
 
+    describe("SortIndex", function(){
 
+        it("sort index in ascending order", function(){
+            let data = [[0, 2, 4, "b"],
+            [360, 180, 360, "a"],
+            [2, 4, 6, "c"]]
+
+            let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] })
+            df.set_index({ key: ["b","a","c"], inplace: true })
+            
+            let df2 = df.sortIndex()
+            let rslt = [ [ 360, 180, 360, 'a' ], [ 0, 2, 4, 'b' ], [ 2, 4, 6, 'c' ] ]
+            
+            assert.deepEqual(df2.values, rslt)
+        })
+        it("sort index in descending order", function(){
+            let data = [[0, 2, 4, "b"],
+            [360, 180, 360, "a"],
+            [2, 4, 6, "c"]]
+
+            let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] })
+            df.set_index({ key: ["b","a","c"], inplace: true })
+            
+            let df2 = df.sortIndex({ascending:false})
+            let rslt = [ [ 2, 4, 6, 'c' ], [ 0, 2, 4, 'b' ], [ 360, 180, 360, 'a' ] ]
+
+            assert.deepEqual(df2.values, rslt)
+        })
+        it("sort index in descending order with inplace set to true", function(){
+            let data = [[0, 2, 4, "b"],
+            [360, 180, 360, "a"],
+            [2, 4, 6, "c"]]
+
+            let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] })
+            df.set_index({ key: ["b","a","c"], inplace: true })
+            
+            df.sortIndex({ascending:false,inplace:true})
+            let rslt = [ [ 2, 4, 6, 'c' ], [ 0, 2, 4, 'b' ], [ 360, 180, 360, 'a' ] ]
+            assert.deepEqual(df.values, rslt)
+        })
+    });
 });
