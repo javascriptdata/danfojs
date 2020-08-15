@@ -1148,4 +1148,27 @@ describe("Series", function () {
 
        
     })
+
+    describe("iloc", function(){
+
+        it("indexing by list of index",function(){
+            let data =  [1,2,3,4,"a","b","c"]
+            let sf = new Series(data)
+            
+            let expected_val = [ 2, 'a', 3, 4, 'b' ]
+
+            assert.deepEqual(sf.iloc([1,4,2,3,5]).values, expected_val)
+
+        });
+        it("indexing by slicing", function(){
+
+            let data =  [1,2,3,4,"a","b","c"]
+            let sf = new Series(data)
+            
+            let expected_val = [ 2, 3, 4 ]
+
+            assert.deepEqual(sf.iloc(["1:4"]).values, expected_val)
+
+        });
+    });
 })

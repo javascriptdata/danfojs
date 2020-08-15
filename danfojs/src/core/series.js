@@ -8,7 +8,7 @@ import { table } from 'table'
 import { Configs } from '../config/config'
 import { TimeSeries } from './timeseries';
 import { Plot } from '../plotting/plot'
-
+import { indexLoc } from '../core/indexing'
 
 
 const utils = new Utils()
@@ -1307,5 +1307,24 @@ export class Series extends NDframe {
         return plt
     }
 
+    /**
+     * Slice series accross the index
+     * @param {*} row --> Array
+     * @returns Series
+     */
+    iloc(row){
+
+        let kwargs = {}
+
+        kwargs["rows"] = row
+        kwargs["type"] = "iloc"
+
+        let [new_data, columns, rows] = indexLoc(this, kwargs);
+
+        let sf = new Series(new_data, {columns: columns});
+        sf.__set_index(rows)
+
+        return sf
+    }
 }
 

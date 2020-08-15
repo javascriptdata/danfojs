@@ -191,7 +191,7 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { columns: cols })
 
             let col_df = df.loc({ "rows": ["0:2"], "columns": ["B:C"] })
-            let col_data = [[2, 3], [5, 6], [30, 40]]
+            let col_data = [[2], [5]]
 
             assert.deepEqual(col_df.values, col_data)
 
@@ -202,7 +202,7 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { columns: cols })
 
             let col_df = df.loc({ "rows": ["0:2"], "columns": ["B", "C"] })
-            let col_data = [[2, 3], [5, 6], [30, 40]]
+            let col_data = [[2, 3], [5, 6]]
 
             assert.deepEqual(col_df.values, col_data)
 
@@ -213,7 +213,7 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { columns: cols })
 
             let col_df = df.loc({ "rows": [0, 1], "columns": ["A:C"] })
-            let col_data = [[1, 2, 3], [4, 5, 6]]
+            let col_data = [[1, 2], [4, 5]]
             assert.deepEqual(col_df.values, col_data)
 
         })
@@ -255,7 +255,7 @@ describe("DataFrame", function () {
             let df = new DataFrame(data)
             df.set_index({ key: ["a", "b", "c", "d"], inplace: true })
             let sub_df = df.loc({ rows: ["a:c"], columns: ["Name", "Count"] })
-            let expected = [["Apples", 21], ["Mango", 5], ["Banana", 30]]
+            let expected = [["Apples", 21], ["Mango", 5]]
             assert.deepEqual(sub_df.values, expected)
 
         })
@@ -321,7 +321,7 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { columns: cols })
 
             let col_df = df.iloc({ "rows": ["0:2"], "columns": ["1:2"] })
-            let col_data = [[2, 3], [5, 6], [30, 40]]
+            let col_data = [[2], [5]]
 
             assert.deepEqual(col_df.values, col_data)
 
@@ -332,7 +332,7 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { columns: cols })
 
             let col_df = df.iloc({ "rows": ["0:2"], "columns": [1, 2] })
-            let col_data = [[2, 3], [5, 6], [30, 40]]
+            let col_data = [[2, 3], [5, 6]]
 
             assert.deepEqual(col_df.values, col_data)
 
@@ -343,7 +343,7 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { columns: cols })
 
             let col_df = df.iloc({ "rows": [0, 1, 2], "columns": ["1:2"] })
-            let col_data = [[2, 3], [5, 6], [30, 40]]
+            let col_data = [[2], [5], [30]]
             assert.deepEqual(col_df.values, col_data)
 
         })
@@ -363,7 +363,7 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { columns: cols })
 
             let col_df = df.iloc({ "columns": ["1:2"] })
-            let col_data = [[2, 3], [5, 6], [30, 40], [89, 78]]
+            let col_data = [[2], [5], [30], [89]]
             assert.deepEqual(col_df.values, col_data)
 
         })

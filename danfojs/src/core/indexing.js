@@ -32,14 +32,14 @@ export const indexLoc = (ndframe, kwargs) => {
                         }
 
                         if (isNaN(Number(row_split[1]))) {
-                            end = ndframe.index.lastIndexOf(row_split[1]) || (ndframe.values.length - 1);
+                            end = ndframe.index.lastIndexOf(row_split[1])-1 || (ndframe.values.length - 1);
                         } else {
-                            end = Number(row_split[1]) || (ndframe.values.length - 1);
+                            end = Number(row_split[1])-1 || (ndframe.values.length - 1);
                         }
                         rows = utils.__range(start, end);
                     } else {
                         let start = parseInt(row_split[0]) || 0;
-                        let end = parseInt(row_split[1]) || (ndframe.values.length - 1);
+                        let end = parseInt(row_split[1]) - 1 || (ndframe.values.length - 1);
 
                         if (typeof start == "number" && typeof end == "number") {
                             rows = utils.__range(start, end);
@@ -95,11 +95,11 @@ export const indexLoc = (ndframe, kwargs) => {
 
                 if (kwargs["type"] == "iloc" || (row_split[0] == "")) {
                     start = parseInt(row_split[0]) || 0;
-                    end = parseInt(row_split[1]) || (ndframe.values[0].length - 1);
+                    end = parseInt(row_split[1]) -1 || (ndframe.values[0].length - 1);
                 } else {
 
                     start = parseInt(ndframe.columns.indexOf(row_split[0]));
-                    end = parseInt(ndframe.columns.indexOf(row_split[1]));
+                    end = parseInt(ndframe.columns.indexOf(row_split[1]))-1;
                 }
 
 
@@ -136,31 +136,39 @@ export const indexLoc = (ndframe, kwargs) => {
             throw new Error(`Specified row index ${row_val} is bigger than maximum row index of ${max_rowIndex}`);
         }
 
-        let value = data_values[row_val]
-        let row_data = []
+        if(Array.isArray(data_values[0])){
 
-        for (var i in columns) {
-            var col_index;
-            if (kwargs["type"] == "loc" && !isColumnSplit) {
-                col_index = ndframe.columns.indexOf(columns[i]); //obtain the column index
+            let value = data_values[row_val]
+            let row_data = []
 
-                if (col_index == -1) {
-                    throw new Error(`Column ${columns[i]} does not exist`);
+
+            for (var i in columns) {
+                var col_index;
+                if (kwargs["type"] == "loc" && !isColumnSplit) {
+                    col_index = ndframe.columns.indexOf(columns[i]); //obtain the column index
+
+                    if (col_index == -1) {
+                        throw new Error(`Column ${columns[i]} does not exist`);
+                    }
+                } else {
+                    col_index = columns[i];
+                    let max_colIndex = ndframe.columns.length - 1; //assign the maximum column index to a value
+
+                    if (col_index > max_colIndex) {
+                        throw new Error(`column index ${col_index} is bigger than ${max_colIndex}`);
+                    }
                 }
-            } else {
-                col_index = columns[i];
-                let max_colIndex = ndframe.columns.length - 1; //assign the maximum column index to a value
 
-                if (col_index > max_colIndex) {
-                    throw new Error(`column index ${col_index} is bigger than ${max_colIndex}`);
-                }
+                let elem = value[col_index]; //obtain the element at the column index
+                row_data.push(elem);
             }
 
-            let elem = value[col_index]; //obtain the element at the column index
-            row_data.push(elem);
-        }
+            new_data.push(row_data); //store the data for each row in the new_data
 
-        new_data.push(row_data); //store the data for each row in the new_data
+        }else{
+
+            new_data.push(data_values[row_val])
+        }
 
     }
 
