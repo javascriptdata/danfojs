@@ -1390,8 +1390,8 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { columns: column })
 
             let df_val = [[-999, 1, 2, 3], [3, 4, -999, 9], [5, 6, 7, 8]]
-
-            assert.deepEqual(df.fillna({ values: -999 }).values, df_val)
+            df.fillna({ values: -999, inplace:true})
+            assert.deepEqual(df.values, df_val)
         });
         it("replace all NaN value", function () {
             let data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]]

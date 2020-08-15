@@ -1256,8 +1256,7 @@ export class DataFrame extends Ndframe {
                 let row_value = values[i]
                 for (let j = 0; j < row_value.length; j++) {
 
-                    let val = row_value[j] == 0 ? 0 : !!row_value[j]
-                    if (!val) {
+                    if (isNaN(row_value[j]) && typeof row_value[j] != "string" ) {
                         temp_data.push(nan_val)
                     } else {
                         temp_data.push(row_value[j])
@@ -1266,8 +1265,12 @@ export class DataFrame extends Ndframe {
                 }
                 data.push(temp_data);
             }
+            if (kwargs['inplace']) {
+                this.__update_frame_in_place(data, null, null, null, null)
+            } else {
+                return new DataFrame(data, { columns: columns, index: this.index })
 
-            return new DataFrame(data, { columns: columns, index: this.index })
+            }
 
         }
 
