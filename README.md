@@ -11,6 +11,7 @@
 [![Build Status](https://travis-ci.org/opensource9ja/danfojs.svg?branch=master)](https://travis-ci.org/opensource9ja/danfojs)
 [![Coverage Status](https://coveralls.io/repos/github/opensource9ja/danfojs/badge.svg)](https://coveralls.io/github/opensource9ja/danfojs)
 ![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2FDanfoJs) 
+<span class="badge-patreon"><a href="https://www.patreon.com/bePatron?u=40496758" title="Donate to this project using Patreon"><img src="https://img.shields.io/badge/patreon-donate-yellow.svg" alt="Patreon donate button" /></a></span>
 
 
 ## What is it?
