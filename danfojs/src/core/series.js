@@ -1,6 +1,6 @@
-import * as tf from '@tensorflow/tfjs-node'
+// import * as tf from '@tensorflow/tfjs-node'
 import { std, variance } from 'mathjs'
-// import * as tf from '@tensorflow/tfjs'
+import * as tf from '@tensorflow/tfjs'
 import { Utils } from "./utils"
 import { Str } from "./strings"
 import NDframe from "./generic"
