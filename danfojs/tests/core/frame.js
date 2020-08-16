@@ -102,6 +102,7 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { columns: cols })
             assert.deepEqual(df.head(-1).values, data)
         })
+        
     })
 
     describe("tail", function () {
@@ -128,6 +129,11 @@ describe("DataFrame", function () {
             let cols = ["A", "B", "C"]
             let df = new DataFrame(data, { columns: cols })
             assert.deepEqual(df.tail(2).index, [2, 3])
+        })
+        it("Check print format on head call", function () {
+            let data = [[1, 2, 34, 5, 0, 6, 4, 5, 6, 7], [20, 30, 40, 39, 89, 78, 45, 56, 56, 45]]
+            let df = new DataFrame(data)
+            assert.deepEqual(df.tail(2).values, [[1, 2, 34, 5, 0, 6, 4, 5, 6, 7], [20, 30, 40, 39, 89, 78, 45, 56, 56, 45]])
         })
     })
 
@@ -785,7 +791,7 @@ describe("DataFrame", function () {
             [2, 4, 6, "c"]]
 
             let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] })
-            let expected = [ [ 2, 4, 6, 'c' ], [ 360, 180, 1, 'b' ], [ 0, 2, 4, 'a' ] ]
+            let expected = [[2, 4, 6, 'c'], [360, 180, 1, 'b'], [0, 2, 4, 'a']]
             assert.deepEqual(df.sort_values({ "by": "col4", "ascending": false }).values, expected)
         })
 
@@ -1400,7 +1406,7 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { columns: column })
 
             let df_val = [[-999, 1, 2, 3], [3, 4, -999, 9], [5, 6, 7, 8]]
-            df.fillna({ values: -999, inplace:true})
+            df.fillna({ values: -999, inplace: true })
             assert.deepEqual(df.values, df_val)
         });
         it("replace all NaN value", function () {
@@ -2084,44 +2090,44 @@ describe("DataFrame", function () {
         })
     })
 
-    describe("SortIndex", function(){
+    describe("SortIndex", function () {
 
-        it("sort index in ascending order", function(){
+        it("sort index in ascending order", function () {
             let data = [[0, 2, 4, "b"],
             [360, 180, 360, "a"],
             [2, 4, 6, "c"]]
 
             let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] })
-            df.set_index({ key: ["b","a","c"], inplace: true })
-            
+            df.set_index({ key: ["b", "a", "c"], inplace: true })
+
             let df2 = df.sortIndex()
-            let rslt = [ [ 360, 180, 360, 'a' ], [ 0, 2, 4, 'b' ], [ 2, 4, 6, 'c' ] ]
-            
+            let rslt = [[360, 180, 360, 'a'], [0, 2, 4, 'b'], [2, 4, 6, 'c']]
+
             assert.deepEqual(df2.values, rslt)
         })
-        it("sort index in descending order", function(){
+        it("sort index in descending order", function () {
             let data = [[0, 2, 4, "b"],
             [360, 180, 360, "a"],
             [2, 4, 6, "c"]]
 
             let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] })
-            df.set_index({ key: ["b","a","c"], inplace: true })
-            
-            let df2 = df.sortIndex({ascending:false})
-            let rslt = [ [ 2, 4, 6, 'c' ], [ 0, 2, 4, 'b' ], [ 360, 180, 360, 'a' ] ]
+            df.set_index({ key: ["b", "a", "c"], inplace: true })
+
+            let df2 = df.sortIndex({ ascending: false })
+            let rslt = [[2, 4, 6, 'c'], [0, 2, 4, 'b'], [360, 180, 360, 'a']]
 
             assert.deepEqual(df2.values, rslt)
         })
-        it("sort index in descending order with inplace set to true", function(){
+        it("sort index in descending order with inplace set to true", function () {
             let data = [[0, 2, 4, "b"],
             [360, 180, 360, "a"],
             [2, 4, 6, "c"]]
 
             let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] })
-            df.set_index({ key: ["b","a","c"], inplace: true })
-            
-            df.sortIndex({ascending:false,inplace:true})
-            let rslt = [ [ 2, 4, 6, 'c' ], [ 0, 2, 4, 'b' ], [ 360, 180, 360, 'a' ] ]
+            df.set_index({ key: ["b", "a", "c"], inplace: true })
+
+            df.sortIndex({ ascending: false, inplace: true })
+            let rslt = [[2, 4, 6, 'c'], [0, 2, 4, 'b'], [360, 180, 360, 'a']]
             assert.deepEqual(df.values, rslt)
         })
     });

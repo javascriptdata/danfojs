@@ -394,29 +394,29 @@ export default class NDframe {
 
         if (col_len > max_col_in_console) {
             //truncate displayed columns to fit in the console
-            let first_4_cols = this.columns.slice(0, 3)
-            let last_3_cols = this.columns.slice(col_len - 4, col_len)
+            let first_4_cols = this.columns.slice(0, 4)
+            let last_3_cols = this.columns.slice(col_len - 4)
             //join columns with truncate ellipse in the middle
             header = [""].concat(first_4_cols).concat(["..."]).concat(last_3_cols)
 
             let sub_idx, values_1, value_2
 
             if (this.values.length > max_row) {
-                //slice Object to show a max of [max_rows]
-                let df_subset_1 = this.loc({ rows: [`0:${max_row}`], columns: first_4_cols })
-                let df_subset_2 = this.loc({ rows: [`0:${max_row}`], columns: last_3_cols })
+                //slice Object to show [max_rows]
+                let df_subset_1 = this.iloc({ rows: [`0:${max_row}`], columns: ["0:4"] })
+                let df_subset_2 = this.iloc({ rows: [`0:${max_row}`], columns: [`${col_len - 4}:`] })
                 sub_idx = this.index.slice(0, max_row)
                 values_1 = df_subset_1.values
                 value_2 = df_subset_2.values
             } else {
-                let df_subset_1 = this.loc({ rows: [`0:${row_len}`], columns: first_4_cols })
-                let df_subset_2 = this.loc({ rows: [`0:${row_len}`], columns: last_3_cols })
+                let df_subset_1 = this.iloc({rows: ["0:"], columns: ["0:4"] })
+                let df_subset_2 = this.iloc({rows: ["0:"], columns: [`${col_len - 4}:`]})
                 sub_idx = this.index.slice(0, max_row)
                 values_1 = df_subset_1.values
                 value_2 = df_subset_2.values
             }
 
-            // merge cols
+            // merge dfs
             sub_idx.map((val, i) => {
                 let row = [val].concat(values_1[i]).concat(["..."]).concat(value_2[i])
                 data_arr.push(row)
