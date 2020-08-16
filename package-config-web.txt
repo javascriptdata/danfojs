@@ -89,7 +89,7 @@
 
   {
   "name": "danfojs-node",
-  "version": "0.1.0",
+  "version": "0.1.4",
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
   "main": "dist/index.js",
   "contributors": [
@@ -111,7 +111,7 @@
     "table": "^5.4.6"
   },
   "scripts": {
-    "test": "nyc mocha --require @babel/register danfojs/tests/*",
+    "test": "nyc mocha --require @babel/register danfojs/tests/core/frame",
     "dev": "npm run lint && babel ./danfojs/src -d dist --no-comments",
     "build": "babel ./danfojs/src -d ./dist --no-comments",
     "lint": "eslint ./danfojs/src",
