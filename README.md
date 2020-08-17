@@ -175,16 +175,16 @@ Output in Node Console:
 ![](assets/node-rec.gif)
 
 
-#### [See the Official Getting Started Guide](https://risingodegua.gitbook.io/danfojs/)
+#### [See the Official Getting Started Guide](https://danfo.jsdata.org/getting-started)
 
 ## Documentation
-The official documentation can be found [here](https://jsdata.gitbook.io/danfojs/)
+The official documentation can be found [here](https://danfo.jsdata.org)
 
 ## Discussion and Development
 Development discussions take place on our [issues](https://github.com/opensource9ja/danfojs/issues) tab. 
 
 ## Contributing to Danfo
-All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome. A detailed overview on how to contribute can be found in the [contributing guide](https://jsdata.gitbook.io/danfojs/contributing-guide).
+All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome. A detailed overview on how to contribute can be found in the [contributing guide](https://danfo.jsdata.org/contributing-guide).
 
 #### Licence [MIT](https://github.com/opensource9ja/danfojs/blob/master/LICENCE)
 
