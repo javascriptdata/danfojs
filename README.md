@@ -22,30 +22,30 @@ easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org
 
 ## Main Features
 
-  - Danfo.js is fast. It is built on Tensorflow.js, and supports tensors out of the box. This means you can [convert Danfo data structure](https://jsdata.gitbook.io/danfojs/api-reference/dataframe/dataframe.tensor) to Tensors.
-  - Easy handling of [missing-data](https://jsdata.gitbook.io/danfojs/api-reference/dataframe#missing-data-handling) (represented as
+  - Danfo.js is fast. It is built on Tensorflow.js, and supports tensors out of the box. This means you can [convert Danfo data structure](https://danfo.jsdata.org/api-reference/dataframe/dataframe.tensor) to Tensors.
+  - Easy handling of [missing-data](https://danfo.jsdata.org/getting-started#missing-data) (represented as
     `NaN`) in floating point as well as non-floating point data
-  - Size mutability: columns can be [inserted/deleted](https://jsdata.gitbook.io/danfojs/api-reference/dataframe#indexing-iteration) from DataFrame
-  - Automatic and explicit [alignment](https://jsdata.gitbook.io/danfojs/api-reference/dataframe#reindexing-selection-label-manipulation): objects can
+  - Size mutability: columns can be [inserted/deleted](https://danfo.jsdata.org/api-reference/dataframe#combining-comparing-joining-merging) from DataFrame
+  - Automatic and explicit [alignment](https://danfo.jsdata.org/api-reference/dataframe#reindexing-selection-label-manipulation): objects can
     be explicitly aligned to a set of labels, or the user can simply
     ignore the labels and let `Series`, `DataFrame`, etc. automatically
     align the data for you in computations
-  - Powerful, flexible [groupby](https://jsdata.gitbook.io/danfojs/api-reference/dataframe/danfo.dataframe.groupby) functionality to perform
+  - Powerful, flexible [groupby](https://danfo.jsdata.org/api-reference/groupby) functionality to perform
     split-apply-combine operations on data sets, for both aggregating
     and transforming data
   - Make it easy to convert Arrays, JSONs, List or Objects, Tensors and 
     differently-indexed data structures
     into DataFrame objects
-  - Intelligent label-based [slicing](https://jsdata.gitbook.io/danfojs/api-reference/dataframe/danfo.dataframe.loc), [fancy indexing](https://jsdata.gitbook.io/danfojs/api-reference/dataframe/danfo.dataframe.iloc), and [querying](https://jsdata.gitbook.io/danfojs/api-reference/dataframe/danfo.dataframe.query) of
+  - Intelligent label-based [slicing](https://danfo.jsdata.org/api-reference/dataframe/danfo.dataframe.loc), [fancy indexing](https://danfo.jsdata.org/api-reference/dataframe/danfo.dataframe.iloc), and [querying](https://danfo.jsdata.org/api-reference/dataframe/danfo.dataframe.query) of
     large data sets
-  - Intuitive [merging](https://jsdata.gitbook.io/danfojs/api-reference/merge-and-joins/danfo.merge) and [joining](https://jsdata.gitbook.io/danfojs/api-reference/merge-and-joins/danfo.concat) data
+  - Intuitive [merging](https://danfo.jsdata.org/api-reference/general-functions/danfo.merge) and [joining](https://danfo.jsdata.org/api-reference/general-functions/danfo.concat) data
     sets
-  - Robust IO tools for loading data from [flat-files](https://jsdata.gitbook.io/danfojs/api-reference/input-output)
-    (CSV and delimited) and JSON data format.
-  - Powerful, flexible and intutive API for [plotting](https://app.gitbook.com/@jsdata/s/danfojs/~/drafts/-MESZnq3_VBU0EW71MxS/api-reference/plotting) DataFrames and Series interactively.
-  - [Timeseries](https://jsdata.gitbook.io/danfojs/api-reference/series#accessors)-specific functionality: date range
+  - Robust IO tools for loading data from [flat-files](https://danfo.jsdata.org/api-reference/input-output)
+    (CSV and delimited).
+  - Powerful, flexible and intutive API for [plotting](https://danfo.jsdata.org/api-reference/plotting) DataFrames and Series interactively.
+  - [Timeseries](https://danfo.jsdata.org/api-reference/series#accessors)-specific functionality: date range
     generation and date and time properties. 
-  - Robust data preprocessing functions like [OneHotEncoders](https://jsdata.gitbook.io/danfojs/api-reference/general-functions/danfo.onehotencoder), [LabelEncoders](https://jsdata.gitbook.io/danfojs/api-reference/general-functions/danfo.labelencoder), and scalers like [StandardSaler](https://jsdata.gitbook.io/danfojs/api-reference/general-functions/danfo.standardscaler) and [MinMaxScaler](https://jsdata.gitbook.io/danfojs/api-reference/general-functions/danfo.minmaxscaler) are supported on DataFrame and Series
+  - Robust data preprocessing functions like [OneHotEncoders](https://danfo.jsdata.org/api-reference/general-functions/danfo.onehotencoder), [LabelEncoders](https://danfo.jsdata.org/api-reference/general-functions/danfo.labelencoder), and scalers like [StandardScaler](https://danfo.jsdata.org/api-reference/general-functions/danfo.standardscaler) and [MinMaxScaler](https://danfo.jsdata.org/api-reference/general-functions/danfo.minmaxscaler) are supported on DataFrame and Series
 
 
 
