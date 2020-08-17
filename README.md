@@ -175,7 +175,7 @@ Output in Node Console:
 ![](assets/node-rec.gif)
 
 
-#### [See the Official Getting Started Guide](https://jsdata.gitbook.io/danfojs/getting-started)
+#### [See the Official Getting Started Guide](https://risingodegua.gitbook.io/danfojs/)
 
 ## Documentation
 The official documentation can be found [here](https://jsdata.gitbook.io/danfojs/)
