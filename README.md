@@ -174,7 +174,7 @@ Output in Node Console:
 
 ![](assets/node-rec.gif)
 
-#### You can play with Danfo.js on Dnotebooks playground [here](https://playnotebook.jsdata.org/)
+#### You can play with Danfo.js on Dnotebooks playground [here](https://playnotebook.jsdata.org/demo)
 
 #### [See the Official Getting Started Guide](https://danfo.jsdata.org/getting-started)
 
