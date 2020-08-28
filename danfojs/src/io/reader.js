@@ -43,12 +43,10 @@ export const read_json = async (source) => {
         // inside Node Env
         if (source.startsWith("https://")) {
             //read from URL
-            fetch(source, { method: "Get" })
-                .then(res => res.json())
-                .then((json) => {
-                    let df = new DataFrame(json)
-                    return df
-                });
+            let res = await fetch(source, { method: "Get" })
+            let json = await res.json()
+            let df = new DataFrame(json)
+            return df
 
         } else {
             //read locally
@@ -59,6 +57,12 @@ export const read_json = async (source) => {
 
             })
         }
+    } else {
+        
+        let res = await fetch(source, { method: "Get" })
+        let json = await res.json()
+        let df = new DataFrame(json)
+        return df
     }
 
 
