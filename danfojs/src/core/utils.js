@@ -159,8 +159,8 @@ export class Utils {
         let col_data = Object.values(data)
         //check lengths to ensure they are equal
         let first_col_len = col_data[0].length
-        col_data.forEach(data=>{
-            if (data.length != first_col_len){
+        col_data.forEach(data => {
+            if (data.length != first_col_len) {
                 throw Error("Length Error: Length of columns must be the same!")
             }
         })
@@ -314,7 +314,7 @@ export class Utils {
                 ele.map(val => {
                     if (!(isNaN(val) && typeof val != "string")) {
                         arr.push(val)
-                    }else{
+                    } else {
                         arr.push("NaN") //set NaN to string and return dtype ""string". The caller should explicitly convert the dtype
                     }
                 })
@@ -666,19 +666,33 @@ export class Utils {
         return array.slice(0, num);
     }
 
-    __sort(arr, ascending=true){
+    __sort(arr, ascending = true) {
 
-        let collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
+        let collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
         let sorted = arr.slice()
 
-        if( ascending){
+        if (ascending) {
             return sorted.sort(collator.compare)
-        }else{
-            return sorted.sort((a,b)=> collator.compare(b,a));
+        } else {
+            return sorted.sort((a, b) => collator.compare(b, a));
         }
-        
+
 
     }
+
+    __is_browser_env() {
+        var isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
+        // tests if global scope is binded to window
+        return isBrowser()
+    }
+
+    __is_node_env() {
+        var isNode = new Function("try {return this===global;}catch(e){return false;}");
+        // tests if global scope is binded to window
+        return isNode()
+    }
+
+
 }
 
 

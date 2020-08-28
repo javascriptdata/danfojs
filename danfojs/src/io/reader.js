@@ -1,6 +1,13 @@
 import { DataFrame } from '../core/frame'
 // import * as tf from '@tensorflow/tfjs-node'
 import * as tf from '@tensorflow/tfjs'
+import { Utils } from '../core/utils'
+
+//used in reading JSON file in nodejs env
+import fs from 'fs'
+import fetch from 'node-fetch'
+
+const utils = new Utils()
 
 
 
@@ -14,7 +21,7 @@ import * as tf from '@tensorflow/tfjs'
  * 
  * @returns {Promise} DataFrame structure of parsed CSV data
  */
-export const read_csv = async (source,chunk) => {
+export const read_csv = async (source, chunk) => {
     let data = []
     const csvDataset = tf.data.csv(source)
     const column_names = await csvDataset.columnNames()
@@ -25,16 +32,45 @@ export const read_csv = async (source,chunk) => {
 }
 
 
-// /**
-//  * Reads a JSON file from local or remote address
-//  * 
-//  * @param {source} URL or local file path to retreive JSON file.
-//  * @returns {Promise} DataFrame structure of parsed CSV data
-//  */
-// export const read_json = async (source) => {
-   
+/**
+ * Reads a JSON file from local or remote address
+ * 
+ * @param {source} URL or local file path to retreive JSON file.
+ * @returns {Promise} DataFrame structure of parsed CSV data
+ */
+export const read_json = async (source) => {
+    if (utils.__is_browser_env()) {
+        // inside browser env
+        fetch(source)
+            .then(response => response.json())
+            .then(data =>{
+                return new DataFrame(data)
+            })
 
-// }
+    } else {
+        // inside Node Env
+        if (source.startsWith("https://")) {
+            //read from URL
+            fetch(source, { method: "Get" })
+                .then(res => res.json())
+                .then((json) => {
+                    let df = new DataFrame(json)
+                    return df
+                });
+
+        } else {
+            //read locally
+            fs.readFile(source, (err, data) => {
+                if (err) throw err;
+                let df = new DataFrame(JSON.parse(data))
+                return df
+
+            })
+        }
+    }
+
+
+}
 
 
 // /**
