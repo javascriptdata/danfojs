@@ -1147,7 +1147,7 @@ describe("Series", function () {
 
         })
         it("set type of string column to float", function () {
-            let data =  ["20.1", "21", "23.4", "50.78"]
+            let data = ["20.1", "21", "23.4", "50.78"]
             let ndframe = new Series(data)
             let df = ndframe.astype("float32")
 
@@ -1156,28 +1156,56 @@ describe("Series", function () {
 
         })
 
-       
+
     })
 
-    describe("iloc", function(){
+    describe("iloc", function () {
 
-        it("indexing by list of index",function(){
-            let data =  [1,2,3,4,"a","b","c"]
+        it("indexing by list of index", function () {
+            let data = [1, 2, 3, 4, "a", "b", "c"]
             let sf = new Series(data)
-            
-            let expected_val = [ 2, 'a', 3, 4, 'b' ]
 
-            assert.deepEqual(sf.iloc([1,4,2,3,5]).values, expected_val)
+            let expected_val = [2, 'a', 3, 4, 'b']
+
+            assert.deepEqual(sf.iloc([1, 4, 2, 3, 5]).values, expected_val)
 
         });
-        it("indexing by slicing", function(){
+        it("indexing by slicing", function () {
 
-            let data =  [1,2,3,4,"a","b","c"]
+            let data = [1, 2, 3, 4, "a", "b", "c"]
             let sf = new Series(data)
-            
-            let expected_val = [ 2, 3, 4 ]
+
+            let expected_val = [2, 3, 4]
 
             assert.deepEqual(sf.iloc(["1:4"]).values, expected_val)
+
+        });
+    });
+
+    describe("append", function () {
+
+        it("Add a new single value to the end of a Series", function () {
+            let data = [1, 2, 3, 4, "a", "b", "c"]
+            let sf = new Series(data)
+            let expected_val = [1, 2, 3, 4, "a", "b", "c", "d"]
+
+            assert.deepEqual(sf.append("d").values, expected_val)
+
+        });
+        it("Add a new array of values to the end of a Series", function () {
+            let data = [1, 2, 3, 4]
+            let to_add = ["a", "b", "c"]
+            let sf = new Series(data)
+            let expected_val = [1, 2, 3, 4, "a", "b", "c"]
+
+            assert.deepEqual(sf.append(to_add).values, expected_val)
+
+        });
+        it("Add a Series to the end of another Series", function () {
+            let sf1 = new Series([1, 2, 3, 4])
+            let sf2 = new Series(["a", "b", "c"])
+            let expected_val = [1, 2, 3, 4, "a", "b", "c"]
+            assert.deepEqual(sf1.append(sf2).values, expected_val)
 
         });
     });
