@@ -39,15 +39,7 @@ export const read_csv = async (source, chunk) => {
  * @returns {Promise} DataFrame structure of parsed CSV data
  */
 export const read_json = async (source) => {
-    if (utils.__is_browser_env()) {
-        // inside browser env
-        fetch(source)
-            .then(response => response.json())
-            .then(data =>{
-                return new DataFrame(data)
-            })
-
-    } else {
+    if (utils.__is_node_env()) {
         // inside Node Env
         if (source.startsWith("https://")) {
             //read from URL
