@@ -425,7 +425,13 @@ export class Series extends NDframe {
         if (this.dtypes[0] == "string") {
             throw Error("dtype error: String data type does not support std operation")
         }
-        let values = this.values
+
+        let values = []
+        this.values.forEach(val => {
+            if (!(isNaN(val) && typeof val != 'string')) {
+                values.push(val)
+            }
+        })
         let std_val = std(values) //using math.js
         return std_val
 
@@ -439,7 +445,12 @@ export class Series extends NDframe {
         if (this.dtypes[0] == "string") {
             throw Error("dtype error: String data type does not support var operation")
         }
-        let values = this.values
+        let values = []
+        this.values.forEach(val => {
+            if (!(isNaN(val) && typeof val != 'string')) {
+                values.push(val)
+            }
+        })
         let var_val = variance(values) //using math.js
         return var_val
 
@@ -1312,7 +1323,7 @@ export class Series extends NDframe {
      * @param {*} row --> Array
      * @returns Series
      */
-    iloc(row){
+    iloc(row) {
 
         let kwargs = {}
 
@@ -1321,7 +1332,7 @@ export class Series extends NDframe {
 
         let [new_data, columns, rows] = indexLoc(this, kwargs);
 
-        let sf = new Series(new_data, {columns: columns});
+        let sf = new Series(new_data, { columns: columns });
         sf.__set_index(rows)
 
         return sf

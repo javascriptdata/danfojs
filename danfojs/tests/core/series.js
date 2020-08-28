@@ -377,6 +377,11 @@ describe("Series", function () {
             let sf = new Series(data1)
             assert.deepEqual(sf.std(), 18.412925713566906)
         })
+        it("Computes the standard deviation of elements in a float series with missing values", function () {
+            let data1 = [30, 40, 3, 5, undefined]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.std(), 18.375708603116962)
+        })
 
     })
 
@@ -390,6 +395,11 @@ describe("Series", function () {
             let data1 = [30.1, 40.2, 3.1, 5.1]
             let sf = new Series(data1)
             assert.deepEqual(sf.var(), 339.03583333333336)
+        })
+        it("Computes the variance of elements in a int series with missing values", function () {
+            let data1 = [30, undefined, 40, 3, 5]
+            let sf = new Series(data1)
+            assert.deepEqual(sf.var(), 337.6666666666667)
         })
 
     })
