@@ -1337,5 +1337,45 @@ export class Series extends NDframe {
 
         return sf
     }
+
+    /**
+     * 
+     * @param {Object} val Single value | Array | Series to append to the object
+     * @param {Boolean} inplace Whether to perform operation inplace or not
+     */
+    append(val, inplace = false) {
+        if (inplace) {
+            let self = this
+            if (Array.isArray(val)) {
+                val.forEach(el => {
+                    self.data.push(el)
+                })
+            } else if (val instanceof Series) {
+                let value = val.values
+                value.forEach(el => {
+                    self.data.push(el)
+                })
+            } else {
+                self.data.push(val)
+            }
+        } else {
+            let sf = this.copy()
+            if (Array.isArray(val)) {
+                val.forEach(el => {
+                    sf.data.push(el)
+                })
+            } else if (val instanceof Series) {
+                let value = val.values
+                value.forEach(el => {
+                    sf.data.push(el)
+                })
+            } else {
+                sf.data.push(val)
+            }
+            return sf
+        }
+
+    }
+
 }
 

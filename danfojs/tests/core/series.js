@@ -1188,8 +1188,8 @@ describe("Series", function () {
             let data = [1, 2, 3, 4, "a", "b", "c"]
             let sf = new Series(data)
             let expected_val = [1, 2, 3, 4, "a", "b", "c", "d"]
-
-            assert.deepEqual(sf.append("d").values, expected_val)
+            sf.append("d", true)
+            assert.deepEqual(sf.values, expected_val)
 
         });
         it("Add a new array of values to the end of a Series", function () {
@@ -1197,15 +1197,41 @@ describe("Series", function () {
             let to_add = ["a", "b", "c"]
             let sf = new Series(data)
             let expected_val = [1, 2, 3, 4, "a", "b", "c"]
-
-            assert.deepEqual(sf.append(to_add).values, expected_val)
+            sf.append(to_add, true)
+            assert.deepEqual(sf.values, expected_val)
 
         });
         it("Add a Series to the end of another Series", function () {
             let sf1 = new Series([1, 2, 3, 4])
             let sf2 = new Series(["a", "b", "c"])
             let expected_val = [1, 2, 3, 4, "a", "b", "c"]
-            assert.deepEqual(sf1.append(sf2).values, expected_val)
+            sf1.append(sf2, true)
+            assert.deepEqual(sf1.values, expected_val)
+
+        });
+        it("Add a new single value to the end of a Series", function () {
+            let data = [1, 2, 3, 4, "a", "b", "c"]
+            let sf = new Series(data)
+            let expected_val = [1, 2, 3, 4, "a", "b", "c", "d"]
+            sf = sf.append("d")
+            assert.deepEqual(sf.values, expected_val)
+
+        });
+        it("Add a new array of values to the end of a Series", function () {
+            let data = [1, 2, 3, 4]
+            let to_add = ["a", "b", "c"]
+            let sf = new Series(data)
+            let expected_val = [1, 2, 3, 4, "a", "b", "c"]
+            sf = sf.append(to_add)
+            assert.deepEqual(sf.values, expected_val)
+
+        });
+        it("Add a Series to the end of another Series", function () {
+            let sf1 = new Series([1, 2, 3, 4])
+            let sf2 = new Series(["a", "b", "c"])
+            let expected_val = [1, 2, 3, 4, "a", "b", "c"]
+            sf1 = sf1.append(sf2)
+            assert.deepEqual(sf1.values, expected_val)
 
         });
     });
