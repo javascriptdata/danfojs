@@ -1273,7 +1273,7 @@ export class DataFrame extends Ndframe {
                 let row_value = values[i]
                 for (let j = 0; j < row_value.length; j++) {
 
-                    if (isNaN(row_value[j]) && typeof row_value[j] != "string" ) {
+                    if (isNaN(row_value[j]) && typeof row_value[j] != "string") {
                         temp_data.push(nan_val)
                     } else {
                         temp_data.push(row_value[j])
@@ -2072,20 +2072,20 @@ export class DataFrame extends Ndframe {
      * @param {*} kwargs {inplace: Boolean, ascending: Bool}
      * @returns DataFrame
      */
-    sortIndex(kwargs={}){
+    sortIndex(kwargs = {}) {
 
         let inplace = typeof kwargs["inplace"] == "undefined" ? false : kwargs["inplace"]
         let asc = typeof kwargs["ascending"] == "undefined" ? true : kwargs["ascending"]
 
         let index_val = this.index
-        let [data, index] =this.__sort_by(index_val,index_val,asc)
+        let [data, index] = this.__sort_by(index_val, index_val, asc)
 
-        if(inplace){
-            this.__update_frame_in_place(data,null,null,index,null)
-        }else{
+        if (inplace) {
+            this.__update_frame_in_place(data, null, null, index, null)
+        } else {
 
             let df = this.copy()
-            df.__update_frame_in_place(data,null,null,index,null)
+            df.__update_frame_in_place(data, null, null, index, null)
             return df
         }
     }
@@ -2097,9 +2097,9 @@ export class DataFrame extends Ndframe {
     *                           inplace (Bool): Whether to perform sorting on the original Series or not}
     * @returns {Series}
     */
-    sort_values(kwargs={}){
+    sort_values(kwargs = {}) {
 
-        if (!utils.__key_in_object(kwargs,"by")) {
+        if (!utils.__key_in_object(kwargs, "by")) {
             throw Error(`use col_name to specify column name`)
         }
 
@@ -2107,14 +2107,14 @@ export class DataFrame extends Ndframe {
         let asc = typeof kwargs["ascending"] == "undefined" ? true : kwargs["ascending"]
         let index_val = this.index
         let column_val = this.column(kwargs["by"]).values
-        let [data, index] = this.__sort_by(column_val,index_val,asc)
+        let [data, index] = this.__sort_by(column_val, index_val, asc)
 
-        if(inplace){
-            this.__update_frame_in_place(data,null,null,index,null)
-        }else{
+        if (inplace) {
+            this.__update_frame_in_place(data, null, null, index, null)
+        } else {
 
             let df = this.copy()
-            df.__update_frame_in_place(data,null,null,index,null)
+            df.__update_frame_in_place(data, null, null, index, null)
             return df
         }
     }
@@ -2177,25 +2177,44 @@ export class DataFrame extends Ndframe {
         }
     }
 
-    __sort_by(col_value,df_index, asc){
+    __sort_by(col_value, df_index, asc) {
 
         let values = this.values
-        
-        
-        let sorted_val = utils.__sort(col_value,asc)
+
+
+        let sorted_val = utils.__sort(col_value, asc)
 
         let data = []
         let indexs = []
-        for(let row_i=0; row_i < sorted_val.length; row_i++){
+        for (let row_i = 0; row_i < sorted_val.length; row_i++) {
 
             let index = col_value.indexOf(sorted_val[row_i])
 
             data.push(values[index])
             indexs.push(df_index[index])
         }
-        
+
         return [data, indexs]
 
     }
+
+    // /**
+    //  * 
+    //  * @param {Object} val Single value | Array | Series to append to the object
+    //  * @param {Boolean} inplace Whether to perform operation inplace or not
+    //  */
+    // append(val) {
+    //     if (Array.isArray(val)) {
+    //         if (val.length != this.shape[1]) {
+    //             throw Error(`length Mixmatch: The lenght of provided value (${val.length}) does not match the original DataFrame (${this.shape[1]})`)
+    //         }
+
+    //     }else if (utils.__is_object(val)){
+
+    //     }else if (val instanceof DataFrame){
+
+    //     }
+
+    // }
 }
 
