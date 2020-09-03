@@ -6,6 +6,7 @@ import { Utils } from "./utils"
 import { GroupBy } from "./groupby"
 import { Plot } from '../plotting/plot'
 import { indexLoc } from '../core/indexing'
+import { concat } from '../core/concat.js'
 
 const utils = new Utils
 import { std, variance } from 'mathjs'
@@ -2198,23 +2199,33 @@ export class DataFrame extends Ndframe {
 
     }
 
-    // /**
-    //  * 
-    //  * @param {Object} val Single value | Array | Series to append to the object
-    //  * @param {Boolean} inplace Whether to perform operation inplace or not
-    //  */
-    // append(val) {
-    //     if (Array.isArray(val)) {
-    //         if (val.length != this.shape[1]) {
-    //             throw Error(`length Mixmatch: The lenght of provided value (${val.length}) does not match the original DataFrame (${this.shape[1]})`)
-    //         }
+    /**
+     * Append rows to a DataFrame
+     * @param {Object} val Array | Series to append to the object
+     * @return DataFrame
+     */
+    append(val) {
+        let df2 = null;
+        if (Array.isArray(val)) {
+            if(Array.isArray(val[0])){
+                if (val[0].length != this.shape[1]) {
+                    throw Error(`length Mixmatch: The lenght of provided value (${val.length}) does not match the original DataFrame (${this.shape[1]})`)
+                }
+                df2 = new DataFrame(val)
+            }
 
-    //     }else if (utils.__is_object(val)){
+        }else if (utils.__is_object(val)){
+            df2 = new DataFrame(val);
 
-    //     }else if (val instanceof DataFrame){
+        }else if (val instanceof DataFrame){
+            df2 = val.copy()
 
-    //     }
+        }
 
-    // }
+        let concat_df = concat({df_list: [this,df2],axis:0})
+
+        return concat_df;
+
+    }
 }
 
