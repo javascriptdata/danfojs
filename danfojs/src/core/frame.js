@@ -1023,7 +1023,7 @@ export class DataFrame extends Ndframe {
             let elem = data_value[column_index]
             //use eval function for easy operation
             //eval() takes in a string expression e.g eval('2>5')
-            if (eval(`${elem}${operator}${value}`)) {
+            if (eval(`elem${operator}value`)) {
                 new_data.push(data_value);
                 new_index.push(index[i])
 

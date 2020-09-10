@@ -905,6 +905,14 @@ describe("DataFrame", function () {
             let query_data = [[4, 5, 6], [20, 30, 40], [39, 89, 78]]
             assert.deepEqual(query_df.values, query_data)
         });
+        it("Get the Dataframe containing rows with the filtered column in String values", function () {
+            let data = { "Abs": [20, 30, 47] , "Count": [34, 4, 5] , "country code" :["NG", "FR", "GH"] };
+            let cols = [ "Abs" , "Count", "country code"];
+            let df = new DataFrame(data, { columns: cols });
+            let query_df = df.query({column: "country code", is: "==", to: "NG"});
+            let query_data = [[20, 34, "NG"]];
+            assert.deepEqual(query_df.values, query_data);
+        });
         it("Print Error for value key not specified", function () {
 
             let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
