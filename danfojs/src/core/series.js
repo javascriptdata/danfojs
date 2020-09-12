@@ -457,6 +457,45 @@ export class Series extends NDframe {
     }
 
     /**
+     * Return the correlation with other Series, excluding the missing values
+     * 
+     * @param {other} Series, Series againt to compute the correlation 
+     * @param {kwargs} Object -->  { 
+            *          "method" (String | callable) : string {kendall, spearman, pearson} or function,
+            *          "min_periods" (Number) : minimun number of values to have a valid result
+            *          }
+     * @returns {Number}
+     */
+    corr(other, kwargs) {
+
+        if (kwargs["min_periods"] === undefined || kwargs["min_periods"] === 0) {
+            kwargs["min_periods"] = 1;
+        }
+
+        if (this.size < kwargs["min_periods"]) {
+            return NaN;
+        }
+
+        if (kwargs["min_periods"] < 0 && kwargs["min_periods"] > this.size) {
+            throw new Error(`Value Error: min_periods need to be in range of [0, ${this.size}]`);
+        }
+
+
+        if (this.__check_series_op_compactibility(other)) {
+            let s1 = this.copy();
+            let s2 = other.copy();
+
+            /**
+             * Perform more validations before apply correlation methods.
+             * 1. Align the Series.
+             */
+            let f = this.__get_corr_function(kwargs["method"]);
+
+            return f(s1, s2);
+        }
+    }
+
+    /**
      * Return a boolean same-sized object indicating if the values are NaN. NaN and undefined values,
      *  gets mapped to True values. Everything else gets mapped to False values. 
      * @return {Series}
@@ -675,19 +714,15 @@ export class Series extends NDframe {
 
     //check two series is compatible for an mathematical operation
     __check_series_op_compactibility(other) {
-        if (utils.__is_undefined(other.series)) {
+        if (utils.__is_undefined(other)) {
             throw Error("param [other] must be a Series or a single value that can be broadcasted")
         }
         if (other.values.length != this.values.length) {
             throw Error("Shape Error: Series shape do not match")
         }
-        if (this.dtypes[0] != 'float' || this.dtypes[0] != 'int') {
+        if (this.dtypes[0] !== other.dtypes[0]) {
             throw Error(`dtype Error: Cannot perform operation on type ${this.dtypes[0]} with type ${other.dtypes[0]}`)
         }
-        if (other.dtypes[0] != 'float' || other.dtypes[0] != 'int') {
-            throw Error(`dtype Error: Cannot perform operation on type ${other.dtypes[0]} with type ${this.dtypes[0]}`)
-        }
-
         return true
     }
 
@@ -1177,6 +1212,75 @@ export class Series extends NDframe {
         }
         return new Series(data)
 
+    }
+
+    /**
+     * Get method based on input of kwargs in corr function.
+     * @param {method} String | callable : Method to use in correlation computation.
+     */
+    __get_corr_function(method) {
+        switch (method) {
+            case "pearson":
+                function pearson(s1, s2) {
+                    let x = s1.tensor;
+                    let y = s2.tensor;
+                    let size = s1.size;
+
+                    let s1_std = tf.scalar(s1.std(), s1.dtypes[0]);
+                    let s2_std = tf.scalar(s2.std(), s2.dtypes[0]);
+
+                    let numerator = tf.sub(tf.sum(tf.mul(x, y)), tf.mul(tf.scalar(size, "int32"), tf.mul(s1.mean(), s2.mean())))
+                
+                    let denominator = tf.mul(tf.sub(size, tf.scalar(1, "int32")), tf.mul(s1_std, s2_std));
+                    
+                    return parseFloat(tf.div(numerator, denominator).arraySync());
+                }
+                
+                return pearson
+            case "kendall":
+                function kendall(s1, s2) {
+                    let X = s1.tensor.arraySync()
+                    let Y = s2.tensor.arraySync()
+                    let n = Y.length
+                    
+                    let c_pairs = 0, d_pairs = 0
+                    
+                    /**
+                     * This way is O(n^2) time complexity, but can be improve to O(nlogn) implementing
+                     * merge sort and bubble sort strategy.
+                     */
+                    for (let i = 0; i < (n % 2 === 0 ? n : n -1); i++) {
+                        for (let j = i + 1; j < n; j++) {
+                            if ((X[i] < X[j] && Y[i] < Y[j]) || 
+                                (X[i] > X[j] && Y[i] > Y[j])) {
+                                c_pairs += 1
+                            } else if ((X[i] > X[j] && Y[i] < Y[j]) || 
+                                    (X[i] < X[j] && Y[i] > Y[j])) {
+                                d_pairs += 1
+                            }
+                        }
+                    }
+
+                    return parseFloat(tf.div(tf.sub(tf.scalar(c_pairs), tf.scalar(d_pairs)), tf.scalar((n * (n - 1)) / 2)).arraySync())
+                }
+                return kendall
+            case "spearman":
+                function spearman(s1, s2) {
+                    let X = s1.tensor.arraySync()
+                    let Y = s2.tensor.arraySync()
+                    let n = Y.length
+                    
+                    return s1.__get_corr_function("pearson")(new Series(X), new Series(Y))
+                }
+                
+                return spearman
+            default:
+                if (utils.__is_function(kwargs["method"])) {
+                    return kwargs["method"]
+                } else {
+                    throw new Error(`Params Error: Method ${kwargs["method"]} not recognize in list (kendall, spearman, pearson or callable).`)
+                }
+        }
     }
 
     /**

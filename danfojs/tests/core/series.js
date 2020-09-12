@@ -1235,4 +1235,30 @@ describe("Series", function () {
 
         });
     });
+
+    describe("corr", function () {
+        it("Compute correlation with other Series (pearson)", function () {
+            let sf1 = new Series([1.2, 3.0, 2.6, 6.2, 7.0, 123.6, 53.8, 213.8, 23.8]);
+            let sf2 = new Series([21.3, 53.6, 12.0, 245.1, 32.5, 23.5, 6.4, 2.3, 57.3]);
+            
+            let corr = sf2.corr(sf1, { "method": "pearson" });
+            let expected_val = -0.3339332487976579;
+            assert.approximately(corr, expected_val, 0.0001);
+        });
+        it("Throw and error when other Series is undefined", function () {
+            let sf1 = new Series([1.2, 3.0, 2.6, 6.2, 7.0, 123.6, 53.8, 213.8, 23.8]);
+            let sf2 = undefined;
+            let expected = `param [other] must be a Series or a single value that can be broadcasted`;
+            assert.throws(() => { sf1.corr(sf2, { "method": "pearson" }) }, Error, expected)
+        });
+        it("Compute correlation with other Series (kendall)", function () {
+            let sf1 = new Series([1.2, 3.0, 2.6, 6.2, 7.0, 123.6, 53.8, 213.8, 23.8]);
+            let sf2 = new Series([21.3, 53.6, 12.0, 245.1, 32.5, 23.5, 6.4, 2.3, 57.3]);
+            
+            let corr = sf2.corr(sf1, { "method": "kendall" });
+            
+            let expected_val = -0.2222222222222222;
+            assert.approximately(corr, expected_val, 0.0001);
+        });
+    });
 })

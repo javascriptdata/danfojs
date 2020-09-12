@@ -275,6 +275,17 @@ export default class NDframe {
         this.index_arr = new_idx
     }
 
+    /**
+     * Align two objects on their axes with the specified join method.
+     * @param {other} DataFrame | Series, 
+     * @param {join} String, 
+     * @param {axis} Number,
+     * @param {copy} Boolean,
+     */
+    __align_data(other, join, axis, copy) {
+
+    }
+
 
 
     /**
