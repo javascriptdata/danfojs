@@ -1301,7 +1301,7 @@ export class DataFrame extends Ndframe {
      */
     isna() {
 
-        let new_row_data = this.__isna(false)
+        let new_row_data = this.__isna()
         let columns = this.column_names;
         return new DataFrame(new_row_data, { columns: columns, index: this.index })
     }

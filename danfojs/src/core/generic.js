@@ -313,9 +313,9 @@ export default class NDframe {
      *  gets mapped to True values. Everything else gets mapped to False values. 
      * @return {Array}
      */
-    __isna(is_series=true) {
+    __isna() {
         let new_arr = []
-        if (is_series){
+        if (this.series){
             this.values.map(val => {
                 // eslint-disable-next-line use-isnan
                 if (val == NaN) {
