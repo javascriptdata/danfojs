@@ -462,17 +462,18 @@ export class Series extends NDframe {
      * @return {Series}
      */
     isna() {
-        let new_arr = []
-        this.values.map(val => {
-            // eslint-disable-next-line use-isnan
-            if (val == NaN) {
-                new_arr.push(true)
-            } else if (isNaN(val) && typeof val != "string") {
-                new_arr.push(true)
-            } else {
-                new_arr.push(false)
-            }
-        })
+        // let new_arr = []
+        // this.values.map(val => {
+        //     // eslint-disable-next-line use-isnan
+        //     if (val == NaN) {
+        //         new_arr.push(true)
+        //     } else if (isNaN(val) && typeof val != "string") {
+        //         new_arr.push(true)
+        //     } else {
+        //         new_arr.push(false)
+        //     }
+        // })
+        let new_arr = this.__isna()
         let sf = new Series(new_arr, { index: this.index, columns: this.column_names, dtypes: ["boolean"] })
         return sf
     }
