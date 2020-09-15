@@ -1301,25 +1301,8 @@ export class DataFrame extends Ndframe {
      */
     isna() {
 
-        let new_row_data = []
-        let row_data = this.values;
+        let new_row_data = this.__isna()
         let columns = this.column_names;
-
-        row_data.map(arr => {
-            let temp_arr = []
-            arr.map(val => {
-                // eslint-disable-next-line use-isnan
-                if (val == NaN) {
-                    temp_arr.push(true)
-                } else if (isNaN(val) && typeof val != "string") {
-                    temp_arr.push(true)
-                } else {
-                    temp_arr.push(false)
-                }
-            })
-            new_row_data.push(temp_arr)
-        })
-
         return new DataFrame(new_row_data, { columns: columns, index: this.index })
     }
 

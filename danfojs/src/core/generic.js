@@ -367,13 +367,43 @@ export default class NDframe {
         return this.columns
     }
 
-    // /**
-    //  * Gets the column names of the data
-    //  * @returns {Array} strings of column names
-    //  */
-    // set col_names() {
-
-    // }
+     /**
+     * Return a boolean same-sized object indicating if the values are NaN. NaN and undefined values,
+     *  gets mapped to True values. Everything else gets mapped to False values. 
+     * @return {Array}
+     */
+    __isna() {
+        let new_arr = []
+        if (this.series){
+            this.values.map(val => {
+                // eslint-disable-next-line use-isnan
+                if (val == NaN) {
+                    new_arr.push(true)
+                } else if (isNaN(val) && typeof val != "string") {
+                    new_arr.push(true)
+                } else {
+                    new_arr.push(false)
+                }
+            })
+        }else{
+            let row_data = this.values;
+            row_data.map(arr => {
+                let temp_arr = []
+                arr.map(val => {
+                    // eslint-disable-next-line use-isnan
+                    if (val == NaN) {
+                        temp_arr.push(true)
+                    } else if (isNaN(val) && typeof val != "string") {
+                        temp_arr.push(true)
+                    } else {
+                        temp_arr.push(false)
+                    }
+                })
+                new_arr.push(temp_arr)
+            })
+        }
+        return new_arr
+    }
 
     /*
      * Gets binary size of the NDFrame
@@ -448,7 +478,7 @@ export default class NDframe {
         let table_config = {}
         // let idx = this.index
         let col_len = this.columns.length
-        let row_len = this.values.length - 1
+        // let row_len = this.values.length - 1
         let header = []
 
         if (col_len > max_col_in_console) {
