@@ -21,10 +21,10 @@ const config = new Configs()  //package wide configuration object
 /**
  * One-dimensional ndarray with axis labels (including time series).
  * The object supports both integer- and label-based indexing and provides a host of methods for performing operations involving the index.
- * Operations between Series (+, -, /, , *) align values based on their associated index values– they need not be the same length. 
+ * Operations between Series (+, -, /, , *) align values based on their associated index values– they need not be the same length.
  * @param {data} data Array, JSON of 1D values
  * @param {kwargs} Object {columns: column names, dtypes : data type of values}
- * 
+ *
  * @returns Series data structure
  */
 export class Series extends NDframe {
@@ -92,7 +92,7 @@ export class Series extends NDframe {
 
     /**
     * Gets [num] number of random rows in a Series
-    * @param {rows}  
+    * @param {rows}
     * @returns {Series}
     */
     sample(num = 5) {
@@ -125,7 +125,7 @@ export class Series extends NDframe {
     /**
     * Return Addition of series and other, element-wise (binary operator add).
     * Equivalent to series + other
-    * @param {other} Series or Number to add  
+    * @param {other} Series or Number to add
     * @returns {Series}
     */
     add(other) {
@@ -232,7 +232,7 @@ export class Series extends NDframe {
     * Return Modulo of series and other, element-wise (binary operator mod).
     * Equivalent to series % other
     *  @param {other} Series, Number
-    * @returns {Series} 
+    * @returns {Series}
     */
     mod(other) {
         if (utils.__is_number(other)) {
@@ -250,7 +250,7 @@ export class Series extends NDframe {
 
     /**
     * Returns the mean of elements in Series
-    * @returns {Series} 
+    * @returns {Series}
     */
     mean() {
         if (this.dtypes[0] == "string") {
@@ -271,7 +271,7 @@ export class Series extends NDframe {
 
     /**
     * Returns the median of elements in Series
-    * @returns {Series} 
+    * @returns {Series}
     */
     median() {
         if (this.dtypes[0] == "string") {
@@ -286,7 +286,7 @@ export class Series extends NDframe {
 
     /**
     * Returns the modal value of elements in Series
-    * @returns {Number} 
+    * @returns {Number}
     */
     mode() {
         if (this.dtypes[0] == "string") {
@@ -300,7 +300,7 @@ export class Series extends NDframe {
 
     /**
     * Returns the minimum value in a Series
-    * @returns {Number} 
+    * @returns {Number}
     */
     min() {
         if (this.dtypes[0] == "string") {
@@ -314,7 +314,7 @@ export class Series extends NDframe {
 
     /**
     * Returns the maximum value in a Series
-    * @returns {Number} 
+    * @returns {Number}
     */
     max() {
         if (this.dtypes[0] == "string") {
@@ -458,9 +458,9 @@ export class Series extends NDframe {
 
     /**
      * Return the correlation with other Series, excluding the missing values
-     * 
-     * @param {other} Series, Series againt to compute the correlation 
-     * @param {kwargs} Object -->  { 
+     *
+     * @param {other} Series, Series againt to compute the correlation
+     * @param {kwargs} Object -->  {
             *          "method" (String | callable) : string {kendall, spearman, pearson} or function,
             *          "min_periods" (Number) : minimun number of values to have a valid result
             *          }
@@ -480,24 +480,25 @@ export class Series extends NDframe {
             throw new Error(`Value Error: min_periods need to be in range of [0, ${this.size}]`);
         }
 
+        if (other !== undefined) {
+          let [ left, right ] = this.__align_data(other, { "join": "outer", "axis": 0, "inplace": false})
+          let valid_index = utils.__bit_wise_nanarray(left.isna().values, right.isna().values)
 
-        if (this.__check_series_op_compactibility(other)) {
-            let s1 = this.copy();
-            let s2 = other.copy();
+          if (valid_index.length !== 0) {
+            left = left.iloc(valid_index)
+            right = right.iloc(valid_index)
+          }
 
-            /**
-             * Perform more validations before apply correlation methods.
-             * 1. Align the Series.
-             */
+          if (left.__check_series_op_compactibility(right)) {
             let f = this.__get_corr_function(kwargs["method"]);
-
-            return f(s1, s2);
+            return f(left, right);
+          }
         }
     }
 
     /**
      * Return a boolean same-sized object indicating if the values are NaN. NaN and undefined values,
-     *  gets mapped to True values. Everything else gets mapped to False values. 
+     *  gets mapped to True values. Everything else gets mapped to False values.
      * @return {Series}
      */
     isna() {
@@ -518,7 +519,7 @@ export class Series extends NDframe {
 
     /**
      * Replace NaN or undefined with a specified value"
-     * @param {kwargs}, {"value": the new value to replace the old value with, inplace: Perform operation inplace or not} 
+     * @param {kwargs}, {"value": the new value to replace the old value with, inplace: Perform operation inplace or not}
      * @return {Series}
      */
     fillna(kwargs = {}) {
@@ -616,7 +617,7 @@ export class Series extends NDframe {
 
 
     /**
-    * Make a new copy of Series 
+    * Make a new copy of Series
     * @returns {Series}
     */
     copy() {
@@ -629,7 +630,7 @@ export class Series extends NDframe {
 
     /**
     * Generate descriptive statistics.
-    * Descriptive statistics include those that summarize the central tendency, 
+    * Descriptive statistics include those that summarize the central tendency,
     * dispersion and shape of a dataset’s distribution, excluding NaN values.
     * @returns {Series}
     */
@@ -660,7 +661,7 @@ export class Series extends NDframe {
 
     /**
     * Generate a new Series with the index reset.
-    * This is useful when the index needs to be treated as a column, 
+    * This is useful when the index needs to be treated as a column,
     * or when the index is meaningless and needs to be reset to the default before another operation.
     * @param {kwargs} {inplace: Modify the Series in place (do not create a new object}
     */
@@ -700,6 +701,13 @@ export class Series extends NDframe {
 
         if (kwargs['index'].length != this.index.length) {
             throw Error(`Index LengthError: Lenght of new Index array ${kwargs['index'].length} must match lenght of existing index ${this.index.length}`)
+        }
+
+        if (kwargs["index"] === null) {
+          if (kwargs["inplace"]) {
+            return this.copy()
+          }
+          return this
         }
 
         if (kwargs['inplace']) {
@@ -849,7 +857,7 @@ export class Series extends NDframe {
     }
 
 
-    /** 
+    /**
      * Returns the cumulative sum over a Series
     * @return {Series}
     */
@@ -890,7 +898,7 @@ export class Series extends NDframe {
 
     /**
      * Returns Less than of series and other. Supports element wise operations
-     * @param {other} Series, Scalar 
+     * @param {other} Series, Scalar
      * @return {Series}
      */
     lt(other) {
@@ -899,7 +907,7 @@ export class Series extends NDframe {
 
     /**
      * Returns Greater than of series and other. Supports element wise operations
-     * @param {other} Series, Scalar 
+     * @param {other} Series, Scalar
      * @return {Series}
      */
     gt(other) {
@@ -908,7 +916,7 @@ export class Series extends NDframe {
 
     /**
      * Returns Less than or Equal to of series and other. Supports element wise operations
-     * @param {other} Series, Scalar 
+     * @param {other} Series, Scalar
      * @return {Series}
      */
     le(other) {
@@ -917,7 +925,7 @@ export class Series extends NDframe {
 
     /**
      * Returns Greater than or Equal to of series and other. Supports element wise operations
-     * @param {other} Series, Scalar 
+     * @param {other} Series, Scalar
      * @return {Series}
      */
     ge(other) {
@@ -926,7 +934,7 @@ export class Series extends NDframe {
 
     /**
       * Returns Not Equal to of series and other. Supports element wise operations
-      * @param {other} Series, Scalar 
+      * @param {other} Series, Scalar
       * @return {Series}
       */
     ne(other) {
@@ -937,7 +945,7 @@ export class Series extends NDframe {
 
     /**
      * Returns Equal to of series and other. Supports element wise operations
-     * @param {other} Series, Scalar 
+     * @param {other} Series, Scalar
      * @return {Series}
      */
     eq(other) {
@@ -946,7 +954,7 @@ export class Series extends NDframe {
 
     /**
    * Replace all occurence of a value with a new specified value"
-   * @param {kwargs}, {"replace": the value you want to replace, "with": the new value you want to replace the olde value with, inplace: Perform operation inplace or not} 
+   * @param {kwargs}, {"replace": the value you want to replace, "with": the new value you want to replace the olde value with, inplace: Perform operation inplace or not}
    * @return {Series}
    */
     replace(kwargs = {}) {
@@ -985,7 +993,7 @@ export class Series extends NDframe {
 
     /**
      * Return a new Series with missing values removed.
-     * @param {kwargs} {inplace: Perform operation inplace or not} 
+     * @param {kwargs} {inplace: Perform operation inplace or not}
      * @return {Series}
      */
     dropna(kwargs = {}) {
@@ -1062,7 +1070,7 @@ export class Series extends NDframe {
 
     /**
      * Return Series with duplicate values removed
-     * @param {kwargs} {inplace: Perform operation inplace or not} 
+     * @param {kwargs} {inplace: Perform operation inplace or not}
      * @return {Series}
      */
     drop_duplicates(kwargs = {}) {
@@ -1230,31 +1238,31 @@ export class Series extends NDframe {
                     let s2_std = tf.scalar(s2.std(), s2.dtypes[0]);
 
                     let numerator = tf.sub(tf.sum(tf.mul(x, y)), tf.mul(tf.scalar(size, "int32"), tf.mul(s1.mean(), s2.mean())))
-                
+
                     let denominator = tf.mul(tf.sub(size, tf.scalar(1, "int32")), tf.mul(s1_std, s2_std));
-                    
+
                     return parseFloat(tf.div(numerator, denominator).arraySync());
                 }
-                
+
                 return pearson
             case "kendall":
                 function kendall(s1, s2) {
                     let X = s1.tensor.arraySync()
                     let Y = s2.tensor.arraySync()
                     let n = Y.length
-                    
+
                     let c_pairs = 0, d_pairs = 0
-                    
+
                     /**
                      * This way is O(n^2) time complexity, but can be improve to O(nlogn) implementing
                      * merge sort and bubble sort strategy.
                      */
                     for (let i = 0; i < (n % 2 === 0 ? n : n -1); i++) {
                         for (let j = i + 1; j < n; j++) {
-                            if ((X[i] < X[j] && Y[i] < Y[j]) || 
+                            if ((X[i] < X[j] && Y[i] < Y[j]) ||
                                 (X[i] > X[j] && Y[i] > Y[j])) {
                                 c_pairs += 1
-                            } else if ((X[i] > X[j] && Y[i] < Y[j]) || 
+                            } else if ((X[i] > X[j] && Y[i] < Y[j]) ||
                                     (X[i] < X[j] && Y[i] > Y[j])) {
                                 d_pairs += 1
                             }
@@ -1269,10 +1277,10 @@ export class Series extends NDframe {
                     let X = s1.tensor.arraySync()
                     let Y = s2.tensor.arraySync()
                     let n = Y.length
-                    
+
                     return s1.__get_corr_function("pearson")(new Series(X), new Series(Y))
                 }
-                
+
                 return spearman
             default:
                 if (utils.__is_function(kwargs["method"])) {
@@ -1329,7 +1337,7 @@ export class Series extends NDframe {
 
 
     /**
-     * Sets the data types of a Series 
+     * Sets the data types of a Series
      * @param {dtype} String [float32, int32, string] data type to cast to.
      *@returns {Series}
      */
@@ -1443,7 +1451,7 @@ export class Series extends NDframe {
     }
 
     /**
-     * 
+     *
      * @param {Object} val Single value | Array | Series to append to the object
      * @param {Boolean} inplace Whether to perform operation inplace or not
      */
@@ -1463,20 +1471,20 @@ export class Series extends NDframe {
                 self.data.push(val)
             }
         } else {
-            let sf = this.copy()
+            let sf = this.copy().values
             if (Array.isArray(val)) {
                 val.forEach(el => {
-                    sf.data.push(el)
+                    sf.push(el)
                 })
             } else if (val instanceof Series) {
                 let value = val.values
                 value.forEach(el => {
-                    sf.data.push(el)
+                    sf.push(el)
                 })
             } else {
-                sf.data.push(val)
+                sf.push(val)
             }
-            return sf
+            return new Series(sf)
         }
 
     }

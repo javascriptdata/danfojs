@@ -59,7 +59,7 @@ export class Utils {
 
     /**
      * Optimized version of random sampling from an array, as implemented in Python
-     * 
+     *
      *
         Chooses k unique random elements from a population sequence or set.
 
@@ -86,7 +86,7 @@ export class Utils {
         a larger number of selections, the array tracking method is
         preferred since the list takes less space than the
         set and it doesn't suffer from frequent reselections.
-     * 
+     *
      * @param {*} array The array to sample values from randomly
      * @param {*} num The number of elements to sample randomly
      */
@@ -531,6 +531,17 @@ export class Utils {
 
     }
 
+    // Compare two arrays of booleans of isna() function to align data in correlation functions.
+    __bit_wise_nanarray(values_1, values_2) {
+      let idxs = []
+      for (let i = 0; i < values_1.length; i++) {
+        if (eval(`(!${values_1[i]} & !${values_2[i]})`)) {
+          idxs.push(i)
+        }
+      }
+      return idxs
+    }
+
     //check a variable is a function
     __is_function(variable) {
 
@@ -591,7 +602,7 @@ export class Utils {
     }
 
 
-    //maps int values (0, 1) to bools (false, true) 
+    //maps int values (0, 1) to bools (false, true)
     __map_int_to_bool(arr, dim) {
         let new_arr = []
         if (dim == 2) {

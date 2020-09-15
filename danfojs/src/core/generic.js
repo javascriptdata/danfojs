@@ -12,14 +12,14 @@ const config = new Configs()  //package wide configuration object
 
 export default class NDframe {
     /**
-     * N-Dimensiona data structure. Stores multi-dimensional 
-     * data in a size-mutable, labeled data structure. Analogous to the Python Pandas DataFrame. 
-     * 
+     * N-Dimensiona data structure. Stores multi-dimensional
+     * data in a size-mutable, labeled data structure. Analogous to the Python Pandas DataFrame.
+     *
      * @param {data} Array, JSON, Tensor. Block of data.
      * @param {kwargs} Object,(Optional Configuration Object)
      *                 {columns: Array of column names. If not specified and data is an array of array, use range index.
  *                      dtypes: Data types of the columns }
-     *      
+     *
      * @returns NDframe
      */
 
@@ -209,7 +209,7 @@ export default class NDframe {
 
 
     /**
-        * Returns the data types in the DataFrame 
+        * Returns the data types in the DataFrameeditor.trimAutoWhitespace
         * @return {Array} list of data types for each column
         */
     get dtypes() {
@@ -277,16 +277,64 @@ export default class NDframe {
 
     /**
      * Align two objects on their axes with the specified join method.
-     * @param {other} DataFrame | Series, 
-     * @param {join} String, 
-     * @param {axis} Number,
-     * @param {copy} Boolean,
+     * @param {other} Series or DataFrame,
+     * @param {kwargs} Object, -> {
+     *                  "join": [outter, inner, left, right] default 'outter',
+     *                  "axis": [0, 1, None] default 'None',
+     *                  "inplace": [true, false] return a new objects default 'true',
+     *                  "fill_value": [Number]
+     *                }
+     * @return {Array} -> [
+     *                  "left": [DataFrame, Series]
+     *                  "rigth": [DataFrame, Series]
+     *                ]
      */
-    __align_data(other, join, axis, copy) {
+    __align_data(other, kwargs) {
+      if (!other.series) {
+        return this.__align_frame(
+          other, kwargs
+        )
+      } else if (other.series) {
+        return this.__align_series(
+          other, kwargs
+        )
+      }
+
+      throw new Error(`Value error: Expected DataFrame or Series object, but got ${typeof(other)}`)
+    }
+
+    __align_frame(other, kwargs) {
 
     }
 
+    __align_series(other, kwargs) {
+      if (this.series) {
+        if (kwargs["axis"]) {
+          throw new Error(`Param Error: Can't align series to a series with axis other than 0`);
+        }
 
+        if (kwargs["fill_value"] === undefined) {
+          kwargs["fill_value"] = NaN;
+        }
+
+        let left = this.copy()
+        let right = other.copy()
+
+        let precendance_join = other.size < this.size;
+
+        while (left.size < right.size  || right.size < left.size) {
+          if (precendance_join) {
+            right = right.append(kwargs["fill_value"], kwargs["inplace"])
+          } else {
+            left = left.append(kwargs["fill_value"], kwargs["inplace"])
+          }
+        }
+
+        return [left, right]
+      } else {
+        // Align Series with DataFrame.
+      }
+    }
 
     /**
      * Gets a sequence of axis dimension along row and columns
