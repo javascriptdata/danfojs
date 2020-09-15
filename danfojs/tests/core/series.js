@@ -1235,6 +1235,26 @@ describe("Series", function () {
 
         });
     });
+    describe("align", function () {
+      it("Align two Series", function () {
+        let sf1 = new Series([1.2, 3.0, 2.6, 6.2, 7.0, 123.6, 53.8, 213.8, 23.8, 32.3]);
+        let sf2 = new Series([21.3, 53.6, 12.0, 245.1, 32.5, 23.5, 6.4, 2.3, 57.3]);
+
+        let [ left, rigth ] = sf1.__align_data(sf2, { "join": "outer", "axis": 0, "inplace": false})
+
+        assert.deepEqual([1.2, 3.0, 2.6, 6.2, 7.0, 123.6, 53.8, 213.8, 23.8, 32.3], left.values)
+        assert.deepEqual([21.3, 53.6, 12.0, 245.1, 32.5, 23.5, 6.4, 2.3, 57.3, NaN], rigth.values)
+      });
+      it("Not align two series of same size", function() {
+        let sf1 = new Series([1.2, 3.0, 2.6, 6.2, 7.0, 123.6, 53.8, 213.8, 23.8]);
+        let sf2 = new Series([21.3, 53.6, 12.0, 245.1, 32.5, 23.5, 6.4, 2.3, 57.3]);
+
+        let [ left, rigth ] = sf1.__align_data(sf2, { "join": "outer", "axis": 0, "inplace": false})
+
+        assert.deepEqual([1.2, 3.0, 2.6, 6.2, 7.0, 123.6, 53.8, 213.8, 23.8], left.values)
+        assert.deepEqual([21.3, 53.6, 12.0, 245.1, 32.5, 23.5, 6.4, 2.3, 57.3], rigth.values)
+      });
+    });
     describe("corr", function () {
         it("Compute correlation with other Series (pearson)", function () {
             let sf1 = new Series([1.2, 3.0, 2.6, 6.2, 7.0, 123.6, 53.8, 213.8, 23.8, 3213]);
@@ -1252,15 +1272,6 @@ describe("Series", function () {
 
             let expected_val = -0.2222222222222222;
             assert.approximately(corr, expected_val, 0.0001);
-        });
-        it("Align two Series", function () {
-          let sf1 = new Series([1.2, 3.0, 2.6, 6.2, 7.0, 123.6, 53.8, 213.8, 23.8, 32.3]);
-          let sf2 = new Series([21.3, 53.6, 12.0, 245.1, 32.5, 23.5, 6.4, 2.3, 57.3]);
-
-          let [ left, rigth ] = sf1.__align_data(sf2, { "join": "outer", "axis": 0, "inplace": false})
-
-          assert.deepEqual([1.2, 3.0, 2.6, 6.2, 7.0, 123.6, 53.8, 213.8, 23.8, 32.3], left.values)
-          assert.deepEqual([21.3, 53.6, 12.0, 245.1, 32.5, 23.5, 6.4, 2.3, 57.3, NaN], rigth.values)
         });
     });
 })
