@@ -209,7 +209,7 @@ export default class NDframe {
 
 
     /**
-        * Returns the data types in the DataFrameeditor.trimAutoWhitespace
+        * Returns the data types in the DataFrame
         * @return {Array} list of data types for each column
         */
     get dtypes() {
@@ -369,7 +369,7 @@ export default class NDframe {
 
      /**
      * Return a boolean same-sized object indicating if the values are NaN. NaN and undefined values,
-     *  gets mapped to True values. Everything else gets mapped to False values. 
+     *  gets mapped to True values. Everything else gets mapped to False values.
      * @return {Array}
      */
     __isna() {
