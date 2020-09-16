@@ -548,7 +548,30 @@ export class Utils {
         return typeof variable == "function"
     }
 
+    __rankify(values, size) {
+      let tmp_rank = [];
 
+      for (let i = 0; i < size; i++) {
+        let r = 1, s = 1;
+
+        for (let j = 0; j < i; j++) {
+          if (values[j] < values[i])
+            r++;
+          if (values[j] == values[i])
+            s++
+        }
+
+        for (let j = i+1; j < size; j++) {
+          if (values[j] < values[i])
+            r++;
+          if (values[j] == values[i])
+            s++
+        }
+        tmp_rank.push(tf.scalar(r).add(tf.mul(tf.scalar(s - 1),tf.scalar(0.5))).arraySync())
+      }
+
+      return  tf.tensor1d(tmp_rank, "float32")
+    }
 
     //generate a random list
     __randgen(num, start, end) {

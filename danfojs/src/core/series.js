@@ -1224,8 +1224,8 @@ export class Series extends NDframe {
                     let y = s2.tensor;
                     let size = s1.size;
 
-                    let s1_std = tf.scalar(s1.std(), s1.dtypes[0]);
-                    let s2_std = tf.scalar(s2.std(), s2.dtypes[0]);
+                    let s1_std = tf.scalar(s1.std(), 'float32');
+                    let s2_std = tf.scalar(s2.std(), 'float32');
 
                     let numerator = tf.sub(tf.sum(tf.mul(x, y)), tf.mul(tf.scalar(size, "int32"), tf.mul(s1.mean(), s2.mean())))
 
@@ -1264,11 +1264,12 @@ export class Series extends NDframe {
                 return kendall
             case "spearman":
                 function spearman(s1, s2) {
-                    let X = s1.tensor.arraySync()
-                    let Y = s2.tensor.arraySync()
-                    let n = Y.length
+                    let n = s1.size
 
-                    return s1.__get_corr_function("pearson")(new Series(X), new Series(Y))
+                    let X_rank = utils.__rankify(s1.tensor.arraySync(), n)
+                    let Y_rank = utils.__rankify(s2.tensor.arraySync(), n)
+
+                    return s1.__get_corr_function("pearson")(new Series(X_rank), new Series(Y_rank))
                 }
 
                 return spearman

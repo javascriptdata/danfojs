@@ -1273,5 +1273,14 @@ describe("Series", function () {
             let expected_val = -0.2222222222222222;
             assert.approximately(corr, expected_val, 0.0001);
         });
+        it("Compute correlation with other Series (spearman)", function () {
+          let sf1 = new Series([1.2, 3.0, 2.6, 6.2, 7.0, 123.6, 53.8, 213.8, 23.8]);
+          let sf2 = new Series([21.3, 53.6, 12.0, 245.1, 32.5, 23.5, 6.4, 2.3, 57.3, 432]);
+
+          let corr = sf2.corr(sf1, { "method": "spearman" });
+
+          let expected_val = -0.2833333333333333;
+          assert.approximately(corr, expected_val, 0.0001);
+      });
     });
 })
