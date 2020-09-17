@@ -554,18 +554,13 @@ export class Utils {
       for (let i = 0; i < size; i++) {
         let r = 1, s = 1;
 
-        for (let j = 0; j < i; j++) {
-          if (values[j] < values[i])
-            r++;
-          if (values[j] == values[i])
-            s++
-        }
-
-        for (let j = i+1; j < size; j++) {
-          if (values[j] < values[i])
-            r++;
-          if (values[j] == values[i])
-            s++
+        for (let j = 0; j < size; j++) {
+          if (i !== j) {
+            if (values[j] < values[i])
+              r++
+            if (values[j] == values[i])
+              s++
+          }
         }
         tmp_rank.push(tf.scalar(r).add(tf.mul(tf.scalar(s - 1),tf.scalar(0.5))).arraySync())
       }
