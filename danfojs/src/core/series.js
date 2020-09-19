@@ -1241,6 +1241,39 @@ export class Series extends NDframe {
                     let Y = s2.tensor.arraySync()
                     let n = Y.length
 
+                    let n0 = tf.scalar((n * (n - 1)) / 2)
+                    let m_ti = new Map()
+                    let m_uj = new Map()
+                    let a_ti = []
+                    let a_uj = []
+
+                    X.forEach(function(value) {
+                      if (!m_ti.get(value)) {
+                        m_ti.set(value, 0)
+                      }
+                      m_ti.set(value, m_ti.get(value) + 1)
+                    });
+
+                    m_ti.forEach(function (value) {
+                      if (value > 1) {
+                        a_ti.push(value)
+                      }
+                    })
+
+
+                    Y.forEach(function(value) {
+                      if (!m_uj.get(value)) {
+                        m_uj.set(value, 0)
+                      }
+                      m_uj.set(value, m_uj.get(value) + 1)
+                    });
+
+                    m_uj.forEach(function (value) {
+                      if (value > 1) {
+                        a_uj.push(value)
+                      }
+                    })
+
                     let c_pairs = 0, d_pairs = 0
 
                     /**
@@ -1259,7 +1292,18 @@ export class Series extends NDframe {
                         }
                     }
 
-                    return parseFloat(tf.div(tf.sub(tf.scalar(c_pairs), tf.scalar(d_pairs)), tf.scalar((n * (n - 1)) / 2)).arraySync())
+                    let ti = tf.sum(tf.div(tf.mul(a_ti, tf.sub(a_ti, tf.scalar(1))), tf.scalar(2)))
+                    let uj = tf.sum(tf.div(tf.mul(a_uj, tf.sub(a_uj, tf.scalar(1))), tf.scalar(2)))
+
+                    return parseFloat(
+                      tf.div(
+                        tf.sub(
+                          tf.scalar(c_pairs), tf.scalar(d_pairs)
+                        ),
+                        tf.sqrt(tf.mul(tf.sub(n0, ti), tf.sub(n0, uj)))
+                      )
+                      .arraySync()
+                    )
                 }
                 return kendall
             case "spearman":
@@ -1274,10 +1318,10 @@ export class Series extends NDframe {
 
                 return spearman
             default:
-                if (utils.__is_function(kwargs["method"])) {
-                    return kwargs["method"]
+                if (utils.__is_function(method)) {
+                    return method
                 } else {
-                    throw new Error(`Params Error: Method ${kwargs["method"]} not recognize in list (kendall, spearman, pearson or callable).`)
+                    throw new Error(`Params Error: Method ${method} not recognize in list (kendall, spearman, pearson or callable).`)
                 }
         }
     }
