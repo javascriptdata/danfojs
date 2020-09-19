@@ -482,13 +482,22 @@ export class Series extends NDframe {
 
         if (other !== undefined) {
           let [ left, right ] = this.__align_data(other, { "join": "outer", "axis": 0, "inplace": false})
-          let valid_index = utils.__bit_wise_nanarray(left.isna().values, right.isna().values)
+          let valid_index = utils.__bit_wise_nanarray(left.tensor.isNaN().arraySync(), right.tensor.isNaN().arraySync())
+          let idxs = []
+          let array_index = valid_index.arraySync()
 
-          if (valid_index.length !== 0) {
-            left = left.iloc(valid_index)
-            right = right.iloc(valid_index)
+          array_index.map(function (val, idx) {
+            if (val)
+              idxs.push(idx)
+          })
+
+
+          if (array_index.length !== 0) {
+            left = left.iloc(idxs)
+            right = right.iloc(idxs)
           }
-
+          left.print()
+          right.print()
           if (left.__check_series_op_compactibility(right)) {
             let f = Series.__get_corr_function(kwargs["method"]);
             return f(left.tensor.arraySync(), right.tensor.arraySync());

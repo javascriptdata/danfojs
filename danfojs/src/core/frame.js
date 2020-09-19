@@ -2007,10 +2007,11 @@ export class DataFrame extends Ndframe {
               min_periods = 1
             }
 
-            let mat = df.tensor.transpose().arraySync().map(x => x.map(y => Number((y).toFixed(6))))
             const K = df.column_names.length
+            const mask = df.tensor.isNaN().arraySync()
+
+            let mat = df.tensor.transpose().arraySync().map(x => x.map(y => Number((y).toFixed(6))))
             let corr_matrix = tf.zeros([K, K]).arraySync()
-            const mask = df.isna().tensor.arraySync()
 
             for (const [i_idx, i_value] of mat.entries()) {
               for (const [j_idx, j_value] of mat.entries()) {
@@ -2020,17 +2021,21 @@ export class DataFrame extends Ndframe {
 
                 let c;
                 let valid = utils.__bit_wise_nanarray(mask[i_idx], mask[j_idx])
+                let array_index = valid.arraySync()
+
                 if (tf.sum(valid) < min_periods) {
                   c = NaN
                 } else if (i_idx === j_idx) {
                   c = 1.0
-                } else if (valid.length < mask[i_idx].length) {
+                } else if (!valid.all().arraySync()) {
                   let tmp_i_value = []
                   let tmp_j_value = []
 
-                  valid.forEach(i => {
-                    tmp_i_value.push(i_value[i])
-                    tmp_j_value.push(j_value[i])
+                  array_index.forEach(i => {
+                    if (array_index[i]) {
+                      tmp_i_value.push(i_value[i])
+                      tmp_j_value.push(j_value[i])
+                    }
                   })
 
                   c = utils.__kendall_corr(tmp_i_value, tmp_j_value)

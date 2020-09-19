@@ -533,13 +533,10 @@ export class Utils {
 
     // Compare two arrays of booleans of isna() function to align data in correlation functions.
     __bit_wise_nanarray(values_1, values_2) {
-      let idxs = []
-      for (let i = 0; i < values_1.length; i++) {
-        if (eval(`(!${values_1[i]} & !${values_2[i]})`)) {
-          idxs.push(i)
-        }
-      }
-      return idxs
+      let a = tf.tensor1d(values_1, "bool")
+      let b = tf.tensor1d(values_2, "bool")
+
+      return tf.logicalNot(a).logicalAnd(tf.logicalNot(b))
     }
 
     //check a variable is a function
