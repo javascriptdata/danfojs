@@ -17,7 +17,7 @@ import { std, variance } from 'mathjs'
  * DataFrame object. A 2D frame object that stores data in structured tabular format
  * @param {data} data, JSON, Array of structured data
  * @param {kwargs} Object {columns: Array of column names, dtypes: string of data types present in dataset.}
- * 
+ *
  * @returns DataFrame data structure
  */
 export class DataFrame extends Ndframe {
@@ -53,7 +53,7 @@ export class DataFrame extends Ndframe {
      *              axis: row=0, columns=1
      *             inplace: specify whether to drop the row/column with/without creating a new DataFrame}
      * @returns null | DataFrame
-     *            
+     *
      */
     drop(kwargs = {}) {
         let params_needed = ["columns", "index", "inplace", "axis"]
@@ -153,8 +153,8 @@ export class DataFrame extends Ndframe {
 
 
     /**
-     * Purely label based indexing. Can accept string label names for both rows and columns 
-     * @param {kwargs} kwargs object {rows: Array of index, columns: Array of column name(s)} 
+     * Purely label based indexing. Can accept string label names for both rows and columns
+     * @param {kwargs} kwargs object {rows: Array of index, columns: Array of column name(s)}
      * @return DataFrame data stucture
      */
     loc(kwargs = {}) {
@@ -174,7 +174,7 @@ export class DataFrame extends Ndframe {
 
     /**
      * Access a dataframe element using row and column index
-     * @param {*} kwargs object {rows: Array of index, columns: Array of column index}  
+     * @param {*} kwargs object {rows: Array of index, columns: Array of column index}
      * @return DataFrame data stucture
      */
     iloc(kwargs = {}) {
@@ -237,7 +237,7 @@ export class DataFrame extends Ndframe {
     /**
     * Gets [num] number of random rows in a dataframe
     * @param {rows}  rows --> int
-    * @returns DataFrame 
+    * @returns DataFrame
     */
     sample(num = 5) {
         //TODO: Use different sampling strategy
@@ -269,7 +269,7 @@ export class DataFrame extends Ndframe {
 
     /**
        * Return Addition of DataFrame and other, element-wise (binary operator add).
-       * @param {other} DataFrame, Series, Array or Number to add  
+       * @param {other} DataFrame, Series, Array or Number to add
        * @returns {DataFrame}
        */
     add(other, axis) {
@@ -287,7 +287,7 @@ export class DataFrame extends Ndframe {
 
     /**
       * Return subtraction of DataFrame and other, element-wise (binary operator add).
-      * @param {other} DataFrame, Series, Array or Number to add  
+      * @param {other} DataFrame, Series, Array or Number to add
       * @returns {DataFrame}
       */
     sub(other, axis) {
@@ -305,7 +305,7 @@ export class DataFrame extends Ndframe {
 
     /**
        * Return subtraction of DataFrame and other, element-wise (binary operator add).
-       * @param {other} DataFrame, Series, Array or Number to add  
+       * @param {other} DataFrame, Series, Array or Number to add
        * @returns {DataFrame}
        */
     mul(other, axis) {
@@ -323,7 +323,7 @@ export class DataFrame extends Ndframe {
 
     /**
        * Return division of DataFrame and other, element-wise (binary operator add).
-       * @param {other} DataFrame, Series, Array or Number to add  
+       * @param {other} DataFrame, Series, Array or Number to add
        * @returns {DataFrame}
        */
     div(other, axis) {
@@ -341,7 +341,7 @@ export class DataFrame extends Ndframe {
 
     /**
       * Return division of DataFrame and other, element-wise (binary operator add).
-      * @param {other} DataFrame, Series, Array or Number to add  
+      * @param {other} DataFrame, Series, Array or Number to add
       * @returns {DataFrame}
       */
     pow(other, axis) {
@@ -359,7 +359,7 @@ export class DataFrame extends Ndframe {
 
     /**
        * Return division of DataFrame and other, element-wise (binary operator add).
-       * @param {other} DataFrame, Series, Array or Number to add  
+       * @param {other} DataFrame, Series, Array or Number to add
        * @returns {DataFrame}
        */
     mod(other, axis) {
@@ -555,14 +555,14 @@ export class DataFrame extends Ndframe {
 
     /**
      * Perform Cummulative operations
-     * @param {axis} axis [int] {0 or 1} 
+     * @param {axis} axis [int] {0 or 1}
      * @param {ops} ops {String} name of operation
      * @return {DataFrame}
      */
     __cum_ops(axis = 0, ops) {
 
         if (!(axis == 0) && !(axis == 1)) {
-            throw new Error("axis must be between 0 or 1")
+            throw new Error("axis must be 0 or 1")
         }
 
         if (this.__frame_is_compactible_for_operation) {
@@ -690,7 +690,7 @@ export class DataFrame extends Ndframe {
     }
 
     /**
-    * Makes a new copy of a DataFrame  
+    * Makes a new copy of a DataFrame
     * @returns {DataFrame}
     */
     copy() {
@@ -720,7 +720,7 @@ export class DataFrame extends Ndframe {
 
     /**
     * Set the DataFrame index (row labels) using an array of the same length.
-    * @param {kwargs} {index: Array of new index values}
+    * @param {Object} kwargs {key: Array of new index values, inplace: Is in the same object or copy}
     */
     set_index(kwargs = {}) {
 
@@ -768,7 +768,7 @@ export class DataFrame extends Ndframe {
 
     /**
     * Generate descriptive statistics for all numeric columns
-    * Descriptive statistics include those that summarize the central tendency, 
+    * Descriptive statistics include those that summarize the central tendency,
     * dispersion and shape of a dataset’s distribution, excluding NaN values.
     * @returns {Series}
     */
@@ -945,7 +945,7 @@ export class DataFrame extends Ndframe {
     __get_tensor_and_idx(df, axis) {
         let tensor_vals, idx, t_axis;
         if (axis == 1) {
-            //Tensorflow uses 0 for column and 1 for rows, 
+            //Tensorflow uses 0 for column and 1 for rows,
             // we use the opposite for consistency with Pandas (0 : row, 1: columns)
             tensor_vals = df.row_data_tensor
             idx = df.column_names
@@ -966,7 +966,7 @@ export class DataFrame extends Ndframe {
 
     /**
      * Filter DataFrame element base on the element in a column
-     * @param {kwargs} kwargs {column : coumn name[string], is: String, to: string| int} 
+     * @param {kwargs} kwargs {column : coumn name[string], is: String, to: string| int}
      * @returns {DataFrame}
      */
     query(kwargs) {
@@ -1043,7 +1043,7 @@ export class DataFrame extends Ndframe {
     /**
      * Add a column with values to the dataframe
      * @param {kwargs} Object {column :[string] , value:[Array]}
-     * 
+     *
      */
     addColumn(kwargs) {
 
@@ -1105,7 +1105,7 @@ export class DataFrame extends Ndframe {
     }
 
     /**
-     * 
+     *
      * @param {col}  col is a list of column with maximum length of two
      */
     groupby(col) {
@@ -1296,7 +1296,7 @@ export class DataFrame extends Ndframe {
 
     /**
      * Return a boolean same-sized object indicating if the values are NaN. NaN and undefined values,
-     *  gets mapped to True values. Everything else gets mapped to False values. 
+     *  gets mapped to True values. Everything else gets mapped to False values.
      * @return {DataFrame}
      */
     isna() {
@@ -1463,7 +1463,7 @@ export class DataFrame extends Ndframe {
 
     /**
      * Returns Less than of DataFrame and other. Supports element wise operations
-     * @param {other} DataFrame, Series, Scalar 
+     * @param {other} DataFrame, Series, Scalar
      * @param {axis} Number {0 for row, 1 for index} Whether to compare by the index or columns
      * @return {DataFrame}
      */
@@ -1483,7 +1483,7 @@ export class DataFrame extends Ndframe {
 
     /**
     * Returns Greater than of DataFrame and other. Supports element wise operations
-    * @param {other} DataFrame, Series, Scalar 
+    * @param {other} DataFrame, Series, Scalar
     * @param {axis} Number {0 for row, 1 for index} Whether to compare by the index or columns
     * @return {DataFrame}
     */
@@ -1504,7 +1504,7 @@ export class DataFrame extends Ndframe {
 
     /**
     * Returns Less than or Equal to of DataFrame and other. Supports element wise operations
-    * @param {other} DataFrame, Series, Scalar 
+    * @param {other} DataFrame, Series, Scalar
     * @param {axis} Number {0 for row, 1 for index} Whether to compare by the index or columns
     * @return {DataFrame}
     */
@@ -1523,7 +1523,7 @@ export class DataFrame extends Ndframe {
 
     /**
     * Returns Greater than or Equal to of DataFrame and other. Supports element wise operations
-    * @param {other} DataFrame, Series, Scalar 
+    * @param {other} DataFrame, Series, Scalar
     * @param {axis} Number {0 for row, 1 for index} Whether to compare by the index or columns
     * @return {DataFrame}
     */
@@ -1543,7 +1543,7 @@ export class DataFrame extends Ndframe {
 
     /**
     * Returns Not Equal to of DataFrame and other. Supports element wise operations
-    * @param {other} DataFrame, Series, Scalar 
+    * @param {other} DataFrame, Series, Scalar
     * @param {axis} Number {0 for row, 1 for index} Whether to compare by the index or columns
     * @return {DataFrame}
     */
@@ -1563,7 +1563,7 @@ export class DataFrame extends Ndframe {
 
     /**
     * Returns Greater than or Equal to of DataFrame and other. Supports element wise operations
-    * @param {other} DataFrame, Series, Scalar 
+    * @param {other} DataFrame, Series, Scalar
     * @param {axis} Number {0 for row, 1 for index} Whether to compare by the index or columns
     * @return {DataFrame}
     */
@@ -1586,7 +1586,7 @@ export class DataFrame extends Ndframe {
     * Replace all occurence of a value with a new specified value"
     * @param {kwargs}, {"replace": the value you want to replace,
     *                   "with": the new value you want to replace the olde value with
-    *                   "in": Array of column names to replace value in, If not specified, replace all columns} 
+    *                   "in": Array of column names to replace value in, If not specified, replace all columns}
     * @return {Series}
     */
     replace(kwargs = {}) {
@@ -1764,7 +1764,7 @@ export class DataFrame extends Ndframe {
                 //axis = 1 (column)
                 let this_tensor, other_tensor
 
-                this_tensor = tensors[0].row_data_tensor //tensorflow uses 1 for rows axis and 0 for column axis 
+                this_tensor = tensors[0].row_data_tensor //tensorflow uses 1 for rows axis and 0 for column axis
                 if (tensors[1].series) {
                     other_tensor = tf.tensor(tensors[1].values, [1, tensors[1].values.length])
                 } else {
@@ -1818,7 +1818,7 @@ export class DataFrame extends Ndframe {
 
 
     /**
-        * Returns the data types in the DataFrame 
+        * Returns the data types in the DataFrame
         * @return {Array} list of data types for each column
         */
     get ctypes() {
@@ -1851,7 +1851,7 @@ export class DataFrame extends Ndframe {
 
 
     /**
-     * Sets the data types of an DataFrame 
+     * Sets the data types of an DataFrame
      * @param {Object} kwargs {column: Name of the column to cast, dtype: [float32, int32, string] data type to cast to}
      * @returns {DataFrame}
      */
@@ -1974,10 +1974,88 @@ export class DataFrame extends Ndframe {
 
     }
 
-
-
     /**
-     * Change axes labels. Object values must be unique (1-to-1). 
+     * Compute pairwise correlation of colums, excluding the missing values.
+     *
+     * @param {Object} kwargs -> {
+     *                    "method": [pearson, kendall, spearman],
+     *                    "min_periods": [0, size of the DataFrame]
+     *                 }
+     * @returns {DataFrame}
+     */
+    corr(kwargs = {}) {
+      let cols = this.column_names
+      let idx = Array.from(cols)
+
+      let f = DataFrame.__get_corr_function(kwargs["method"])
+      let corr_matrix = f(this, kwargs["min_periods"])
+
+      let df = new DataFrame(corr_matrix, { columns: cols });
+
+      return df.set_index({ "key" : idx, "inplace": false });
+    }
+
+    static __get_corr_function(method) {
+      switch (method) {
+        case "pearson":
+          break;
+        case "spearman":
+          break;
+        case "kendall":
+          function kendall(df, min_periods) {
+            if (min_periods === undefined) {
+              min_periods = 1
+            }
+
+            let mat = df.tensor.transpose().arraySync().map(x => x.map(y => Number((y).toFixed(6))))
+            const K = df.column_names.length
+            let corr_matrix = tf.zeros([K, K]).arraySync()
+            const mask = df.isna().tensor.arraySync()
+
+            for (const [i_idx, i_value] of mat.entries()) {
+              for (const [j_idx, j_value] of mat.entries()) {
+                if (i_idx > j_idx) {
+                  continue
+                }
+
+                let c;
+                let valid = utils.__bit_wise_nanarray(mask[i_idx], mask[j_idx])
+                if (tf.sum(valid) < min_periods) {
+                  c = NaN
+                } else if (i_idx === j_idx) {
+                  c = 1.0
+                } else if (valid.length < mask[i_idx].length) {
+                  let tmp_i_value = []
+                  let tmp_j_value = []
+
+                  valid.forEach(i => {
+                    tmp_i_value.push(i_value[i])
+                    tmp_j_value.push(j_value[i])
+                  })
+
+                  c = utils.__kendall_corr(tmp_i_value, tmp_j_value)
+                } else {
+                  c = utils.__kendall_corr(i_value, j_value)
+                }
+
+                corr_matrix[i_idx][j_idx] = c
+                corr_matrix[j_idx][i_idx] = c
+              }
+            }
+
+            return corr_matrix
+          }
+          return kendall;
+        default:
+          if (utils.__is_function(method)) {
+            return method
+          } else {
+            throw new Error(`Params Error: Method ${method} not recognize in list (kendall, spearman, pearson or callable).`)
+          }
+      }
+    }
+    /**
+     * Change axes labels. Object values must be unique (1-to-1).
      * Labels not contained in a dict / Series will be left as-is. Extra labels listed don’t throw an error.
      * @param {Object} kwargs {mapper: Dict-like or functions transformations to apply to that axis’ values,
      *                          axis: Int, 0 for row, and 1 for column. Default to 1,

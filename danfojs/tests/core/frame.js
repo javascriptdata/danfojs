@@ -2191,4 +2191,25 @@ describe("DataFrame", function () {
 
         });
     });
+
+    describe("corr", function () {
+      it("Compute correlation matrix (kendall)", function () {
+        let data = [[.2, .3], [.0, .6], [.6, .0], [.2, .1]];
+
+        let df = new DataFrame(data, { "columns": ["dogs", "cats"] });
+
+        let expect_val = [[1.0,-0.912871], [-0.912871, 1.0]];
+
+        let corr_df = df.corr({ "method": "kendall", "min_periods": 1 });
+
+        assert.deepEqual(corr_df.values.length, expect_val.length)
+
+        corr_df.values.forEach(function (value_i, index_i) {
+          assert.deepEqual(value_i.length, expect_val[index_i].length)
+          value_i.forEach(function (value_j, index_j) {
+            assert.approximately(value_j, expect_val[index_i][index_j], 0.0001);
+          })
+        });
+      });
+    });
 });

@@ -490,8 +490,8 @@ export class Series extends NDframe {
           }
 
           if (left.__check_series_op_compactibility(right)) {
-            let f = this.__get_corr_function(kwargs["method"]);
-            return f(left, right);
+            let f = Series.__get_corr_function(kwargs["method"]);
+            return f(left.tensor.arraySync(), right.tensor.arraySync());
           }
         }
     }
@@ -1216,10 +1216,12 @@ export class Series extends NDframe {
      * Get method based on input of kwargs in corr function.
      * @param {method} String | callable : Method to use in correlation computation.
      */
-    __get_corr_function(method) {
+    static __get_corr_function(method) {
         switch (method) {
             case "pearson":
-                function pearson(s1, s2) {
+                function pearson(X, Y) {
+                    let s1 = new Series(X)
+                    let s2 = new Series(Y)
                     let x = s1.tensor;
                     let y = s2.tensor;
                     let size = s1.size;
@@ -1236,84 +1238,14 @@ export class Series extends NDframe {
 
                 return pearson
             case "kendall":
-                function kendall(s1, s2) {
-                    let X = s1.tensor.arraySync()
-                    let Y = s2.tensor.arraySync()
-                    let n = Y.length
-
-                    let n0 = tf.scalar((n * (n - 1)) / 2)
-                    let m_ti = new Map()
-                    let m_uj = new Map()
-                    let a_ti = []
-                    let a_uj = []
-
-                    X.forEach(function(value) {
-                      if (!m_ti.get(value)) {
-                        m_ti.set(value, 0)
-                      }
-                      m_ti.set(value, m_ti.get(value) + 1)
-                    });
-
-                    m_ti.forEach(function (value) {
-                      if (value > 1) {
-                        a_ti.push(value)
-                      }
-                    })
-
-
-                    Y.forEach(function(value) {
-                      if (!m_uj.get(value)) {
-                        m_uj.set(value, 0)
-                      }
-                      m_uj.set(value, m_uj.get(value) + 1)
-                    });
-
-                    m_uj.forEach(function (value) {
-                      if (value > 1) {
-                        a_uj.push(value)
-                      }
-                    })
-
-                    let c_pairs = 0, d_pairs = 0
-
-                    /**
-                     * This way is O(n^2) time complexity, but can be improve to O(nlogn) implementing
-                     * merge sort and bubble sort strategy.
-                     */
-                    for (let i = 0; i < (n % 2 === 0 ? n : n -1); i++) {
-                        for (let j = i + 1; j < n; j++) {
-                            if ((X[i] < X[j] && Y[i] < Y[j]) ||
-                                (X[i] > X[j] && Y[i] > Y[j])) {
-                                c_pairs += 1
-                            } else if ((X[i] > X[j] && Y[i] < Y[j]) ||
-                                    (X[i] < X[j] && Y[i] > Y[j])) {
-                                d_pairs += 1
-                            }
-                        }
-                    }
-
-                    let ti = tf.sum(tf.div(tf.mul(a_ti, tf.sub(a_ti, tf.scalar(1))), tf.scalar(2)))
-                    let uj = tf.sum(tf.div(tf.mul(a_uj, tf.sub(a_uj, tf.scalar(1))), tf.scalar(2)))
-
-                    return parseFloat(
-                      tf.div(
-                        tf.sub(
-                          tf.scalar(c_pairs), tf.scalar(d_pairs)
-                        ),
-                        tf.sqrt(tf.mul(tf.sub(n0, ti), tf.sub(n0, uj)))
-                      )
-                      .arraySync()
-                    )
-                }
-                return kendall
+                return utils.__kendall_corr
             case "spearman":
-                function spearman(s1, s2) {
-                    let n = s1.size
+                function spearman(X, Y) {
+                    let n = X.length
 
-                    let X_rank = utils.__rankify(s1.tensor.arraySync(), n)
-                    let Y_rank = utils.__rankify(s2.tensor.arraySync(), n)
-
-                    return s1.__get_corr_function("pearson")(new Series(X_rank), new Series(Y_rank))
+                    let X_rank = utils.__rankify(X, n)
+                    let Y_rank = utils.__rankify(Y, n)
+                    return Series.__get_corr_function("pearson")(X_rank, Y_rank)
                 }
 
                 return spearman
