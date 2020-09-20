@@ -20,7 +20,8 @@
     "@tensorflow/tfjs-node": "2.1.0",
     "mathjs": "^7.1.0",
     "node-fetch": "^2.6.0",
-    "table": "^5.4.6"
+    "table": "^5.4.6",
+    "xlsx": "^0.16.7"
   },
   "scripts": {
     "test": "nyc mocha --require @babel/register danfojs/tests/*",
