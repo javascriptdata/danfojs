@@ -73,35 +73,69 @@ export const read_json = async (source) => {
 /**
  * Reads an Excel file from local or remote address
  *
- * @param {source} URL or local file path to retreive Excel file.
- * @param {sheetName} (Optional) Name of the sheet which u want to parse. Default will be the first sheet.
- * @description Assume following format: First non empty row represents column and next rows represents data until the next empty row.
+ *  * @param {kwargs} kwargs --> {
+ *                        source       : string, URL or local file path to retreive Excel file.
+ *                        sheet_name   : string, (Optional) Name of the sheet which u want to parse. Default will be the first sheet.
+ *                        header_index : int, (Optional) Index of the row which represents the header(columns) of the data. Default will be the first non empty row.
+ *                        data_index   : int, (Optional)Index of the row from which actual data(content) starts. Default will be the next row of `header_index`
+ *                    }
  * @returns {Promise} DataFrame structure of parsed Excel data
 */
-export const read_excel = async (source, sheetName) => {
-    var isAUrl = source.match(/(http(s?)):\/\//g);
+export const read_excel = async (kwargs) => {
+    var {source, sheet_name, header_index, data_index} = kwargs;
+    var is_a_url = source.match(/(http(s?)):\/\//g);
     var workbook;
+    if (!header_index) {
+        //default header_index
+        header_index = 1;
+    }
+    if (!data_index) {
+        //default data_index
+        data_index = header_index + 1;
+    }
     try {
         if (utils.__is_node_env()) {
             // inside Node Env
-            if (isAUrl) {
+            if (is_a_url) {
                 let res = await fetch(source, { method: "Get" })
                 res = await res.arrayBuffer();
                 res = new Uint8Array(res);
                 workbook = XLSX.read(res, {type:"array"});
             }
         }
-        if(!isAUrl) {
+        if(!is_a_url) {
             workbook = XLSX.readFile(source);
         }
-        // convert from workbook to array of arrays
-        const worksheet = workbook.Sheets[sheetName || workbook.SheetNames[0]];
+        // Parse worksheet from workbook
+        const worksheet = workbook.Sheets[sheet_name || workbook.SheetNames[0]];
+        var range = XLSX.utils.decode_range(worksheet['!ref']);
+        var column_names = [], data = [];
+        for(var R = header_index-1; R <= range.e.r; ++R) {
+            var row_data = [];
+            for(var C = range.s.c; C <= range.e.c; ++C) {
+                var cell_ref;
 
-        //sheet_to_json returns array of arrays
-        var data = XLSX.utils.sheet_to_json(worksheet, {header:1});
-        const columnNames = data[0];
-        data = [].concat(data.slice(1));
-        let df = new DataFrame(data, {columns : columnNames});
+                //Populate column_names
+                if (R == header_index - 1) {
+                    cell_ref = XLSX.utils.encode_cell({c:C, r:header_index - 1});
+                    if(worksheet[cell_ref]) {
+                        column_names.push(worksheet[cell_ref].v);
+                    }
+                }
+
+                //Populate corresponding data row
+                if (R >= data_index-1) {
+                    cell_ref = XLSX.utils.encode_cell({c:C, r:R});
+                    if(worksheet[cell_ref]) {
+                        row_data.push(worksheet[cell_ref].v);
+                    }
+                }
+            }
+            if (R >= data_index-1) {
+                data.push(row_data);
+            }
+        }
+        let df = new DataFrame(data, {columns : column_names});
         return df;
     } catch (err) {
         console.error(err);

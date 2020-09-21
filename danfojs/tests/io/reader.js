@@ -56,14 +56,14 @@ import { read_csv, read_json, read_excel } from '../../src/io/reader';
 describe("read_excel", async function () {
 
     it("reads an excel file from source over the internet", async function () {
-        const remoteUrl = 'https://file-examples-com.github.io/uploads/2017/02/file_example_XLS_100.xls';
-        const df = await read_excel(remoteUrl);
+        const remote_url = 'https://file-examples-com.github.io/uploads/2017/02/file_example_XLS_100.xls';
+        const df = await read_excel({source : remote_url});
         assert(df.columns.length, 8);
     })
 
     it("reads an excel file from source from local disk", async function () {
-        const fileUrl = 'danfojs/tests/samples/SampleData.xlsx';
-        const df = await read_excel(fileUrl);
+        const file_url = 'danfojs/tests/samples/SampleData.xlsx';
+        const df = await read_excel({source : file_url, header_index : 7, data_index : 8});
         assert(df.columns.length, 4);
     })
 })
