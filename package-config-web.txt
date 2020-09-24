@@ -1,7 +1,7 @@
 //package for browser verion
 {
   "name": "danfojs",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
   "main": "dist/index.js",
   "contributors": [
@@ -89,7 +89,7 @@
 
   {
   "name": "danfojs-node",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
   "main": "dist/index.js",
   "contributors": [
@@ -105,13 +105,15 @@
     "danfojs/src/"
   ],
   "dependencies": {
-    "@tensorflow/tfjs-node": "2.1.0",
     "@tensorflow/tfjs-core": "^2.1.0",
+    "@tensorflow/tfjs-node": "2.1.0",
     "mathjs": "^7.1.0",
-    "table": "^5.4.6"
+    "node-fetch": "^2.6.0",
+    "table": "^5.4.6",
+    "xlsx": "^0.16.7"
   },
   "scripts": {
-    "test": "nyc mocha --require @babel/register danfojs/tests/core/frame",
+    "test": "nyc mocha --require @babel/register danfojs/tests/*",
     "dev": "npm run lint && babel ./danfojs/src -d dist --no-comments",
     "build": "babel ./danfojs/src -d ./dist --no-comments",
     "lint": "eslint ./danfojs/src",
