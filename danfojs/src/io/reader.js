@@ -34,7 +34,6 @@ export const read_csv = async (source, chunk) => {
     const sample = await csvDataset.take(chunk)
     await sample.forEachAsync(row => data.push(Object.values(row)))
     let df = new DataFrame(data, { columns: column_names })
-    df.head().print()
     return df
 }
 
@@ -144,7 +143,7 @@ export const read_excel = async (kwargs) => {
         let df = new DataFrame(data, { columns: column_names });
         return df;
     } catch (err) {
-        console.error(err);
+        throw new Error(err)
     }
 }
 
