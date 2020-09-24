@@ -97,6 +97,11 @@ describe("Generic (NDFrame)", function () {
             let ndframe = new NDframe(data)
             assert.deepEqual(ndframe.values, [["A", 1], ["B", 2]])
         })
+        it("prints the values of a frame created from an Object with null values", function () {
+            let data = [{ alpha: "A", count: null }, { alpha: null, count: 2 }]
+            let ndframe = new NDframe(data)
+            assert.deepEqual(ndframe.values, [["A", NaN], [NaN, 2]])
+        })
     })
 
     describe("NDframe Created from a Tensor", function () {

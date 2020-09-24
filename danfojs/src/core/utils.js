@@ -199,8 +199,8 @@ export class Utils {
     __replace_undefined_with_NaN(data, isSeries) {
         if (isSeries) {
             let temp_arr = []
-            data.map(val => {
-                if (typeof val === 'undefined' || val == Infinity) {
+            data.forEach(val => {
+                if (typeof val === 'undefined' || val == Infinity || val == null) {
                     temp_arr.push(NaN)
                 } else {
                     temp_arr.push(val)
@@ -209,10 +209,10 @@ export class Utils {
             return temp_arr
         } else {
             let full_arr = []
-            data.map(val => {
+            data.forEach(val => {
                 var temp_arr = []
                 val.map(ele => {
-                    if (typeof ele === 'undefined' || val == Infinity) {
+                    if (typeof ele === 'undefined' || ele == Infinity || ele == null) {
                         temp_arr.push(NaN)
                     } else {
                         temp_arr.push(ele)

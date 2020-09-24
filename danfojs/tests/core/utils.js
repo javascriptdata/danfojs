@@ -156,6 +156,18 @@ describe("Utils Functions", function () {
             [10.01, NaN, NaN, 20.505, 20, NaN]]
             assert.deepEqual(utils.__replace_undefined_with_NaN(data, false), result)
         })
+        it("replace null in Series with NaN", function () {
+            let data = [10.01, 2.2, null, 20.505, 20.22, null]
+            assert.deepEqual(utils.__replace_undefined_with_NaN(data, true), [10.01, 2.2, NaN, 20.505, 20.22, NaN])
+        })
+        it("replace null in DataFrame with NaN", function () {
+            let data = [[10.01, 2.2, null, 20.505, 20.22, null],
+            [10.01, null, null, 20.505, 20, null]]
+
+            let result = [[10.01, 2.2, NaN, 20.505, 20.22, NaN],
+            [10.01, NaN, NaN, 20.505, 20, NaN]]
+            assert.deepEqual(utils.__replace_undefined_with_NaN(data, false), result)
+        })
     })
 
     describe("__convert_2D_to_1D", function () {
@@ -182,13 +194,13 @@ describe("Utils Functions", function () {
 
     describe("__get_row_values", function () {
         it("retreive rows and labels from column object", function () {
-            let data = { "Alpha": ["A", "B", "C", "D"], count: [1,2,3,4], sum: [20.3, 30.456, 40.90, 90.1]}
+            let data = { "Alpha": ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] }
             let res = [["A", 1, 20.3], ["B", 2, 30.456], ["C", 3, 40.90], ["D", 4, 90.1]]
             assert.deepEqual(utils.__get_row_values(data)[0], res)
             assert.deepEqual(utils.__get_row_values(data)[1], ["Alpha", "count", "sum"])
 
         })
-        
+
 
     })
 

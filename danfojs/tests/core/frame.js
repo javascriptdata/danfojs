@@ -494,7 +494,7 @@ describe("DataFrame", function () {
         it("Return division of a DataFrame with a DataFrame along default axis 1", function () {
             let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
             let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
-            assert.deepEqual(df1.div(df2).values, [[0, 1, 1], [36, 36, Infinity]])
+            assert.deepEqual(df1.div(df2).values, [[0, 1, 1], [36, 36, NaN]])
         })
         it("Return division of a DataFrame with a DataFrame along axis 0", function () {
             let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
@@ -503,7 +503,7 @@ describe("DataFrame", function () {
         it("Return division of a DataFrame with a DataFrame along axis 0", function () {
             let df1 = new DataFrame([[0, 2, 4], [360, 180, 360]])
             let df2 = new DataFrame([[1, 2, 4], [10, 5, 0]])
-            assert.deepEqual(df1.div(df2).values, [[0, 1, 1], [36, 36, Infinity]])
+            assert.deepEqual(df1.div(df2).values, [[0, 1, 1], [36, 36, NaN]])
         })
 
     })
@@ -2049,7 +2049,7 @@ describe("DataFrame", function () {
             }
 
             let ndframe = new DataFrame(data)
-            let df = ndframe.rename({ mapper: { "A": "a1", "B": "b1" } })
+            // let df = ndframe.rename({ mapper: { "A": "a1", "B": "b1" } })
             let res = ["A", "B", "C", "D"]
             assert.deepEqual(ndframe.columns, res)
 
