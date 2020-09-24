@@ -115,9 +115,7 @@ export const read_excel = async (kwargs) => {
             res = new Uint8Array(res);
             workbook = XLSX.read(res, { type: "array" });
         }
-        // if (!is_a_url) {
-        //     workbook = XLSX.readFile(source);
-        // }
+      
         // Parse worksheet from workbook
         const worksheet = workbook.Sheets[sheet_name || workbook.SheetNames[0]];
         var range = XLSX.utils.decode_range(worksheet['!ref']);
