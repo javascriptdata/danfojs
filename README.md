@@ -52,7 +52,7 @@ easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org
 To use danfo.js via script tags, copy and paste the CDN below to your HTML file
 
 ```html
-  <script src="https://cdn.jsdelivr.net/npm/danfojs@0.1.1/dist/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/danfojs@0.1.2/dist/index.min.js"></script>
 ```
 
 ### Example Usage in the Browser
