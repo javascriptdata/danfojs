@@ -1,6 +1,6 @@
 import { DataFrame } from '../core/frame'
-import * as tf from '@tensorflow/tfjs-node'
-// import * as tf from '@tensorflow/tfjs'
+// import * as tf from '@tensorflow/tfjs-node'
+import * as tf from '@tensorflow/tfjs'
 import { Utils } from '../core/utils'
 
 //used in reading JSON file in nodejs env
