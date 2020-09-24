@@ -4,7 +4,7 @@ import * as tf from '@tensorflow/tfjs'
 import { Utils } from '../core/utils'
 
 //used in reading JSON file in nodejs env
-import fs from 'fs'
+// import fs from 'fs'
 import fetch from 'node-fetch'
 
 import XLSX from 'xlsx';
@@ -26,7 +26,7 @@ export const read_csv = async (source, chunk) => {
     if (!(utils.__is_browser_env() || source.startsWith("file://") || source.startsWith("http"))) {
         //probabily a relative path, append file:// to it
         source = `file://${process.cwd()}/${source}`
-    } 
+    }
 
     let data = []
     const csvDataset = tf.data.csv(source)
@@ -56,12 +56,12 @@ export const read_json = async (source) => {
 
         } else {
             //read locally
-            fs.readFile(source, (err, data) => {
-                if (err) throw err;
-                let df = new DataFrame(JSON.parse(data))
-                return df
+            // fs.readFile(source, (err, data) => {
+            //     if (err) throw err;
+            //     let df = new DataFrame(JSON.parse(data))
+            //     return df
 
-            })
+            // })
         }
     } else {
 
@@ -106,11 +106,18 @@ export const read_excel = async (kwargs) => {
                 res = await res.arrayBuffer();
                 res = new Uint8Array(res);
                 workbook = XLSX.read(res, { type: "array" });
+            } else {
+                workbook = XLSX.readFile(source);
             }
+        } else {
+            let res = await fetch(source, { method: "Get" })
+            res = await res.arrayBuffer();
+            res = new Uint8Array(res);
+            workbook = XLSX.read(res, { type: "array" });
         }
-        if (!is_a_url) {
-            workbook = XLSX.readFile(source);
-        }
+        // if (!is_a_url) {
+        //     workbook = XLSX.readFile(source);
+        // }
         // Parse worksheet from workbook
         const worksheet = workbook.Sheets[sheet_name || workbook.SheetNames[0]];
         var range = XLSX.utils.decode_range(worksheet['!ref']);
