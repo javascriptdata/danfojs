@@ -23,12 +23,18 @@ const utils = new Utils()
  * @returns {Promise} DataFrame structure of parsed CSV data
  */
 export const read_csv = async (source, chunk) => {
+    if (!(utils.__is_browser_env() || source.startsWith("file://") || source.startsWith("http"))) {
+        //probabily a relative path, append file:// to it
+        source = `file://${process.cwd()}/${source}`
+    } 
+
     let data = []
     const csvDataset = tf.data.csv(source)
     const column_names = await csvDataset.columnNames()
     const sample = await csvDataset.take(chunk)
     await sample.forEachAsync(row => data.push(Object.values(row)))
     let df = new DataFrame(data, { columns: column_names })
+    df.head().print()
     return df
 }
 
@@ -59,7 +65,7 @@ export const read_json = async (source) => {
             })
         }
     } else {
-        
+
         let res = await fetch(source, { method: "Get" })
         let json = await res.json()
         let df = new DataFrame(json)
@@ -82,7 +88,7 @@ export const read_json = async (source) => {
  * @returns {Promise} DataFrame structure of parsed Excel data
 */
 export const read_excel = async (kwargs) => {
-    var {source, sheet_name, header_index, data_index} = kwargs;
+    var { source, sheet_name, header_index, data_index } = kwargs;
     var is_a_url = source.match(/(http(s?)):\/\//g);
     var workbook;
     if (!header_index) {
@@ -100,42 +106,42 @@ export const read_excel = async (kwargs) => {
                 let res = await fetch(source, { method: "Get" })
                 res = await res.arrayBuffer();
                 res = new Uint8Array(res);
-                workbook = XLSX.read(res, {type:"array"});
+                workbook = XLSX.read(res, { type: "array" });
             }
         }
-        if(!is_a_url) {
+        if (!is_a_url) {
             workbook = XLSX.readFile(source);
         }
         // Parse worksheet from workbook
         const worksheet = workbook.Sheets[sheet_name || workbook.SheetNames[0]];
         var range = XLSX.utils.decode_range(worksheet['!ref']);
         var column_names = [], data = [];
-        for(var R = header_index-1; R <= range.e.r; ++R) {
+        for (var R = header_index - 1; R <= range.e.r; ++R) {
             var row_data = [];
-            for(var C = range.s.c; C <= range.e.c; ++C) {
+            for (var C = range.s.c; C <= range.e.c; ++C) {
                 var cell_ref;
 
                 //Populate column_names
                 if (R == header_index - 1) {
-                    cell_ref = XLSX.utils.encode_cell({c:C, r:header_index - 1});
-                    if(worksheet[cell_ref]) {
+                    cell_ref = XLSX.utils.encode_cell({ c: C, r: header_index - 1 });
+                    if (worksheet[cell_ref]) {
                         column_names.push(worksheet[cell_ref].v);
                     }
                 }
 
                 //Populate corresponding data row
-                if (R >= data_index-1) {
-                    cell_ref = XLSX.utils.encode_cell({c:C, r:R});
-                    if(worksheet[cell_ref]) {
+                if (R >= data_index - 1) {
+                    cell_ref = XLSX.utils.encode_cell({ c: C, r: R });
+                    if (worksheet[cell_ref]) {
                         row_data.push(worksheet[cell_ref].v);
                     }
                 }
             }
-            if (R >= data_index-1) {
+            if (R >= data_index - 1) {
                 data.push(row_data);
             }
         }
-        let df = new DataFrame(data, {columns : column_names});
+        let df = new DataFrame(data, { columns: column_names });
         return df;
     } catch (err) {
         console.error(err);
