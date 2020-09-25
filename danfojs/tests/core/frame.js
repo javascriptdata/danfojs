@@ -2098,7 +2098,7 @@ describe("DataFrame", function () {
         })
     })
 
-    describe("SortIndex", function () {
+    describe("sort_index", function () {
 
         it("sort index in ascending order", function () {
             let data = [[0, 2, 4, "b"],
@@ -2108,7 +2108,7 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] })
             df.set_index({ key: ["b", "a", "c"], inplace: true })
 
-            let df2 = df.sortIndex()
+            let df2 = df.sort_index()
             let rslt = [[360, 180, 360, 'a'], [0, 2, 4, 'b'], [2, 4, 6, 'c']]
 
             assert.deepEqual(df2.values, rslt)
@@ -2121,7 +2121,7 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] })
             df.set_index({ key: ["b", "a", "c"], inplace: true })
 
-            let df2 = df.sortIndex({ ascending: false })
+            let df2 = df.sort_index({ ascending: false })
             let rslt = [[2, 4, 6, 'c'], [0, 2, 4, 'b'], [360, 180, 360, 'a']]
 
             assert.deepEqual(df2.values, rslt)
@@ -2134,7 +2134,7 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] })
             df.set_index({ key: ["b", "a", "c"], inplace: true })
 
-            df.sortIndex({ ascending: false, inplace: true })
+            df.sort_index({ ascending: false, inplace: true })
             let rslt = [[2, 4, 6, 'c'], [0, 2, 4, 'b'], [360, 180, 360, 'a']]
             assert.deepEqual(df.values, rslt)
         })

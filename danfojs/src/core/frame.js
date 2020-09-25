@@ -2056,7 +2056,7 @@ export class DataFrame extends Ndframe {
      * @param {*} kwargs {inplace: Boolean, ascending: Bool}
      * @returns DataFrame
      */
-    sortIndex(kwargs = {}) {
+    sort_index(kwargs = {}) {
 
         let inplace = typeof kwargs["inplace"] == "undefined" ? false : kwargs["inplace"]
         let asc = typeof kwargs["ascending"] == "undefined" ? true : kwargs["ascending"]
