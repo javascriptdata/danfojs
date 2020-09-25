@@ -2185,7 +2185,7 @@ export class DataFrame extends Ndframe {
 
     /**
      * Append rows to a DataFrame
-     * @param {Object} val Array | Series to append to the object
+     * @param {val} val Array | Series to append to the object
      * @return DataFrame
      */
     append(val) {

@@ -1234,5 +1234,19 @@ describe("Series", function () {
             assert.deepEqual(sf1.values, expected_val)
 
         });
+        it("Confirm index Change after append", function () {
+            let sf1 = new Series([1, 2, 3, 4])
+            let sf2 = new Series(["a", "b", "c"])
+            sf1 = sf1.append(sf2)
+            assert.deepEqual(sf1.index, [0,1,2,3,0,1,2])
+
+        });
+        it("Confirm index Change after append inplace", function () {
+            let sf1 = new Series([1, 2, 3, 4])
+            let sf2 = new Series(["a", "b", "c"])
+            sf1.append(sf2, true)
+            assert.deepEqual(sf1.index, [0,1,2,3,0,1,2])
+
+        });
     });
 })

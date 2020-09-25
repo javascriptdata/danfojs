@@ -1337,30 +1337,38 @@ export class Series extends NDframe {
         if (inplace) {
             let self = this
             if (Array.isArray(val)) {
-                val.forEach(el => {
+                val.forEach((el, i) => {
                     self.data.push(el)
+                    self.index_arr.push(i)
                 })
             } else if (val instanceof Series) {
                 let value = val.values
-                value.forEach(el => {
+                let old_index = val.index
+                value.forEach((el, i) => {
                     self.data.push(el)
+                    self.index_arr.push(old_index[i])
                 })
             } else {
                 self.data.push(val)
+                self.index_arr.push(0)
             }
         } else {
             let sf = this.copy()
             if (Array.isArray(val)) {
-                val.forEach(el => {
+                val.forEach((el, i) => {
                     sf.data.push(el)
+                    sf.index_arr.push(i)
                 })
             } else if (val instanceof Series) {
                 let value = val.values
-                value.forEach(el => {
+                let old_index = val.index
+                value.forEach((el, i) => {
                     sf.data.push(el)
+                    sf.index_arr.push(old_index[i])
                 })
             } else {
                 sf.data.push(val)
+                sf.index_arr.push(0)
             }
             return sf
         }
