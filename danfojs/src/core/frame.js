@@ -2099,6 +2099,7 @@ export class DataFrame extends Ndframe {
 
             let df = this.copy()
             df.__update_frame_in_place(data, null, null, index, null)
+            df.print()
             return df
         }
     }
@@ -2131,7 +2132,7 @@ export class DataFrame extends Ndframe {
         } else {
             //check column is available and create row from column
             if (col_obj != undefined) {
-                let _res = utils.__get_row_values(col_obj)
+                let _res = utils._get_row_and_col_values(col_obj)
                 this.data = _res[0]
                 this.columns = _res[1]
                 column_names = _res[1]

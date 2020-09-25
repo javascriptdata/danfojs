@@ -150,15 +150,16 @@ export class Utils {
 
     }
 
-    // let data = [{ alpha: ["A", "B", "C", "D"] }, { count: [1,2,3,4]}, {sum: [20.3, 30.456, 40.90, 90.1]}]
 
-
-    //retrieve row array from column object
-    __get_row_values(data) {
+    /**
+     * retrieve row array and column names from object of the form {a: [1,2,3,4], b: [30,20, 30, 20}]
+     * @param {*} data 
+     */
+    _get_row_and_col_values(data) {
         let col_names = Object.keys(data)
         let col_data = Object.values(data)
-        //check lengths to ensure they are equal
         let first_col_len = col_data[0].length
+
         col_data.forEach(data => {
             if (data.length != first_col_len) {
                 throw Error("Length Error: Length of columns must be the same!")
@@ -211,7 +212,7 @@ export class Utils {
             let full_arr = []
             data.forEach(val => {
                 var temp_arr = []
-                val.map(ele => {
+                val.forEach(ele => {
                     if (typeof ele === 'undefined' || ele == Infinity || ele == null) {
                         temp_arr.push(NaN)
                     } else {

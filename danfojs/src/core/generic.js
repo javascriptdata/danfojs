@@ -1,5 +1,20 @@
-// import * as tf from '@tensorflow/tfjs-node'
-import * as tf from '@tensorflow/tfjs'
+/**
+* Copyright 2020, JsData.
+* All rights reserved.
+*
+* This source code is licensed under the MIT license found in the
+* LICENSE file in the root directory of this source tree.
+
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+ *
+*/
+
+// import * as tf from '@tensorflow/tfjs-node' //Use this import when building optimized version for danfojs-node
+import * as tf from '@tensorflow/tfjs' //Use this import when building optimized version for danfojs browser side
 import { table } from 'table'
 import { Utils } from './utils'
 import { Configs } from '../config/config'
@@ -9,209 +24,205 @@ const config = new Configs()  //package wide configuration object
 
 
 
-
 export default class NDframe {
     /**
      * N-Dimensiona data structure. Stores multi-dimensional 
      * data in a size-mutable, labeled data structure. Analogous to the Python Pandas DataFrame. 
      * 
-     * @param {data} Array, JSON, Tensor. Block of data.
-     * @param {kwargs} Object,(Optional Configuration Object)
+     * @param {data} Array JSON, Tensor. Block of data.
+     * @param {kwargs} Object Optional Configuration Object
      *                 {columns: Array of column names. If not specified and data is an array of array, use range index.
- *                      dtypes: Data types of the columns }
+     *                  dtypes: Data types of the columns }
      *      
      * @returns NDframe
      */
 
     constructor(data, kwargs = {}) {
         this.kwargs = kwargs
-        if (data instanceof tf.Tensor){
+
+        if (data instanceof tf.Tensor) {
             data = data.arraySync()
         }
+
         if (utils.__is_1D_array(data)) {
             this.series = true
-            this.__read_array(data)
+            this._read_array(data)
         } else {
             this.series = false
             if (utils.__is_object(data[0])) { //check the type of the first object in the data
-                this.__read_object(data, 1) //type 1 object are of JSON form [{a: 1, b: 2}, {a: 30, b: 20}]
+                this._read_object(data, 1) //type 1 object are of JSON form [{a: 1, b: 2}, {a: 30, b: 20}]
             } else if (utils.__is_object(data)) {
-                this.__read_object(data, 2)  //type 2 object are of the form {a: [1,2,3,4], b: [30,20, 30, 20}]
+                this._read_object(data, 2)  //type 2 object are of the form {a: [1,2,3,4], b: [30,20, 30, 20}]
             } else if (Array.isArray(data[0]) || utils.__is_number(data[0]) || utils.__is_string(data[0])) {
-                this.__read_array(data)
+                this._read_array(data)
             } else {
-                throw "File format not supported for now"
+                throw new Error("File format not supported")
             }
         }
 
     }
 
+    /**
+     * 
+     * @param {Array} data 
+     * Read array of data into NDFrame
+     */
+    _read_array(data) {
+        this.data = utils.__replace_undefined_with_NaN(data, this.series)
+        this.row_data_tensor = tf.tensor(this.data)
 
-    __read_array(data) {
-        this.data = utils.__replace_undefined_with_NaN(data, this.series) //Defualt array data in row format
-        this.row_data_tensor = tf.tensor(this.data) //data saved as tensors TODO: INfer type before saving as tensor
+        if (this.series) {
+            this.col_data = [this.values]
+        } else {
+            this.col_data = utils.__get_col_values(this.data)
+        }
 
-        if (utils.__key_in_object(this.kwargs, 'index')) {
+        this.col_data_tensor = tf.tensor(this.col_data) //data saved as 2D column tensors
+
+        if ('index' in this.kwargs) {
             this.__set_index(this.kwargs['index'])
         } else {
-            this.index_arr = [...Array(this.row_data_tensor.shape[0]).keys()]   //set index
+            this.index_arr = [...Array(this.row_data_tensor.shape[0]).keys()]
         }
 
         if (this.ndim == 1) {
             //series array
-            if (!utils.__key_in_object(this.kwargs, 'columns')) {
-                this.columns = ["0"]
-            } else {
+            if ('columns' in this.kwargs) {
                 this.columns = this.kwargs['columns']
-            }
-
-            if (utils.__key_in_object(this.kwargs, 'dtypes')) {
-                this.__set_col_types(this.kwargs['dtypes'], false)
             } else {
-                //infer dtypes
-                this.__set_col_types(null, true)
+                this.columns = ["0"]
             }
 
         } else {
-            //2D or more array
-            if (!utils.__key_in_object(this.kwargs, 'columns')) {
-                //asign integer numbers
-                this.columns = [...Array(this.row_data_tensor.shape[1]).keys()]
-            } else {
+            //2D Array
+            if ('columns' in this.kwargs) {
                 if (this.kwargs['columns'].length == Number(this.row_data_tensor.shape[1])) {
                     this.columns = this.kwargs['columns']
                 } else {
                     throw `Column length mismatch. You provided a column of length ${this.kwargs['columns'].length} but data has lenght of ${this.row_data_tensor.shape[1]}`
                 }
-            }
-
-            if (utils.__key_in_object(this.kwargs, 'dtypes')) {
-                this.__set_col_types(this.kwargs['dtypes'], false)
             } else {
-                //infer dtypes
-                this.__set_col_types(null, true)
+                this.columns = [...Array(this.row_data_tensor.shape[1]).keys()]
             }
+        }
+
+        if ('dtypes' in this.kwargs) {
+            this._set_col_types(this.kwargs['dtypes'], false)
+        } else {
+            this._set_col_types(null, true) //infer dtypes
         }
     }
 
 
-    //Reads a Javascript Object of arrays of data points
-    __read_object(data, type) {
+    /**
+     *  Convert Javascript Object of arrays into NDFrame
+     * @param {*} data Object of Arrays
+     * @param {*} type type 1 object are of JSON form [{a: 1, b: 2}, {a: 30, b: 20}], 
+     *                 type 2 object are of the form {a: [1,2,3,4], b: [30,20, 30, 20}]
+     */
+    _read_object(data, type) {
         if (type == 2) {
-            let data_arr = []
+            let [row_arr, col_names] = utils._get_row_and_col_values(data)
+            this.kwargs['columns'] = col_names
+            this._read_array(row_arr)
 
-            // format of data is {"a": [1,2,3,4], "b": [2,4,5,7]}
-            let result = utils.__get_row_values(data)
-            data_arr = result[0]
-            this.kwargs['columns'] = result[1]
-            this.__read_array(data_arr)
         } else {
-            //format of data is [{"a": 1, "b" : 2}, {"a": 2, "b" : 4}, {"a": 4, "b" : 5}]
-            let data_arr = []
-
-            data.forEach((item) => {
-                data_arr.push(Object.values(item))
+            let data_arr = data.map((item) => {
+                return Object.values(item)
             });
 
             this.data = utils.__replace_undefined_with_NaN(data_arr, this.series) //Defualt array data in row format
-            this.row_data_tensor = tf.tensor(this.data) //data saved as tensors
+            this.row_data_tensor = tf.tensor(this.data) //data saved as row tensors
             this.kwargs['columns'] = Object.keys(Object.values(data)[0]) //get names of the column from the first entry
 
-            if (utils.__key_in_object(this.kwargs, 'index')) {
+            if (this.series) {
+                this.col_data = [this.values] //data saved as 1D column tensors
+            } else {
+                this.col_data = utils.__get_col_values(this.data)  
+            }
+
+            this.col_data_tensor = tf.tensor(this.col_data) //data saved as 2D column tensors
+
+            if ('index' in this.kwargs) {
                 this.__set_index(this.kwargs['index'])
             } else {
-                this.index_arr = [...Array(this.row_data_tensor.shape[0]).keys()]   //set index
+                this.index_arr = [...Array(this.row_data_tensor.shape[0]).keys()]
             }
 
             if (this.ndim == 1) {
                 //series array
-                if (this.kwargs['columns'] == undefined) {
+                if (!this.kwargs['columns']) {
                     this.columns = ["0"]
                 } else {
                     this.columns = this.kwargs['columns']
                 }
 
-                if (utils.__key_in_object(this.kwargs, 'dtypes')) {
-                    this.__set_col_types(this.kwargs['dtypes'], false)
-                } else {
-                    //infer dtypes
-                    this.__set_col_types(null, true)
-                }
-
             } else {
-                //2D or more array
-                if (!utils.__key_in_object(this.kwargs, 'columns')) {
-                    //asign integer numbers
-                    this.columns = [...Array(this.row_data_tensor.shape[1]).keys()] //use 0 because we are testing lenght from an Object
-                } else {
+                //2D Array
+                if ('columns' in this.kwargs) {
                     if (this.kwargs['columns'].length == Number(this.row_data_tensor.shape[1])) {
                         this.columns = this.kwargs['columns']
                     } else {
-                        throw `Column lenght mismatch. You provided a column of lenght ${this.kwargs['columns'].length} but data has column length of ${this.row_data_tensor.shape[1]}`
+                        throw `Column length mismatch. You provided a column of length ${this.kwargs['columns'].length} but data has column length of ${this.row_data_tensor.shape[1]}`
                     }
-                }
-
-                //set column types
-                if (utils.__key_in_object(this.kwargs, 'dtypes')) {
-                    this.__set_col_types(this.kwargs['dtypes'], false)
                 } else {
-                    //infer dtypes
-                    this.__set_col_types(null, true)
-                }
+                    this.columns = [...Array(this.row_data_tensor.shape[1]).keys()]
 
+                }
+            }
+
+            if ('dtypes' in this.kwargs) {
+                this._set_col_types(this.kwargs['dtypes'], false)
+            } else {
+                this._set_col_types(null, true) //infer dtypes
             }
         }
     }
 
 
-    __set_col_types(dtypes, infer) {
-        //set data type for each column in an NDFrame
+    /**
+     * Sets the data type of the NDFrame. Supported types are ['float32', "int32", 'string', 'boolean']
+     * @param {Array<String>} dtypes Array of data types. 
+     * @param {Boolean} infer Whether to automatically infer the dtypes from the Object
+     */
+    _set_col_types(dtypes, infer) {
         const __supported_dtypes = ['float32', "int32", 'string', 'boolean']
-
 
         if (infer) {
             if (this.series) {
                 this.col_types = utils.__get_t(this.values)
-                this.col_data = [this.values]
-                this.col_data_tensor = tf.tensor(this.col_data)
             } else {
-                this.col_data = utils.__get_col_values(this.data)   //saves array data in column form for easy access
-                this.col_data_tensor = tf.tensor(this.col_data) //column wise data saved as tensors used in DataFrame
                 this.col_types = utils.__get_t(this.col_data)
             }
         } else {
 
             if (this.series) {
                 this.col_types = dtypes
-                this.col_data = [this.values]
-                this.col_data_tensor = tf.tensor(this.col_data)
-
             } else {
-                this.col_data = utils.__get_col_values(this.data)   //saves array data in column form for easy access
-                this.col_data_tensor = tf.tensor(this.col_data) //column wise data saved as tensors used in DataFrame
-
-                if (Array.isArray(dtypes) && dtypes.length == this.columns.length) {
-                    dtypes.map((type, indx) => {
+                if (dtypes.length != this.columns.length){
+                    throw new Error(`length Mixmatch: Length of specified dtypes is ${dtypes.length}, but length of columns is ${this.columns.length}`)
+                }
+                if (Array.isArray(dtypes)) {
+                    dtypes.forEach((type, indx) => {
                         if (!__supported_dtypes.includes(type)) {
                             throw new Error(`dtype error: dtype specified at index ${indx} is not supported`)
                         }
                     })
                     this.col_types = dtypes
                 } else {
-                    throw new Error(`dtypes: lenght mismatch. Specified dtype has a lenght
-                 of ${dtypes.length} but NDframe has ${this.column_names.length} number of columns`)
+                    throw new Error(`dtypes must be an Array of types`)
                 }
             }
         }
+
     }
 
 
 
-
     /**
-        * Returns the data types in the DataFrame 
-        * @return {Array} list of data types for each column
-        */
+    * Returns the data types in the DataFrame 
+    * @return {Array} list of data types for each column
+    */
     get dtypes() {
         // let col_data = utils.get_col_values(this.data)
         // this.col_types = utils.__get_t(col_data)
@@ -308,14 +319,14 @@ export default class NDframe {
         return this.columns
     }
 
-     /**
-     * Return a boolean same-sized object indicating if the values are NaN. NaN and undefined values,
-     *  gets mapped to True values. Everything else gets mapped to False values. 
-     * @return {Array}
-     */
+    /**
+    * Return a boolean same-sized object indicating if the values are NaN. NaN and undefined values
+    *  gets mapped to True values. Everything else gets mapped to False values. 
+    * @return {Array}
+    */
     __isna() {
         let new_arr = []
-        if (this.series){
+        if (this.series) {
             this.values.map(val => {
                 // eslint-disable-next-line use-isnan
                 if (val == NaN) {
@@ -326,7 +337,7 @@ export default class NDframe {
                     new_arr.push(false)
                 }
             })
-        }else{
+        } else {
             let row_data = this.values;
             row_data.map(arr => {
                 let temp_arr = []
@@ -356,7 +367,7 @@ export default class NDframe {
 
     /**
     * Return object data as comma-separated values (csv).
-     * @returns {String} CSV representation of Object data
+     * @returns {Promise<String>} CSV representation of Object data
      */
     async to_csv() {
         if (this.series) {
@@ -380,7 +391,7 @@ export default class NDframe {
 
     /**
     * Return object as JSON string.
-    * @returns {JSON} JSON representation of Object data
+    * @returns {Promise <JSON>} JSON representation of Object data
     */
     async to_json() {
         if (this.series) {
@@ -439,8 +450,8 @@ export default class NDframe {
                 values_1 = df_subset_1.values
                 value_2 = df_subset_2.values
             } else {
-                let df_subset_1 = this.iloc({rows: ["0:"], columns: ["0:4"] })
-                let df_subset_2 = this.iloc({rows: ["0:"], columns: [`${col_len - 4}:`]})
+                let df_subset_1 = this.iloc({ rows: ["0:"], columns: ["0:4"] })
+                let df_subset_2 = this.iloc({ rows: ["0:"], columns: [`${col_len - 4}:`] })
                 sub_idx = this.index.slice(0, max_row)
                 values_1 = df_subset_1.values
                 value_2 = df_subset_2.values
@@ -469,7 +480,7 @@ export default class NDframe {
             }
 
             // merge cols
-            idx.map((val, i) => {
+            idx.forEach((val, i) => {
                 let row = [val].concat(values[i])
                 data_arr.push(row)
             })
@@ -482,10 +493,10 @@ export default class NDframe {
         for (let index = 1; index < header.length; index++) {
             table_config[index] = { width: table_width, truncate: table_truncate }
         }
-
-        data_arr.unshift(header) //Adds the column names to values before printing
+    
+        let table_data = [header].concat(data_arr) //Adds the column names to values before printing
         console.log(`\n Shape: (${this.shape}) \n`);
-        return table(data_arr, { columns: table_config })
+        return table(table_data, { columns: table_config })
     }
 
 
@@ -495,7 +506,6 @@ export default class NDframe {
     */
     print() {
         console.log(this + "")
-        // console.log(this.head(rows) + "");
     }
 
 }

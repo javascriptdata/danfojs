@@ -192,12 +192,12 @@ describe("Utils Functions", function () {
 
     })
 
-    describe("__get_row_values", function () {
+    describe("_get_row_and_col_values", function () {
         it("retreive rows and labels from column object", function () {
             let data = { "Alpha": ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] }
             let res = [["A", 1, 20.3], ["B", 2, 30.456], ["C", 3, 40.90], ["D", 4, 90.1]]
-            assert.deepEqual(utils.__get_row_values(data)[0], res)
-            assert.deepEqual(utils.__get_row_values(data)[1], ["Alpha", "count", "sum"])
+            assert.deepEqual(utils._get_row_and_col_values(data)[0], res)
+            assert.deepEqual(utils._get_row_and_col_values(data)[1], ["Alpha", "count", "sum"])
 
         })
 
