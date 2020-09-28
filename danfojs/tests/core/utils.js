@@ -178,19 +178,19 @@ describe("Utils Functions", function () {
 
     })
 
-    describe("__wrong_params_are_passed", function () {
-        it("check if the right params are passed to a function", function () {
-            let params_needed = ["replace", "with", "inplace"]
-            let kwargs = { "replae": 2, "with": 12, "inplace": true }
-            assert.equal(utils.__right_params_are_passed(kwargs, params_needed), false)
-        })
-        it("check if the right params are passed to a function 2", function () {
-            let params_needed = ["replace", "with", "inplace"]
-            let kwargs = { "replace": 2, "with": 12, "inplace": true }
-            assert.equal(utils.__right_params_are_passed(kwargs, params_needed), true)
-        })
+    // describe("_throw_wrong_params_error", function () {
+    //     it("check if the right params are passed to a function", function () {
+    //         let params_needed = ["replace", "with", "inplace"]
+    //         let kwargs = { "replae": 2, "with": 12, "inplace": true }
+    //         assert.equal(utils._throw_wrong_params_error(kwargs, params_needed), false)
+    //     })
+    //     it("check if the right params are passed to a function 2", function () {
+    //         let params_needed = ["replace", "with", "inplace"]
+    //         let kwargs = { "replace": 2, "with": 12, "inplace": true }
+    //         assert.equal(utils._throw_wrong_params_error(kwargs, params_needed), true)
+    //     })
 
-    })
+    // })
 
     describe("_get_row_and_col_values", function () {
         it("retreive rows and labels from column object", function () {

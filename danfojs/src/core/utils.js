@@ -411,36 +411,42 @@ export class Utils {
         return arr_map
     }
 
-    //count the NaN and non-NaN values present in an array
-    __count_nan(arr, val = true, isSeries) {
+
+    /**
+     * count the NaN and non-NaN values present in an array
+     * @param {Array} arr Array object
+     * @param {Boolean} val whether to return the value count instead of the null count
+     * @param {Boolean} isSeries Whether the Obj is of type series or not
+     */
+    __count_nan(arr, return_val = true, isSeries) {
         if (isSeries) {
             let null_count = 0
             let val_count = 0
-            arr.map(ele => {
+            arr.forEach(ele => {
                 if (Number.isNaN(ele)) {
                     null_count = null_count + 1
                 } else {
                     val_count = val_count + 1
                 }
             })
-            if (val) {
+            if (return_val) {
                 return val_count
             } else {
                 return null_count
             }
         } else {
             let result_arr = []
-            arr.map(ele_arr => {
+            arr.forEach(ele_arr => {
                 let null_count = 0
                 let val_count = 0
-                ele_arr.map(ele => {
+                ele_arr.forEach(ele => {
                     if (Number.isNaN(ele)) {
                         null_count = null_count + 1
                     } else {
                         val_count = val_count + 1
                     }
                 })
-                if (val) {
+                if (return_val) {
                     result_arr.push(val_count)
                 } else {
                     result_arr.push(null_count)
@@ -485,7 +491,7 @@ export class Utils {
     __mode(arr) {
         var modes = [], count = [], i, maxIndex = 0;
 
-        arr.map(val => {
+        arr.forEach(val => {
             count[val] = (count[val] || 0) + 1;
             if (count[val] > maxIndex) {
                 maxIndex = count[val];
@@ -568,12 +574,8 @@ export class Utils {
         return gen_num;
     }
 
-    __right_params_are_passed(kwargs, params_needed) {
+    _throw_wrong_params_error(kwargs, params_needed) {
         let keys = Object.keys(kwargs)
-        if (keys.length == 0) {
-            return true
-        }
-
         let bool = []
         for (let i = 0; i < keys.length; i++) {
             if (params_needed.includes(keys[i])) {
@@ -584,10 +586,9 @@ export class Utils {
         }
         const truthy = (element) => element == false;
         if (bool.some(truthy)) {
-            return false
-        } else {
-            return true
-        }
+            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
+
+        } 
 
     }
 
@@ -693,6 +694,21 @@ export class Utils {
         return isNode()
     }
 
+    _throw_str_dtype_error(obj, ops){
+        if (obj.dtypes[0] == "string") {
+            throw Error(`dtype error: String data type does not support ${ops} operation`)
+        }
+
+    }
+
+    /**
+     * Remove NaN values from Array
+     * @param {*} arr 
+     */
+    _remove_nans(arr){
+        let values = arr.filter(val => !isNaN(val) && typeof val != "string") 
+        return values
+    }
 
 }
 

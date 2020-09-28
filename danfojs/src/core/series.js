@@ -1,6 +1,22 @@
-// import * as tf from '@tensorflow/tfjs-node'
-import { std, variance } from 'mathjs'
-import * as tf from '@tensorflow/tfjs'
+/**
+* Copyright 2020, JsData
+* All rights reserved.
+*
+* This source code is licensed under the MIT license found in the
+* LICENSE file in the root directory of this source tree.
+
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+ *
+*/
+
+
+// import * as tf from '@tensorflow/tfjs-node' //Use this import when building optimized version for danfojs-node
+import * as tf from '@tensorflow/tfjs' //Use this import when building optimized version for danfojs browser sideimport { std, variance } from 'mathjs'
+import { variance, std } from 'mathjs'
 import { Utils } from "./utils"
 import { Str } from "./strings"
 import NDframe from "./generic"
@@ -9,11 +25,11 @@ import { Configs } from '../config/config'
 import { TimeSeries } from './timeseries';
 import { Plot } from '../plotting/plot'
 import { indexLoc } from '../core/indexing'
+import { util } from 'chai'
 
 
 const utils = new Utils()
 const config = new Configs()  //package wide configuration object
-
 
 
 
@@ -25,7 +41,7 @@ const config = new Configs()  //package wide configuration object
  * @param {data} data Array, JSON of 1D values
  * @param {kwargs} Object {columns: column names, dtypes : data type of values}
  * 
- * @returns Series data structure
+ * @returns Series
  */
 export class Series extends NDframe {
     constructor(data, kwargs) {
@@ -39,9 +55,9 @@ export class Series extends NDframe {
 
 
     /**
-        * Returns a Series in Tensorflow's tensor format
-        * @returns {1D tensor}
-        */
+    * Returns a Series in Tensorflow's tensor format
+    * @returns {1D Tensor}
+    */
     get tensor() {
         return tf.tensor(this.values).asType(this.dtypes[0])
     }
@@ -49,55 +65,47 @@ export class Series extends NDframe {
 
 
     /**
-    * Prints the first n values in a Series
+    * Returns the first n values in a Series
     * @param {rows}  Number of rows to return
     * @returns {Series}
     */
     head(rows = 5) {
-        if (rows > this.values.length || rows < 1) {
+        if (rows > this.shape[0] || rows < 1) {
             //return all values
-            let config = { columns: this.column_names }
-            return new Series(this.values, config)
+            return new Series(this.values, { columns: this.column_names })
         } else {
-            //Creates a new Series with first [rows]
-            let config = { columns: this.column_names }
             let data = this.values.slice(0, rows)
-            return new Series(data, config)
+            return new Series(data, { columns: this.column_names })
         }
 
     }
 
 
     /**
-    * Prints the last n values in a Series
-    * @param {rows} NUmber of rows to return
+    * Returns the last n values in a Series
+    * @param {rows} number of rows to return
     * @returns {Series}
     */
     tail(rows = 5) {
         if (rows > this.values.length || rows < 1) {
             //return all values
-            let config = { columns: this.column_names }
-            return new Series(this.values, config)
+            return new Series(this.values, { columns: this.column_names })
         } else {
-            //Creates a new Series with last [rows]
-            let config = { columns: this.column_names }
-            let data = this.values.slice(this.values.length - rows)
-            let idx = this.index.slice(this.values.length - rows)
-            let sf = new Series(data, config)
-            sf.__set_index(idx)
+            let data = this.values.slice(this.shape[0] - rows)
+            let idx = this.index.slice(this.shape[0] - rows)
+            let sf = new Series(data, { columns: this.column_names, index: idx })
             return sf
         }
 
     }
 
     /**
-    * Gets [num] number of random rows in a Series
-    * @param {rows}  
+    * Returns n number of random rows in a Series
+    * @param {rows} number of rows to return
     * @returns {Series}
     */
     sample(num = 5) {
         if (num > this.values.length || num < 1) {
-            //return all values
             let config = { columns: this.column_names }
             return new Series(this.values, config)
         } else {
@@ -105,13 +113,9 @@ export class Series extends NDframe {
             let idx = this.index
             let new_values = []
             let new_idx = []
-
-            // let counts = [...Array(idx.length).keys()]   //set index
-            //get random sampled numbers
-            // let index_arr = utils.__range(0,counts.length)
             let rand_nums = utils.__shuffle(num, idx)
-            // console.log(rand_nums)
-            rand_nums.map(i => {
+
+            rand_nums.forEach(i => {
                 new_values.push(values[i])
                 new_idx.push(idx[i])
             })
@@ -131,7 +135,7 @@ export class Series extends NDframe {
     add(other) {
         if (utils.__is_number(other)) {
             //broadcast addition
-            let sum = this.tensor.add(other).arraySync()
+            let sum = this.row_data_tensor.add(other).arraySync()
             return new Series(sum, { columns: this.column_names })
         } else {
             if (this.__check_series_op_compactibility) {
@@ -140,6 +144,7 @@ export class Series extends NDframe {
             }
         }
     }
+
 
     /**
     * Returns the subtraction between a series and other, element-wise (binary operator subtraction).
@@ -189,7 +194,6 @@ export class Series extends NDframe {
     */
     div(other, round = true) {
         if (utils.__is_number(other)) {
-            //broadcast addition
             let div_result = this.tensor.div(other)
             return new Series(div_result.arraySync(), { columns: this.column_names, dtypes: [div_result.dtype] })
         } else {
@@ -201,11 +205,11 @@ export class Series extends NDframe {
                 } else {
                     dtype = "int32"
                 }
+                //dtype may change after division because of how TFJS works internally, so save dtypes first
                 let tensor1 = this.tensor.asType(dtype)
                 let tensor2 = other.tensor.asType(dtype)
                 let result = tensor1.div(tensor2)
-                dtype = result.dtype //dtype is subject to change after division
-                return new Series(result.arraySync(), { columns: this.column_names, dtypes: [dtype] })
+                return new Series(result.arraySync(), { columns: this.column_names, dtypes: [result.dtype] })
             }
         }
     }
@@ -217,7 +221,6 @@ export class Series extends NDframe {
     */
     pow(other) {
         if (utils.__is_number(other)) {
-            //broadcast addition
             let pow_result = this.tensor.pow(other).arraySync()
             return new Series(pow_result, { columns: this.column_names })
         } else {
@@ -236,7 +239,6 @@ export class Series extends NDframe {
     */
     mod(other) {
         if (utils.__is_number(other)) {
-            //broadcast addition
             let mod_result = this.tensor.mod(other).arraySync()
             return new Series(mod_result, { columns: this.column_names })
         } else {
@@ -253,16 +255,8 @@ export class Series extends NDframe {
     * @returns {Series} 
     */
     mean() {
-        if (this.dtypes[0] == "string") {
-            throw Error("dtype error: String data type does not support mean operation")
-        }
-        let values = []
-        //remove all NaNS
-        this.values.map(val => {
-            if (!isNaN(val) && typeof val != "string") {
-                values.push(val)
-            }
-        })
+        utils._throw_str_dtype_error(this, 'mean')
+        let values = utils._remove_nans(this.values)
         let mean = tf.tensor(values).mean().arraySync()
         return mean
     }
@@ -274,9 +268,7 @@ export class Series extends NDframe {
     * @returns {Series} 
     */
     median() {
-        if (this.dtypes[0] == "string") {
-            throw Error("dtype error: String data type does not support median operation")
-        }
+        utils._throw_str_dtype_error(this, 'median')
         let values = this.values
         let median = utils.__median(values, true)
         return median
@@ -289,9 +281,7 @@ export class Series extends NDframe {
     * @returns {Number} 
     */
     mode() {
-        if (this.dtypes[0] == "string") {
-            throw Error("dtype error: String data type does not support mode operation")
-        }
+        utils._throw_str_dtype_error(this, 'mode')
         let values = this.values
         let mode = utils.__mode(values)
         return mode
@@ -303,11 +293,8 @@ export class Series extends NDframe {
     * @returns {Number} 
     */
     min() {
-        if (this.dtypes[0] == "string") {
-            throw Error("dtype error: String data type does not support min operation")
-        }
-        let values = this.values
-        let min = tf.min(values).arraySync()
+        utils._throw_str_dtype_error(this, 'min')
+        let min = this.row_data_tensor.min().arraySync()
         return min
 
     }
@@ -317,11 +304,8 @@ export class Series extends NDframe {
     * @returns {Number} 
     */
     max() {
-        if (this.dtypes[0] == "string") {
-            throw Error("dtype error: String data type does not support max operation")
-        }
-        let values = this.values
-        let max = tf.max(values).arraySync()
+        utils._throw_str_dtype_error(this, 'max')
+        let max = this.row_data_tensor.max().arraySync()
         return max
 
     }
@@ -329,18 +313,16 @@ export class Series extends NDframe {
 
     /**
     * Return the sum of the values in a series.
-    * This is equivalent to the method numpy.sum.
+    * This is equivalent to the method tf.sum
     *  @returns {Number}, sum of values in Series
     */
     sum() {
-        if (this.dtypes[0] == "string") {
-            throw Error("dtype error: String data type does not support sum operation")
-        }
+        utils._throw_str_dtype_error(this, 'sum')
         if (this.dtypes[0] == "boolean") {
-            let temp_sum = tf.tensor(this.values).sum().arraySync()
+            let temp_sum = this.row_data_tensor.sum().arraySync()
             return Number(temp_sum)
         }
-        let temp_sum = tf.tensor(this.values).asType(this.dtypes[0]).sum().arraySync()
+        let temp_sum = this.row_data_tensor.sum().arraySync()
         return Number(temp_sum.toFixed(5))
     }
 
@@ -350,9 +332,6 @@ export class Series extends NDframe {
      *  @returns {Number}, Count of non-null values
      */
     count() {
-        if (!this.series) {
-            throw Error("property error: Object must be a series")
-        }
         return utils.__count_nan(this.values, true, true)
     }
 
@@ -364,15 +343,18 @@ export class Series extends NDframe {
     */
     maximum(other) {
         if (utils.__is_number(other)) {
-            //broadcast addition
-            let max_result = this.tensor.maximum(other)
-            return new Series(max_result.arraySync(), { columns: this.column_names, dtypes: max_result.dtype })
+            let max_result = this.row_data_tensor.maximum(other)
+            return new Series(max_result.arraySync(), {
+                columns: this.column_names,
+                dtypes: max_result.dtype,
+                index: this.index
+            })
         } else {
             if (this.__check_series_op_compactibility) {
-                let tensor1 = this.tensor
+                let tensor1 = this.row_data_tensor
                 let tensor2 = other.tensor
-                let result = tensor1.maximum(tensor2)
-                return new Series(result.arraySync(), { columns: this.column_names })
+                let result = tensor1.maximum(tensor2).arraySync()
+                return new Series(result, { columns: this.column_names, index: this.index })
             }
         }
     }
@@ -384,15 +366,18 @@ export class Series extends NDframe {
     */
     minimum(other) {
         if (utils.__is_number(other)) {
-            //broadcast addition
-            let max_result = this.tensor.minimum(other)
-            return new Series(max_result.arraySync(), { columns: this.column_names, dtypes: max_result.dtype })
+            let max_result = this.row_data_tensor.minimum(other)
+            return new Series(max_result.arraySync(), {
+                columns: this.column_names,
+                dtypes: max_result.dtype,
+                index: this.index
+            })
         } else {
             if (this.__check_series_op_compactibility) {
                 let tensor1 = this.tensor
                 let tensor2 = other.tensor
                 let result = tensor1.minimum(tensor2).arraySync()
-                return new Series(result, { columns: this.column_names })
+                return new Series(result, { columns: this.column_names, index: this.index })
             }
         }
     }
@@ -406,12 +391,12 @@ export class Series extends NDframe {
     round(dp) {
         if (utils.__is_undefined(dp)) {
             //use tensorflow round function to roound to the nearest whole number
-            let result = tf.round(this.tensor)
-            return new Series(result.arraySync(), { columns: this.column_names })
+            let result = tf.round(this.row_data_tensor).arraySync()
+            return new Series(result, { columns: this.column_names, index: this.index })
 
         } else {
             let result = utils.__round(this.values, dp, true)
-            return new Series(result, { columns: this.column_names })
+            return new Series(result, { columns: this.column_names, index: this.index })
 
         }
 
@@ -422,16 +407,9 @@ export class Series extends NDframe {
     * @returns {Number}
     */
     std() {
-        if (this.dtypes[0] == "string") {
-            throw Error("dtype error: String data type does not support std operation")
-        }
-
-        let values = []
-        this.values.forEach(val => {
-            if (!(isNaN(val) && typeof val != 'string')) {
-                values.push(val)
-            }
-        })
+        utils._throw_str_dtype_error(this, 'std')
+        let values = utils._remove_nans(this.values)
+        // TODO: Use Tensorflow ops for faster computation
         let std_val = std(values) //using math.js
         return std_val
 
@@ -442,15 +420,9 @@ export class Series extends NDframe {
     * @returns {Number}
     */
     var() {
-        if (this.dtypes[0] == "string") {
-            throw Error("dtype error: String data type does not support var operation")
-        }
-        let values = []
-        this.values.forEach(val => {
-            if (!(isNaN(val) && typeof val != 'string')) {
-                values.push(val)
-            }
-        })
+        utils._throw_str_dtype_error(this, 'std')
+        let values = utils._remove_nans(this.values)
+        // TODO: Use Tensorflow ops for faster computation
         let var_val = variance(values) //using math.js
         return var_val
 
@@ -463,7 +435,11 @@ export class Series extends NDframe {
      */
     isna() {
         let new_arr = this.__isna()
-        let sf = new Series(new_arr, { index: this.index, columns: this.column_names, dtypes: ["boolean"] })
+        let sf = new Series(new_arr, {
+            index: this.index,
+            columns: this.column_names,
+            dtypes: ["boolean"]
+        })
         return sf
     }
 
@@ -474,30 +450,31 @@ export class Series extends NDframe {
      */
     fillna(kwargs = {}) {
         let params_needed = ["value", "inplace"]
-        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
-            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
-        }
+        utils._throw_wrong_params_error(kwargs, params_needed)
 
         kwargs['inplace'] = kwargs['inplace'] || false
 
-        if (!utils.__key_in_object(kwargs, "value")) {
+        if (!("value" in kwargs)) {
             throw Error('Value Error: Must specify value to replace with')
         }
 
-        let values = this.values
         let new_values = []
-
-        values.map(val => {
+        this.values.forEach(val => {
             if (isNaN(val) && typeof val != "string") {
                 new_values.push(kwargs['value'])
             } else {
                 new_values.push(val)
             }
         })
+
         if (kwargs['inplace']) {
             this.data = new_values
         } else {
-            let sf = new Series(new_values, { columns: this.column_names, index: this.index, dtypes: this.dtypes })
+            let sf = new Series(new_values, {
+                columns: this.column_names,
+                index: this.index,
+                dtypes: this.dtypes
+            })
             return sf
         }
     }
@@ -519,9 +496,8 @@ export class Series extends NDframe {
         }
 
         let params_needed = ["inplace", "ascending", "by"] //"by" param is used in DataFrame call to sort_values
-        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
-            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
-        }
+        utils._throw_wrong_params_error(kwargs, params_needed)
+
 
         let options = {}
         if (utils.__key_in_object(kwargs, 'ascending')) {
@@ -617,9 +593,8 @@ export class Series extends NDframe {
     */
     reset_index(kwargs = {}) {
         let params_needed = ["inplace"]
-        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
-            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
-        }
+        utils._throw_wrong_params_error(kwargs, params_needed)
+
 
         kwargs['inplace'] = kwargs['inplace'] || false
         if (kwargs['inplace']) {
@@ -639,9 +614,8 @@ export class Series extends NDframe {
     set_index(kwargs = {}) {
 
         let params_needed = ["index", "inplace"]
-        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
-            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
-        }
+        utils._throw_wrong_params_error(kwargs, params_needed)
+
 
         kwargs['inplace'] = kwargs['inplace'] || false
 
@@ -906,9 +880,8 @@ export class Series extends NDframe {
    */
     replace(kwargs = {}) {
         let params_needed = ["replace", "with", "inplace"]
-        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
-            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
-        }
+        utils._throw_wrong_params_error(kwargs, params_needed)
+
 
         kwargs['inplace'] = kwargs['inplace'] || false
 
@@ -945,9 +918,8 @@ export class Series extends NDframe {
      */
     dropna(kwargs = {}) {
         let params_needed = ["inplace"]
-        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
-            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
-        }
+        utils._throw_wrong_params_error(kwargs, params_needed)
+
         kwargs['inplace'] = kwargs['inplace'] || false
 
         let old_values = this.values
@@ -1022,9 +994,8 @@ export class Series extends NDframe {
      */
     drop_duplicates(kwargs = {}) {
         let params_needed = ["inplace", "keep"]
-        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
-            throw Error(`Params Error: Specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
-        }
+        utils._throw_wrong_params_error(kwargs, params_needed)
+
         kwargs['inplace'] = kwargs['inplace'] || false
         kwargs['keep'] = kwargs['keep'] || "first"
 

@@ -57,9 +57,8 @@ export class DataFrame extends Ndframe {
      */
     drop(kwargs = {}) {
         let params_needed = ["columns", "index", "inplace", "axis"]
-        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
-            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
-        }
+        utils._throw_wrong_params_error(kwargs, params_needed)
+
         // utils.__in_object(kwargs, "columns", "value not defined")
         if (!utils.__key_in_object(kwargs, "inplace")) {
             kwargs['inplace'] = false
@@ -159,9 +158,8 @@ export class DataFrame extends Ndframe {
      */
     loc(kwargs = {}) {
         let params_needed = ["columns", "rows"]
-        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
-            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
-        }
+        utils._throw_wrong_params_error(kwargs, params_needed)
+
         kwargs["type"] = "loc"
         let [new_data, columns, rows] = indexLoc(this, kwargs);
         let df_columns = { "columns": columns }
@@ -179,9 +177,8 @@ export class DataFrame extends Ndframe {
      */
     iloc(kwargs = {}) {
         let params_needed = ["columns", "rows"]
-        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
-            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
-        }
+        utils._throw_wrong_params_error(kwargs, params_needed)
+
         kwargs["type"] = "iloc";
 
         let [new_data, columns, rows] = indexLoc(this, kwargs);
@@ -725,9 +722,8 @@ export class DataFrame extends Ndframe {
     set_index(kwargs = {}) {
 
         let params_needed = ["key", "drop", "inplace"]
-        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
-            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
-        }
+        utils._throw_wrong_params_error(kwargs, params_needed)
+
 
         if (!utils.__key_in_object(kwargs, 'key')) {
             throw Error("Index ValueError: You must specify an array of index")
@@ -1201,9 +1197,8 @@ export class DataFrame extends Ndframe {
     fillna(kwargs = {}) {
 
         let params_needed = ["columns", "values", "inplace"]
-        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
-            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
-        }
+        utils._throw_wrong_params_error(kwargs, params_needed)
+
 
         if (!utils.__key_in_object(kwargs, "inplace")) {
             kwargs['inplace'] = false
@@ -1591,9 +1586,8 @@ export class DataFrame extends Ndframe {
     */
     replace(kwargs = {}) {
         let params_needed = ["replace", "with", "in"]
-        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
-            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
-        }
+        utils._throw_wrong_params_error(kwargs, params_needed)
+
 
         if (utils.__key_in_object(kwargs, "in")) {
             //fill specified columns only
@@ -1846,7 +1840,7 @@ export class DataFrame extends Ndframe {
      * @returns {2D tensor}
      */
     get tensor() {
-        return tf.tensor(this.values)
+        return this.row_data_tensor
     }
 
 
@@ -1987,9 +1981,8 @@ export class DataFrame extends Ndframe {
     rename(kwargs = {}) {
 
         let params_needed = ["mapper", "inplace", "axis"]
-        if (!utils.__right_params_are_passed(kwargs, params_needed)) {
-            throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}], got ${Object.keys(kwargs)}`)
-        }
+        utils._throw_wrong_params_error(kwargs, params_needed)
+
         // utils.__in_object(kwargs, "columns", "value not defined")
         if (!utils.__key_in_object(kwargs, "inplace")) {
             kwargs['inplace'] = false
@@ -2191,22 +2184,22 @@ export class DataFrame extends Ndframe {
     append(val) {
         let df2 = null;
         if (Array.isArray(val)) {
-            if(Array.isArray(val[0])){
+            if (Array.isArray(val[0])) {
                 if (val[0].length != this.shape[1]) {
                     throw Error(`length Mixmatch: The lenght of provided value (${val.length}) does not match the original DataFrame (${this.shape[1]})`)
                 }
                 df2 = new DataFrame(val)
             }
 
-        }else if (utils.__is_object(val)){
+        } else if (utils.__is_object(val)) {
             df2 = new DataFrame(val);
 
-        }else if (val instanceof DataFrame){
+        } else if (val instanceof DataFrame) {
             df2 = val.copy()
 
         }
 
-        let concat_df = concat({df_list: [this,df2],axis:0})
+        let concat_df = concat({ df_list: [this, df2], axis: 0 })
 
         return concat_df;
 
