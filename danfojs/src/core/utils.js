@@ -710,6 +710,36 @@ export class Utils {
         return values
     }
 
+    __get_duplicate(arr){
+
+        let temp_obj = {}
+        let rslt_obj = {}
+
+        arr.forEach((val,index)=>{
+
+            if(temp_obj.hasOwnProperty(val)){
+
+                temp_obj[val]["count"] +=1
+                temp_obj[val]["index"].push(index)
+            }else{
+                temp_obj[val] = {}
+                temp_obj[val]["count"] = 1
+                temp_obj[val]["index"] = [index]
+            }
+        });
+
+        for(let key in temp_obj){
+
+            if(temp_obj[key]["count"] >=2){
+                rslt_obj[key] = {}
+                rslt_obj[key]["count"] = temp_obj[key]["count"]
+                rslt_obj[key]["index"] = temp_obj[key]["index"]
+            }
+        }
+
+        return rslt_obj;
+    }
+
 }
 
 

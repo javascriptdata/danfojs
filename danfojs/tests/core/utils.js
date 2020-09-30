@@ -205,6 +205,16 @@ describe("Utils Functions", function () {
     })
 
 
+    describe("_get_duplicate",function(){
+        it("obtain duplicate and their index", function(){
 
+            let data = [1,2,3,4,5,3,4,6,4,5]
+            let res = { '3': { count: 2, index: [ 2, 5 ] },
+            '4': { count: 3, index: [ 3, 6, 8 ] },
+            '5': { count: 2, index: [ 4, 9 ] } }
+
+            assert.deepEqual(utils.__get_duplicate(data), res)
+        });
+    });
 
 })

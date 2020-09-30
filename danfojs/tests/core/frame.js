@@ -794,6 +794,28 @@ describe("DataFrame", function () {
             let expected = [[2, 4, 6, 'c'], [360, 180, 1, 'b'], [0, 2, 4, 'a']]
             assert.deepEqual(df.sort_values({ "by": "col4", "ascending": false }).values, expected)
         })
+        it("Sort duplicate DataGrame with duplicate columns", function(){
+
+            let data = {
+                "A": [1,2,3,4,5,3,5,6,4,5,3,4],
+                "B": [2,3,4,5,6,7,8,9,1,2,3,4]
+            }
+
+            let df = new DataFrame(data)
+            let expected = [ [ 1, 2 ],
+            [ 2, 3 ],
+            [ 3, 4 ],
+            [ 3, 7 ],
+            [ 3, 3 ],
+            [ 4, 5 ],
+            [ 4, 1 ],
+            [ 4, 4 ],
+            [ 5, 6 ],
+            [ 5, 8 ],
+            [ 5, 2 ],
+            [ 6, 9 ] ]
+            assert.deepEqual(df.sort_values({ "by": "A", "ascending": true }).values,expected);
+        });
 
 
     })

@@ -2092,7 +2092,6 @@ export class DataFrame extends Ndframe {
 
             let df = this.copy()
             df.__update_frame_in_place(data, null, null, index, null)
-            df.print()
             return df
         }
     }
@@ -2161,12 +2160,21 @@ export class DataFrame extends Ndframe {
 
 
         let sorted_val = utils.__sort(col_value, asc)
+        let duplicate_obj = utils.__get_duplicate(col_value)
 
         let data = []
         let indexs = []
         for (let row_i = 0; row_i < sorted_val.length; row_i++) {
 
-            let index = col_value.indexOf(sorted_val[row_i])
+            let val = sorted_val[row_i]
+            let index = null;
+
+            if(duplicate_obj.hasOwnProperty(val)){
+                index = duplicate_obj[val]["index"][0]
+                duplicate_obj[val]["index"].splice(0,1)
+            }else{
+                index = col_value.indexOf(val)
+            }
 
             data.push(values[index])
             indexs.push(df_index[index])
