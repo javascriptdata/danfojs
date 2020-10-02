@@ -489,54 +489,36 @@ export class Series extends NDframe {
     * @returns {Series}
     */
     sort_values(kwargs = {}) {
-        // console.log(this);
-
-        if (this.dtypes[0] == 'string') {
-            throw Error("Dtype Error: cannot sort Series of type string")
-        }
-
-        let params_needed = ["inplace", "ascending", "by"] //"by" param is used in DataFrame call to sort_values
+        let params_needed = ["inplace", "ascending"]
         utils._throw_wrong_params_error(kwargs, params_needed)
 
-
-        let options = {}
-        if (utils.__key_in_object(kwargs, 'ascending')) {
-            options['ascending'] = kwargs["ascending"]
-        } else {
-            options['ascending'] = true
+        if (!('ascending' in kwargs)){
+            kwargs['ascending'] = true
         }
 
-        if (utils.__key_in_object(kwargs, 'inplace')) {
-            options['inplace'] = kwargs["inplace"]
-        } else {
-            options['inplace'] = false
+        if (!('inplace' in kwargs)){
+            kwargs['inplace'] = false
         }
 
-
-        let sorted_arr = []
+        let sorted_values = []
         let arr_obj = [...this.values]
-
-        const dsu = (arr1, arr2) => arr1
-            .map((item, index) => [arr2[index], item]) // add the args to sort by
-            .sort(([arg1], [arg2]) => arg2 - arg1) // sort by the args
-            .map(([, item]) => item); // extract the sorted items
-
         let range_idx = utils.__range(0, this.index.length - 1)
-        let sorted_idx = dsu(range_idx, arr_obj);
+        let sorted_idx = utils._sort_arr_with_index(range_idx, arr_obj, this.dtypes[0])
 
         sorted_idx.forEach(idx => {
-            sorted_arr.push(this.values[idx])
+            sorted_values.push(this.values[idx])
         })
-        if (options['ascending']) {
-            sorted_arr = sorted_arr.reverse()
+
+        if (kwargs['ascending']) {
+            sorted_values = sorted_values.reverse()
             sorted_idx = sorted_idx.reverse()
         }
 
-        if (options['inplace']) {
-            this.data = sorted_arr
+        if (kwargs['inplace']) {
+            this.data = sorted_values
             this.__set_index(sorted_idx)
         } else {
-            let sf = new Series(sorted_arr, { columns: this.column_names, index: sorted_idx })
+            let sf = new Series(sorted_values, { columns: this.column_names, index: sorted_idx })
             return sf
         }
     }
