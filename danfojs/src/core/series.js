@@ -492,11 +492,11 @@ export class Series extends NDframe {
         let params_needed = ["inplace", "ascending"]
         utils._throw_wrong_params_error(kwargs, params_needed)
 
-        if (!('ascending' in kwargs)){
+        if (!('ascending' in kwargs)) {
             kwargs['ascending'] = true
         }
 
-        if (!('inplace' in kwargs)){
+        if (!('inplace' in kwargs)) {
             kwargs['inplace'] = false
         }
 
@@ -525,13 +525,16 @@ export class Series extends NDframe {
 
 
     /**
-    * Make a new copy of Series 
+    * Makes a deep copy of a Series 
     * @returns {Series}
     */
     copy() {
-        let sf = new Series([...this.values], { columns: [...this.column_names] })
-        sf.__set_index([...this.index])
-        // sf.astype([...this.dtypes], false)
+
+        let sf = new Series([...this.values], {
+            columns: [...this.column_names],
+            index: [...this.index],
+            dtypes: [...this.dtypes[0]]
+        })
         return sf
     }
 
@@ -557,8 +560,7 @@ export class Series extends NDframe {
             let variance = this.var()
 
             let vals = [count, mean, std, min, median, max, variance]
-            let sf = new Series(vals, { columns: this.columns })
-            sf.__set_index(index)
+            let sf = new Series(vals, { columns: this.columns, index: index })
             return sf
 
         }
@@ -568,17 +570,16 @@ export class Series extends NDframe {
 
 
     /**
-    * Generate a new Series with the index reset.
-    * This is useful when the index needs to be treated as a column, 
-    * or when the index is meaningless and needs to be reset to the default before another operation.
+    * Returns Series with the index reset.
+    * This is useful when index is meaningless and needs to be reset to the default before another operation.
     * @param {kwargs} {inplace: Modify the Series in place (do not create a new object}
     */
     reset_index(kwargs = {}) {
         let params_needed = ["inplace"]
         utils._throw_wrong_params_error(kwargs, params_needed)
 
-
         kwargs['inplace'] = kwargs['inplace'] || false
+
         if (kwargs['inplace']) {
             this.__reset_index()
         } else {
@@ -589,9 +590,11 @@ export class Series extends NDframe {
     }
 
     /**
-    * Generate a new Series with the specified index.
+    * Returns Series with the specified index.
     * Set the Series index (row labels) using an array of the same length.
-    * @param {kwargs} {index: Array of new index values, inplace: If operation should happen inplace}
+    * @param {kwargs} {index: Array of new index values,
+    *                  inplace: If operation should happen inplace
+    *                   }
     */
     set_index(kwargs = {}) {
 
@@ -601,7 +604,7 @@ export class Series extends NDframe {
 
         kwargs['inplace'] = kwargs['inplace'] || false
 
-        if (!utils.__key_in_object(kwargs, 'index')) {
+        if (!('index' in kwargs)) {
             throw Error("Index ValueError: You must specify an array of index")
         }
 
@@ -619,7 +622,11 @@ export class Series extends NDframe {
     }
 
 
-    //check two series is compatible for an mathematical operation
+    /**
+     * Checks if two series are compatible for a mathematical operation
+     * @param {Series} other Series to compare against
+     * @returns{boolean}
+     */
     __check_series_op_compactibility(other) {
         if (utils.__is_undefined(other.series)) {
             throw Error("param [other] must be a Series or a single value that can be broadcasted")
@@ -638,34 +645,33 @@ export class Series extends NDframe {
     }
 
     /**
-     * map all the element in a column to a variable
+     * map all the element in a column to a variable or function
      * @param{callable} callable can either be a funtion or an object
      * @return {Array}
      */
     map(callable) {
-
         let is_callable = utils.__is_function(callable);
 
         let data = this.data.map((val) => {
-
             if (is_callable) {
                 return callable(val)
-            }
-            else {
-
+            } else {
                 if (utils.__is_object(callable)) {
 
-                    if (utils.__key_in_object(callable, val)) {
+                    if (val in callable) {
                         return callable[val];
                     } else {
-                        return "NaN"
+                        return NaN
                     }
                 } else {
                     throw new Error("callable must either be a function or an object")
                 }
             }
-        });
-        let sf = new Series(data, { columns: this.column_names, index: this.index })
+        })
+        let sf = new Series(data, {
+            columns: this.column_names,
+            index: this.index
+        })
         return sf
     }
 
