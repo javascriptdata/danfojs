@@ -485,7 +485,6 @@ export default class NDframe {
                 data_arr.push(row)
             })
 
-
         }
 
         //set column width of all columns
@@ -495,7 +494,6 @@ export default class NDframe {
         }
     
         let table_data = [header].concat(data_arr) //Adds the column names to values before printing
-        console.log(`\n Shape: (${this.shape}) \n`);
         return table(table_data, { columns: table_config })
     }
 
