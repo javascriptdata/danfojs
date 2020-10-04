@@ -32,7 +32,8 @@ export default class NDframe {
      * @param {data} Array JSON, Tensor. Block of data.
      * @param {kwargs} Object Optional Configuration Object
      *                 {columns: Array of column names. If not specified and data is an array of array, use range index.
-     *                  dtypes: Data types of the columns }
+     *                  dtypes: Data types of the columns,
+     *                  index: row index for subseting array }
      *      
      * @returns NDframe
      */
