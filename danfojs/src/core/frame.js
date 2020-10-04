@@ -94,16 +94,16 @@ export class DataFrame extends Ndframe {
             let new_col_data = {}
             let new_dtype = []
 
-            const col_index = to_drop.map((val, _, arr) => {
-                let col_idx = arr.columns.indexOf(val)
+            const index = to_drop.map((x) => {
+                let col_idx = self.columns.indexOf(x)
                 if (col_idx == -1) {
-                    throw new Error(`column "${val}" does not exist`)
+                    throw new Error(`column "${x}" does not exist`)
                 }
                 return col_idx
             });
 
             this.col_data.forEach((col, idx) => {
-                if (!col_index.includes(idx)) {
+                if (!index.includes(idx)) {
                     new_col_data[self.column_names[idx]] = col
                     new_dtype.push(self.dtypes[idx])
                 }
@@ -125,19 +125,14 @@ export class DataFrame extends Ndframe {
             }
 
         } else {
-            if (!("index" in kwargs)) {
+            if (!utils.__key_in_object(kwargs, "index")) {
                 throw Error("No index label found. Axis of 0 must be accompanied by an array of index labels")
             }
-
-            to_drop.forEach((val) => {
-                if (!this.index.includes(val)) throw new Error(`${val} does not exist in index`)
-            })
-
-            let values = this.values
-            let data_idx = []
-            let new_data 
-            let new_index
-
+            to_drop.forEach((x) => {
+                if (!this.index.includes(x)) throw new Error(`${x} does not exist in index`)
+            });
+            const values = this.values
+            let data_idx = []; let new_data, new_index;
             if (typeof to_drop[0] == 'string') {
                 //get index of strings labels in rows
                 this.index.forEach((idx, i) => {
