@@ -574,7 +574,6 @@ export class Plot {
 
             trace["y"] = y
             trace['type'] = "box"
-            
 
             newPlot(this.div, [trace], this_config['layout']);
 
@@ -815,7 +814,7 @@ export class Plot {
 
         if (this_config['cell_style']) {
             Object.keys(this_config['cell_style']).forEach(param => {
-                header[param] = this_config['cell_style'][param]
+                cells[param] = this_config['cell_style'][param]
             })
         }
         var data = [{
