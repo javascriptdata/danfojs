@@ -984,7 +984,8 @@ export class DataFrame extends Ndframe {
             "<",
             "<=",
             ">=",
-            "=="
+            "==",
+            "!="
         ]
 
         if (!utils.__key_in_object(kwargs, "inplace")) {
