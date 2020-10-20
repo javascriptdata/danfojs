@@ -5,7 +5,7 @@
 
 -----------------
 
-## danfojs: powerful javascript data analysis toolkit 
+## Danfojs: powerful javascript data analysis toolkit 
 ![Node.js CI](https://github.com/opensource9ja/danfojs/workflows/Node.js%20CI/badge.svg?branch=master)
 [![](https://data.jsdelivr.com/v1/package/npm/danfojs/badge?style=rounded)](https://www.jsdelivr.com/package/npm/danfojs)
 [![Build Status](https://travis-ci.org/opensource9ja/danfojs.svg?branch=master)](https://travis-ci.org/opensource9ja/danfojs)
@@ -16,7 +16,7 @@
 
 ## What is it?
 
-**danfo.js** is a javascript package that provides fast, flexible, and expressive data
+**Danfo.js** is a javascript package that provides fast, flexible, and expressive data
 structures designed to make working with "relational" or "labeled" data both
 easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org/pandas-docs/stable/) library, and provides a similar API. This means that users familiar with [Pandas](https://pandas.pydata.org/pandas-docs/stable/), can easily pick up danfo.js. 
 
@@ -49,7 +49,7 @@ easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org
 
 
 
-To use danfo.js via script tags, copy and paste the CDN below to your HTML file
+To use Danfo.js via script tags, copy and paste the CDN below to your HTML file
 
 ```html
   <script src="https://cdn.jsdelivr.net/npm/danfojs@0.1.2/dist/index.min.js"></script>
@@ -103,7 +103,7 @@ Output in Browser:
 
 
 ## How to install
-danfo.js is hosted on NPM, and can installed via package managers like npm and yarn
+Danfo.js is hosted on NPM, and can installed via package managers like npm and yarn
 
 ```sh
 npm install danfojs-node
