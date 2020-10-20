@@ -25,7 +25,6 @@ import { Configs } from '../config/config'
 import { TimeSeries } from './timeseries';
 import { Plot } from '../plotting/plot'
 import { indexLoc } from '../core/indexing'
-import { util } from 'chai'
 
 
 const utils = new Utils()
@@ -489,67 +488,52 @@ export class Series extends NDframe {
     * @returns {Series}
     */
     sort_values(kwargs = {}) {
-        // console.log(this);
-
-        if (this.dtypes[0] == 'string') {
-            throw Error("Dtype Error: cannot sort Series of type string")
-        }
-
-        let params_needed = ["inplace", "ascending", "by"] //"by" param is used in DataFrame call to sort_values
+        let params_needed = ["inplace", "ascending"]
         utils._throw_wrong_params_error(kwargs, params_needed)
 
-
-        let options = {}
-        if (utils.__key_in_object(kwargs, 'ascending')) {
-            options['ascending'] = kwargs["ascending"]
-        } else {
-            options['ascending'] = true
+        if (!('ascending' in kwargs)) {
+            kwargs['ascending'] = true
         }
 
-        if (utils.__key_in_object(kwargs, 'inplace')) {
-            options['inplace'] = kwargs["inplace"]
-        } else {
-            options['inplace'] = false
+        if (!('inplace' in kwargs)) {
+            kwargs['inplace'] = false
         }
 
-
-        let sorted_arr = []
+        let sorted_values = []
         let arr_obj = [...this.values]
-
-        const dsu = (arr1, arr2) => arr1
-            .map((item, index) => [arr2[index], item]) // add the args to sort by
-            .sort(([arg1], [arg2]) => arg2 - arg1) // sort by the args
-            .map(([, item]) => item); // extract the sorted items
-
         let range_idx = utils.__range(0, this.index.length - 1)
-        let sorted_idx = dsu(range_idx, arr_obj);
+        let sorted_idx = utils._sort_arr_with_index(range_idx, arr_obj, this.dtypes[0])
 
         sorted_idx.forEach(idx => {
-            sorted_arr.push(this.values[idx])
+            sorted_values.push(this.values[idx])
         })
-        if (options['ascending']) {
-            sorted_arr = sorted_arr.reverse()
+
+        if (kwargs['ascending']) {
+            sorted_values = sorted_values.reverse()
             sorted_idx = sorted_idx.reverse()
         }
 
-        if (options['inplace']) {
-            this.data = sorted_arr
+        if (kwargs['inplace']) {
+            this.data = sorted_values
             this.__set_index(sorted_idx)
         } else {
-            let sf = new Series(sorted_arr, { columns: this.column_names, index: sorted_idx })
+            let sf = new Series(sorted_values, { columns: this.column_names, index: sorted_idx })
             return sf
         }
     }
 
 
     /**
-    * Make a new copy of Series 
+    * Makes a deep copy of a Series 
     * @returns {Series}
     */
     copy() {
-        let sf = new Series([...this.values], { columns: [...this.column_names] })
-        sf.__set_index([...this.index])
-        // sf.astype([...this.dtypes], false)
+
+        let sf = new Series([...this.values], {
+            columns: [...this.column_names],
+            index: [...this.index],
+            dtypes: [...this.dtypes[0]]
+        })
         return sf
     }
 
@@ -575,8 +559,7 @@ export class Series extends NDframe {
             let variance = this.var()
 
             let vals = [count, mean, std, min, median, max, variance]
-            let sf = new Series(vals, { columns: this.columns })
-            sf.__set_index(index)
+            let sf = new Series(vals, { columns: this.columns, index: index })
             return sf
 
         }
@@ -586,17 +569,16 @@ export class Series extends NDframe {
 
 
     /**
-    * Generate a new Series with the index reset.
-    * This is useful when the index needs to be treated as a column, 
-    * or when the index is meaningless and needs to be reset to the default before another operation.
+    * Returns Series with the index reset.
+    * This is useful when index is meaningless and needs to be reset to the default before another operation.
     * @param {kwargs} {inplace: Modify the Series in place (do not create a new object}
     */
     reset_index(kwargs = {}) {
         let params_needed = ["inplace"]
         utils._throw_wrong_params_error(kwargs, params_needed)
 
-
         kwargs['inplace'] = kwargs['inplace'] || false
+
         if (kwargs['inplace']) {
             this.__reset_index()
         } else {
@@ -607,9 +589,11 @@ export class Series extends NDframe {
     }
 
     /**
-    * Generate a new Series with the specified index.
+    * Returns Series with the specified index.
     * Set the Series index (row labels) using an array of the same length.
-    * @param {kwargs} {index: Array of new index values, inplace: If operation should happen inplace}
+    * @param {kwargs} {index: Array of new index values,
+    *                  inplace: If operation should happen inplace
+    *                   }
     */
     set_index(kwargs = {}) {
 
@@ -619,7 +603,7 @@ export class Series extends NDframe {
 
         kwargs['inplace'] = kwargs['inplace'] || false
 
-        if (!utils.__key_in_object(kwargs, 'index')) {
+        if (!('index' in kwargs)) {
             throw Error("Index ValueError: You must specify an array of index")
         }
 
@@ -637,7 +621,11 @@ export class Series extends NDframe {
     }
 
 
-    //check two series is compatible for an mathematical operation
+    /**
+     * Checks if two series are compatible for a mathematical operation
+     * @param {Series} other Series to compare against
+     * @returns{boolean}
+     */
     __check_series_op_compactibility(other) {
         if (utils.__is_undefined(other.series)) {
             throw Error("param [other] must be a Series or a single value that can be broadcasted")
@@ -656,41 +644,39 @@ export class Series extends NDframe {
     }
 
     /**
-     * map all the element in a column to a variable
+     * map all the element in a column to a variable or function
      * @param{callable} callable can either be a funtion or an object
      * @return {Array}
      */
     map(callable) {
-
         let is_callable = utils.__is_function(callable);
 
         let data = this.data.map((val) => {
-
             if (is_callable) {
                 return callable(val)
-            }
-            else {
-
+            } else {
                 if (utils.__is_object(callable)) {
 
-                    if (utils.__key_in_object(callable, val)) {
+                    if (val in callable) {
                         return callable[val];
                     } else {
-                        return "NaN"
+                        return NaN
                     }
                 } else {
                     throw new Error("callable must either be a function or an object")
                 }
             }
-        });
-        let sf = new Series(data, { columns: this.column_names, index: this.index })
+        })
+        let sf = new Series(data, {
+            columns: this.column_names,
+            index: this.index
+        })
         return sf
     }
 
     /**
-     * The apply function is similar to the map function
-     * just that it only takes in a function
-     * @param {callable} callable [FUNCTION]
+     * Applies a function to each element of a Series
+     * @param {Function} Function to apply to each element of the series
      * @return {Array}
      */
     apply(callable) {
@@ -701,21 +687,19 @@ export class Series extends NDframe {
         }
 
         let data = this.data.map((val) => {
-
             return callable(val)
         });
         return new Series(data, { columns: this.column_names, index: this.index })
     }
 
     /**
-     * Returns the unique value in a series
+     * Returns the unique value(s) in a Series
      * @return {Series}
      */
     unique() {
 
         let data_set = new Set(this.values)
-        let data = Array.from(data_set);
-        let series = new Series(data)
+        let series = new Series(Array.from(data_set))
 
         return series
 
@@ -726,25 +710,21 @@ export class Series extends NDframe {
      * @return {int}
      */
     nunique() {
-
-        let unique = this.unique().values
-
-        return unique.length;
+        return this.unique().values.length
     }
 
     /**
-     * Returns the unique values and their counts in a Series
+     * Returns unique values and their counts in a Series
      * @return {Series}
      */
     value_counts() {
 
         let s_data = this.values
-
         let data_dict = {}
 
         for (let i = 0; i < s_data.length; i++) {
-
             let val = s_data[i]
+
             if (val in data_dict) {
                 data_dict[val] += 1
             } else {
@@ -755,11 +735,9 @@ export class Series extends NDframe {
         let index = Object.keys(data_dict).map(x => {
             return parseInt(x) ? parseInt(x) : x
         })
-        let data = index.map(x => { return data_dict[x] })
+        let data = Object.values(data_dict)
 
         let series = new Series(data, { index: index })
-        // series.index_arr = index;
-
         return series
 
     }
@@ -769,11 +747,7 @@ export class Series extends NDframe {
      * @return {series}
      */
     abs() {
-        let s_data = this.values
-
-        let tensor_data = tf.tensor1d(s_data)
-        let abs_data = tensor_data.abs().arraySync()
-
+        let abs_data = this.row_data_tensor.abs().arraySync()
         return new Series(utils.__round(abs_data, 2, true))
     }
 
@@ -813,8 +787,6 @@ export class Series extends NDframe {
         let data = this.__cum_ops("prod");
         return data
     }
-
-
 
 
     /**
@@ -874,45 +846,53 @@ export class Series extends NDframe {
     }
 
     /**
-   * Replace all occurence of a value with a new specified value"
-   * @param {kwargs}, {"replace": the value you want to replace, "with": the new value you want to replace the olde value with, inplace: Perform operation inplace or not} 
-   * @return {Series}
-   */
+    * Replace all occurence of a value with a new value"
+    * @param {kwargs}, {"replace": the value you want to replace,
+    *                   "with": the new value you want to replace the olde value with,
+    *                   inplace: Perform operation inplace or not} 
+    * @return {Series}
+    */
     replace(kwargs = {}) {
         let params_needed = ["replace", "with", "inplace"]
         utils._throw_wrong_params_error(kwargs, params_needed)
 
-
         kwargs['inplace'] = kwargs['inplace'] || false
 
-        if (utils.__key_in_object(kwargs, "replace") && utils.__key_in_object(kwargs, "with")) {
-            let replaced_arr = []
-            let old_arr = this.values
+        if (!("replace" in kwargs)) {
+            throw Error("Params Error: Must specify param 'replace'")
+        }
 
-            old_arr.map(val => {
-                if (val == kwargs['replace']) {
-                    replaced_arr.push(kwargs['with'])
-                } else {
-                    replaced_arr.push(val)
-                }
-            })
+        if (!("with" in kwargs)) {
+            throw Error("Params Error: Must specify param 'with'")
+        }
 
-            if (kwargs['inplace']) {
-                this.data = replaced_arr
+        let replaced_arr = []
+        let old_arr = this.values
+
+        old_arr.forEach(val => {
+            if (val == kwargs['replace']) {
+                replaced_arr.push(kwargs['with'])
             } else {
-                let sf = new Series(replaced_arr, { index: this.index, columns: this.columns, dtypes: this.dtypes })
-                return sf
+                replaced_arr.push(val)
             }
+        })
 
+        if (kwargs['inplace']) {
+            this.data = replaced_arr
         } else {
-            throw Error("Params Error: Must specify both 'replace' and 'with' parameters.")
+            let sf = new Series(replaced_arr, {
+                index: this.index,
+                columns: this.columns,
+                dtypes: this.dtypes
+            })
+            return sf
         }
 
     }
 
 
     /**
-     * Return a new Series with missing values removed.
+     * Return a new Series with missing values (NaN) removed.
      * @param {kwargs} {inplace: Perform operation inplace or not} 
      * @return {Series}
      */
@@ -928,7 +908,7 @@ export class Series extends NDframe {
         let new_index = []
         let isna_vals = this.isna().values
 
-        isna_vals.map((val, i) => {
+        isna_vals.forEach((val, i) => {
             if (!val) {
                 new_values.push(old_values[i])
                 new_index.push(old_index[i])
@@ -938,14 +918,18 @@ export class Series extends NDframe {
             this.index_arr = new_index
             this.data = new_values
         } else {
-            let sf = new Series(new_values, { columns: this.column_names, index: new_index, dtypes: this.dtypes })
+            let sf = new Series(new_values, {
+                columns: this.column_names,
+                index: new_index,
+                dtypes: this.dtypes
+            })
             return sf
         }
 
     }
 
     /**
-   * Return the integer indices that would sort the Series values.
+   * Return the integer indices that would sort the Series.
    * @param {ascending} boolean true: will sort the Series in ascending order, false: will sort in descending order
    * @return {Series}
    */
@@ -960,10 +944,7 @@ export class Series extends NDframe {
      * @return {Number}
      */
     argmax() {
-        // let sorted_index = this.sort_values({ ascending: true }).index
-        // let last_idx = sorted_index[sorted_index.length - 1]
-        // return last_idx
-        return this.values.map((x, i) => [x, i]).reduce((r, a) => (a[0] > r[0] ? a : r))[1];
+        return this.row_data_tensor.argMax().arraySync()
     }
 
 
@@ -973,9 +954,8 @@ export class Series extends NDframe {
      * @return {Series}
      */
     argmin() {
-        let sorted_index = this.sort_values({ ascending: true }).index
-        let first_idx = sorted_index[0]
-        return first_idx
+        return this.row_data_tensor.argMin().arraySync()
+
     }
 
 
@@ -989,7 +969,8 @@ export class Series extends NDframe {
 
     /**
      * Return Series with duplicate values removed
-     * @param {kwargs} {inplace: Perform operation inplace or not} 
+     * @param {kwargs} {inplace: Perform operation inplace or not,
+     *                  keep: first | last which dupliate value to keep} 
      * @return {Series}
      */
     drop_duplicates(kwargs = {}) {
@@ -1009,29 +990,31 @@ export class Series extends NDframe {
             old_index = this.index
         }
 
-
-        let seen = []
         let new_index = []
         let new_arr = []
-        data_arr.map((val, i) => {
-            if (!seen.includes(val)) {
+
+        data_arr.forEach((val, i) => {
+            if (!new_arr.includes(val)) {
                 new_index.push(old_index[i])
                 new_arr.push(val)
-                seen.push(val)
             }
         })
 
         if (kwargs['keep'] == "last") {
-            //re-reversed the array and index
+            //re-reversed the array and index to its true ordering
             new_arr = new_arr.reverse()
             new_index = new_index.reverse()
         }
 
-        if (kwargs['inplace'] == true) {
+        if (kwargs['inplace']) {
             this.data = new_arr
             this.index_arr = new_index
         } else {
-            let sf = new Series(new_arr, { index: new_index, columns: this.column_names, dtypes: this.dtypes })
+            let sf = new Series(new_arr, {
+                index: new_index,
+                columns: this.column_names,
+                dtypes: this.dtypes
+            })
             return sf
         }
 
@@ -1045,11 +1028,8 @@ export class Series extends NDframe {
         let table_width = 20
         let table_truncate = 20
         let max_row = config.get_max_row
-
-        // let data;
         let data_arr = []
         let table_config = {}
-
         let header = [""].concat(this.columns)
         let idx, data;
 
@@ -1062,7 +1042,7 @@ export class Series extends NDframe {
             idx = this.index
         }
 
-        idx.map((val, i) => {
+        idx.forEach((val, i) => {
             let row = [val].concat(data[i])
             data_arr.push(row)
         })
@@ -1071,34 +1051,30 @@ export class Series extends NDframe {
         table_config[0] = 10
         table_config[1] = { width: table_width, truncate: table_truncate }
 
-        data_arr.unshift(header) //Adds the column names to values before printing
-        return table(data_arr, { columns: table_config })
+        let table_data = [header].concat(data_arr) //Add the column names to values before printing
+        return table(table_data, { columns: table_config })
     }
 
     /**
      * Perform boolean operations on bool values
+     * @param {*} other Other series to compare with
+     * @param {string} b_ops name of operation to perform [ne, ge, le, gt, lt, eq]
      */
     __bool_ops(other, b_ops) {
         let r_series;
         let l_series = this.values
 
-        ///operation can be performed on a Series or a single scalar using broadcasting
         if (typeof other == "number") {
-            //create array of other for broadcasting
-            r_series = []
-            for (let i = 0; i < this.values.length; i++) {
-                r_series.push(other)
-            }
+            r_series = [...l_series].fill(other)  //create array of repeated value for broadcasting
         } else {
             if (!(other instanceof Series)) {
-                throw new Error("must be an instance of series")
+                throw new Error("Value Error: 'other' must be an instance of Series")
             }
-            l_series = this.values
             r_series = other.values
         }
 
         if (!(l_series.length === r_series.length)) {
-            throw new Error("Both series must be of the same length")
+            throw new Error("Length Error: Both series must be of the same length")
         }
 
         let data = []
@@ -1186,20 +1162,19 @@ export class Series extends NDframe {
 
 
     /**
-     * Sets the data types of a Series 
-     * @param {dtype} String [float32, int32, string] data type to cast to.
+     * Cast Series to specified data type 
+     * @param {string} dtype data type to cast to [float32, int32, string, boolean] 
      *@returns {Series}
      */
     astype(dtype) {
+        const __supported_dtypes = ['float32', "int32", 'string', 'boolean']
 
-        if (dtype == undefined) {
+        if (!dtype) {
             throw Error("Value Error: Please specify dtype to cast to")
         }
 
-        const __supported_dtypes = ['float32', "int32", 'string', 'boolean']
-
         if (!__supported_dtypes.includes(dtype)) {
-            throw Error(`dtype ${dtype} not supported`)
+            throw Error(`dtype ${dtype} not supported. dtype must be one of ${__supported_dtypes}`)
         }
 
         let col_values = this.values
@@ -1207,24 +1182,28 @@ export class Series extends NDframe {
 
         switch (dtype) {
             case "float32":
-                col_values.map(val => {
+                col_values.forEach(val => {
                     new_values.push(Number(val))
                 })
                 break;
             case "int32":
-                col_values.map(val => {
+                col_values.forEach(val => {
                     new_values.push(Number(Number(val).toFixed()))
                 })
                 break;
             case "string":
-                col_values.map(val => {
+                col_values.forEach(val => {
                     new_values.push(String(val))
+                })
+                break;
+            case "boolean":
+                col_values.forEach(val => {
+                    new_values.push(Boolean(val))
                 })
                 break;
             default:
                 break;
         }
-
 
         let sf = new Series(new_values, { dtypes: dtype, index: this.index })
         return sf
@@ -1233,15 +1212,15 @@ export class Series extends NDframe {
 
 
     /**
-     * Returns String Object of series. Has numerous methods to manipulate string Series
+     * Exposes numerous string methods to manipulate Series
      */
     get str() {
         let values = this.values
         if (this.dtypes[0] != "string") {
             let new_vals = []
             //convert each value in array to string
-            values.map(val => {
-                new_vals.push(`${val}`)
+            values.forEach(val => {
+                new_vals.push(String(val))
             })
             let sf = new Series(new_vals, { columns: this.column_names, index: this.index })
             return new Str(sf)
@@ -1270,7 +1249,7 @@ export class Series extends NDframe {
 
     /**
       * Make plots of Series or DataFrame.
-      * Uses the Plotly as backend, so supports Plotly's configuration parameters
+      * Uses the Plotly as backend, so therefore supports Plotly's configuration parameters
       * @param {string} div Name of the div to show the plot
       * @returns {Class} Plot class that expoese different plot type
       */
@@ -1280,27 +1259,23 @@ export class Series extends NDframe {
     }
 
     /**
-     * Slice series accross the index
-     * @param {*} row --> Array
+     * Slice series by index
+     * @param {Array} row list of index to slice by
      * @returns Series
      */
     iloc(row) {
-
         let kwargs = {}
-
         kwargs["rows"] = row
         kwargs["type"] = "iloc"
 
         let [new_data, columns, rows] = indexLoc(this, kwargs);
-
-        let sf = new Series(new_data, { columns: columns });
-        sf.__set_index(rows)
+        let sf = new Series(new_data, { columns: columns, index: rows });
 
         return sf
     }
 
     /**
-     * 
+     * Adds new values to the end of a Series
      * @param {Object} val Single value | Array | Series to append to the object
      * @param {Boolean} inplace Whether to perform operation inplace or not
      */

@@ -588,7 +588,7 @@ export class Utils {
         if (bool.some(truthy)) {
             throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`)
 
-        } 
+        }
 
     }
 
@@ -694,7 +694,7 @@ export class Utils {
         return isNode()
     }
 
-    _throw_str_dtype_error(obj, ops){
+    _throw_str_dtype_error(obj, ops) {
         if (obj.dtypes[0] == "string") {
             throw Error(`dtype error: String data type does not support ${ops} operation`)
         }
@@ -705,32 +705,32 @@ export class Utils {
      * Remove NaN values from Array
      * @param {*} arr 
      */
-    _remove_nans(arr){
-        let values = arr.filter(val => !isNaN(val) && typeof val != "string") 
+    _remove_nans(arr) {
+        let values = arr.filter(val => !isNaN(val) && typeof val != "string")
         return values
     }
 
-    __get_duplicate(arr){
+    __get_duplicate(arr) {
 
         let temp_obj = {}
         let rslt_obj = {}
 
-        arr.forEach((val,index)=>{
+        arr.forEach((val, index) => {
 
-            if(temp_obj.hasOwnProperty(val)){
+            if (temp_obj.hasOwnProperty(val)) {
 
-                temp_obj[val]["count"] +=1
+                temp_obj[val]["count"] += 1
                 temp_obj[val]["index"].push(index)
-            }else{
+            } else {
                 temp_obj[val] = {}
                 temp_obj[val]["count"] = 1
                 temp_obj[val]["index"] = [index]
             }
         });
 
-        for(let key in temp_obj){
+        for (let key in temp_obj) {
 
-            if(temp_obj[key]["count"] >=2){
+            if (temp_obj[key]["count"] >= 2) {
                 rslt_obj[key] = {}
                 rslt_obj[key]["count"] = temp_obj[key]["count"]
                 rslt_obj[key]["index"] = temp_obj[key]["index"]
@@ -740,6 +740,27 @@ export class Utils {
         return rslt_obj;
     }
 
+
+    /**
+     * Sorts an array by index
+     * @param {Array} arr1 
+     * @param {Array} arr2 
+     * @param {string} dtype 
+     * 
+     * @returns sorted index
+     */
+    _sort_arr_with_index(arr1, arr2, dtype) {
+        let sorted_idx = arr1.map((item, index) => {
+            return [arr2[index], item]
+        })
+        if (dtype == 'string') {
+            sorted_idx.sort()
+        } else {
+            sorted_idx.sort(([arg1], [arg2]) => arg2 - arg1)
+        }
+
+        return sorted_idx.map(([, item]) => item)
+    }
 }
 
 

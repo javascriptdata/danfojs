@@ -1,7 +1,21 @@
+/**
+* Copyright 2020, JsData.
+* All rights reserved.
+*
+* This source code is licensed under the MIT license found in the
+* LICENSE file in the root directory of this source tree.
+
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+// import * as tf from '@tensorflow/tfjs-node' //Use this import when building optimized version for danfojs-node
+import * as tf from '@tensorflow/tfjs' //Use this import when building optimized version for danfojs browser side
 import Ndframe from "./generic"
 import { Series } from "./series"
-// import * as tf from '@tensorflow/tfjs-node'
-import * as tf from '@tensorflow/tfjs'
 import { Utils } from "./utils"
 import { GroupBy } from "./groupby"
 import { Plot } from '../plotting/plot'
@@ -14,22 +28,21 @@ import { std, variance } from 'mathjs'
 
 
 /**
- * DataFrame object. A 2D frame object that stores data in structured tabular format
- * @param {data} data, JSON, Array of structured data
- * @param {kwargs} Object {columns: Array of column names, dtypes: string of data types present in dataset.}
+ * A 2D frame object that stores data in structured tabular format
+ * @param {data} data, JSON, Array, 2D Tensor
+ * @param {kwargs} Object {columns: Array of column names, defaults to ordered numbers when not specified
+ *                        dtypes: strings of data types, automatically inferred when not specified
+ *                        index: row index for subseting array, defaults to ordered numbers when not specified}
  * 
- * @returns DataFrame data structure
+ * @returns DataFrame
  */
 export class DataFrame extends Ndframe {
     constructor(data, kwargs) {
         super(data, kwargs)
-        this.__set_column_property() //set column property on Class
+        this._set_column_property() //set column property on DataFrame Class for easy accessing using the format df['colname']
     }
 
-
-
-    //set all columns to DataFrame Property. This ensures easy access to columns as Series
-    __set_column_property() {
+    _set_column_property() {
         let col_vals = this.col_data
         let col_names = this.column_names
 
@@ -47,8 +60,8 @@ export class DataFrame extends Ndframe {
     }
 
     /**
-     * Drop a list of rows or columns base on the axis specified
-     * @param {kwargs} Object (Optional configuration object
+     * Drop a list of rows or columns base on the specified axis 
+     * @param {Object} kwargs Configuration object
      *             {columns: [Array(Columns| Index)] array of column names to drop
      *              axis: row=0, columns=1
      *             inplace: specify whether to drop the row/column with/without creating a new DataFrame}
@@ -59,30 +72,29 @@ export class DataFrame extends Ndframe {
         let params_needed = ["columns", "index", "inplace", "axis"]
         utils._throw_wrong_params_error(kwargs, params_needed)
 
-        // utils.__in_object(kwargs, "columns", "value not defined")
-        if (!utils.__key_in_object(kwargs, "inplace")) {
-            kwargs['inplace'] = false
-        }
-        if (!utils.__key_in_object(kwargs, "axis")) {
+        kwargs['inplace'] = kwargs['inplace'] || false
+
+        if (!("axis" in kwargs)) {
             kwargs['axis'] = 1
         }
-        let data;
-        if (utils.__key_in_object(kwargs, "index") && kwargs['axis'] == 0) {
-            data = kwargs["index"];
+
+        let to_drop = null
+        if ("index" in kwargs && kwargs['axis'] == 0) {
+            to_drop = kwargs["index"];
         } else {
-            data = kwargs["columns"];
+            to_drop = kwargs["columns"];
         }
 
 
         if (kwargs['axis'] == 1) {
-            if (!utils.__key_in_object(kwargs, "columns")) {
+            if (!("columns" in kwargs)) {
                 throw Error("No column found. Axis of 1 must be accompanied by an array of column(s) names")
             }
             let self = this;
             let new_col_data = {}
             let new_dtype = []
 
-            const index = data.map((x) => {
+            const index = to_drop.map((x) => {
                 let col_idx = self.columns.indexOf(x)
                 if (col_idx == -1) {
                     throw new Error(`column "${x}" does not exist`)
@@ -116,15 +128,15 @@ export class DataFrame extends Ndframe {
             if (!utils.__key_in_object(kwargs, "index")) {
                 throw Error("No index label found. Axis of 0 must be accompanied by an array of index labels")
             }
-            data.map((x) => {
+            to_drop.forEach((x) => {
                 if (!this.index.includes(x)) throw new Error(`${x} does not exist in index`)
             });
             const values = this.values
             let data_idx = []; let new_data, new_index;
-            if (typeof data[0] == 'string') {
+            if (typeof to_drop[0] == 'string') {
                 //get index of strings labels in rows
                 this.index.forEach((idx, i) => {
-                    if (data.includes(idx)) {
+                    if (to_drop.includes(idx)) {
                         data_idx.push(i)
                     }
                 })
@@ -132,8 +144,8 @@ export class DataFrame extends Ndframe {
                 new_index = utils.__remove_arr(this.index, data_idx);
 
             } else {
-                new_data = utils.__remove_arr(values, data);
-                new_index = utils.__remove_arr(this.index, data);
+                new_data = utils.__remove_arr(values, to_drop);
+                new_index = utils.__remove_arr(this.index, to_drop);
             }
 
 
@@ -972,7 +984,8 @@ export class DataFrame extends Ndframe {
             "<",
             "<=",
             ">=",
-            "=="
+            "==",
+            "!="
         ]
 
         if (!utils.__key_in_object(kwargs, "inplace")) {
@@ -2169,10 +2182,10 @@ export class DataFrame extends Ndframe {
             let val = sorted_val[row_i]
             let index = null;
 
-            if(duplicate_obj.hasOwnProperty(val)){
+            if (duplicate_obj.hasOwnProperty(val)) {
                 index = duplicate_obj[val]["index"][0]
-                duplicate_obj[val]["index"].splice(0,1)
-            }else{
+                duplicate_obj[val]["index"].splice(0, 1)
+            } else {
                 index = col_value.indexOf(val)
             }
 
