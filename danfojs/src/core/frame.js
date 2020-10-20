@@ -1040,6 +1040,9 @@ export class DataFrame extends Ndframe {
 
         }
 
+        if(new_data.length ==0){
+            throw new Error(`query returned empty data; is either ${value} does not exist in column ${kwargs["column"]}`)
+        }
         if (kwargs['inplace']) {
             this.__update_frame_in_place(new_data, this.columns, null, new_index, null)
         } else {
