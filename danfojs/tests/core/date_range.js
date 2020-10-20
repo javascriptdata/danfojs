@@ -6,20 +6,20 @@ import { date_range } from '../../src/core/date_range'
 
 describe("date_range", function(){
 
-    // it("Obtain date between start and end specified", function(){
+    it("Obtain date between start and end specified", function(){
 
-    //     let d = new date_range({"start":'2018-04-24',"end":'2018-04-27'})
-    //     let rslt = [
-    //         '4/24/2018, 1:00:00 AM',
-    //         '4/25/2018, 1:00:00 AM',
-    //         '4/26/2018, 1:00:00 AM',
-    //         '4/27/2018, 1:00:00 AM'
-    //       ]
+        let d = new date_range({"start":'2018-04-24',"end":'2018-04-27'})
+        let rslt = [
+            '4/24/2018, 1:00:00 AM',
+            '4/25/2018, 1:00:00 AM',
+            '4/26/2018, 1:00:00 AM',
+            '4/27/2018, 1:00:00 AM'
+          ]
 
-    //     assert.deepEqual(d,rslt)
+        assert.deepEqual(d,rslt)
         
 
-    // });
+    });
     it("Obtain date between start with end not specified, but period and freq specified", function(){
 
         
@@ -68,5 +68,11 @@ describe("date_range", function(){
         assert.deepEqual(d,rslt);
         
 
+    });
+    it("inputing wrong freq", function(){
+      assert.throws(function () { new date_range({end:'1/1/2018', period:8, freq:"d"}) }, Error, 'invalid freq d');
+    });
+    it("inputing wrong freq with offset", function(){
+      assert.throws(function () { new date_range({end:'1/1/2018', period:8, freq:"4d"}) }, Error, 'invalid freq d');
     });
 });

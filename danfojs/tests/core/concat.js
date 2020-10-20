@@ -133,5 +133,32 @@ describe("Concatenate", function () {
 
     })
 
+    it("test if df_list is an array", function(){
+
+        assert.throws(function () { concat({"df_list":23,"axis":0}) }, Error, 'df_list must be an Array of dataFrames/Series');
+
+    })
+    it("assign default axis for concating", function(){
+        let data1 = [1,2,3,4]
+        let data2 = [3,4,5,6]
+
+        let s1 = new Series(data1)
+        let s2 = new Series(data2)
+        let rslt = [ [ 1, 3 ], [ 2, 4 ], [ 3, 5 ], [ 4, 6 ] ]
+           
+
+        let con = concat({ "df_list": [s1,s2], "axis": 12 })
+
+        assert.deepEqual(con.values, rslt)
+    });
+    it("ensure axis is a number", function(){
+        let data1 = [1,2,3,4]
+        let data2 = [3,4,5,6]
+
+        let s1 = new Series(data1)
+        let s2 = new Series(data2)
+
+        assert.throws(function () { concat({"df_list":[s1,s2],"axis":"r"}) }, Error, 'axis must be a number');
+    });
 
 });
