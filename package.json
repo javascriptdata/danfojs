@@ -16,12 +16,12 @@
     "danfojs/src/"
   ],
   "dependencies": {
-    "@tensorflow/tfjs": "^2.4.0",
-    "@tensorflow/tfjs-core": "^2.4.0",
-    "mathjs": "7.2.0",
+    "mathjs": "7.5.1",
     "plotly.js": "1.54.7",
     "table": "^5.4.6",
-    "xlsx": "^0.16.7"
+    "xlsx": "^0.16.7",
+    "@tensorflow/tfjs": "^2.4.0",
+    "@tensorflow/tfjs-core": "^2.4.0"
   },
   "scripts": {
     "test": "nyc mocha --require @babel/register danfojs/tests/*",
