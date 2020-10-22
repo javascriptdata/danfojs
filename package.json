@@ -27,7 +27,7 @@
     "xlsx": "^0.16.7"
   },
   "scripts": {
-    "test": "nyc mocha --require @babel/register danfojs/tests/io/*",
+    "test": "nyc mocha --require @babel/register danfojs/tests/*",
     "dev": "npm run lint && babel ./danfojs/src -d dist --no-comments",
     "build": "babel ./danfojs/src -d ./dist --no-comments",
     "lint": "eslint ./danfojs/src",
