@@ -126,7 +126,7 @@ describe("read: Generic read function from data.js", async function () {
      it("read a specific data from Dataset package", async function () {
         const jUrl = 'https://github.com/datopian/data.js/blob/master/datajs/test/fixtures/co2-ppm/datapackage.json'
 
-        read(jUrl, {data_num: 5}).then((df) => {
+        read(jUrl, {data_num: 2}).then((df) => {
             const num_of_columns = (df.column_names).length
             assert.equal(num_of_columns, 3)
         })

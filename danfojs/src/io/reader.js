@@ -161,12 +161,12 @@ export const read_excel = async (kwargs) => {
  * @param {string} pathOrDescriptor A path to the file/resources. It can be a local file,
  * a URL to a tabular data (CSV, EXCEL) or Datahub.io Data Resource. 
  * Data comes with extra properties and specification conforming to the Frictionless Data standards.
- * @param {object} configs { data_num (Defaults => 1): The specific dataset to load, when reading data from a datapackage.json, 
+ * @param {object} configs { data_num (Defaults => 0): The specific dataset to load, when reading data from a datapackage.json, 
  *                          header (Defaults => true): Whether the dataset contains header or not.
  *                          }
  * @returns {DataFrame} Danfo DataFrame/Series
  */
-export const read = async (path_or_descriptor, configs = { data_num: 1, header: true }) => {
+export const read = async (path_or_descriptor, configs = { data_num: 0, header: true }) => {
     let data_num = configs['data_num']
     let header = configs['header']
     let rows, file;
@@ -175,12 +175,14 @@ export const read = async (path_or_descriptor, configs = { data_num: 1, header: 
         console.log("datapackage.json found. Loading Dataset package from Datahub.io");
         const dataset = await Dataset.load(path_or_descriptor)
         file = dataset.resources[data_num]
-        rows = await toArray(await file.rows())
+        //TODO: toArray does not work in browser env, so this feature breaks when build for the web.
+        // To fix this, we need a function to convert stream into text
+        rows = await toArray(await file.rows()) 
     } else {
         try {
             file = open(path_or_descriptor)
             rows = await toArray(await file.rows())
-
+            
         } catch (error) {
             console.log(error);
         }

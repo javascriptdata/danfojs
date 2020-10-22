@@ -2,6 +2,7 @@ const path = require('path');
 
 module.exports = {
     entry: './danfojs/src/index.js',
+    target: 'web',
     output: {
         path: path.resolve(__dirname, "dist"),
         filename: 'index.js',
@@ -26,4 +27,5 @@ module.exports = {
         ],
         extensions: ['.js', '.jsx']
     },
+    node: { fs: 'empty' },
 };
