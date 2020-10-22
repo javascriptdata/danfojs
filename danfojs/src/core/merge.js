@@ -107,12 +107,17 @@ export class Merge {
                 this.left_key_dict[left_key_comb] = [left_value_filter]
             }
 
+        }
+        for (let i = 0; i < right_values.length; i++) {
+            let right_value = right_values[i]
+            let right_key_comb = ""
+            
             for (let j = 0; j < this.right_col_index.length; j++) {
                 let index = this.right_col_index[j]
 
                 right_key_comb += `_${right_value[index]}`
             }
-
+            let self = this; 
             let right_value_filter = right_value.filter(function (val, index) {
                 return !self.right_col_index.includes(index)
             });
@@ -122,10 +127,8 @@ export class Merge {
             } else {
                 this.right_key_dict[right_key_comb] = [right_value_filter]
             }
-
         }
 
-        // console.log(this.right_key_dict,this.left_key_dict);
 
         //create column
         this.__create_columns()
