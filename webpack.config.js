@@ -6,6 +6,7 @@ module.exports = {
         path: path.resolve(__dirname, "dist"),
         filename: 'index.js',
         library: 'dfd',
+        libraryTarget: 'window'
     },
     module: {
         rules: [
