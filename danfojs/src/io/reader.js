@@ -2,13 +2,14 @@ import { DataFrame } from '../core/frame'
 // import * as tf from '@tensorflow/tfjs-node'
 import * as tf from '@tensorflow/tfjs'
 import { Utils } from '../core/utils'
-
-//used in reading JSON file in nodejs env
-// import fs from 'fs'
 import fetch from 'node-fetch'
-
 import XLSX from 'xlsx';
+import { open, Dataset, isDataset } from 'data.js'
+import toArray from 'stream-to-array'
+
 const utils = new Utils()
+
+
 
 
 
@@ -31,7 +32,7 @@ export const read_csv = async (source, chunk) => {
     let data = []
     const csvDataset = tf.data.csv(source)
     const column_names = await csvDataset.columnNames()
-    const sample = await csvDataset.take(chunk)
+    const sample = csvDataset.take(chunk)
     await sample.forEachAsync(row => data.push(Object.values(row)))
     let df = new DataFrame(data, { columns: column_names })
     return df
@@ -47,7 +48,7 @@ export const read_csv = async (source, chunk) => {
 export const read_json = async (source) => {
     if (utils.__is_node_env()) {
         // inside Node Env
-        if (source.startsWith("https://")) {
+        if (source.startsWith("https://") || source.startsWith("http://") || source.startsWith("file://")) {
             //read from URL
             let res = await fetch(source, { method: "Get" })
             let json = await res.json()
@@ -55,13 +56,15 @@ export const read_json = async (source) => {
             return df
 
         } else {
-            //read locally
-            // fs.readFile(source, (err, data) => {
-            //     if (err) throw err;
-            //     let df = new DataFrame(JSON.parse(data))
-            //     return df
+            //Try reading file from local env
+            let fs = await import('fs')
+            fs.readFile(source, (err, data) => {
+                if (err) throw err;
+                let df = new DataFrame(JSON.parse(data))
+                return df
 
-            // })
+            })
+
         }
     } else {
 
@@ -115,7 +118,7 @@ export const read_excel = async (kwargs) => {
             res = new Uint8Array(res);
             workbook = XLSX.read(res, { type: "array" });
         }
-      
+
         // Parse worksheet from workbook
         const worksheet = workbook.Sheets[sheet_name || workbook.SheetNames[0]];
         var range = XLSX.utils.decode_range(worksheet['!ref']);
@@ -152,8 +155,59 @@ export const read_excel = async (kwargs) => {
     }
 }
 
+
+/**
+ * Opens a file using Data.js specification. 
+ * @param {string} pathOrDescriptor A path to the file/resources. It can be a local file,
+ * a URL to a tabular data (CSV, EXCEL) or Datahub.io Data Resource. 
+ * Data comes with extra properties and specification conforming to the Frictionless Data standards.
+ * @param {object} configs { data_num (Defaults => 0): The specific dataset to load, when reading data from a datapackage.json, 
+ *                          header (Defaults => true): Whether the dataset contains header or not.
+ *                          }
+ * @returns {DataFrame} Danfo DataFrame/Series
+ */
+export const read = async (path_or_descriptor, configs = { data_num: 0, header: true }) => {
+    let data_num = configs['data_num']
+    let header = configs['header']
+    let rows, file;
+
+    if (isDataset(path_or_descriptor)) {
+        console.log("datapackage.json found. Loading Dataset package from Datahub.io");
+        const dataset = await Dataset.load(path_or_descriptor)
+        file = dataset.resources[data_num]
+        //TODO: toArray does not work in browser env, so this feature breaks when build for the web.
+        // To fix this, we need a function to convert stream into text
+        rows = await toArray(await file.rows()) 
+    } else {
+        try {
+            file = open(path_or_descriptor)
+            rows = await toArray(await file.rows())
+            
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    if (['csv', 'xls', 'xlsx'].includes(await file.descriptor.format)) {
+        if (header){
+            let df = new DataFrame(rows.slice(1), { columns: rows[0] })
+            return df
+        }else{
+            let df = new DataFrame(rows)
+            return df
+        }
+    }else{
+        let df = new DataFrame(rows)
+        return df
+    }
+
+}
+
+
+
+
 // /**
-//  * Reads a SQL Database into DataFrame
+//  * Reads a Database into DataFrame
 //  * 
 //  * @param {source} URL or local file path to retreive JSON file.
 //  * @returns {Promise} DataFrame structure of parsed CSV data
