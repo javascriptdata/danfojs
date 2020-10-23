@@ -2,7 +2,6 @@ node_modules
 .vscode/
 coverage
 .nyc_output
-dist
 danfojs/data
 .DS_Store
 .idea/
