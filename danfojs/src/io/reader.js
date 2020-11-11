@@ -58,13 +58,13 @@ export const read_json = async (source) => {
         } else {
             //Try reading file from local env
             let fs = await import('fs')
-            fs.readFile(source, (err, data) => {
-                if (err) throw err;
-                let df = new DataFrame(JSON.parse(data))
-                return df
-
+            return new Promise((resolve, reject) => {
+                fs.readFile(source, (err, data) => {
+                    if (err) reject(error)
+                    let df = new DataFrame(JSON.parse(data))
+                    resolve(df)
+                })
             })
-
         }
     } else {
 
