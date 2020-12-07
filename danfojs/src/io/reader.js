@@ -157,7 +157,7 @@ export const read_excel = async (kwargs) => {
 
 
 /**
- * Opens a file using Data.js specification. 
+ * Opens a file using frictionless.js specification. 
  * @param {string} pathOrDescriptor A path to the file/resources. It can be a local file,
  * a URL to a tabular data (CSV, EXCEL) or Datahub.io Data Resource. 
  * Data comes with extra properties and specification conforming to the Frictionless Data standards.

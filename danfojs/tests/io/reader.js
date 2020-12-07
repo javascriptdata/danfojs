@@ -67,7 +67,7 @@ describe("read_excel", async function () {
     })
 })
 
-describe("read: Generic read function from data.js", async function () {
+describe("read: Generic read function from frictionless.js", async function () {
     this.timeout(20000) // all tests in this suite get 10 seconds before timeout
 
     it("read an excel file from source over the internet", async function () {
@@ -114,7 +114,7 @@ describe("read: Generic read function from data.js", async function () {
     })
 
     it("read a Dataset package", async function () {
-        const jUrl = 'https://github.com/datopian/data.js/blob/master/datajs/test/fixtures/co2-ppm/datapackage.json'
+        const jUrl = 'https://github.com/datopian/frictionless.js/blob/master/datajs/test/fixtures/co2-ppm/datapackage.json'
 
         read(jUrl).then((df) => {
             const num_of_columns = (df.column_names).length
@@ -124,7 +124,7 @@ describe("read: Generic read function from data.js", async function () {
     })
 
     //  it("read a specific data from Dataset package", async function () {
-    //     const jUrl = 'https://github.com/datopian/data.js/blob/master/datajs/test/fixtures/co2-ppm/datapackage.json'
+    //     const jUrl = 'https://github.com/datopian/frictionless.js/blob/master/datajs/test/fixtures/co2-ppm/datapackage.json'
 
     //     read(jUrl, {data_num: 2}).then((df) => {
     //         const num_of_columns = (df.column_names).length
