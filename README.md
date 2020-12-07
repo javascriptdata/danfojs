@@ -41,7 +41,7 @@ easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org
   - Intuitive [merging](https://danfo.jsdata.org/api-reference/general-functions/danfo.merge) and [joining](https://danfo.jsdata.org/api-reference/general-functions/danfo.concat) data
     sets
   - Robust IO tools for loading data from [flat-files](https://danfo.jsdata.org/api-reference/input-output)
-    (CSV and delimited).
+    (CSV, Json, Excel, Data package).
   - Powerful, flexible and intutive API for [plotting](https://danfo.jsdata.org/api-reference/plotting) DataFrames and Series interactively.
   - [Timeseries](https://danfo.jsdata.org/api-reference/series#accessors)-specific functionality: date range
     generation and date and time properties. 

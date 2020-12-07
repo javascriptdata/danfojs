@@ -39,15 +39,15 @@ describe("read_json", async function () {
         })
     })
 
-    // it("reads a json file from source from local disk", async function () {
-    //     const jUrl = 'danfojs/tests/samples/book.json';
+    it("reads a json file from source from local disk", async function () {
+        const jUrl = 'danfojs/tests/samples/book.json';
 
-    //     read_json(jUrl).then((df) => {
-    //         const num_of_columns = (df.column_names).length
-    //         assert.equal(num_of_columns, 4)
-    //     })
+        read_json(jUrl).then((df) => {
+            const num_of_columns = (df.column_names).length
+            assert.equal(num_of_columns, 4)
+        })
 
-    // })
+    })
 })
 
 describe("read_excel", async function () {
