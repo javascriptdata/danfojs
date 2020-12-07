@@ -4,7 +4,7 @@ import * as tf from '@tensorflow/tfjs'
 import { Utils } from '../core/utils'
 import fetch from 'node-fetch'
 import XLSX from 'xlsx';
-import { open, Dataset, isDataset } from 'data.js'
+import { open, Dataset, isDataset } from 'frictionless.js'
 import toArray from 'stream-to-array'
 
 const utils = new Utils()
