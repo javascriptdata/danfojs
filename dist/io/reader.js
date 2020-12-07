@@ -15,7 +15,7 @@ var _nodeFetch = _interopRequireDefault(require("node-fetch"));
 
 var _xlsx = _interopRequireDefault(require("xlsx"));
 
-var _data = require("data.js");
+var _frictionless = require("frictionless.js");
 
 var _streamToArray = _interopRequireDefault(require("stream-to-array"));
 
@@ -177,14 +177,14 @@ const read = async (path_or_descriptor, configs = {
   let header = configs['header'];
   let rows, file;
 
-  if ((0, _data.isDataset)(path_or_descriptor)) {
+  if ((0, _frictionless.isDataset)(path_or_descriptor)) {
     console.log("datapackage.json found. Loading Dataset package from Datahub.io");
-    const dataset = await _data.Dataset.load(path_or_descriptor);
+    const dataset = await _frictionless.Dataset.load(path_or_descriptor);
     file = dataset.resources[data_num];
     rows = await (0, _streamToArray.default)(await file.rows());
   } else {
     try {
-      file = (0, _data.open)(path_or_descriptor);
+      file = (0, _frictionless.open)(path_or_descriptor);
       rows = await (0, _streamToArray.default)(await file.rows());
     } catch (error) {
       console.log(error);
