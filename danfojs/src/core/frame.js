@@ -1408,7 +1408,7 @@ export class DataFrame extends Ndframe {
     apply(kwargs) {
         let is_callable = utils.__is_function(kwargs["callable"]);
         if (!is_callable) {
-            throw new Error("the arguement most be a function")
+            throw new Error("the argument must be a function")
         }
 
         let callable = kwargs["callable"]
