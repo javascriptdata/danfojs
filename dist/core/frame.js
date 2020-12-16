@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.DataFrame = void 0;
 
-var tf = _interopRequireWildcard(require("@tensorflow/tfjs"));
+var tf = _interopRequireWildcard(require("@tensorflow/tfjs-node"));
 
 var _generic = _interopRequireDefault(require("./generic"));
 
@@ -60,6 +60,21 @@ class DataFrame extends _generic.default {
 
       });
     });
+  }
+
+  async to_csv(csvFilePath = "") {
+    const csvContent = await super.to_csv();
+
+    if (typeof window === "undefined") {
+      const fs = require("fs");
+
+      fs.writeFileSync(csvFilePath, csvContent, err => err && console.error(err));
+    } else {
+      const webCSV = "data:text/csv;charset=utf-8," + csvContent;
+      window.open(encodeURI(webCSV));
+    }
+
+    return csvContent;
   }
 
   drop(kwargs = {}) {
@@ -1179,7 +1194,7 @@ class DataFrame extends _generic.default {
     let is_callable = utils.__is_function(kwargs["callable"]);
 
     if (!is_callable) {
-      throw new Error("the arguement most be a function");
+      throw new Error("the argument must be a function");
     }
 
     let callable = kwargs["callable"];

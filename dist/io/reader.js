@@ -7,7 +7,7 @@ exports.read = exports.read_excel = exports.read_json = exports.read_csv = void 
 
 var _frame = require("../core/frame");
 
-var tf = _interopRequireWildcard(require("@tensorflow/tfjs"));
+var tf = _interopRequireWildcard(require("@tensorflow/tfjs-node"));
 
 var _utils = require("../core/utils");
 
@@ -56,10 +56,12 @@ const read_json = async source => {
       return df;
     } else {
       let fs = await Promise.resolve().then(() => _interopRequireWildcard(require('fs')));
-      fs.readFile(source, (err, data) => {
-        if (err) throw err;
-        let df = new _frame.DataFrame(JSON.parse(data));
-        return df;
+      return new Promise((resolve, reject) => {
+        fs.readFile(source, (err, data) => {
+          if (err) reject(error);
+          let df = new _frame.DataFrame(JSON.parse(data));
+          resolve(df);
+        });
       });
     }
   } else {

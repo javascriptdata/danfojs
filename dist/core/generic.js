@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var tf = _interopRequireWildcard(require("@tensorflow/tfjs"));
+var tf = _interopRequireWildcard(require("@tensorflow/tfjs-node"));
 
 var _table = require("table");
 

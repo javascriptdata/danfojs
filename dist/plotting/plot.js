@@ -33,7 +33,7 @@ class Plot {
       });
       trace["y"] = y;
       trace['type'] = "line";
-      newPlot(this.div, [trace], this_config['layout']);
+      newPlot(this.div, [trace], this_config['layout'], this_config);
     } else {
       if (utils.__key_in_object(this_config, 'x') && utils.__key_in_object(this_config, 'y')) {
         if (!this.ndframe.column_names.includes(this_config['x'])) {
@@ -55,7 +55,7 @@ class Plot {
         yaxis['title'] = this_config['y'];
         this_config['layout']['xaxis'] = xaxis;
         this_config['layout']['yaxis'] = yaxis;
-        newPlot(this.div, [trace], this_config['layout']);
+        newPlot(this.div, [trace], this_config['layout'], this_config);
       } else if (utils.__key_in_object(this_config, 'x') || utils.__key_in_object(this_config, 'y')) {
         let data = [];
         let cols_to_plot;
@@ -84,7 +84,7 @@ class Plot {
 
           data.push(trace);
         });
-        newPlot(this.div, data, this_config['layout']);
+        newPlot(this.div, data, this_config['layout'], this_config);
       } else {
         let data = [];
         let cols_to_plot;
@@ -105,7 +105,7 @@ class Plot {
           trace['name'] = c_name;
           data.push(trace);
         });
-        newPlot(this.div, data, this_config['layout']);
+        newPlot(this.div, data, this_config['layout'], this_config);
       }
     }
   }
@@ -126,7 +126,7 @@ class Plot {
       });
       trace["y"] = y;
       trace['type'] = "bar";
-      newPlot(this.div, [trace], this_config['layout']);
+      newPlot(this.div, [trace], this_config['layout'], this_config);
     } else {
       if (utils.__key_in_object(this_config, 'x') && utils.__key_in_object(this_config, 'y')) {
         if (!this.ndframe.column_names.includes(this_config['x'])) {
@@ -149,7 +149,7 @@ class Plot {
         yaxis['title'] = this_config['y'];
         this_config['layout']['xaxis'] = xaxis;
         this_config['layout']['yaxis'] = yaxis;
-        newPlot(this.div, [trace], this_config['layout']);
+        newPlot(this.div, [trace], this_config['layout'], this_config);
       } else if (utils.__key_in_object(this_config, 'x') || utils.__key_in_object(this_config, 'y')) {
         let trace = {};
         params.forEach(param => {
@@ -165,7 +165,7 @@ class Plot {
         }
 
         trace['type'] = "bar";
-        newPlot(this.div, [trace], this_config['layout']);
+        newPlot(this.div, [trace], this_config['layout'], this_config);
       } else {
         let data = [];
         let cols_to_plot;
@@ -184,7 +184,7 @@ class Plot {
           trace['type'] = "bar";
           data.push(trace);
         });
-        newPlot(this.div, data, this_config['layout']);
+        newPlot(this.div, data, this_config['layout'], this_config);
       }
     }
   }
@@ -206,7 +206,7 @@ class Plot {
       trace['y'] = this.ndframe.index;
       trace['type'] = "scatter";
       trace['mode'] = "markers";
-      newPlot(this.div, [trace], this_config['layout']);
+      newPlot(this.div, [trace], this_config['layout'], this_config);
     } else {
       if (utils.__key_in_object(this_config, 'x') && utils.__key_in_object(this_config, 'y')) {
         if (!this.ndframe.column_names.includes(this_config['x'])) {
@@ -230,7 +230,7 @@ class Plot {
         yaxis['title'] = this_config['y'];
         this_config['layout']['xaxis'] = xaxis;
         this_config['layout']['yaxis'] = yaxis;
-        newPlot(this.div, [trace], this_config['layout']);
+        newPlot(this.div, [trace], this_config['layout'], this_config);
       } else if (utils.__key_in_object(this_config, 'x') || utils.__key_in_object(this_config, 'y')) {
         let trace = {};
         params.forEach(param => {
@@ -249,7 +249,7 @@ class Plot {
 
         trace['type'] = "scatter";
         trace['mode'] = "markers";
-        newPlot(this.div, [trace], this_config['layout']);
+        newPlot(this.div, [trace], this_config['layout'], this_config);
       } else {
         let data = [];
         let cols_to_plot;
@@ -269,7 +269,7 @@ class Plot {
           trace['mode'] = "markers";
           data.push(trace);
         });
-        newPlot(this.div, data, this_config['layout']);
+        newPlot(this.div, data, this_config['layout'], this_config);
       }
     }
   }
@@ -289,7 +289,7 @@ class Plot {
       });
       trace["x"] = this.ndframe.values;
       trace['type'] = "histogram";
-      newPlot(this.div, [trace], this_config['layout']);
+      newPlot(this.div, [trace], this_config['layout'], this_config);
     } else if (utils.__key_in_object(this_config, 'x')) {
       let trace = {};
       params.forEach(param => {
@@ -299,7 +299,7 @@ class Plot {
       });
       trace['x'] = this.ndframe[this_config['y']].values;
       trace['type'] = "histogram";
-      newPlot(this.div, [trace], this_config['layout']);
+      newPlot(this.div, [trace], this_config['layout'], this_config);
     } else if (utils.__key_in_object(this_config, 'y')) {
       let trace = {};
       params.forEach(param => {
@@ -309,7 +309,7 @@ class Plot {
       });
       trace['y'] = this.ndframe[this_config['y']].values;
       trace['type'] = "histogram";
-      newPlot(this.div, [trace], this_config['layout']);
+      newPlot(this.div, [trace], this_config['layout'], this_config);
     } else {
       let data = [];
       let cols_to_plot;
@@ -327,7 +327,7 @@ class Plot {
         trace['type'] = "histogram";
         data.push(trace);
       });
-      newPlot(this.div, data, this_config['layout']);
+      newPlot(this.div, data, this_config['layout'], this_config);
     }
   }
 
@@ -345,7 +345,7 @@ class Plot {
         hoverinfo: 'label+percent+name',
         automargin: true
       }];
-      newPlot(this.div, data, this_config['layout']);
+      newPlot(this.div, data, this_config['layout'], this_config);
     } else if (utils.__key_in_object(this_config, 'values') && utils.__key_in_object(this_config, 'labels')) {
       if (!this.ndframe.column_names.includes(this_config['labels'])) {
         throw Error(`Column Error: ${this_config['labels']} not found in columns. labels name must be one of [ ${this.ndframe.column_names}]`);
@@ -363,7 +363,7 @@ class Plot {
         hoverinfo: 'label+percent+name',
         automargin: true
       }];
-      newPlot(this.div, data, this_config['layout']);
+      newPlot(this.div, data, this_config['layout'], this_config);
     } else {
       let cols_to_plot;
 
@@ -427,7 +427,7 @@ class Plot {
       }
 
       this_config['layout']['grid'] = this_config['grid'];
-      newPlot(this.div, data, this_config['layout']);
+      newPlot(this.div, data, this_config['layout'], this_config);
     }
   }
 
@@ -447,7 +447,7 @@ class Plot {
       });
       trace["y"] = y;
       trace['type'] = "box";
-      newPlot(this.div, [trace], this_config['layout']);
+      newPlot(this.div, [trace], this_config['layout'], this_config);
     } else {
       if (utils.__key_in_object(this_config, 'x') && utils.__key_in_object(this_config, 'y')) {
         if (!this.ndframe.column_names.includes(this_config['x'])) {
@@ -470,7 +470,7 @@ class Plot {
         yaxis['title'] = this_config['y'];
         this_config['layout']['xaxis'] = xaxis;
         this_config['layout']['yaxis'] = yaxis;
-        newPlot(this.div, [trace], this_config['layout']);
+        newPlot(this.div, [trace], this_config['layout'], this_config);
       } else if (utils.__key_in_object(this_config, 'x') || utils.__key_in_object(this_config, 'y')) {
         let trace = {};
         params.forEach(param => {
@@ -489,7 +489,7 @@ class Plot {
           trace['type'] = 'box';
         }
 
-        newPlot(this.div, [trace], this_config['layout']);
+        newPlot(this.div, [trace], this_config['layout'], this_config);
       } else {
         let data = [];
         let cols_to_plot;
@@ -510,7 +510,7 @@ class Plot {
           trace['type'] = 'box';
           data.push(trace);
         });
-        newPlot(this.div, data, this_config['layout']);
+        newPlot(this.div, data, this_config['layout'], this_config);
       }
     }
   }
@@ -531,7 +531,7 @@ class Plot {
       });
       trace["y"] = y;
       trace['type'] = "violin";
-      newPlot(this.div, [trace], this_config['layout']);
+      newPlot(this.div, [trace], this_config['layout'], this_config);
     } else {
       if (utils.__key_in_object(this_config, 'x') && utils.__key_in_object(this_config, 'y')) {
         if (!this.ndframe.column_names.includes(this_config['x'])) {
@@ -554,7 +554,7 @@ class Plot {
         yaxis['title'] = this_config['y'];
         this_config['layout']['xaxis'] = xaxis;
         this_config['layout']['yaxis'] = yaxis;
-        newPlot(this.div, [trace], this_config['layout']);
+        newPlot(this.div, [trace], this_config['layout'], this_config);
       } else if (utils.__key_in_object(this_config, 'x') || utils.__key_in_object(this_config, 'y')) {
         let trace = {};
         params.forEach(param => {
@@ -573,7 +573,7 @@ class Plot {
           trace['type'] = 'violin';
         }
 
-        newPlot(this.div, [trace], this_config['layout']);
+        newPlot(this.div, [trace], this_config['layout'], this_config);
       } else {
         let data = [];
         let cols_to_plot;
@@ -594,7 +594,7 @@ class Plot {
           trace['type'] = 'violin';
           data.push(trace);
         });
-        newPlot(this.div, data, this_config['layout']);
+        newPlot(this.div, data, this_config['layout'], this_config);
       }
     }
   }
@@ -643,7 +643,7 @@ class Plot {
       header: header,
       cells: cells
     }];
-    newPlot(this.div, data, this_config['layout']);
+    newPlot(this.div, data, this_config['layout'], this_config);
   }
 
   __get_plot_params(config) {
