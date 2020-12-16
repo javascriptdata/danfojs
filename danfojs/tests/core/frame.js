@@ -1,8 +1,35 @@
 import { assert } from "chai"
 import { DataFrame } from '../../src/core/frame'
 import { Series } from "../../src/core/series";
+import fs from "fs";
+
+const testCSVPath = "./tester.csv"
 
 describe("DataFrame", function () {
+
+    describe("to_csv", function () {
+        afterEach(function(){
+            // Clean up generated file
+            fs.unlinkSync(testCSVPath)
+        })
+        
+        it("save dataframe to CSV file", async function () {
+            let data = [[1, 2, 3], [4, 5, 6]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })  
+            await df.to_csv(testCSVPath)  
+            assert.isTrue(fs.existsSync(testCSVPath))               
+        })
+
+        it("return dataframe csv string", async function () {
+            let data = [[1, 2, 3], [4, 5, 6]]
+            let cols = ["A", "B", "C"]
+            let df = new DataFrame(data, { columns: cols })  
+            const csvContent = await df.to_csv(testCSVPath)  
+            assert.deepEqual(csvContent, "A,B,C\n1,2,3\n4,5,6\n")               
+        })        
+
+    })
 
     describe("drop", function () {
         it("throw error for wrong row index", function () {
