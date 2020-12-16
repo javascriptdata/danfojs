@@ -25,7 +25,8 @@
     "xlsx": "^0.16.7"
   },
   "peerDependencies": {
-    "@tensorflow/tfjs": "2.7.0"
+    "@tensorflow/tfjs": "2.7.0",
+    "@tensorflow/tfjs-node": "2.7.0"
   },
   "scripts": {
     "test": "nyc mocha --require @babel/register danfojs/tests/*",
@@ -62,6 +63,7 @@
     "@babel/preset-env": "^7.10.4",
     "@babel/register": "^7.10.1",
     "@tensorflow/tfjs": "^2.7.0",
+    "@tensorflow/tfjs-node": "2.7.0",
     "babel-loader": "^8.1.0",
     "chai": "^4.2.0",
     "coveralls": "^3.1.0",
