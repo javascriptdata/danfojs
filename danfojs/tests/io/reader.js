@@ -114,7 +114,7 @@ describe("read: Generic read function from frictionless.js", async function () {
     })
 
     it("read a Dataset package", async function () {
-        const jUrl = 'https://github.com/datopian/frictionless.js/blob/master/datajs/test/fixtures/co2-ppm/datapackage.json'
+        const jUrl = 'https://raw.githubusercontent.com/frictionlessdata/frictionless-js/master/test/fixtures/co2-ppm/datapackage.json'
 
         read(jUrl).then((df) => {
             const num_of_columns = (df.column_names).length
@@ -123,14 +123,14 @@ describe("read: Generic read function from frictionless.js", async function () {
 
     })
 
-    //  it("read a specific data from Dataset package", async function () {
-    //     const jUrl = 'https://github.com/datopian/frictionless.js/blob/master/datajs/test/fixtures/co2-ppm/datapackage.json'
+     it("read a specific data from Dataset package", async function () {
+        const jUrl = 'https://raw.githubusercontent.com/frictionlessdata/frictionless-js/master/test/fixtures/co2-ppm/datapackage.json'
 
-    //     read(jUrl, {data_num: 2}).then((df) => {
-    //         const num_of_columns = (df.column_names).length
-    //         assert.equal(num_of_columns, 6)
-    //     })
+        read(jUrl, {data_num: 2}).then((df) => {
+            const num_of_columns = (df.column_names).length
+            assert.equal(num_of_columns, 3)
+        })
 
-    // })
+    })
 })
 
