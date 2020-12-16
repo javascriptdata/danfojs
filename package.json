@@ -74,7 +74,8 @@
     "source-map-loader": "^1.0.0",
     "transform-loader": "^0.2.4",
     "webpack": "^4.44.0",
-    "webpack-cli": "^3.3.12"
+    "webpack-cli": "^3.3.12",
+    "@tensorflow/tfjs": "2.7.0"
   },
   "nyc": {
     "reporter": [
