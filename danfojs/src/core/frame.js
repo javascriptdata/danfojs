@@ -58,6 +58,26 @@ export class DataFrame extends Ndframe {
             })
         });
     }
+    /**
+     * Write a CSV file of the DataFrame contents
+     * @param {string} csvFilePath Path to save CSV when in Node.js form
+     * @returns {Promise<String>} CSV representation of Object data
+     *     
+     */
+    async to_csv(csvFilePath = "") {
+        const csvContent = await super.to_csv();
+        // behave differently for Node vs Web
+        if (typeof window === "undefined") {
+            // Write CSV on Node.js
+            const fs = require("fs");
+            fs.writeFileSync(csvFilePath, csvContent, (err) => err && console.error(err));
+        } else {
+            // Download CSV on Web
+            const webCSV = "data:text/csv;charset=utf-8," + csvContent;
+            window.open(encodeURI(webCSV));
+        }
+        return csvContent;
+    }    
 
     /**
      * Drop a list of rows or columns base on the specified axis 
