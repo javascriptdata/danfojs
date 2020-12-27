@@ -304,7 +304,24 @@ export default class NDframe {
     }
 
     __align_frame(other, kwargs) {
+      if (!this.series) {
+        let lidx = [], ridx = [];
+        let lcols = [], rcols = [];
 
+        if (kwargs["axis"] === undefined || kwargs["axis"] === 0) {
+          if (!(this.index === other.index)) {
+            [ lidx, ridx ] = utils.__join_array(self.index, other.index, { join: 'outer' });
+          }
+        }
+
+        if (kwargs["axis"] === undefined || kwargs["axis"] === 1) {
+          if (!(this.series) && !(this.column_names === other.column_names)) {
+            [ lcols, rcols ] = utils.__join_array(self.column_names, other.column_names, { join: 'outer' });
+          }
+        }
+      } else {
+        // Align DataFrame with Series
+      }
     }
 
     __align_series(other, kwargs) {
@@ -332,7 +349,9 @@ export default class NDframe {
 
         return [left, right]
       } else {
-        // Align Series with DataFrame.
+        if (kwargs["axis"]) {
+
+        }
       }
     }
 

@@ -496,8 +496,7 @@ export class Series extends NDframe {
             left = left.iloc(idxs)
             right = right.iloc(idxs)
           }
-          left.print()
-          right.print()
+
           if (left.__check_series_op_compactibility(right)) {
             let f = Series.__get_corr_function(kwargs["method"]);
             return f(left.tensor.arraySync(), right.tensor.arraySync());

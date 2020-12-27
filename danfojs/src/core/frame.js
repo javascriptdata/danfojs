@@ -9,7 +9,7 @@ import { indexLoc } from '../core/indexing'
 import { concat } from '../core/concat.js'
 
 const utils = new Utils
-import { std, variance } from 'mathjs'
+import { print, std, variance } from 'mathjs'
 
 
 
@@ -1998,7 +1998,86 @@ export class DataFrame extends Ndframe {
     static __get_corr_function(method) {
       switch (method) {
         case "pearson":
-          break;
+          function pearson(df, min_periods) {
+            if (min_periods === undefined) {
+              min_periods = 1
+            }
+
+            let vx
+            let vy
+            let sumx
+            let sumy
+            let sumxx
+            let sumyy
+            let meanx
+            let meany
+            let divisor
+            let nobs
+
+            let [ N, K ] = df.shape
+            const result_mask = tf.zeros([K, K])
+            let corr_matrix = tf.buffer(result_mask.shape, result_mask.dtype, result_mask.dataSync())
+
+            const data = tf.buffer(df.tensor.shape, df.tensor.dtype, df.tensor.dataSync())
+            const mask = df.tensor.isFinite().arraySync()
+
+            let xi = 0
+
+            while (xi < K) {
+              let yi = 0
+              while (yi < (xi + 1)) {
+                nobs = 0, sumxx = 0, sumyy = 0, sumx = 0, sumy = 0
+                let i = 0
+                while (i < N) {
+                  if (mask[i][xi] && mask[i][yi]) {
+                    vx = data.get(i, xi)
+                    vy = data.get(i, yi)
+                    nobs += 1
+                    sumx += vx
+                    sumy += vy
+                  }
+                  i++
+                }
+
+                if (nobs < min_periods) {
+                  corr_matrix.set(NaN, xi, yi)
+                  corr_matrix.set(NaN, yi, xi)
+                } else {
+                  meanx = sumx / nobs
+                  meany = sumy / nobs
+
+                  sumx = 0
+                  i = 0
+                  while (i < N) {
+                    if (mask[i][xi] && mask[i][yi]) {
+                      vx = data.get(i, xi) - meanx
+                      vy = data.get(i, yi) - meany
+
+                      sumx += (vx * vy)
+                      sumxx += (vx * vx)
+                      sumyy += (vy * vy)
+                    }
+                    i++
+                  }
+
+                  divisor = tf.sqrt(tf.mul(tf.scalar(sumxx), tf.scalar(sumyy)))
+
+                  if (divisor.arraySync() !== 0) {
+                    corr_matrix.set(tf.div(tf.scalar(sumx), divisor).arraySync(), xi, yi)
+                    corr_matrix.set(tf.div(tf.scalar(sumx), divisor).arraySync(), yi, xi)
+                  } else {
+                    corr_matrix.set(NaN, xi, yi)
+                    corr_matrix.set(NaN, yi, xi)
+                  }
+                }
+                yi++
+              }
+              xi++
+            }
+            return corr_matrix.toTensor().arraySync()
+          }
+
+          return pearson
         case "spearman":
           break;
         case "kendall":
