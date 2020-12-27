@@ -54,7 +54,7 @@ class Utils {
     var n = array.length;
     if (k < 0 || k > n) throw new RangeError("Sample larger than population or is negative");
 
-    if (destructive || n <= (k <= 5 ? 21 : 21 + Math.pow(4, Math.ceil(Math.log(k * 3, 4))))) {
+    if (destructive || n <= (k <= 5 ? 21 : 21 + Math.pow(4, Math.ceil(Math.log(k * 3))))) {
       if (!destructive) array = Array.prototype.slice.call(array);
 
       for (var i = 0; i < k; i++) {
