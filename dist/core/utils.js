@@ -569,17 +569,22 @@ class Utils {
   }
 
   __sort(arr, ascending = true) {
-    let collator = new Intl.Collator(undefined, {
-      numeric: true,
-      sensitivity: 'base'
-    });
     let sorted = arr.slice();
-
-    if (ascending) {
-      return sorted.sort(collator.compare);
-    } else {
-      return sorted.sort((a, b) => collator.compare(b, a));
-    }
+    return sorted.sort((a, b) => {
+      if (ascending) {
+        if (typeof a === "string" && typeof b === "string") {
+          return a.charCodeAt() - b.charCodeAt();
+        } else {
+          return a - b;
+        }
+      } else {
+        if (typeof a === "string" && typeof b === "string") {
+          return b.charCodeAt() - a.charCodeAt();
+        } else {
+          return b - a;
+        }
+      }
+    });
   }
 
   __is_browser_env() {

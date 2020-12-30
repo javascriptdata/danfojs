@@ -86,12 +86,12 @@
 
 
   //package build for nodejs
-
-  {
+{
   "name": "danfojs-node",
-  "version": "0.1.5",
+  "version": "0.1.8",
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
   "main": "dist/index.js",
+  "types": "danfojs/types/index.d.ts",
   "contributors": [
     {
       "name": "Rising Odegua"
@@ -105,12 +105,17 @@
     "danfojs/src/"
   ],
   "dependencies": {
-    "@tensorflow/tfjs-core": "^2.1.0",
-    "@tensorflow/tfjs-node": "2.1.0",
-    "mathjs": "^7.1.0",
-    "node-fetch": "^2.6.0",
+    "frictionless.js": "0.13.4",
+    "fs": "0.0.1-security",
+    "mathjs": "7.5.1",
+    "plotly.js": "1.54.7",
+    "stream-to-array": "^2.3.0",
     "table": "^5.4.6",
     "xlsx": "^0.16.7"
+  },
+  "peerDependencies": {
+    "@tensorflow/tfjs": "2.7.0",
+    "@tensorflow/tfjs-node": "2.7.0"
   },
   "scripts": {
     "test": "nyc mocha --require @babel/register danfojs/tests/*",
@@ -146,6 +151,8 @@
     "@babel/plugin-transform-modules-umd": "^7.10.4",
     "@babel/preset-env": "^7.10.4",
     "@babel/register": "^7.10.1",
+    "@tensorflow/tfjs": "^2.7.0",
+    "@tensorflow/tfjs-node": "2.7.0",
     "babel-loader": "^8.1.0",
     "chai": "^4.2.0",
     "coveralls": "^3.1.0",

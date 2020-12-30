@@ -65,7 +65,7 @@ function get_dummy(kwargs = {}) {
 
     if (!columns) {
       columns = [];
-      in_data.col_types.forEach((x, i) => {
+      in_data.col_types.map((x, i) => {
         if (x == "string") {
           let name_column = in_data.columns[i];
           columns.push(name_column);

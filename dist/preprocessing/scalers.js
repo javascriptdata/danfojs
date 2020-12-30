@@ -99,8 +99,8 @@ class StandardScaler {
       throw new Error("data must either be an Array, DataFrame or Series");
     }
 
-    this.std = (0, _mathjs.std)(tensor_data.arraySync());
-    this.mean = tensor_data.mean();
+    this.std = tf.moments(tensor_data, 0).variance.sqrt();
+    this.mean = tensor_data.mean(0);
     let output_data = tensor_data.sub(this.mean).div(this.std).arraySync();
 
     if (data instanceof _series.Series || Array.isArray(data)) {

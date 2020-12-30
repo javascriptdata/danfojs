@@ -1,14 +1,12 @@
-import * as tf from '@tensorflow/tfjs-node';
-// import * as tf from '@tensorflow/tfjs'
-import { Configs } from '../config/config';
-
+// import * as tf from '@tensorflow/tfjs-node';
+import * as tf from "@tensorflow/tfjs";
+import { Configs } from "../config/config";
 
 const config = new Configs();
 
 export class Utils {
   //remove an element from an array
   remove(arr, index) {
-
     let new_arr = arr.filter(function (val, i) {
       return i != index;
     });
@@ -27,19 +25,18 @@ export class Utils {
 
   // Returns if a value is a string
   __is_string(value) {
-    return typeof value === 'string' || value instanceof String;
+    return typeof value === "string" || value instanceof String;
   }
 
   // Returns if a value is really a number
   __is_number(value) {
-    return typeof value === 'number' && isFinite(value);
+    return typeof value === "number" && isFinite(value);
   }
 
   // Returns if a value is an object
   __is_object(value) {
-    return value && typeof value === 'object' && value.constructor === Object;
+    return value && typeof value === "object" && value.constructor === Object;
   }
-
 
   // Returns if a value is null
   __is_null(value) {
@@ -48,9 +45,8 @@ export class Utils {
 
   // Returns if a value is undefined
   __is_undefined(value) {
-    return typeof value === 'undefined';
+    return typeof value === "undefined";
   }
-
 
   /**
      * Optimized version of random sampling from an array, as implemented in Python
@@ -92,11 +88,14 @@ export class Utils {
     if (k < 0 || k > n)
       throw new RangeError("Sample larger than population or is negative");
 
-    if (destructive || n <= (k <= 5 ? 21 : 21 + Math.pow(4, Math.ceil(Math.log(k * 3, 4))))) {
-      if (!destructive)
-        array = Array.prototype.slice.call(array);
-      for (var i = 0; i < k; i++) { // invariant: non-selected at [i,n)
-        var j = i + Math.random() * (n - i) | 0;
+    if (
+      destructive ||
+      n <= (k <= 5 ? 21 : 21 + Math.pow(4, Math.ceil(Math.log(k * 3, 4))))
+    ) {
+      if (!destructive) array = Array.prototype.slice.call(array);
+      for (var i = 0; i < k; i++) {
+        // invariant: non-selected at [i,n)
+        var j = (i + Math.random() * (n - i)) | 0;
         var x = array[i];
         array[i] = array[j];
         array[j] = x;
@@ -106,7 +105,7 @@ export class Utils {
     } else {
       var selected = new Set();
       // eslint-disable-next-line no-empty
-      while (selected.add(Math.random() * n | 0).size < k) { }
+      while (selected.add((Math.random() * n) | 0).size < k) {}
       // eslint-disable-next-line no-undef
       return Array.prototype.map.call(selected, (i) => population[i]);
     }
@@ -114,8 +113,7 @@ export class Utils {
 
   //generate integers between two set of numbers
   __range(start, end) {
-
-    let value = tf.linspace(start, end, (end - start) + 1).arraySync();
+    let value = tf.linspace(start, end, end - start + 1).arraySync();
     return value;
   }
 
@@ -141,15 +139,12 @@ export class Utils {
       cols_arr.push(temp_col);
     }
     return cols_arr;
-
-
   }
 
-
   /**
-     * retrieve row array and column names from object of the form {a: [1,2,3,4], b: [30,20, 30, 20}]
-     * @param {*} data
-     */
+   * retrieve row array and column names from object of the form {a: [1,2,3,4], b: [30,20, 30, 20}]
+   * @param {*} data
+   */
   _get_row_and_col_values(data) {
     let col_names = Object.keys(data);
     let col_data = Object.values(data);
@@ -172,10 +167,8 @@ export class Utils {
       }
       rows_arr.push(temp_row);
     }
-    return [ rows_arr, col_names ];
-
+    return [rows_arr, col_names];
   }
-
 
   //converts a 2D array of array to 1D for Series Class
   __convert_2D_to_1D(data) {
@@ -185,18 +178,16 @@ export class Utils {
         new_data.push(JSON.stringify(val));
       } else {
         new_data.push(`${val}`);
-
       }
     });
     return new_data;
   }
 
-
   __replace_undefined_with_NaN(data, isSeries) {
     if (isSeries) {
       let temp_arr = [];
       data.forEach((val) => {
-        if (typeof val === 'undefined' || val == Infinity || val == null) {
+        if (typeof val === "undefined" || val == Infinity || val == null) {
           temp_arr.push(NaN);
         } else {
           temp_arr.push(val);
@@ -208,7 +199,7 @@ export class Utils {
       data.forEach((val) => {
         var temp_arr = [];
         val.forEach((ele) => {
-          if (typeof ele === 'undefined' || ele == Infinity || ele == null) {
+          if (typeof ele === "undefined" || ele == Infinity || ele == null) {
             temp_arr.push(NaN);
           } else {
             temp_arr.push(ele);
@@ -218,7 +209,6 @@ export class Utils {
       });
       return full_arr;
     }
-
   }
 
   //infer types from an array of array
@@ -246,13 +236,12 @@ export class Utils {
       }
       arr.forEach((ele, indx) => {
         let count = indx;
-        if (typeof ele == 'boolean') {
+        if (typeof ele == "boolean") {
           float_tracker.push(false);
           int_tracker.push(false);
           string_tracker.push(false);
           bool_tracker.push(true);
         } else if (!isNaN(Number(ele))) {
-
           if (ele.toString().includes(".")) {
             float_tracker.push(true);
             int_tracker.push(false);
@@ -263,7 +252,6 @@ export class Utils {
             int_tracker.push(true);
             string_tracker.push(false);
             bool_tracker.push(false);
-
           }
         } else {
           float_tracker.push(false);
@@ -290,7 +278,6 @@ export class Utils {
       });
 
       return dtypes;
-
     } else {
       const dtypes = [];
       let lim;
@@ -317,14 +304,12 @@ export class Utils {
 
         arr.forEach((ele, indx) => {
           let count = indx;
-          if (typeof ele == 'boolean') {
+          if (typeof ele == "boolean") {
             float_tracker.push(false);
             int_tracker.push(false);
             string_tracker.push(false);
             bool_tracker.push(true);
-
           } else if (!isNaN(Number(ele))) {
-
             if (ele.toString().includes(".")) {
               float_tracker.push(true);
               int_tracker.push(false);
@@ -335,7 +320,6 @@ export class Utils {
               int_tracker.push(true);
               string_tracker.push(false);
               bool_tracker.push(false);
-
             }
           } else {
             float_tracker.push(false);
@@ -360,13 +344,11 @@ export class Utils {
             }
           }
         });
-
       });
 
       return dtypes;
     }
   }
-
 
   __unique(data) {
     let unique = new Set();
@@ -382,7 +364,6 @@ export class Utils {
 
   //second version of In object
   __in_object(object, key, message) {
-
     if (!Object.prototype.hasOwnProperty.call(object, key)) {
       throw new Error(message);
     }
@@ -390,7 +371,11 @@ export class Utils {
 
   //check if a array is 1D
   __is_1D_array(arr) {
-    if ((typeof (arr[0]) == "number") || (typeof (arr[0]) == "string") || (typeof (arr[0]) == "boolean")) {
+    if (
+      typeof arr[0] == "number" ||
+      typeof arr[0] == "string" ||
+      typeof arr[0] == "boolean"
+    ) {
       return true;
     } else {
       return false;
@@ -406,13 +391,12 @@ export class Utils {
     return arr_map;
   }
 
-
   /**
-     * count the NaN and non-NaN values present in an array
-     * @param {Array} arr Array object
-     * @param {Boolean} val whether to return the value count instead of the null count
-     * @param {Boolean} isSeries Whether the Obj is of type series or not
-     */
+   * count the NaN and non-NaN values present in an array
+   * @param {Array} arr Array object
+   * @param {Boolean} val whether to return the value count instead of the null count
+   * @param {Boolean} isSeries Whether the Obj is of type series or not
+   */
   __count_nan(arr, return_val = true, isSeries) {
     if (isSeries) {
       let null_count = 0;
@@ -448,7 +432,6 @@ export class Utils {
         }
       });
       return result_arr;
-
     }
   }
 
@@ -474,17 +457,17 @@ export class Utils {
         } else {
           result_arr.push(sorted[middle]);
         }
-
       });
       return result_arr;
     }
-
   }
-
 
   //computes the mode(s) of an array
   __mode(arr) {
-    var modes = [], count = [], i, maxIndex = 0;
+    var modes = [],
+      count = [],
+      i,
+      maxIndex = 0;
 
     arr.forEach((val) => {
       count[val] = (count[val] || 0) + 1;
@@ -493,7 +476,6 @@ export class Utils {
       }
     });
 
-
     for (i in count)
       if (this.__key_in_object(count, i)) {
         if (count[i] === maxIndex) {
@@ -501,9 +483,7 @@ export class Utils {
         }
       }
 
-
     return modes;
-
   }
 
   //round elements of an array to ndp
@@ -512,7 +492,6 @@ export class Utils {
       dp = 1;
     }
     if (isSeries) {
-
       let new_arr = [];
       arr.map((val) => {
         new_arr.push(Number(val.toFixed(dp)));
@@ -530,23 +509,21 @@ export class Utils {
       });
       return result_arr;
     }
-
   }
 
   //check a variable is a function
   __is_function(variable) {
-
     return typeof variable == "function";
   }
 
-
   //generate a random list
   __randgen(num, start, end) {
-
     let gen_num = [];
 
     //random int
-    function randi(a, b) { return Math.floor(Math.random() * (b - a) + a); }
+    function randi(a, b) {
+      return Math.floor(Math.random() * (b - a) + a);
+    }
 
     function recursive(val, arr) {
       if (!arr.includes(val)) {
@@ -559,7 +536,6 @@ export class Utils {
     }
 
     for (let i = 0; i < num; i++) {
-
       let gen_val = randi(start, end);
       let recur_val = recursive(gen_val, gen_num);
       gen_num.push(recur_val);
@@ -580,12 +556,11 @@ export class Utils {
     }
     const truthy = (element) => element == false;
     if (bool.some(truthy)) {
-      throw Error(`Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`);
-
+      throw Error(
+        `Params Error: A specified parameter is not supported. Your params must be any of the following [${params_needed}]`
+      );
     }
-
   }
-
 
   //maps int values (0, 1) to bools (false, true)
   __map_int_to_bool(arr, dim) {
@@ -613,11 +588,9 @@ export class Utils {
       });
       return new_arr;
     }
-
   }
 
   __std(data) {
-
     let tensor_data = data;
 
     let mean = tensor_data.mean();
@@ -629,7 +602,6 @@ export class Utils {
   }
 
   __zeros(row, column) {
-
     let zero_data = [];
 
     for (let i = 0; i < row; i++) {
@@ -649,14 +621,12 @@ export class Utils {
       temp;
 
     while (i--) {
-
       j = Math.floor(Math.random() * (i + 1));
 
       // swap randomly chosen element with current element
       temp = array[i];
       array[i] = array[j];
       array[j] = temp;
-
     }
 
     return array.slice(0, num);
@@ -666,71 +636,70 @@ export class Utils {
     let sorted = arr.slice();
     return sorted.sort((a, b) => {
       if (ascending) {
-        if ((typeof a === "string") && typeof b === "string") {
+        if (typeof a === "string" && typeof b === "string") {
           return a.charCodeAt() - b.charCodeAt();
         } else {
           return a - b;
         }
       } else {
-        if ((typeof a === "string") && typeof b === "string") {
+        if (typeof a === "string" && typeof b === "string") {
           return b.charCodeAt() - a.charCodeAt();
         } else {
           return b - a;
         }
       }
     });
-
-
   }
 
   __is_browser_env() {
-    var isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
+    var isBrowser = new Function(
+      "try {return this===window;}catch(e){ return false;}"
+    );
     // tests if global scope is binded to window
     return isBrowser();
   }
 
   __is_node_env() {
-    var isNode = new Function("try {return this===global;}catch(e){return false;}");
+    var isNode = new Function(
+      "try {return this===global;}catch(e){return false;}"
+    );
     // tests if global scope is binded to window
     return isNode();
   }
 
   _throw_str_dtype_error(obj, ops) {
     if (obj.dtypes[0] == "string") {
-      throw Error(`dtype error: String data type does not support ${ops} operation`);
+      throw Error(
+        `dtype error: String data type does not support ${ops} operation`
+      );
     }
-
   }
 
   /**
-     * Remove NaN values from Array
-     * @param {*} arr
-     */
+   * Remove NaN values from Array
+   * @param {*} arr
+   */
   _remove_nans(arr) {
     let values = arr.filter((val) => !isNaN(val) && typeof val != "string");
     return values;
   }
 
   __get_duplicate(arr) {
-
     let temp_obj = {};
     let rslt_obj = {};
 
     arr.forEach((val, index) => {
-
       if (temp_obj.hasOwnProperty(val)) {
-
         temp_obj[val]["count"] += 1;
         temp_obj[val]["index"].push(index);
       } else {
         temp_obj[val] = {};
         temp_obj[val]["count"] = 1;
-        temp_obj[val]["index"] = [ index ];
+        temp_obj[val]["index"] = [index];
       }
     });
 
     for (let key in temp_obj) {
-
       if (temp_obj[key]["count"] >= 2) {
         rslt_obj[key] = {};
         rslt_obj[key]["count"] = temp_obj[key]["count"];
@@ -741,27 +710,24 @@ export class Utils {
     return rslt_obj;
   }
 
-
   /**
-     * Sorts an array by index
-     * @param {Array} arr1
-     * @param {Array} arr2
-     * @param {string} dtype
-     *
-     * @returns sorted index
-     */
+   * Sorts an array by index
+   * @param {Array} arr1
+   * @param {Array} arr2
+   * @param {string} dtype
+   *
+   * @returns sorted index
+   */
   _sort_arr_with_index(arr1, arr2, dtype) {
     let sorted_idx = arr1.map((item, index) => {
-      return [ arr2[index], item ];
+      return [arr2[index], item];
     });
-    if (dtype == 'string') {
+    if (dtype == "string") {
       sorted_idx.sort();
     } else {
-      sorted_idx.sort(([ arg1 ], [ arg2 ]) => arg2 - arg1);
+      sorted_idx.sort(([arg1], [arg2]) => arg2 - arg1);
     }
 
-    return sorted_idx.map(([ , item ]) => item);
+    return sorted_idx.map(([, item]) => item);
   }
 }
-
-

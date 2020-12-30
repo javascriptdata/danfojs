@@ -238,7 +238,9 @@ class NDframe {
 
     if (this.series) {
       this.values.map(val => {
-        if (isNaN(val) && typeof val != "string") {
+        if (val == NaN) {
+          new_arr.push(true);
+        } else if (isNaN(val) && typeof val != "string") {
           new_arr.push(true);
         } else {
           new_arr.push(false);
@@ -249,7 +251,9 @@ class NDframe {
       row_data.map(arr => {
         let temp_arr = [];
         arr.map(val => {
-          if (isNaN(val) && typeof val != "string") {
+          if (val == NaN) {
+            temp_arr.push(true);
+          } else if (isNaN(val) && typeof val != "string") {
             temp_arr.push(true);
           } else {
             temp_arr.push(false);
