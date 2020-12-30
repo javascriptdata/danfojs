@@ -31,15 +31,15 @@ class Utils {
   }
 
   __is_string(value) {
-    return typeof value === 'string' || value instanceof String;
+    return typeof value === "string" || value instanceof String;
   }
 
   __is_number(value) {
-    return typeof value === 'number' && isFinite(value);
+    return typeof value === "number" && isFinite(value);
   }
 
   __is_object(value) {
-    return value && typeof value === 'object' && value.constructor === Object;
+    return value && typeof value === "object" && value.constructor === Object;
   }
 
   __is_null(value) {
@@ -47,7 +47,7 @@ class Utils {
   }
 
   __is_undefined(value) {
-    return typeof value === 'undefined';
+    return typeof value === "undefined";
   }
 
   __sample_from_iter(array, k, destructive) {
@@ -149,7 +149,7 @@ class Utils {
     if (isSeries) {
       let temp_arr = [];
       data.forEach(val => {
-        if (typeof val === 'undefined' || val == Infinity || val == null) {
+        if (typeof val === "undefined" || val == Infinity || val == null) {
           temp_arr.push(NaN);
         } else {
           temp_arr.push(val);
@@ -161,7 +161,7 @@ class Utils {
       data.forEach(val => {
         var temp_arr = [];
         val.forEach(ele => {
-          if (typeof ele === 'undefined' || ele == Infinity || ele == null) {
+          if (typeof ele === "undefined" || ele == Infinity || ele == null) {
             temp_arr.push(NaN);
           } else {
             temp_arr.push(ele);
@@ -197,7 +197,7 @@ class Utils {
       arr.forEach((ele, indx) => {
         let count = indx;
 
-        if (typeof ele == 'boolean') {
+        if (typeof ele == "boolean") {
           float_tracker.push(false);
           int_tracker.push(false);
           string_tracker.push(false);
@@ -264,7 +264,7 @@ class Utils {
         arr.forEach((ele, indx) => {
           let count = indx;
 
-          if (typeof ele == 'boolean') {
+          if (typeof ele == "boolean") {
             float_tracker.push(false);
             int_tracker.push(false);
             string_tracker.push(false);
@@ -638,7 +638,7 @@ class Utils {
       return [arr2[index], item];
     });
 
-    if (dtype == 'string') {
+    if (dtype == "string") {
       sorted_idx.sort();
     } else {
       sorted_idx.sort(([arg1], [arg2]) => arg2 - arg1);

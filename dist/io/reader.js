@@ -55,10 +55,10 @@ const read_json = async source => {
       let df = new _frame.DataFrame(json);
       return df;
     } else {
-      let fs = await Promise.resolve().then(() => _interopRequireWildcard(require('fs')));
+      let fs = await Promise.resolve().then(() => _interopRequireWildcard(require("fs")));
       return new Promise((resolve, reject) => {
         fs.readFile(source, (err, data) => {
-          if (err) reject(error);
+          if (err) reject(err);
           let df = new _frame.DataFrame(JSON.parse(data));
           resolve(df);
         });
@@ -121,7 +121,7 @@ const read_excel = async kwargs => {
 
     const worksheet = workbook.Sheets[sheet_name || workbook.SheetNames[0]];
 
-    var range = _xlsx.default.utils.decode_range(worksheet['!ref']);
+    var range = _xlsx.default.utils.decode_range(worksheet["!ref"]);
 
     var column_names = [],
         data = [];
@@ -175,8 +175,8 @@ const read = async (path_or_descriptor, configs = {
   data_num: 0,
   header: true
 }) => {
-  let data_num = configs['data_num'];
-  let header = configs['header'];
+  let data_num = configs["data_num"];
+  let header = configs["header"];
   let rows, file;
 
   if ((0, _frictionless.isDataset)(path_or_descriptor)) {
@@ -193,7 +193,7 @@ const read = async (path_or_descriptor, configs = {
     }
   }
 
-  if (['csv', 'xls', 'xlsx'].includes(await file.descriptor.format)) {
+  if (["csv", "xls", "xlsx"].includes(await file.descriptor.format)) {
     if (header) {
       let df = new _frame.DataFrame(rows.slice(1), {
         columns: rows[0]

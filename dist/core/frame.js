@@ -82,21 +82,21 @@ class DataFrame extends _generic.default {
 
     utils._throw_wrong_params_error(kwargs, params_needed);
 
-    kwargs['inplace'] = kwargs['inplace'] || false;
+    kwargs["inplace"] = kwargs["inplace"] || false;
 
     if (!("axis" in kwargs)) {
-      kwargs['axis'] = 1;
+      kwargs["axis"] = 1;
     }
 
     let to_drop = null;
 
-    if ("index" in kwargs && kwargs['axis'] == 0) {
+    if ("index" in kwargs && kwargs["axis"] == 0) {
       to_drop = kwargs["index"];
     } else {
       to_drop = kwargs["columns"];
     }
 
-    if (kwargs['axis'] == 1) {
+    if (kwargs["axis"] == 1) {
       if (!("columns" in kwargs)) {
         throw Error("No column found. Axis of 1 must be accompanied by an array of column(s) names");
       }
@@ -120,7 +120,7 @@ class DataFrame extends _generic.default {
         }
       });
 
-      if (!kwargs['inplace']) {
+      if (!kwargs["inplace"]) {
         let old_cols = self.columns;
         let new_columns = Object.keys(new_col_data);
         let df = new DataFrame(new_col_data, {
@@ -151,7 +151,7 @@ class DataFrame extends _generic.default {
       let data_idx = [];
       let new_data, new_index;
 
-      if (typeof to_drop[0] == 'string') {
+      if (typeof to_drop[0] == "string") {
         this.index.forEach((idx, i) => {
           if (to_drop.includes(idx)) {
             data_idx.push(i);
@@ -164,7 +164,7 @@ class DataFrame extends _generic.default {
         new_index = utils.__remove_arr(this.index, to_drop);
       }
 
-      if (!kwargs['inplace']) {
+      if (!kwargs["inplace"]) {
         return new DataFrame(new_data, {
           columns: this.columns,
           index: new_index
@@ -186,7 +186,7 @@ class DataFrame extends _generic.default {
     kwargs["type"] = "loc";
     let [new_data, columns, rows] = (0, _indexing.indexLoc)(this, kwargs);
     let df_columns = {
-      "columns": columns
+      columns: columns
     };
     let df = new DataFrame(new_data, df_columns);
 
@@ -203,7 +203,7 @@ class DataFrame extends _generic.default {
     kwargs["type"] = "iloc";
     let [new_data, columns, rows] = (0, _indexing.indexLoc)(this, kwargs);
     let df_columns = {
-      "columns": columns
+      columns: columns
     };
     let df = new DataFrame(new_data, df_columns);
 
@@ -352,7 +352,7 @@ class DataFrame extends _generic.default {
       let idx = operands[1];
       let result = tensor_vals.mean(operands[2]);
       let sf = new _series.Series(result.arraySync(), {
-        "index": idx
+        index: idx
       });
       return sf;
     } else {
@@ -375,7 +375,7 @@ class DataFrame extends _generic.default {
       let median = utils.__median(tensor_vals, false);
 
       let sf = new _series.Series(median, {
-        "index": idx
+        index: idx
       });
       return sf;
     } else {
@@ -391,7 +391,7 @@ class DataFrame extends _generic.default {
       let idx = operands[1];
       let result = tensor_vals.min(operands[2]);
       let sf = new _series.Series(result.arraySync(), {
-        "index": idx
+        index: idx
       });
       return sf;
     } else {
@@ -407,7 +407,7 @@ class DataFrame extends _generic.default {
       let idx = operands[1];
       let result = tensor_vals.max(operands[2]);
       let sf = new _series.Series(result.arraySync(), {
-        "index": idx
+        index: idx
       });
       return sf;
     } else {
@@ -428,7 +428,7 @@ class DataFrame extends _generic.default {
 
       let median = (0, _mathjs.std)(tensor_vals, axis);
       let sf = new _series.Series(median, {
-        "index": idx
+        index: idx
       });
       return sf;
     } else {
@@ -449,7 +449,7 @@ class DataFrame extends _generic.default {
 
       let median = (0, _mathjs.variance)(tensor_vals, axis);
       let sf = new _series.Series(median, {
-        "index": idx
+        index: idx
       });
       return sf;
     } else {
@@ -472,7 +472,7 @@ class DataFrame extends _generic.default {
       let counts = utils.__count_nan(tensor_vals, true, false);
 
       let sf = new _series.Series(counts, {
-        "index": idx
+        index: idx
       });
       return sf;
     } else {
@@ -488,8 +488,8 @@ class DataFrame extends _generic.default {
       let new_vals = utils.__round(values, dp, false);
 
       let options = {
-        "columns": this.column_names,
-        "index": idx
+        columns: this.column_names,
+        index: idx
       };
       let df = new DataFrame(new_vals, options);
       return df;
@@ -575,7 +575,7 @@ class DataFrame extends _generic.default {
     if (!utils.__key_in_object(kwargs, "axis")) {
       axis = 0;
     } else {
-      axis = kwargs['axis'];
+      axis = kwargs["axis"];
     }
 
     let data = this.__cum_ops(axis, "sum");
@@ -589,7 +589,7 @@ class DataFrame extends _generic.default {
     if (!utils.__key_in_object(kwargs, "axis")) {
       axis = 0;
     } else {
-      axis = kwargs['axis'];
+      axis = kwargs["axis"];
     }
 
     let data = this.__cum_ops(axis, "min");
@@ -603,7 +603,7 @@ class DataFrame extends _generic.default {
     if (!utils.__key_in_object(kwargs, "axis")) {
       axis = 0;
     } else {
-      axis = kwargs['axis'];
+      axis = kwargs["axis"];
     }
 
     let data = this.__cum_ops(axis, "max");
@@ -617,7 +617,7 @@ class DataFrame extends _generic.default {
     if (!utils.__key_in_object(kwargs, "axis")) {
       axis = 0;
     } else {
-      axis = kwargs['axis'];
+      axis = kwargs["axis"];
     }
 
     let data = this.__cum_ops(axis, "prod");
@@ -651,33 +651,33 @@ class DataFrame extends _generic.default {
 
     utils._throw_wrong_params_error(kwargs, params_needed);
 
-    if (!utils.__key_in_object(kwargs, 'key')) {
+    if (!utils.__key_in_object(kwargs, "key")) {
       throw Error("Index ValueError: You must specify an array of index");
     }
 
-    if (!utils.__key_in_object(kwargs, 'inplace')) {
-      kwargs['inplace'] = false;
+    if (!utils.__key_in_object(kwargs, "inplace")) {
+      kwargs["inplace"] = false;
     }
 
-    if (!utils.__key_in_object(kwargs, 'drop')) {
-      kwargs['drop'] = true;
+    if (!utils.__key_in_object(kwargs, "drop")) {
+      kwargs["drop"] = true;
     }
 
-    if (Array.isArray(kwargs['key']) && kwargs['key'].length != this.index.length) {
-      throw Error(`Index LengthError: Lenght of new Index array ${kwargs['key'].length} must match lenght of existing index ${this.index.length}`);
+    if (Array.isArray(kwargs["key"]) && kwargs["key"].length != this.index.length) {
+      throw Error(`Index LengthError: Lenght of new Index array ${kwargs["key"].length} must match lenght of existing index ${this.index.length}`);
     }
 
-    if (typeof kwargs['key'] == "string" && this.column_names.includes(kwargs['key'])) {
-      kwargs['key_name'] = kwargs['key'];
-      kwargs['key'] = this[kwargs['key']].values;
+    if (typeof kwargs["key"] == "string" && this.column_names.includes(kwargs["key"])) {
+      kwargs["key_name"] = kwargs["key"];
+      kwargs["key"] = this[kwargs["key"]].values;
     }
 
-    if (kwargs['inplace']) {
-      this.__set_index(kwargs['key']);
+    if (kwargs["inplace"]) {
+      this.__set_index(kwargs["key"]);
 
-      if (kwargs['drop'] && typeof kwargs['key_name'] == 'string') {
+      if (kwargs["drop"] && typeof kwargs["key_name"] == "string") {
         this.drop({
-          columns: [kwargs['key_name']],
+          columns: [kwargs["key_name"]],
           inplace: true,
           axis: 1
         });
@@ -685,11 +685,11 @@ class DataFrame extends _generic.default {
     } else {
       let df = this.copy();
 
-      df.__set_index(kwargs['key']);
+      df.__set_index(kwargs["key"]);
 
-      if (kwargs['drop'] && typeof kwargs['key_name'] == 'string') {
+      if (kwargs["drop"] && typeof kwargs["key_name"] == "string") {
         df.drop({
-          columns: [kwargs['key_name']],
+          columns: [kwargs["key_name"]],
           axis: 1,
           inplace: true
         });
@@ -700,9 +700,9 @@ class DataFrame extends _generic.default {
   }
 
   describe() {
-    let numeric_df = this.select_dtypes(['float32', 'int32']);
+    let numeric_df = this.select_dtypes(["float32", "int32"]);
     let col_names = numeric_df.column_names;
-    let index = ['count', 'mean', 'std', 'min', 'median', 'max', 'variance'];
+    let index = ["count", "mean", "std", "min", "median", "max", "variance"];
     let stats_arr = {};
     col_names.forEach(name => {
       let col_series = numeric_df[name];
@@ -717,7 +717,7 @@ class DataFrame extends _generic.default {
       stats_arr[name] = _stats;
     });
     let df = new DataFrame(stats_arr, {
-      "index": index
+      index: index
     });
     return df.round(6);
   }
@@ -727,7 +727,7 @@ class DataFrame extends _generic.default {
     let col_names = this.column_names;
     let col_vals = {};
     let original_col_vals = this.col_data;
-    const __supported_dtypes = ['float32', "int32", 'string', 'boolean'];
+    const __supported_dtypes = ["float32", "int32", "string", "boolean"];
 
     if (include == undefined) {
       let df = this.copy();
@@ -755,7 +755,7 @@ class DataFrame extends _generic.default {
       let values;
       let val_sums = [];
 
-      if (kwargs['axis'] == 1) {
+      if (kwargs["axis"] == 1) {
         values = this.col_data;
       } else {
         values = this.values;
@@ -767,7 +767,7 @@ class DataFrame extends _generic.default {
       });
       let new_index;
 
-      if (kwargs['axis'] == 1) {
+      if (kwargs["axis"] == 1) {
         new_index = this.column_names;
       } else {
         new_index = this.index;
@@ -814,7 +814,7 @@ class DataFrame extends _generic.default {
     let operators = [">", "<", "<=", ">=", "==", "!="];
 
     if (!utils.__key_in_object(kwargs, "inplace")) {
-      kwargs['inplace'] = false;
+      kwargs["inplace"] = false;
     }
 
     let column_index, operator, value;
@@ -864,11 +864,11 @@ class DataFrame extends _generic.default {
       throw new Error(`query returned empty data; is either ${value} does not exist in column ${kwargs["column"]}`);
     }
 
-    if (kwargs['inplace']) {
+    if (kwargs["inplace"]) {
       this.__update_frame_in_place(new_data, this.columns, null, new_index, null);
     } else {
       let new_df = new DataFrame(new_data, {
-        "columns": this.columns,
+        columns: this.columns,
         index: new_index
       });
       return new_df;
@@ -884,8 +884,8 @@ class DataFrame extends _generic.default {
     let data_length = this.shape[0];
     let value;
 
-    if (kwargs['value'] instanceof _series.Series) {
-      value = kwargs['value'].values;
+    if (kwargs["value"] instanceof _series.Series) {
+      value = kwargs["value"].values;
     } else {
       value = kwargs["value"];
     }
@@ -947,9 +947,9 @@ class DataFrame extends _generic.default {
     if (col.length == 2) {
       if (column_names.includes(col[0])) {
         var [data1, col_name1] = (0, _indexing.indexLoc)(this, {
-          "rows": [`0:${len}`],
-          "columns": [`${col[0]}`],
-          "type": "loc"
+          rows: [`0:${len}`],
+          columns: [`${col[0]}`],
+          type: "loc"
         });
       } else {
         throw new Error(`column ${col[0]} does not exist`);
@@ -957,9 +957,9 @@ class DataFrame extends _generic.default {
 
       if (column_names.includes(col[1])) {
         var [data2, col_name2] = (0, _indexing.indexLoc)(this, {
-          "rows": [`0:${len}`],
-          "columns": [`${col[1]}`],
-          "type": "loc"
+          rows: [`0:${len}`],
+          columns: [`${col[1]}`],
+          type: "loc"
         });
       } else {
         throw new Error(`column ${col[1]} does not exist`);
@@ -983,9 +983,9 @@ class DataFrame extends _generic.default {
     } else {
       if (column_names.includes(col[0])) {
         var [data1, col_name1] = (0, _indexing.indexLoc)(this, {
-          "rows": [`0:${len}`],
-          "columns": [`${col[0]}`],
-          "type": "loc"
+          rows: [`0:${len}`],
+          columns: [`${col[0]}`],
+          type: "loc"
         });
       } else {
         throw new Error(`column ${col[0]} does not exist`);
@@ -1025,29 +1025,29 @@ class DataFrame extends _generic.default {
     utils._throw_wrong_params_error(kwargs, params_needed);
 
     if (!utils.__key_in_object(kwargs, "inplace")) {
-      kwargs['inplace'] = false;
+      kwargs["inplace"] = false;
     }
 
     if (utils.__key_in_object(kwargs, "columns")) {
-      kwargs['columns'].map(col => {
+      kwargs["columns"].map(col => {
         if (!this.column_names.includes(col)) {
           throw Error(`Value Error: Specified columns must be one of ${this.column_names}, got ${col}`);
         }
       });
 
-      if (kwargs['columns'].length != kwargs['values'].length) {
+      if (kwargs["columns"].length != kwargs["values"].length) {
         throw Error(`Lenght Error: The lenght of the columns names must be equal to the lenght of the values,
-                 got column of length ${kwargs['columns'].length} but values of length ${kwargs['values'].length}`);
+                 got column of length ${kwargs["columns"].length} but values of length ${kwargs["values"].length}`);
       }
 
       let new_col_data = this.col_data;
-      kwargs['columns'].map((col, i) => {
+      kwargs["columns"].map((col, i) => {
         let col_idx = this.column_names.indexOf(col);
         let col_data = this.col_data[col_idx];
         let __temp = [];
         col_data.map(val => {
           if (isNaN(val) && typeof val != "string") {
-            __temp.push(kwargs['values'][i]);
+            __temp.push(kwargs["values"][i]);
           } else {
             __temp.push(val);
           }
@@ -1059,7 +1059,7 @@ class DataFrame extends _generic.default {
         final_data[this.column_names[i]] = col;
       });
 
-      if (kwargs['inplace']) {
+      if (kwargs["inplace"]) {
         this.__update_frame_in_place(null, null, final_data, null, null);
       } else {
         return new DataFrame(final_data, {
@@ -1073,8 +1073,8 @@ class DataFrame extends _generic.default {
 
       let nan_val;
 
-      if (Array.isArray(kwargs['values'])) {
-        nan_val = kwargs['values'][0];
+      if (Array.isArray(kwargs["values"])) {
+        nan_val = kwargs["values"][0];
       } else {
         nan_val = kwargs["values"];
       }
@@ -1098,7 +1098,7 @@ class DataFrame extends _generic.default {
         data.push(temp_data);
       }
 
-      if (kwargs['inplace']) {
+      if (kwargs["inplace"]) {
         this.__update_frame_in_place(data, null, null, null, null);
       } else {
         return new DataFrame(data, {
@@ -1236,7 +1236,7 @@ class DataFrame extends _generic.default {
     }
 
     if (utils.__is_1D_array(data)) {
-      if (kwargs['axis'] == 0) {
+      if (kwargs["axis"] == 0) {
         let sf = new _series.Series(data, {
           index: this.index
         });
@@ -1346,7 +1346,7 @@ class DataFrame extends _generic.default {
     utils._throw_wrong_params_error(kwargs, params_needed);
 
     if (utils.__key_in_object(kwargs, "in")) {
-      kwargs['in'].map(col => {
+      kwargs["in"].map(col => {
         if (!this.column_names.includes(col)) {
           throw Error(`Value Error: Specified columns must be one of ${this.column_names}, got ${col}`);
         }
@@ -1355,12 +1355,12 @@ class DataFrame extends _generic.default {
       if (utils.__key_in_object(kwargs, "replace") && utils.__key_in_object(kwargs, "with")) {
         let new_col_data_obj = {};
         this.column_names.map((col, idx) => {
-          if (kwargs['in'].includes(col)) {
+          if (kwargs["in"].includes(col)) {
             let temp_col_data = this.col_data[idx];
             let __temp = [];
             temp_col_data.map(val => {
-              if (val == kwargs['replace']) {
-                __temp.push(kwargs['with']);
+              if (val == kwargs["replace"]) {
+                __temp.push(kwargs["with"]);
               } else {
                 __temp.push(val);
               }
@@ -1384,8 +1384,8 @@ class DataFrame extends _generic.default {
         old_arr.map(inner_arr => {
           let temp = [];
           inner_arr.map(val => {
-            if (val == kwargs['replace']) {
-              temp.push(kwargs['with']);
+            if (val == kwargs["replace"]) {
+              temp.push(kwargs["with"]);
             } else {
               temp.push(val);
             }
@@ -1579,18 +1579,18 @@ class DataFrame extends _generic.default {
       throw Error("Value Error: Please specify dtype to cast to");
     }
 
-    if (!this.column_names.includes(kwargs['column'])) {
-      throw Error(`'${kwargs['column']}' not found in columns`);
+    if (!this.column_names.includes(kwargs["column"])) {
+      throw Error(`'${kwargs["column"]}' not found in columns`);
     }
 
-    let col_idx = this.column_names.indexOf(kwargs['column']);
+    let col_idx = this.column_names.indexOf(kwargs["column"]);
     let new_types = this.col_types;
     let col_values = this.col_data;
-    new_types[col_idx] = kwargs['dtype'];
+    new_types[col_idx] = kwargs["dtype"];
     let new_col_values = [];
     let temp_col = col_values[col_idx];
 
-    switch (kwargs['dtype']) {
+    switch (kwargs["dtype"]) {
       case "float32":
         temp_col.map(val => {
           new_col_values.push(Number(val));
@@ -1688,20 +1688,20 @@ class DataFrame extends _generic.default {
     utils._throw_wrong_params_error(kwargs, params_needed);
 
     if (!utils.__key_in_object(kwargs, "inplace")) {
-      kwargs['inplace'] = false;
+      kwargs["inplace"] = false;
     }
 
     if (!utils.__key_in_object(kwargs, "axis")) {
-      kwargs['axis'] = 1;
+      kwargs["axis"] = 1;
     }
 
     if (!utils.__key_in_object(kwargs, "mapper")) {
       throw Error("Please specify a mapper object");
     }
 
-    if (kwargs['axis'] == 1) {
-      let old_col_names = Object.keys(kwargs['mapper']);
-      let new_col_names = Object.values(kwargs['mapper']);
+    if (kwargs["axis"] == 1) {
+      let old_col_names = Object.keys(kwargs["mapper"]);
+      let new_col_names = Object.values(kwargs["mapper"]);
       let col_names = [...this.column_names];
       old_col_names.forEach((cname, i) => {
         if (!col_names.includes(cname)) {
@@ -1712,7 +1712,7 @@ class DataFrame extends _generic.default {
         col_names[idx] = new_col_names[i];
       });
 
-      if (kwargs['inplace']) {
+      if (kwargs["inplace"]) {
         this.columns = col_names;
 
         this.__set_col_property(this, this.col_data, col_names, old_col_names);
@@ -1725,18 +1725,18 @@ class DataFrame extends _generic.default {
         return df;
       }
     } else {
-      let old_index = Object.keys(kwargs['mapper']);
+      let old_index = Object.keys(kwargs["mapper"]);
       let row_index = this.index;
       let new_index = [];
       row_index.forEach(idx => {
         if (old_index.includes(idx)) {
-          new_index.push(kwargs['mapper'][idx]);
+          new_index.push(kwargs["mapper"][idx]);
         } else {
           new_index.push(idx);
         }
       });
 
-      if (kwargs['inplace']) {
+      if (kwargs["inplace"]) {
         this.__set_index(new_index);
       } else {
         let df = this.copy();

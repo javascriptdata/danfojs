@@ -59,32 +59,32 @@ class NDframe {
 
     this.col_data_tensor = tf.tensor(this.col_data);
 
-    if ('index' in this.kwargs) {
-      this.__set_index(this.kwargs['index']);
+    if ("index" in this.kwargs) {
+      this.__set_index(this.kwargs["index"]);
     } else {
       this.index_arr = [...Array(this.row_data_tensor.shape[0]).keys()];
     }
 
     if (this.ndim == 1) {
-      if ('columns' in this.kwargs) {
-        this.columns = this.kwargs['columns'];
+      if ("columns" in this.kwargs) {
+        this.columns = this.kwargs["columns"];
       } else {
         this.columns = ["0"];
       }
     } else {
-      if ('columns' in this.kwargs) {
-        if (this.kwargs['columns'].length == Number(this.row_data_tensor.shape[1])) {
-          this.columns = this.kwargs['columns'];
+      if ("columns" in this.kwargs) {
+        if (this.kwargs["columns"].length == Number(this.row_data_tensor.shape[1])) {
+          this.columns = this.kwargs["columns"];
         } else {
-          throw `Column length mismatch. You provided a column of length ${this.kwargs['columns'].length} but data has lenght of ${this.row_data_tensor.shape[1]}`;
+          throw `Column length mismatch. You provided a column of length ${this.kwargs["columns"].length} but data has lenght of ${this.row_data_tensor.shape[1]}`;
         }
       } else {
         this.columns = [...Array(this.row_data_tensor.shape[1]).keys()];
       }
     }
 
-    if ('dtypes' in this.kwargs) {
-      this._set_col_types(this.kwargs['dtypes'], false);
+    if ("dtypes" in this.kwargs) {
+      this._set_col_types(this.kwargs["dtypes"], false);
     } else {
       this._set_col_types(null, true);
     }
@@ -94,7 +94,7 @@ class NDframe {
     if (type == 2) {
       let [row_arr, col_names] = utils._get_row_and_col_values(data);
 
-      this.kwargs['columns'] = col_names;
+      this.kwargs["columns"] = col_names;
 
       this._read_array(row_arr);
     } else {
@@ -103,7 +103,7 @@ class NDframe {
       });
       this.data = utils.__replace_undefined_with_NaN(data_arr, this.series);
       this.row_data_tensor = tf.tensor(this.data);
-      this.kwargs['columns'] = Object.keys(Object.values(data)[0]);
+      this.kwargs["columns"] = Object.keys(Object.values(data)[0]);
 
       if (this.series) {
         this.col_data = [this.values];
@@ -113,32 +113,32 @@ class NDframe {
 
       this.col_data_tensor = tf.tensor(this.col_data);
 
-      if ('index' in this.kwargs) {
-        this.__set_index(this.kwargs['index']);
+      if ("index" in this.kwargs) {
+        this.__set_index(this.kwargs["index"]);
       } else {
         this.index_arr = [...Array(this.row_data_tensor.shape[0]).keys()];
       }
 
       if (this.ndim == 1) {
-        if (!this.kwargs['columns']) {
+        if (!this.kwargs["columns"]) {
           this.columns = ["0"];
         } else {
-          this.columns = this.kwargs['columns'];
+          this.columns = this.kwargs["columns"];
         }
       } else {
-        if ('columns' in this.kwargs) {
-          if (this.kwargs['columns'].length == Number(this.row_data_tensor.shape[1])) {
-            this.columns = this.kwargs['columns'];
+        if ("columns" in this.kwargs) {
+          if (this.kwargs["columns"].length == Number(this.row_data_tensor.shape[1])) {
+            this.columns = this.kwargs["columns"];
           } else {
-            throw `Column length mismatch. You provided a column of length ${this.kwargs['columns'].length} but data has column length of ${this.row_data_tensor.shape[1]}`;
+            throw `Column length mismatch. You provided a column of length ${this.kwargs["columns"].length} but data has column length of ${this.row_data_tensor.shape[1]}`;
           }
         } else {
           this.columns = [...Array(this.row_data_tensor.shape[1]).keys()];
         }
       }
 
-      if ('dtypes' in this.kwargs) {
-        this._set_col_types(this.kwargs['dtypes'], false);
+      if ("dtypes" in this.kwargs) {
+        this._set_col_types(this.kwargs["dtypes"], false);
       } else {
         this._set_col_types(null, true);
       }
@@ -146,7 +146,7 @@ class NDframe {
   }
 
   _set_col_types(dtypes, infer) {
-    const __supported_dtypes = ['float32', "int32", 'string', 'boolean'];
+    const __supported_dtypes = ["float32", "int32", "string", "boolean"];
 
     if (infer) {
       if (this.series) {
@@ -190,8 +190,8 @@ class NDframe {
 
   get axes() {
     let axes = {
-      "index": this.index,
-      "columns": this.columns
+      index: this.index,
+      columns: this.columns
     };
     return axes;
   }
