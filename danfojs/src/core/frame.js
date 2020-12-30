@@ -12,8 +12,8 @@
 * limitations under the License.
 */
 
-// import * as tf from '@tensorflow/tfjs-node'; //Use this import when building optimized version for danfojs-node
-import * as tf from "@tensorflow/tfjs"; //Use this import when building optimized version for danfojs browser side
+import * as tf from '@tensorflow/tfjs-node'; //Use this import when building optimized version for danfojs-node
+// import * as tf from "@tensorflow/tfjs"; //Use this import when building optimized version for danfojs browser side
 import Ndframe from "./generic";
 import { Series } from "./series";
 import { Utils } from "./utils";

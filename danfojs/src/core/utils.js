@@ -1,5 +1,5 @@
-// import * as tf from '@tensorflow/tfjs-node';
-import * as tf from "@tensorflow/tfjs";
+import * as tf from '@tensorflow/tfjs-node';
+// import * as tf from "@tensorflow/tfjs";
 import { Configs } from "../config/config";
 
 const config = new Configs();
@@ -167,7 +167,7 @@ export class Utils {
       }
       rows_arr.push(temp_row);
     }
-    return [rows_arr, col_names];
+    return [ rows_arr, col_names ];
   }
 
   //converts a 2D array of array to 1D for Series Class
@@ -695,7 +695,7 @@ export class Utils {
       } else {
         temp_obj[val] = {};
         temp_obj[val]["count"] = 1;
-        temp_obj[val]["index"] = [index];
+        temp_obj[val]["index"] = [ index ];
       }
     });
 
@@ -720,14 +720,14 @@ export class Utils {
    */
   _sort_arr_with_index(arr1, arr2, dtype) {
     let sorted_idx = arr1.map((item, index) => {
-      return [arr2[index], item];
+      return [ arr2[index], item ];
     });
     if (dtype == "string") {
       sorted_idx.sort();
     } else {
-      sorted_idx.sort(([arg1], [arg2]) => arg2 - arg1);
+      sorted_idx.sort(([ arg1 ], [ arg2 ]) => arg2 - arg1);
     }
 
-    return sorted_idx.map(([, item]) => item);
+    return sorted_idx.map(([ , item ]) => item);
   }
 }

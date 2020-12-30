@@ -1,6 +1,6 @@
 import { DataFrame } from "../core/frame";
-// import * as tf from '@tensorflow/tfjs-node'
-import * as tf from "@tensorflow/tfjs";
+import * as tf from '@tensorflow/tfjs-node';
+// import * as tf from "@tensorflow/tfjs";
 import { Utils } from "../core/utils";
 import fetch from "node-fetch";
 import XLSX from "xlsx";
@@ -64,7 +64,7 @@ export const read_json = async (source) => {
       let fs = await import("fs");
       return new Promise((resolve, reject) => {
         fs.readFile(source, (err, data) => {
-          if (err) reject(error);
+          if (err) reject(err);
           let df = new DataFrame(JSON.parse(data));
           resolve(df);
         });
@@ -192,7 +192,7 @@ export const read = async (
     }
   }
 
-  if (["csv", "xls", "xlsx"].includes(await file.descriptor.format)) {
+  if ([ "csv", "xls", "xlsx" ].includes(await file.descriptor.format)) {
     if (header) {
       let df = new DataFrame(rows.slice(1), { columns: rows[0] });
       return df;
