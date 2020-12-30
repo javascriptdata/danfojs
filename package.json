@@ -14,7 +14,8 @@
   ],
   "files": [
     "dist/",
-    "danfojs/src/"
+    "danfojs/src/",
+    "danfojs/types"
   ],
   "dependencies": {
     "frictionless.js": "0.13.4",
