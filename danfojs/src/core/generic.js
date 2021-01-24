@@ -21,7 +21,6 @@ import { Configs } from "../config/config";
 
 const utils = new Utils();
 const config = new Configs(); //package wide configuration object
-const _VERSION = "0.1.5";
 export default class NDframe {
   /**
    * N-Dimensiona data structure. Stores multi-dimensional
@@ -262,14 +261,6 @@ export default class NDframe {
    */
   get index() {
     return this.index_arr;
-  }
-
-  /**
-   * Returns current version
-   * @return {String} version of danfojs
-   */
-  get __version() {
-    return _VERSION;
   }
 
   /**
