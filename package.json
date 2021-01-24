@@ -4,6 +4,9 @@
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
   "main": "dist/index.js",
   "types": "danfojs/types/index.d.ts",
+  "directories": {
+    "test": "danfojs/tests"
+  },
   "contributors": [
     {
       "name": "Rising Odegua"
@@ -29,16 +32,13 @@
     "xlsx": "^0.16.7"
   },
   "scripts": {
-    "test": "nyc mocha --require @babel/register danfojs/tests/*",
-    "dev": "npm run lint && babel ./danfojs/src -d dist --no-comments",
+    "test": "karma start --single-run --browsers ChromeHeadless karma.conf.js",
     "build": "babel ./danfojs/src -d ./dist --no-comments",
     "lint": "eslint ./danfojs/src",
-    "bundle": "webpack --mode production",
+    "bundle": "yarn run build && webpack --mode development",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
-    "patch": "npm version patch",
-    "prepublishOnly": "npm run build",
-    "publish": "npm publish"
+    "patch": "npm version patch"
   },
   "repository": {
     "type": "git",
@@ -60,14 +60,21 @@
     "@babel/cli": "^7.10.5",
     "@babel/core": "^7.10.5",
     "@babel/plugin-transform-modules-umd": "^7.10.4",
+    "@babel/plugin-transform-runtime": "^7.12.10",
     "@babel/preset-env": "^7.10.4",
     "@babel/register": "^7.10.1",
     "@tensorflow/tfjs": "^2.7.0",
     "@tensorflow/tfjs-node": "2.7.0",
     "babel-loader": "^8.1.0",
+    "browserify": "16.5.2",
     "chai": "^4.2.0",
     "coveralls": "^3.1.0",
     "eslint": "^7.1.0",
+    "karma": "5.2.3",
+    "karma-browserify": "7.0.0",
+    "karma-chai": "^0.1.0",
+    "karma-chrome-launcher": "^3.1.0",
+    "karma-mocha": "^2.0.1",
     "mocha": "^7.2.0",
     "mocha-lcov-reporter": "^1.3.0",
     "mocha-loader": "^5.1.2",

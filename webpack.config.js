@@ -1,31 +1,34 @@
-const path = require('path');
+/* eslint-disable no-undef */
+const path = require("path");
 
-module.exports = {
-    entry: './danfojs/src/index.js',
-    target: 'web',
+const createConfig = (target) => {
+  return {
+    mode: "production",
+    devtool: "source-map",
+    context: path.resolve(__dirname),
+    entry: {
+      index: `./danfojs/src/index.js`
+    },
+    target: target,
     output: {
-        path: path.resolve(__dirname, "dist"),
-        filename: 'index.js',
-        library: 'dfd',
-        libraryTarget: 'window'
+      path: path.resolve(__dirname, "lib"),
+      filename: `bundle.js`,
+      library: "dfd"
     },
     module: {
-        rules: [
-            {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                use: ["babel-loader",
-                    "source-map-loader"],
-                enforce: 'pre',
-            },
-        ]
+      rules: [
+        {
+          use: {
+            loader: "babel-loader",
+            options: { presets: [ "@babel/preset-env" ] }
+          },
+          test: /\.(js|jsx)$/,
+          exclude: /node_modules/
+        }
+      ]
     },
-    resolve: {
-        modules: [
-            path.resolve('./app/bundles'),
-            'node_modules'
-        ],
-        extensions: ['.js', '.jsx']
-    },
-    node: { fs: 'empty' },
+    node: { fs: "empty" }
+  };
 };
+
+module.exports = [ createConfig("web") ];
