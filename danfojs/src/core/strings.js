@@ -1,8 +1,4 @@
-//handled string columns in Series and DataFrame
 import { Series } from "./series";
-// import {Utils} from "./utils"
-
-// const utils = new Utils()
 
 /**
  * String methods applied on Series and DataFrames

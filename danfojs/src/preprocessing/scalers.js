@@ -1,9 +1,7 @@
-import * as tf from '@tensorflow/tfjs-node';
-// import * as tf from "@tensorflow/tfjs";
+import * as tf from "@tensorflow/tfjs";
 import { Series } from "../core/series";
 import { DataFrame } from "../core/frame";
 import { Utils } from "../core/utils";
-// import { std } from "mathjs";
 
 const utils = new Utils();
 
