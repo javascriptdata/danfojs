@@ -1,4 +1,4 @@
-// import { newPlot } from 'plotly.js';
+import { newPlot } from 'plotly.js';
 import { Utils } from "../core/utils";
 import { Series } from "../core/series";
 
