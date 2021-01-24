@@ -12,7 +12,7 @@
 * limitations under the License.
 */
 
-import * as tf from "@tensorflow/tfjs-core";
+import * as tf from "@tensorflow/tfjs";
 import Ndframe from "./generic";
 import { Series } from "./series";
 import { Utils } from "./utils";

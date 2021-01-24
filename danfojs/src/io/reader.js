@@ -1,4 +1,4 @@
-import * as tf from "@tensorflow/tfjs-core";
+import * as tf from "@tensorflow/tfjs";
 import fetch from "node-fetch";
 import XLSX from "xlsx";
 import { open, Dataset, isDataset } from "frictionless.js";
@@ -191,7 +191,7 @@ export const read = async (
     }
   }
 
-  if ([ "csv", "xls", "xlsx" ].includes(await file.descriptor.format)) {
+  if (["csv", "xls", "xlsx"].includes(await file.descriptor.format)) {
     if (header) {
       let df = new DataFrame(rows.slice(1), { columns: rows[0] });
       return df;

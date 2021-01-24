@@ -14,7 +14,7 @@
 */
 
 
-import * as tf from "@tensorflow/tfjs-core";
+import * as tf from "@tensorflow/tfjs";
 import { variance, std } from 'mathjs';
 import { Utils } from "./utils";
 import { Str } from "./strings";
