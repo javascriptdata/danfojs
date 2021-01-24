@@ -12,12 +12,11 @@
 * limitations under the License.
 */
 
-import * as tf from "@tensorflow/tfjs";
+import * as tf from '@tensorflow/tfjs-node';
 import Ndframe from "./generic";
 import { Series } from "./series";
 import { Utils } from "./utils";
 import { GroupBy } from "./groupby";
-import { Plot } from "../plotting/plot";
 import { indexLoc } from "../core/indexing";
 import { concat } from "../core/concat.js";
 

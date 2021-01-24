@@ -1,5 +1,4 @@
-import * as tf from "@tensorflow/tfjs";
-import '@tensorflow/tfjs-backend-cpu';
+import * as tf from '@tensorflow/tfjs-node';
 import { Configs } from "../config/config";
 
 const config = new Configs();

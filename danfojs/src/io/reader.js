@@ -1,4 +1,4 @@
-import * as tf from "@tensorflow/tfjs";
+import * as tf from '@tensorflow/tfjs-node';
 import fetch from "node-fetch";
 import XLSX from "xlsx";
 import { open, Dataset, isDataset } from "frictionless.js";
@@ -27,6 +27,7 @@ export const read_csv = async (source, chunk) => {
     )
   ) {
     //probabily a relative path, append file:// to it
+    // eslint-disable-next-line no-undef
     source = `file://${process.cwd()}/${source}`;
   }
 

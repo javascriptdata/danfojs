@@ -15,4 +15,4 @@ export { NDframe };
 export { Str } from "./core/strings";
 export { Utils } from "./core/utils";
 
-export const _version = "0.2.1";
+export const _version = "0.2.0";

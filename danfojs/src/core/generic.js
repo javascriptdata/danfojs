@@ -13,7 +13,7 @@
  *
 */
 
-import * as tf from "@tensorflow/tfjs";
+import * as tf from '@tensorflow/tfjs-node';
 import { table } from "table";
 import { Utils } from "./utils";
 import { Configs } from "../config/config";

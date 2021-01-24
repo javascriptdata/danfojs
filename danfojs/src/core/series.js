@@ -14,7 +14,7 @@
 */
 
 
-import * as tf from "@tensorflow/tfjs";
+import * as tf from '@tensorflow/tfjs-node';
 import { variance, std } from 'mathjs';
 import { Utils } from "./utils";
 import { Str } from "./strings";
@@ -22,7 +22,6 @@ import NDframe from "./generic";
 import { table } from 'table';
 import { Configs } from '../config/config';
 import { TimeSeries } from './timeseries';
-import { Plot } from '../plotting/plot';
 import { indexLoc } from '../core/indexing';
 
 
