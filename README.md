@@ -57,6 +57,8 @@ To use Danfo.js via script tags, copy and paste the CDN below to your HTML file
 
 ### Example Usage in the Browser
 
+> See the example below in [Code Sandbox](https://codepen.io/risingodegua/pen/bGwPGMG)
+
 ```html
 
 <!DOCTYPE html>
@@ -100,7 +102,6 @@ To use Danfo.js via script tags, copy and paste the CDN below to your HTML file
 Output in Browser:
 
 ![](assets/browser-out.gif)
-
 
 ## How to install
 Danfo.js is hosted on NPM, and can installed via package managers like npm and yarn
