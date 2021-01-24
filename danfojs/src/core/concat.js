@@ -1,5 +1,4 @@
 import { DataFrame } from './frame';
-// import { Series } from "../../src/core/series";
 import { Utils } from "./utils";
 import { Series } from './series';
 

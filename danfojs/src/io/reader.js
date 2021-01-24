@@ -1,11 +1,10 @@
-import { DataFrame } from "../core/frame";
-import * as tf from '@tensorflow/tfjs-node';
-// import * as tf from "@tensorflow/tfjs";
-import { Utils } from "../core/utils";
+import * as tf from "@tensorflow/tfjs";
 import fetch from "node-fetch";
 import XLSX from "xlsx";
 import { open, Dataset, isDataset } from "frictionless.js";
 import toArray from "stream-to-array";
+import { Utils } from "../core/utils";
+import { DataFrame } from "../core/frame";
 
 const utils = new Utils();
 

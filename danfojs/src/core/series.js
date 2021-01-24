@@ -14,8 +14,7 @@
 */
 
 
-import * as tf from '@tensorflow/tfjs-node'; //Use this import when building optimized version for danfojs-node
-// import * as tf from '@tensorflow/tfjs'; //Use this import when building optimized version for danfojs browser sideimport { std, variance } from 'mathjs'
+import * as tf from "@tensorflow/tfjs";
 import { variance, std } from 'mathjs';
 import { Utils } from "./utils";
 import { Str } from "./strings";

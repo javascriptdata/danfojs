@@ -1,8 +1,3 @@
-import { assert } from "chai";
-import { DataFrame } from '../../src/core/frame';
-import { merge } from '../../src/core/merge';
-// import { Series } from "../../src/core/series";
-
 
 describe("Merge", function () {
 
@@ -16,9 +11,9 @@ describe("Merge", function () {
     let colum1 = [ 'Key1', 'Key2', 'A', 'B' ];
     let colum2 = [ 'Key1', 'Key2', 'A', 'D' ];
 
-    let df1 = new DataFrame(data, { columns: colum1 });
-    let df2 = new DataFrame(data2, { columns: colum2 });
-    let merge_df = merge({ "left": df1, "right": df2, "on": [ "Key1", "Key2" ], "how": "outer" });
+    let df1 = new dfd.DataFrame(data, { columns: colum1 });
+    let df2 = new dfd.DataFrame(data2, { columns: colum2 });
+    let merge_df = dfd.merge({ "left": df1, "right": df2, "on": [ "Key1", "Key2" ], "how": "outer" });
 
     let output_data = [
       [ 'K0', 'k0', 'A0', 'B0', 'C0', 'D0' ],
@@ -43,9 +38,9 @@ describe("Merge", function () {
     let colum1 = [ 'Key1', 'Key2', 'A', 'B' ];
     let colum2 = [ 'Key1', 'Key2', 'A', 'D' ];
 
-    let df1 = new DataFrame(data, { columns: colum1 });
-    let df2 = new DataFrame(data2, { columns: colum2 });
-    let merge_df = merge({ "left": df1, "right": df2, "on": [ "Key1", "Key2" ], "how": "inner" });
+    let df1 = new dfd.DataFrame(data, { columns: colum1 });
+    let df2 = new dfd.DataFrame(data2, { columns: colum2 });
+    let merge_df = dfd.merge({ "left": df1, "right": df2, "on": [ "Key1", "Key2" ], "how": "inner" });
 
     let output_data = [
       [ 'K0', 'k0', 'A0', 'B0', 'C0', 'D0' ],
@@ -66,9 +61,9 @@ describe("Merge", function () {
     let colum1 = [ 'Key1', 'Key2', 'A', 'B' ];
     let colum2 = [ 'Key1', 'Key2', 'A', 'D' ];
 
-    let df1 = new DataFrame(data, { columns: colum1 });
-    let df2 = new DataFrame(data2, { columns: colum2 });
-    let merge_df = merge({ "left": df1, "right": df2, "on": [ "Key1", "Key2" ], "how": "left" });
+    let df1 = new dfd.DataFrame(data, { columns: colum1 });
+    let df2 = new dfd.DataFrame(data2, { columns: colum2 });
+    let merge_df = dfd.merge({ "left": df1, "right": df2, "on": [ "Key1", "Key2" ], "how": "left" });
 
     let output_data = [
       [ 'K0', 'k0', 'A0', 'B0', 'C0', 'D0' ],
@@ -91,9 +86,9 @@ describe("Merge", function () {
     let colum1 = [ 'Key1', 'Key2', 'A', 'B' ];
     let colum2 = [ 'Key1', 'Key2', 'A', 'D' ];
 
-    let df1 = new DataFrame(data, { columns: colum1 });
-    let df2 = new DataFrame(data2, { columns: colum2 });
-    let merge_df = merge({ "left": df1, "right": df2, "on": [ "Key1", "Key2" ], "how": "right" });
+    let df1 = new dfd.DataFrame(data, { columns: colum1 });
+    let df2 = new dfd.DataFrame(data2, { columns: colum2 });
+    let merge_df = dfd.merge({ "left": df1, "right": df2, "on": [ "Key1", "Key2" ], "how": "right" });
 
     let output_data = [
       [ 'K0', 'k0', 'A0', 'B0', 'C0', 'D0' ],

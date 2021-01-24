@@ -1,8 +1,5 @@
-import { Configs } from '../../src/config/config';
-import { assert } from 'chai';
-
-const config = new Configs();
-
+/* eslint-disable no-undef */
+const config = new dfd.Configs();
 
 describe("Config", function () {
   it("gets the default config val for table width", function () {
