@@ -428,7 +428,29 @@ export class Utils {
         if (return_val) {
           result_arr.push(val_count);
         } else {
+<<<<<<< HEAD
           result_arr.push(null_count);
+=======
+            let result_arr = []
+            arr.map(ele_arr => {
+                let null_count = 0
+                let val_count = 0
+                ele_arr.map(ele => {
+                    if (isNaN(ele) && typeof ele != "string") {
+                        null_count = null_count + 1
+                    } else {
+                        val_count = val_count + 1
+                    }
+                })
+                if (val) {
+                    result_arr.push(val_count)
+                } else {
+                    result_arr.push(null_count)
+                }
+            })
+            return result_arr
+
+>>>>>>> 140069d5ee29a7f877894ddb2b3fd6ab2b375917
         }
       });
       return result_arr;

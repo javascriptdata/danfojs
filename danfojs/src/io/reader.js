@@ -191,7 +191,7 @@ export const read = async (
     }
   }
 
-  if (["csv", "xls", "xlsx"].includes(await file.descriptor.format)) {
+  if ([ "csv", "xls", "xlsx" ].includes(await file.descriptor.format)) {
     if (header) {
       let df = new DataFrame(rows.slice(1), { columns: rows[0] });
       return df;

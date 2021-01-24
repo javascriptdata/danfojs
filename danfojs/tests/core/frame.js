@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const fs = require("fs");
 
 const testCSVPath = "./tester.csv";

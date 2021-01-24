@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 describe("read_csv", async function () {
   this.timeout(10000); // all tests in this suite get 10 seconds before timeout
   it("reads a csv file from source over the internet", async function () {

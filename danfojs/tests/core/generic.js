@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const tf = require("@tensorflow/tfjs-core");
 
 describe("Generic (NDFrame)", function () {
