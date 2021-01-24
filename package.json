@@ -61,8 +61,6 @@
     "@babel/plugin-transform-runtime": "^7.12.10",
     "@babel/preset-env": "^7.10.4",
     "@babel/register": "^7.10.1",
-    "@tensorflow/tfjs": "^2.7.0",
-    "@tensorflow/tfjs-node": "2.7.0",
     "babel-loader": "^8.1.0",
     "browserify": "16.5.2",
     "chai": "^4.2.0",
