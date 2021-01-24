@@ -38,6 +38,7 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
     "patch": "npm version patch"
   },
+  "publishConfig": { "access": "public", "branches": ["master"] },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/opensource9ja/danfojs.git"
