@@ -1101,21 +1101,13 @@
     "@types/seedrandom" "2.4.27"
     seedrandom "2.4.3"
 
-"@tensorflow/tfjs-backend-cpu@2.8.5", "@tensorflow/tfjs-backend-cpu@^2.8.5":
+"@tensorflow/tfjs-backend-cpu@2.8.5":
   version "2.8.5"
   resolved "https://registry.yarnpkg.com/@tensorflow/tfjs-backend-cpu/-/tfjs-backend-cpu-2.8.5.tgz#3fc8afcecffe669691dd3dfa9256e08a058e8d4d"
   integrity sha512-6Wpp5wPkNzAm1MovtXU9Gs3hIRl/iqc7CUHlqCB4hUBIDHM7zek7vm7JjQv5IopzYNtHnuasSklNR9kb4ZAOdA==
   dependencies:
     "@types/seedrandom" "2.4.27"
     seedrandom "2.4.3"
-
-"@tensorflow/tfjs-backend-wasm@^2.8.5":
-  version "2.8.5"
-  resolved "https://registry.yarnpkg.com/@tensorflow/tfjs-backend-wasm/-/tfjs-backend-wasm-2.8.5.tgz#68b424d2ea1bcfc4a5cbbe41c18de9eb773450c4"
-  integrity sha512-Pt85ndNbOaMtR16wHSwgRkXRXIO8kufg1TzjxF/BnU0N9YZD396UB9pyr04+vNgAp0Ne5Edkp+Zz+WEthD36+A==
-  dependencies:
-    "@tensorflow/tfjs-backend-cpu" "2.8.5"
-    "@types/emscripten" "~0.0.34"
 
 "@tensorflow/tfjs-backend-webgl@2.7.0":
   version "2.7.0"
@@ -1162,7 +1154,7 @@
     node-fetch "~2.6.1"
     seedrandom "2.4.3"
 
-"@tensorflow/tfjs-core@2.8.5", "@tensorflow/tfjs-core@^2.8.5":
+"@tensorflow/tfjs-core@2.8.5":
   version "2.8.5"
   resolved "https://registry.yarnpkg.com/@tensorflow/tfjs-core/-/tfjs-core-2.8.5.tgz#4b3b2f50ccc85af495aa4406adad2b47486f4d5e"
   integrity sha512-djhwPl/AJZmoBsXGwr0kU4Cn/SQ8uTSPgf2qcIQQPuJnhdEXiXgaV5Fcwn+fSl9AItAg1X669FdvOGn+WgOXoA==
@@ -1231,7 +1223,7 @@
     regenerator-runtime "^0.13.5"
     yargs "^16.0.3"
 
-"@tensorflow/tfjs@^2.7.0":
+"@tensorflow/tfjs@^2.8.5":
   version "2.8.5"
   resolved "https://registry.yarnpkg.com/@tensorflow/tfjs/-/tfjs-2.8.5.tgz#5db058368f11a2f423fd229beac08cdc83c7aa51"
   integrity sha512-UjfMWEARIMOKpfB2+zIofKdZLD3VuCHIdmMkLTdBZrKl3XNmcclQzDpfozssO19ncS2mC1J70uS1Xo1K9nv7BQ==
@@ -1290,11 +1282,6 @@
   integrity sha512-k33tLtRKTQxf7hQfMlkWoS2TQYsnpk1ibZN+rzbuCkeBs8m23nHTeDTF1wb/e7/MSLdtgCzqu3oM1I101kd6yw==
   dependencies:
     csv-parse "*"
-
-"@types/emscripten@~0.0.34":
-  version "0.0.34"
-  resolved "https://registry.yarnpkg.com/@types/emscripten/-/emscripten-0.0.34.tgz#12b4a344274fb102ff2f6c877b37587bc3e46008"
-  integrity sha512-QSb9ojDincskc+uKMI0KXp8e1NALFINCrMlp8VGKGcTSxeEyRTTKyjWw75NYrCZHUsVEEEpr1tYHpbtaC++/sQ==
 
 "@types/json-schema@^7.0.5", "@types/json-schema@^7.0.6":
   version "7.0.7"
