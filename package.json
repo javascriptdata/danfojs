@@ -30,7 +30,7 @@
     "xlsx": "^0.16.7"
   },
   "scripts": {
-    "test": "yarn run bundle && karma start --single-run --browsers ChromeHeadless karma.conf.js",
+    "test": "yarn run build && karma start --single-run --browsers ChromeHeadless karma.conf.js",
     "build": "babel ./danfojs/src -d ./dist --no-comments",
     "lint": "eslint ./danfojs/src",
     "bundle": "yarn run build && webpack --mode production",
