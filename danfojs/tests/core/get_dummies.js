@@ -1,15 +1,10 @@
-import { assert } from "chai";
-import { get_dummies } from '../../src/core/get_dummies';
-import { DataFrame } from "../../src/core/frame";
-import { Series } from "../../src/core/series";
-
 describe("get_dummies", function(){
 
   it("test on array", function(){
 
     let data = [ "dog", "male", "female", "male", "female", "male", "dog" ];
 
-    let df = get_dummies({ data:data });
+    let df = dfd.get_dummies({ data:data });
 
     let df_values = [
       [ 1, 0, 0 ],
@@ -29,9 +24,9 @@ describe("get_dummies", function(){
   it("test on Series", function(){
 
     let data = [ "dog", "male", "female", "male", "female", "male", "dog" ];
-    let series = new Series(data);
+    let series = new dfd.Series(data);
 
-    let df = get_dummies({ data:series, prefix:"test", prefix_sep:"/" });
+    let df = dfd.get_dummies({ data:series, prefix:"test", prefix_sep:"/" });
 
     let df_values = [
       [ 1, 0, 0 ],
@@ -52,9 +47,9 @@ describe("get_dummies", function(){
 
     let data = [ [ 1, "dog", 1.0, "fat" ], [ 3, "fog", 2.0, "good" ], [ 4, "gof", 3.0, "best" ] ];
     let columns = [ "A", "B", "C", "d" ];
-    let df = new DataFrame(data, { columns:columns });
+    let df = new dfd.DataFrame(data, { columns:columns });
 
-    let df1 = get_dummies({ data:df, prefix_sep:"_", columns:[ "A", "d" ] });
+    let df1 = dfd.get_dummies({ data:df, prefix_sep:"_", columns:[ "A", "d" ] });
     let df1_columns = [
       'C', 'd',
       'A_1', 'A_3',
@@ -76,9 +71,9 @@ describe("get_dummies", function(){
 
     let data = [ [ 1, "dog", 1.0, "fat" ], [ 3, "fog", 2.0, "good" ], [ 4, "gof", 3.0, "best" ] ];
     let columns = [ "A", "B", "C", "d" ];
-    let df = new DataFrame(data, { columns:columns });
+    let df = new dfd.DataFrame(data, { columns:columns });
 
-    assert.throws(function () { get_dummies({ data:df, prefix:[ "fg" ], prefix_sep:"_", columns:[ "A", "d" ] }); }, Error,
+    assert.throws(function () { dfd.get_dummies({ data:df, prefix:[ "fg" ], prefix_sep:"_", columns:[ "A", "d" ] }); }, Error,
       'prefix must be the same length with the number of onehot encoding column');
 
   });
@@ -86,9 +81,9 @@ describe("get_dummies", function(){
 
     let data = [ [ 1, "dog", 1.0, "fat" ], [ 3, "fog", 2.0, "good" ], [ 4, "gof", 3.0, "best" ] ];
     let columns = [ "A", "B", "C", "d" ];
-    let df = new DataFrame(data, { columns:columns });
+    let df = new dfd.DataFrame(data, { columns:columns });
 
-    let df1 = get_dummies({ data:df, prefix:[ "F", "G" ], prefix_sep:"_", columns:[ "A", "d" ] });
+    let df1 = dfd.get_dummies({ data:df, prefix:[ "F", "G" ], prefix_sep:"_", columns:[ "A", "d" ] });
     let df1_columns = [
       'C', 'd',
       'F_1', 'F_3',
@@ -111,9 +106,9 @@ describe("get_dummies", function(){
 
     let data = [ [ 1, "dog", 1.0, "fat" ], [ 3, "fog", 2.0, "good" ], [ 4, "gof", 3.0, "best" ] ];
     let columns = [ "A", "B", "C", "d" ];
-    let df = new DataFrame(data, { columns:columns });
+    let df = new dfd.DataFrame(data, { columns:columns });
 
-    let df1 = get_dummies({ data:df, prefix_sep:"_" });
+    let df1 = dfd.get_dummies({ data:df, prefix_sep:"_" });
     let df1_columns = [
       'A', 'C',
       'B_dog', 'B_fog',
@@ -143,9 +138,9 @@ describe("get_dummies", function(){
 
     let data = [ [ 1, "dog", 1.0, "fat" ], [ 3, "fog", 2.0, "good" ], [ 4, "gof", 3.0, "best" ] ];
     let columns = [ "A", "B", "C", "d" ];
-    let df = new DataFrame(data, { columns:columns });
+    let df = new dfd.DataFrame(data, { columns:columns });
 
-    assert.throws(function () { get_dummies({ data:df, prefix:"F", prefix_sep:"_", columns:[ "A", "d" ] }); }, Error,
+    assert.throws(function () { dfd.get_dummies({ data:df, prefix:"F", prefix_sep:"_", columns:[ "A", "d" ] }); }, Error,
       "prefix for dataframe must be an array");
 
   });
