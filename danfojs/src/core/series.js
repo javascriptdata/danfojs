@@ -14,7 +14,7 @@
 */
 
 
-import * as tf from "@tensorflow/tfjs";
+import { tensor, round } from "@tensorflow/tfjs";
 import { variance, std } from 'mathjs';
 import { Utils } from "./utils";
 import { Str } from "./strings";
@@ -55,7 +55,7 @@ export class Series extends NDframe {
     * @returns {1D Tensor}
     */
   get tensor() {
-    return tf.tensor(this.values).asType(this.dtypes[0]);
+    return tensor(this.values).asType(this.dtypes[0]);
   }
 
 
@@ -250,7 +250,7 @@ export class Series extends NDframe {
   mean() {
     utils._throw_str_dtype_error(this, 'mean');
     let values = utils._remove_nans(this.values);
-    let mean = tf.tensor(values).mean().arraySync();
+    let mean = tensor(values).mean().arraySync();
     return mean;
   }
 
@@ -382,7 +382,7 @@ export class Series extends NDframe {
   round(dp) {
     if (utils.__is_undefined(dp)) {
       //use tensorflow round function to roound to the nearest whole number
-      let result = tf.round(this.row_data_tensor).arraySync();
+      let result = round(this.row_data_tensor).arraySync();
       return new Series(result, { columns: this.column_names, index: this.index });
 
     } else {

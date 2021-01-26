@@ -1,5 +1,4 @@
-import * as tf from "@tensorflow/tfjs";
-import '@tensorflow/tfjs-backend-cpu';
+import { tensor, linspace } from "@tensorflow/tfjs";
 import { Configs } from "../config/config";
 
 const config = new Configs();
@@ -113,7 +112,7 @@ export class Utils {
 
   //generate integers between two set of numbers
   __range(start, end) {
-    let value = tf.linspace(start, end, end - start + 1).arraySync();
+    let value = linspace(start, end, end - start + 1).arraySync();
     return value;
   }
 
@@ -689,7 +688,7 @@ export class Utils {
     let rslt_obj = {};
 
     arr.forEach((val, index) => {
-      if (temp_obj.hasOwnProperty(val)) {
+      if (val in temp_obj) {
         temp_obj[val]["count"] += 1;
         temp_obj[val]["index"].push(index);
       } else {

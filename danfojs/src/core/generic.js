@@ -13,7 +13,7 @@
  *
 */
 
-import * as tf from "@tensorflow/tfjs";
+import { tensor, Tensor } from "@tensorflow/tfjs";
 import { table } from "table";
 import { Utils } from "./utils";
 import { Configs } from "../config/config";
@@ -38,7 +38,7 @@ export default class NDframe {
   constructor(data, kwargs = {}) {
     this.kwargs = kwargs;
 
-    if (data instanceof tf.Tensor) {
+    if (data instanceof Tensor) {
       data = data.arraySync();
     }
 
@@ -71,7 +71,7 @@ export default class NDframe {
    */
   _read_array(data) {
     this.data = utils.__replace_undefined_with_NaN(data, this.series);
-    this.row_data_tensor = tf.tensor(this.data);
+    this.row_data_tensor = tensor(this.data);
 
     if (this.series) {
       this.col_data = [ this.values ];
@@ -79,7 +79,7 @@ export default class NDframe {
       this.col_data = utils.__get_col_values(this.data);
     }
 
-    this.col_data_tensor = tf.tensor(this.col_data); //data saved as 2D column tensors
+    this.col_data_tensor = tensor(this.col_data); //data saved as 2D column tensors
 
     if ("index" in this.kwargs) {
       this.__set_index(this.kwargs["index"]);
@@ -133,7 +133,7 @@ export default class NDframe {
       });
 
       this.data = utils.__replace_undefined_with_NaN(data_arr, this.series); //Defualt array data in row format
-      this.row_data_tensor = tf.tensor(this.data); //data saved as row tensors
+      this.row_data_tensor = tensor(this.data); //data saved as row tensors
       this.kwargs["columns"] = Object.keys(Object.values(data)[0]); //get names of the column from the first entry
 
       if (this.series) {
@@ -142,7 +142,7 @@ export default class NDframe {
         this.col_data = utils.__get_col_values(this.data);
       }
 
-      this.col_data_tensor = tf.tensor(this.col_data); //data saved as 2D column tensors
+      this.col_data_tensor = tensor(this.col_data); //data saved as 2D column tensors
 
       if ("index" in this.kwargs) {
         this.__set_index(this.kwargs["index"]);

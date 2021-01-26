@@ -88,5 +88,6 @@
       "lcov",
       "text"
     ]
-  }
+  },
+  "sideEffects": false
 }

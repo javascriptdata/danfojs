@@ -1,4 +1,4 @@
-import * as tf from "@tensorflow/tfjs";
+import { data } from "@tensorflow/tfjs";
 import fetch from "node-fetch";
 import XLSX from "xlsx";
 import { open, Dataset, isDataset } from "frictionless.js";
@@ -27,11 +27,12 @@ export const read_csv = async (source, chunk) => {
     )
   ) {
     //probabily a relative path, append file:// to it
+    // eslint-disable-next-line no-undef
     source = `file://${process.cwd()}/${source}`;
   }
 
   let data = [];
-  const csvDataset = tf.data.csv(source);
+  const csvDataset = data.csv(source);
   const column_names = await csvDataset.columnNames();
   const sample = csvDataset.take(chunk);
   await sample.forEachAsync((row) => data.push(Object.values(row)));
