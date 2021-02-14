@@ -1,6 +1,6 @@
 {
   "name": "danfojs-node",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
   "main": "dist/index.js",
   "types": "danfojs/types/index.d.ts",
@@ -38,7 +38,12 @@
     "patch": "npm version patch",
     "publish": "npm publish"
   },
-  "publishConfig": { "access": "public", "branches": ["master"] },
+  "publishConfig": {
+    "access": "public",
+    "branches": [
+      "master"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/opensource9ja/danfojs.git"
@@ -62,6 +67,7 @@
     "@babel/plugin-transform-runtime": "^7.12.10",
     "@babel/preset-env": "^7.10.4",
     "@babel/register": "^7.10.1",
+    "@babel/runtime": "^7.12.13",
     "babel-loader": "^8.1.0",
     "chai": "^4.2.0",
     "coveralls": "^3.1.0",

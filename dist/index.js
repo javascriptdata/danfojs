@@ -1,5 +1,7 @@
 "use strict";
 
+var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard");
+
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 
 Object.defineProperty(exports, "__esModule", {
@@ -119,7 +121,7 @@ Object.defineProperty(exports, "Utils", {
     return _utils.Utils;
   }
 });
-exports._version = void 0;
+exports.tf = exports._version = void 0;
 
 var _generic = _interopRequireDefault(require("./core/generic"));
 
@@ -149,5 +151,8 @@ var _strings = require("./core/strings");
 
 var _utils = require("./core/utils");
 
-const _version = "0.2.0";
+var _tf = _interopRequireWildcard(require("@tensorflow/tfjs-node"));
+
+exports.tf = _tf;
+const _version = "0.2.1";
 exports._version = _version;
