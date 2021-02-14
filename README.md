@@ -52,7 +52,7 @@ easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org
 To use Danfo.js via script tags, copy and paste the CDN below to your HTML file
 
 ```html
-    <script src="https://cdn.jsdelivr.net/gh/opensource9ja/danfojs@latest/lib/bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/danfojs@0.2.2/lib/bundle.min.js"></script> 
 ```
 
 ### Example Usage in the Browser
@@ -66,7 +66,7 @@ To use Danfo.js via script tags, copy and paste the CDN below to your HTML file
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/gh/opensource9ja/danfojs@latest/lib/bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/danfojs@0.2.2/lib/bundle.min.js"></script> 
     <title>Document</title>
 </head>
 
