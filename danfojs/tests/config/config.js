@@ -1,7 +1,8 @@
 /* eslint-disable no-undef */
-const config = new dfd.Configs();
 
 describe("Config", function () {
+  const config = new dfd.Configs();
+
   it("gets the default config val for table width", function () {
     let table_width = config.get_width;
     assert.equal(table_width, 17);
