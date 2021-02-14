@@ -1,7 +1,9 @@
-const utils = new dfd.Utils;
+/* eslint-disable no-undef */
 
 
 describe("Utils Functions", function () {
+  const utils = new dfd.Utils;
+
   it("removes an element from an array", function () {
     let arr = [ 1, 2, 3, 4 ];
     assert.deepEqual(utils.remove(arr, 2), [ 1, 2, 4 ]);

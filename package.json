@@ -1,8 +1,8 @@
 {
   "name": "danfojs",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
-  "main": "dist/index.js",
+  "main": "lib/bundle.js",
   "types": "danfojs/types/index.d.ts",
   "directories": {
     "test": "danfojs/tests"
@@ -16,29 +16,33 @@
     }
   ],
   "files": [
-    "dist/",
+    "lib/",
     "danfojs/src/",
     "danfojs/types"
   ],
   "dependencies": {
-    "@tensorflow/tfjs": "^2.8.5",
-    "frictionless.js": "0.13.4",
+    "@tensorflow/tfjs": "2.8.5",
     "mathjs": "7.5.1",
     "plotly.js": "1.54.7",
-    "stream-to-array": "^2.3.0",
     "table": "^5.4.6",
-    "xlsx": "^0.16.7"
+    "xlsx": "^0.16.7",
+    "@babel/runtime": "^7.12.13"
   },
   "scripts": {
     "test": "yarn run build && karma start --single-run --browsers ChromeHeadless karma.conf.js",
     "build": "babel ./danfojs/src -d ./dist --no-comments",
     "lint": "eslint ./danfojs/src",
-    "bundle": "yarn run build && webpack --mode production",
+    "bundle": "webpack",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
     "patch": "npm version patch"
   },
-  "publishConfig": { "access": "public", "branches": ["master"] },
+  "publishConfig": {
+    "access": "public",
+    "branches": [
+      "master"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/opensource9ja/danfojs.git"
@@ -80,13 +84,14 @@
     "parcel-bundler": "^1.12.4",
     "source-map-loader": "^1.0.0",
     "transform-loader": "^0.2.4",
-    "webpack": "^4.44.0",
-    "webpack-cli": "^3.3.12"
+    "webpack": "5.21.2",
+    "webpack-cli": "4.5.0"
   },
   "nyc": {
     "reporter": [
       "lcov",
       "text"
     ]
-  }
+  },
+  "sideEffects": false
 }

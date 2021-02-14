@@ -12,7 +12,7 @@
 * limitations under the License.
 */
 
-import * as tf from "@tensorflow/tfjs";
+import { tensor } from "@tensorflow/tfjs";
 import Ndframe from "./generic";
 import { Series } from "./series";
 import { Utils } from "./utils";
@@ -183,7 +183,7 @@ export class DataFrame extends Ndframe {
           index: new_index
         });
       } else {
-        this.row_data_tensor = tf.tensor(new_data);
+        this.row_data_tensor = tensor(new_data);
         this.data = new_data;
         this.__set_index(new_index);
       }
@@ -916,7 +916,7 @@ export class DataFrame extends Ndframe {
       }
 
       values.map((arr) => {
-        let temp_sum = tf.tensor(arr).sum().arraySync();
+        let temp_sum = tensor(arr).sum().arraySync();
         val_sums.push(Number(temp_sum.toFixed(5)));
       });
 
@@ -940,7 +940,7 @@ export class DataFrame extends Ndframe {
   abs() {
     let data = this.values;
 
-    let tensor_data = tf.tensor(data);
+    let tensor_data = tensor(data);
     let abs_data = tensor_data.abs().arraySync();
     let df = new DataFrame(utils.__round(abs_data, 2, false), {
       columns: this.column_names,
@@ -1406,7 +1406,7 @@ export class DataFrame extends Ndframe {
       }
 
       for (let i = 0; i < df_data.length; i++) {
-        let value = tf.tensor(df_data[i]);
+        let value = tensor(df_data[i]);
         let callable_data;
         try {
           callable_data = callable(value).arraySync();
@@ -1659,18 +1659,18 @@ export class DataFrame extends Ndframe {
               `Shape Error: Operands could not be broadcast together with shapes ${this.shape} and ${val.values.length}.`
             );
           }
-          other = tf.tensor(val.values);
+          other = tensor(val.values);
         } else {
           if (val.values.length != this.shape[1]) {
             throw Error(
               `Shape Error: Operands could not be broadcast together with shapes ${this.shape} and ${val.values.length}.`
             );
           }
-          other = tf.tensor(val.values);
+          other = tensor(val.values);
         }
       } else if (Array.isArray(val)) {
         //Array of Array
-        other = tf.tensor(val);
+        other = tensor(val);
       } else {
         //DataFrame
         other = val.row_data_tensor;
@@ -1679,22 +1679,22 @@ export class DataFrame extends Ndframe {
 
     switch (logical_type) {
     case "lt":
-      int_vals = tf.tensor(this.values).less(other).arraySync();
+      int_vals = tensor(this.values).less(other).arraySync();
       break;
     case "gt":
-      int_vals = tf.tensor(this.values).greater(other).arraySync();
+      int_vals = tensor(this.values).greater(other).arraySync();
       break;
     case "le":
-      int_vals = tf.tensor(this.values).lessEqual(other).arraySync();
+      int_vals = tensor(this.values).lessEqual(other).arraySync();
       break;
     case "ge":
-      int_vals = tf.tensor(this.values).greaterEqual(other).arraySync();
+      int_vals = tensor(this.values).greaterEqual(other).arraySync();
       break;
     case "ne":
-      int_vals = tf.tensor(this.values).notEqual(other).arraySync();
+      int_vals = tensor(this.values).notEqual(other).arraySync();
       break;
     case "eq":
-      int_vals = tf.tensor(this.values).equal(other).arraySync();
+      int_vals = tensor(this.values).equal(other).arraySync();
       break;
     }
     let bool_vals = utils.__map_int_to_bool(int_vals, 2);
@@ -1754,7 +1754,7 @@ export class DataFrame extends Ndframe {
 
         this_tensor = tensors[0].row_data_tensor; //tensorflow uses 1 for rows axis and 0 for column axis
         if (tensors[1].series) {
-          other_tensor = tf.tensor(tensors[1].values, [
+          other_tensor = tensor(tensors[1].values, [
             1,
             tensors[1].values.length
           ]);
@@ -1771,7 +1771,7 @@ export class DataFrame extends Ndframe {
 
         this_tensor = tensors[0].row_data_tensor;
         if (tensors[1].series) {
-          other_tensor = tf.tensor(tensors[1].values, [
+          other_tensor = tensor(tensors[1].values, [
             tensors[1].values.length,
             1
           ]);
@@ -2153,7 +2153,7 @@ export class DataFrame extends Ndframe {
       let val = sorted_val[row_i];
       let index = null;
 
-      if (duplicate_obj.hasOwnProperty(val)) {
+      if (val in duplicate_obj) {
         index = duplicate_obj[val]["index"][0];
         duplicate_obj[val]["index"].splice(0, 1);
       } else {
