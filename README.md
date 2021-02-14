@@ -175,6 +175,8 @@ Output in Node Console:
 
 ![](assets/node-rec.gif)
 
+> If you want to use Danfo in frontend frameworks like React/Vue, read this [guide](https://danfo.jsdata.org/examples/using-danfojs-in-react)
+
 #### You can play with Danfo.js on Dnotebooks playground [here](https://playnotebook.jsdata.org/demo)
 
 #### [See the Official Getting Started Guide](https://danfo.jsdata.org/getting-started)
