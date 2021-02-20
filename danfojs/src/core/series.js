@@ -102,7 +102,9 @@ export class Series extends NDframe {
   sample(num = 5) {
     if (num < 0) {
       throw new Error("num cannot be negative");
-    } else if (num > this.values.length) {
+    }
+
+    if (num > this.values.length) {
       let config = { columns: this.column_names };
       return new Series(this.values, config);
     } else {
