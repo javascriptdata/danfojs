@@ -100,7 +100,7 @@ export class Series extends NDframe {
     * @returns {Series}
     */
   sample(num = 5) {
-    if (num > this.values.length || num < 1) {
+    if (num > this.values.length) {
       let config = { columns: this.column_names };
       return new Series(this.values, config);
     } else {
@@ -1311,4 +1311,3 @@ export class Series extends NDframe {
   }
 
 }
-

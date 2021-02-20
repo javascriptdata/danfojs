@@ -271,7 +271,7 @@ export class DataFrame extends Ndframe {
    */
   sample(num = 5) {
     //TODO: Use different sampling strategy
-    if (num > this.values.length || num < 1) {
+    if (num > this.values.length) {
       //return all values
       let config = { columns: this.column_names };
       return new DataFrame(this.values, config);

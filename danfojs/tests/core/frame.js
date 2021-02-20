@@ -182,11 +182,11 @@ describe("DataFrame", function () {
       let df = new dfd.DataFrame(data, { columns: cols });
       assert.deepEqual(df.sample(6).shape, [ 5, 3 ]);
     });
-    it("Return all values if n of sample is less than 1", function () {
+    it("Return no data if n of sample is less than 1", function () {
       let data = [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 20, 30, 40 ], [ 39, 89, 78 ], [ 100, 200, 300 ] ];
       let cols = [ "A", "B", "C" ];
       let df = new dfd.DataFrame(data, { columns: cols });
-      assert.deepEqual(df.sample(-1).shape, [ 5, 3 ]);
+      assert.deepEqual(df.sample(-1).shape, [ 0, 3 ]);
     });
   });
 

@@ -88,10 +88,10 @@ describe("Series", function () {
       let sf = new dfd.Series(data);
       assert.deepEqual(sf.sample(21).values.length, data.length);
     });
-    it("Return all values if n of sample is less than 1", function () {
+    it("Return no data if n of sample is less than 1", function () {
       let data = [ 1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78 ];
       let sf = new dfd.Series(data);
-      assert.deepEqual(sf.sample(-2).values.length, data.length);
+      assert.deepEqual(sf.sample(-2).values.length, 0);
     });
   });
 
