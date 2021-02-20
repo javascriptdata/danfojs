@@ -88,10 +88,14 @@ describe("Series", function () {
       let sf = new dfd.Series(data);
       assert.deepEqual(sf.sample(21).values.length, data.length);
     });
-    it("Return no data if n of sample is less than 1", function () {
+    it("Return no data if n of sample is 0", () => {
       let data = [ 1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78 ];
       let sf = new dfd.Series(data);
-      assert.deepEqual(sf.sample(-2).values.length, 0);
+      assert.deepEqual(sf.sample(0).values.length, 0);
+    });
+    it("Throw error if num is negative", () => {
+      let sf = new dfd.Series([ 1, 2, 3 ]);
+      assert.throws(() => { sf.sample(-1); }, Error, "num cannot be negative");
     });
   });
 

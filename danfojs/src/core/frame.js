@@ -271,7 +271,9 @@ export class DataFrame extends Ndframe {
    */
   sample(num = 5) {
     //TODO: Use different sampling strategy
-    if (num > this.values.length) {
+    if (num < 0) {
+      throw new Error("num cannot be negative");
+    } else if (num > this.values.length) {
       //return all values
       let config = { columns: this.column_names };
       return new DataFrame(this.values, config);
