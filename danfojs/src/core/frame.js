@@ -270,11 +270,8 @@ export class DataFrame extends Ndframe {
    * @returns DataFrame
    */
   sample(num = 5) {
+    utils._validate_nonnegative_int(num);
     //TODO: Use different sampling strategy
-    if (num < 0) {
-      throw new Error("num cannot be negative");
-    }
-
     if (num > this.values.length) {
       //return all values
       let config = { columns: this.column_names };

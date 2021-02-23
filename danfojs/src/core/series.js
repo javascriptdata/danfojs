@@ -100,10 +100,7 @@ export class Series extends NDframe {
     * @returns {Series}
     */
   sample(num = 5) {
-    if (num < 0) {
-      throw new Error("num cannot be negative");
-    }
-
+    utils._validate_nonnegative_int(num);
     if (num > this.values.length) {
       let config = { columns: this.column_names };
       return new Series(this.values, config);

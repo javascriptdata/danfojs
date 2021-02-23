@@ -729,4 +729,10 @@ export class Utils {
 
     return sorted_idx.map(([ , item ]) => item);
   }
+
+  _validate_nonnegative_int(n) {
+    if (n < 0 || Math.floor(n) !== n) {
+      throw new Error(`${n} is not a nonnegative integer`);
+    }
+  }
 }
