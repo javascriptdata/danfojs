@@ -192,7 +192,7 @@ describe("DataFrame", function () {
       let data = [ [ 1, 2, 3 ], [ 4, 5, 6 ] ];
       let cols = [ "A", "B", "C" ];
       let df = new dfd.DataFrame(data, { columns: cols });
-      assert.throws(() => { df.sample(-1); }, Error, "num cannot be negative");
+      assert.throws(() => { df.sample(-1); }, Error, /is not a nonnegative integer/);
     });
   });
 

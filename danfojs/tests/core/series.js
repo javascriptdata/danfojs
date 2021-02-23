@@ -95,7 +95,7 @@ describe("Series", function () {
     });
     it("Throw error if num is negative", () => {
       let sf = new dfd.Series([ 1, 2, 3 ]);
-      assert.throws(() => { sf.sample(-1); }, Error, "num cannot be negative");
+      assert.throws(() => { sf.sample(-1); }, Error, /is not a nonnegative integer/);
     });
   });
 
