@@ -217,4 +217,20 @@ describe("Utils Functions", function () {
     });
   });
 
+  describe("__shuffle", function() {
+    it("returns array with correct shape", function() {
+      let data = [ 1, 2, 3, 4, 5 ];
+      assert.deepEqual(utils.__shuffle(3, data).length, 3);
+    });
+
+    it("returns original values when num equals total length", function() {
+      let data = [ 1, 2, 3, 4, 5 ];
+      assert.deepEqual(utils.__shuffle(5, data).sort(), [ 1, 2, 3, 4, 5 ]);
+    });
+
+    it("returns empty array when num equals zero", function() {
+      let data = [ 1, 2, 3, 4, 5 ];
+      assert.deepEqual(utils.__shuffle(0, data), []);
+    });
+  });
 });

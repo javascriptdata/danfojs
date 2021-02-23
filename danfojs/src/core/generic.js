@@ -102,7 +102,7 @@ export default class NDframe {
         ) {
           this.columns = this.kwargs["columns"];
         } else {
-          throw `Column length mismatch. You provided a column of length ${this.kwargs["columns"].length} but data has lenght of ${this.row_data_tensor.shape[1]}`;
+          throw `Column length mismatch. You provided a column of length ${this.kwargs["columns"].length} but data has length of ${this.row_data_tensor.shape[1]}`;
         }
       } else {
         this.columns = [ ...Array(this.row_data_tensor.shape[1]).keys() ];

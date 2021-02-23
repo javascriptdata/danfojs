@@ -615,12 +615,11 @@ export class Utils {
 
   __shuffle(num, array) {
     //https://stackoverflow.com/questions/18806210/generating-non-repeating-random-numbers-in-js/18806417
-    var i = array.length,
-      j = 0,
+    var j,
       temp;
 
-    while (i--) {
-      j = Math.floor(Math.random() * (i + 1));
+    for (let i = 0; i < num; i++) {
+      j = Math.floor(Math.random() * (array.length - i)) + i;
 
       // swap randomly chosen element with current element
       temp = array[i];
