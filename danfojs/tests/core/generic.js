@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-const tf = require("@tensorflow/tfjs-core");
+const tf = require("@tensorflow/tfjs");
 
 describe("Generic (NDFrame)", function () {
   describe("NDframe Created from Array", function () {

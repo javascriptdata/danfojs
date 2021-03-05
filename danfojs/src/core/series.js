@@ -23,7 +23,7 @@ import { table } from 'table';
 import { Configs } from '../config/config';
 import { TimeSeries } from './timeseries';
 import { Plot } from '../plotting/plot';
-import { indexLoc } from '../core/indexing';
+import { indexLoc } from './indexing';
 
 
 const utils = new Utils();

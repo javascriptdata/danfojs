@@ -1,10 +1,21 @@
 import { Utils } from "../core/utils";
 import { Series } from "../core/series";
-import Plotly from 'plotly.js-dist';
-
-
 const utils = new Utils();
 
+/**
+ * Change: Rising Odegua 6th Feb 2021
+ * We no longer bundle Plotjs with DanfoJs. I noticed that removing this single
+ * inport reduces the bundle size from 5.7mb to 2.1mb. I know it's still a huge
+ * bundle, but it's progress!
+ * If you need to use Plotly, then you can add the Plotly CDN
+ * to your script before DanfoJs CDN
+ */
+try {
+  const version = Plotly.version;
+  console.info(`Using Plotly version ${version}`);
+} catch (error) {
+  console.info(`Plotly CDN not found. If you need to make Plots, then add the Plotly CDN to your script`);
+}
 
 /**
  * Plotting methods and Functions performed on Series and DataFrames

@@ -18,8 +18,8 @@ import { Series } from "./series";
 import { Utils } from "./utils";
 import { GroupBy } from "./groupby";
 import { Plot } from "../plotting/plot";
-import { indexLoc } from "../core/indexing";
-import { concat } from "../core/concat.js";
+import { indexLoc } from "./indexing";
+import { concat } from "./concat.js";
 
 const utils = new Utils();
 import { std, variance } from "mathjs";
