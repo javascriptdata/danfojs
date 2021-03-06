@@ -1,0 +1,7 @@
+node_modules
+.vscode/
+coverage
+.nyc_output
+danfojs/data
+.DS_Store
+.idea/
