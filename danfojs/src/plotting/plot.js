@@ -1,9 +1,21 @@
-import { newPlot } from 'plotly.js';
 import { Utils } from "../core/utils";
 import { Series } from "../core/series";
-
 const utils = new Utils();
 
+/**
+ * Change: Rising Odegua 6th Feb 2021
+ * We no longer bundle Plotjs with DanfoJs. I noticed that removing this single
+ * inport reduces the bundle size from 5.7mb to 2.1mb. I know it's still a huge
+ * bundle, but it's progress!
+ * If you need to use Plotly, then you can add the Plotly CDN
+ * to your script before DanfoJs CDN
+ */
+try {
+  const version = Plotly.version;
+  console.info(`Using Plotly version ${version}`);
+} catch (error) {
+  console.info(`Plotly CDN not found. If you need to make Plots, then add the Plotly CDN to your script`);
+}
 
 /**
  * Plotting methods and Functions performed on Series and DataFrames
@@ -41,7 +53,7 @@ export class Plot {
       trace["y"] = y;
       trace['type'] = "line";
 
-      newPlot(this.div, [ trace ], this_config['layout'], this_config);
+      Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
 
     } else {
       //check if plotting two columns against each other
@@ -69,7 +81,7 @@ export class Plot {
         this_config['layout']['xaxis'] = xaxis;
         this_config['layout']['yaxis'] = yaxis;
 
-        newPlot(this.div, [ trace ], this_config['layout'], this_config);
+        Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
 
       } else if (utils.__key_in_object(this_config, 'x') || utils.__key_in_object(this_config, 'y')) {
         //plot single column specified in either of param [x | y] against index
@@ -102,7 +114,7 @@ export class Plot {
           data.push(trace);
 
         });
-        newPlot(this.div, data, this_config['layout'], this_config);
+        Plotly.newPlot(this.div, data, this_config['layout'], this_config);
 
       } else {
         //plot columns against index
@@ -128,7 +140,7 @@ export class Plot {
           data.push(trace);
 
         });
-        newPlot(this.div, data, this_config['layout'], this_config);
+        Plotly.newPlot(this.div, data, this_config['layout'], this_config);
 
       }
 
@@ -163,7 +175,7 @@ export class Plot {
       trace["y"] = y;
       trace['type'] = "bar";
 
-      newPlot(this.div, [ trace ], this_config['layout'], this_config);
+      Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
 
     } else {
       //check if plotting two columns against each other
@@ -192,7 +204,7 @@ export class Plot {
         this_config['layout']['xaxis'] = xaxis;
         this_config['layout']['yaxis'] = yaxis;
 
-        newPlot(this.div, [ trace ], this_config['layout'], this_config);
+        Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
 
       } else if (utils.__key_in_object(this_config, 'x') || utils.__key_in_object(this_config, 'y')) {
         //plot single column specified in either of param [x | y] against index
@@ -211,7 +223,7 @@ export class Plot {
         }
         trace['type'] = "bar";
 
-        newPlot(this.div, [ trace ], this_config['layout'], this_config);
+        Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
 
       } else {
         //plot columns against index
@@ -238,7 +250,7 @@ export class Plot {
           data.push(trace);
 
         });
-        newPlot(this.div, data, this_config['layout'], this_config);
+        Plotly.newPlot(this.div, data, this_config['layout'], this_config);
 
       }
 
@@ -274,7 +286,7 @@ export class Plot {
       trace['type'] = "scatter";
       trace['mode'] = "markers";
 
-      newPlot(this.div, [ trace ], this_config['layout'], this_config);
+      Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
 
     } else {
       //check if plotting two columns against each other
@@ -303,7 +315,7 @@ export class Plot {
         this_config['layout']['xaxis'] = xaxis;
         this_config['layout']['yaxis'] = yaxis;
 
-        newPlot(this.div, [ trace ], this_config['layout'], this_config);
+        Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
 
       } else if (utils.__key_in_object(this_config, 'x') || utils.__key_in_object(this_config, 'y')) {
         //plot single column specified in either of param [x | y] against index
@@ -327,7 +339,7 @@ export class Plot {
         trace['type'] = "scatter";
         trace['mode'] = "markers";
 
-        newPlot(this.div, [ trace ], this_config['layout'], this_config);
+        Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
 
       } else {
         //plot columns against index
@@ -354,7 +366,7 @@ export class Plot {
           data.push(trace);
 
         });
-        newPlot(this.div, data, this_config['layout'], this_config);
+        Plotly.newPlot(this.div, data, this_config['layout'], this_config);
 
       }
 
@@ -388,7 +400,7 @@ export class Plot {
       trace["x"] = this.ndframe.values;
       trace['type'] = "histogram";
 
-      newPlot(this.div, [ trace ], this_config['layout'], this_config);
+      Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
 
     } else if (utils.__key_in_object(this_config, 'x')) {
       //plot as vertical histogram
@@ -402,7 +414,7 @@ export class Plot {
       trace['x'] = this.ndframe[this_config['y']].values;
       trace['type'] = "histogram";
 
-      newPlot(this.div, [ trace ], this_config['layout'], this_config);
+      Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
 
     } else if (utils.__key_in_object(this_config, 'y')) {
       //plot as vertical histogram
@@ -416,7 +428,7 @@ export class Plot {
       trace['y'] = this.ndframe[this_config['y']].values;
       trace['type'] = "histogram";
 
-      newPlot(this.div, [ trace ], this_config['layout'], this_config);
+      Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
 
     } else {
       let data = [];
@@ -436,7 +448,7 @@ export class Plot {
         data.push(trace);
 
       });
-      newPlot(this.div, data, this_config['layout'], this_config);
+      Plotly.newPlot(this.div, data, this_config['layout'], this_config);
 
     }
 
@@ -465,7 +477,7 @@ export class Plot {
         automargin: true
       } ];
 
-      newPlot(this.div, data, this_config['layout'], this_config);
+      Plotly.newPlot(this.div, data, this_config['layout'], this_config);
 
     } else if (utils.__key_in_object(this_config, 'values') && utils.__key_in_object(this_config, 'labels')) {
       if (!this.ndframe.column_names.includes(this_config['labels'])) {
@@ -483,7 +495,7 @@ export class Plot {
         automargin: true
       } ];
 
-      newPlot(this.div, data, this_config['layout'], this_config);
+      Plotly.newPlot(this.div, data, this_config['layout'], this_config);
 
     } else {
       let cols_to_plot;
@@ -541,7 +553,7 @@ export class Plot {
         this_config['grid'] = { rows: size, columns: size };
       }
       this_config['layout']['grid'] = this_config['grid'];
-      newPlot(this.div, data, this_config['layout'], this_config);
+      Plotly.newPlot(this.div, data, this_config['layout'], this_config);
 
 
     }
@@ -573,7 +585,7 @@ export class Plot {
       trace["y"] = y;
       trace['type'] = "box";
 
-      newPlot(this.div, [ trace ], this_config['layout'], this_config);
+      Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
 
     } else {
       //check if plotting two columns against each other
@@ -602,7 +614,7 @@ export class Plot {
         this_config['layout']['xaxis'] = xaxis;
         this_config['layout']['yaxis'] = yaxis;
 
-        newPlot(this.div, [ trace ], this_config['layout'], this_config);
+        Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
 
       } else if (utils.__key_in_object(this_config, 'x') || utils.__key_in_object(this_config, 'y')) {
         //plot single column specified in either of param [x | y] against index
@@ -624,7 +636,7 @@ export class Plot {
           trace['type'] = 'box';
         }
 
-        newPlot(this.div, [ trace ], this_config['layout'], this_config);
+        Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
 
       } else {
         //plot columns against index
@@ -649,7 +661,7 @@ export class Plot {
           data.push(trace);
 
         });
-        newPlot(this.div, data, this_config['layout'], this_config);
+        Plotly.newPlot(this.div, data, this_config['layout'], this_config);
 
       }
 
@@ -683,7 +695,7 @@ export class Plot {
       trace["y"] = y;
       trace['type'] = "violin";
 
-      newPlot(this.div, [ trace ], this_config['layout'], this_config);
+      Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
 
     } else {
       //check if plotting two columns against each other
@@ -712,7 +724,7 @@ export class Plot {
         this_config['layout']['xaxis'] = xaxis;
         this_config['layout']['yaxis'] = yaxis;
 
-        newPlot(this.div, [ trace ], this_config['layout'], this_config);
+        Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
 
       } else if (utils.__key_in_object(this_config, 'x') || utils.__key_in_object(this_config, 'y')) {
         //plot single column specified in either of param [x | y] against index
@@ -734,7 +746,7 @@ export class Plot {
           trace['type'] = 'violin';
         }
 
-        newPlot(this.div, [ trace ], this_config['layout'], this_config);
+        Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
 
       } else {
         //plot columns against index
@@ -759,7 +771,7 @@ export class Plot {
           data.push(trace);
 
         });
-        newPlot(this.div, data, this_config['layout'], this_config);
+        Plotly.newPlot(this.div, data, this_config['layout'], this_config);
 
       }
 
@@ -819,7 +831,7 @@ export class Plot {
       header: header,
       cells: cells
     } ];
-    newPlot(this.div, data, this_config['layout'], this_config);
+    Plotly.newPlot(this.div, data, this_config['layout'], this_config);
 
   }
 
