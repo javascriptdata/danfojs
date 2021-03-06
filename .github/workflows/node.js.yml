@@ -47,5 +47,5 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         working-directory: ${{ env.working_directory }}
-    - run: yarn
-    - run: yarn test
+    - run: cd danfojs-node && yarn
+    - run: cd danfojs-node && yarn test
