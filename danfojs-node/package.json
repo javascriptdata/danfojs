@@ -1,6 +1,6 @@
 {
   "name": "danfojs-node",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
   "main": "dist/index.js",
   "types": "types/index.d.ts",
@@ -38,7 +38,7 @@
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
     "patch": "yarn version patch",
-    "publish": "yarn publish"
+    "publish": "publish"
   },
   "publishConfig": {
     "access": "public",
