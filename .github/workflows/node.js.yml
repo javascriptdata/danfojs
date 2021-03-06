@@ -10,31 +10,9 @@ on:
     branches: [ master ]
 
 jobs:
-  # test_browser:
-
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     browser_directory: ./danfojs-browser
-
-  #   strategy:
-  #     matrix:
-  #       node-version: [10.x, 12.x, 14.x]
-
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Use Node.js ${{ matrix.node-version }}
-  #     uses: actions/setup-node@v1
-  #     with:
-  #       node-version: ${{ matrix.node-version }}
-  #   - run: cd danfojs-browser
-  #   - run: yarn
-  #   - run: yarn test
-
   test_node:
 
-    runs-on: ubuntu-latest
-    env:
-       working_directory: ./danfojs-node    
+    runs-on: ubuntu-latest  
 
     strategy:
       matrix:
@@ -46,6 +24,7 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-        working-directory: ${{ env.working_directory }}
     - run: cd danfojs-node && yarn
     - run: cd danfojs-node && yarn test
+    - run: cd danfojs-browser && yarn
+    - run: cd danfojs-browser && yarn test
