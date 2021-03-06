@@ -4,5 +4,9 @@
     "workspaces": [
         "danfojs-node",
         "danfojs-browser"
-    ]
+    ], 
+    "scripts": {
+        "test:browser": "yarn run bundle && karma start --single-run --browsers ChromeHeadless karma.conf.js",
+        "test:node": "yarn run build && nyc mocha --require @babel/register tests/*"
+    }
 }
