@@ -49,7 +49,7 @@ easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org
 
 
 
-To use Danfo.js via script tags, copy and paste the CDN below to your HTML file
+To use Danfo.js via script tags, copy and paste the CDN below to the body of your HTML file
 
 ```html
     <script src="https://cdn.jsdelivr.net/npm/danfojs@0.2.2/lib/bundle.min.js"></script> 
@@ -66,11 +66,11 @@ To use Danfo.js via script tags, copy and paste the CDN below to your HTML file
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/danfojs@0.2.2/lib/bundle.min.js"></script> 
     <title>Document</title>
 </head>
 
 <body>
+    <script src="https://cdn.jsdelivr.net/npm/danfojs@0.2.2/lib/bundle.min.js"></script> 
 
     <div id="div1"></div>
     <div id="div2"></div>
@@ -174,6 +174,8 @@ dfd.read_csv("https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/t
 Output in Node Console:
 
 ![](assets/node-rec.gif)
+
+> If you want to use Danfo in frontend frameworks like React/Vue, read this [guide](https://danfo.jsdata.org/examples/using-danfojs-in-react)
 
 #### You can play with Danfo.js on Dnotebooks playground [here](https://playnotebook.jsdata.org/demo)
 
