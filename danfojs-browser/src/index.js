@@ -16,4 +16,4 @@ export { Str } from "./core/strings";
 export { Utils } from "./core/utils";
 export * as tf from "@tensorflow/tfjs";
 
-export const _version = "0.2.4";
+export const _version = "0.2.3";
