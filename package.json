@@ -1,5 +1,5 @@
 {
-    "name": "root",
+    "name": "danfo",
     "private": true,
     "workspaces": [
         "danfojs-node",
