@@ -1,0 +1,88 @@
+{
+  "name": "danfojs",
+  "version": "0.2.2",
+  "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
+  "main": "lib/bundle.js",
+  "types": "types/index.d.ts",
+  "directories": {
+    "test": "tests"
+  },
+  "contributors": [
+    {
+      "name": "Rising Odegua"
+    },
+    {
+      "name": "Stephen Oni"
+    }
+  ],
+  "files": [
+    "lib/",
+    "src/",
+    "types"
+  ],
+  "dependencies": {
+    "@tensorflow/tfjs": "2.8.5",
+    "mathjs": "7.5.1",
+    "table": "^5.4.6",
+    "xlsx": "^0.16.7"
+  },
+  "scripts": {
+    "test": "yarn run bundle && karma start --single-run --browsers ChromeHeadless karma.conf.js",
+    "build": "babel ./src -d ./dist --no-comments",
+    "lint": "eslint ./src",
+    "bundle": "webpack --mode development",
+    "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
+    "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
+    "patch": "npm version patch"
+  },
+  "publishConfig": {
+    "access": "public",
+    "branches": [
+      "master"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/opensource9ja/danfojs.git"
+  },
+  "keywords": [
+    "pandas",
+    "data-analysis",
+    "data-manipulation",
+    "analysis"
+  ],
+  "author": "Rising Odegua <risingodegua@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/opensource9ja/danfojs/issues"
+  },
+  "homepage": "https://github.com/opensource9ja/danfojs#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.10.5",
+    "@babel/plugin-transform-runtime": "^7.12.10",
+    "@babel/preset-env": "^7.10.4",
+    "babel-loader": "^8.1.0",
+    "browserify": "16.5.2",
+    "chai": "^4.2.0",
+    "coveralls": "^3.1.0",
+    "eslint": "^7.1.0",
+    "karma": "5.2.3",
+    "karma-browserify": "7.0.0",
+    "karma-chai": "^0.1.0",
+    "karma-chrome-launcher": "^3.1.0",
+    "karma-mocha": "^2.0.1",
+    "mocha": "^8.3.0",
+    "nyc": "^15.1.0",
+    "webpack": "5.21.2",
+    "webpack-cli": "4.5.0",
+    "yarn": "^1.22.10"
+  },
+  "nyc": {
+    "reporter": [
+      "lcov",
+      "text"
+    ]
+  },
+  "sideEffects": false
+}
