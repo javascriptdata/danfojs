@@ -1,0 +1,10 @@
+node_modules/
+coverage/
+.nyc_output
+.idea/
+.vscode/
+src
+# Documentation
+docs/
+__tests__/
+scripts/
