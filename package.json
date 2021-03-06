@@ -1,0 +1,8 @@
+{
+    "name": "root",
+    "private": true,
+    "workspaces": [
+        "danfojs-node",
+        "danfojs-browser"
+    ]
+}
