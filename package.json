@@ -1,0 +1,8 @@
+{
+    "name": "danfo",
+    "private": true,
+    "workspaces": [
+        "danfojs-node",
+        "danfojs-browser"
+    ]
+}
