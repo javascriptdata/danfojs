@@ -1,39 +1,30 @@
 import { data } from "@tensorflow/tfjs";
 import XLSX from "xlsx";
-import { Utils } from "../core/utils";
 import { DataFrame } from "../core/frame";
 
-const utils = new Utils();
 
 /**
  * Reads a CSV file from local or remote storage
  *
- * @param {source} URL or local file path to retreive CSV file. If it's a local path, it
- * must have prefix `file://` and it only works in node environment.
+ * @param {source} URL to CSV file
  * @param {config} (Optional). A CSV Config object that contains configurations
  *     for reading and decoding from CSV file(s).
  *
  * @returns {Promise} DataFrame structure of parsed CSV data
  */
-export const read_csv = async (source, chunk) => {
-  if (
-    !(
-      utils.__is_browser_env() ||
-      source.startsWith("file://") ||
-      source.startsWith("http")
-    )
-  ) {
-    //probabily a relative path, append file:// to it
-    // eslint-disable-next-line no-undef
-    source = `file://${process.cwd()}/${source}`;
+export const read_csv = async (source, configs = {}) => {
+  let { start, end } = configs;
+  if (!(source.startsWith("https") || source.startsWith("http"))) {
+    throw new Error("Cannot read local file in browser environment");
   }
-
   let tfdata = [];
-  const csvDataset = data.csv(source);
-  const column_names = await csvDataset.columnNames();
-  const sample = csvDataset.take(chunk);
-  await sample.forEachAsync((row) => tfdata.push(Object.values(row)));
-  let df = new DataFrame(tfdata, { columns: column_names });
+  await data.csv(source, configs)
+    .skip(start)
+    .take(end)
+    .forEachAsync((row) => {
+      return tfdata.push(row);
+    });
+  const df = new DataFrame(tfdata);
   return df;
 };
 
@@ -64,7 +55,6 @@ export const read_json = async (source) => {
  */
 export const read_excel = async (kwargs) => {
   let { source, sheet_name, header_index, data_index } = kwargs;
-  let is_a_url = source.match(/(http(s?)):\/\//g);
   let workbook;
   if (!header_index) {
     //default header_index
