@@ -1,44 +1,44 @@
-import * as tf from '@tensorflow/tfjs-node';
 import fetch from "node-fetch";
-import XLSX from "xlsx";
 import { open, Dataset, isDataset } from "frictionless.js";
 import toArray from "stream-to-array";
-import { Utils } from "../core/utils";
 import { DataFrame } from "../core/frame";
 
-const utils = new Utils();
 
 /**
  * Reads a CSV file from local or remote storage
  *
- * @param {source} URL or local file path to retreive CSV file. If it's a local path, it
- * must have prefix `file://` and it only works in node environment.
- * @param {config} (Optional). A CSV Config object that contains configurations
- *     for reading and decoding from CSV file(s).
- *
+ * @param {source} URL or local file path to retreive CSV file.
+* @param {config} (Optional). A CSV Config object that contains configurations
+*     for reading and decoding from CSV file(s).
+*      configs = { size: chunk size of the data to read. This will read from 0 to size of data,
+*                  data_num (Defaults => 0): The specific dataset to load, when reading data from a datapackage.json,
+*                  header (Defaults => true): Whether the dataset contains header or not
+*                }
  * @returns {Promise} DataFrame structure of parsed CSV data
  */
-export const read_csv = async (source, chunk) => {
-  if (
-    !(
-      utils.__is_browser_env() ||
-      source.startsWith("file://") ||
-      source.startsWith("http")
-    )
-  ) {
-    //probabily a relative path, append file:// to it
-    // eslint-disable-next-line no-undef
-    source = `file://${process.cwd()}/${source}`;
-  }
-
-  let data = [];
-  const csvDataset = tf.data.csv(source);
-  const column_names = await csvDataset.columnNames();
-  const sample = csvDataset.take(chunk);
-  await sample.forEachAsync((row) => data.push(Object.values(row)));
-  let df = new DataFrame(data, { columns: column_names });
+export const read_csv = async (source, configs) => {
+  let df = await read(source, configs);
   return df;
 };
+
+/**
+ * Reads an Excel file from local or remote address
+ * @param {source} URL or local file path to retreive excel file.
+ * @param {config} (Optional). A Config object that contains configurations
+ *     for reading and decoding from file(s).
+ *     configs = { sheet: Excel sheet number when reading from excel files
+ *                 size: chunk size of the data to read. This will read from 0 to size of data,
+ *                 data_num (Defaults => 0): The specific dataset to load, when reading data from a datapackage.json,
+ *                 header (Defaults => true): Whether the dataset contains header or not
+ *        }
+ *
+ * @returns {Promise} DataFrame structure of parsed Excel data
+ */
+export const read_excel = async (source, configs) => {
+  let df = await read(source, configs);
+  return df;
+};
+
 
 /**
  * Reads a JSON file from local or remote address
@@ -47,114 +47,29 @@ export const read_csv = async (source, chunk) => {
  * @returns {Promise} DataFrame structure of parsed CSV data
  */
 export const read_json = async (source) => {
-  if (utils.__is_node_env()) {
-    // inside Node Env
-    if (
-      source.startsWith("https://") ||
-      source.startsWith("http://") ||
-      source.startsWith("file://")
-    ) {
-      //read from URL
-      let res = await fetch(source, { method: "Get" });
-      let json = await res.json();
-      let df = new DataFrame(json);
-      return df;
-    } else {
-      //Try reading file from local env
-      let fs = await import("fs");
-      return new Promise((resolve, reject) => {
-        fs.readFile(source, (err, data) => {
-          if (err) reject(err);
-          let df = new DataFrame(JSON.parse(data));
-          resolve(df);
-        });
-      });
-    }
-  } else {
+  if (
+    source.startsWith("https://") ||
+    source.startsWith("http://") ||
+    source.startsWith("file://")
+  ) {
+    //read from URL
     let res = await fetch(source, { method: "Get" });
     let json = await res.json();
     let df = new DataFrame(json);
     return df;
+  } else {
+    //Try reading file from local env
+    let fs = await import("fs");
+    return new Promise((resolve, reject) => {
+      fs.readFile(source, (err, data) => {
+        if (err) reject(err);
+        let df = new DataFrame(JSON.parse(data));
+        resolve(df);
+      });
+    });
   }
 };
 
-/**
- * Reads an Excel file from local or remote address
- *
- *  * @param {kwargs} kwargs --> {
- *                        source       : string, URL or local file path to retreive Excel file.
- *                        sheet_name   : string, (Optional) Name of the sheet which u want to parse. Default will be the first sheet.
- *                        header_index : int, (Optional) Index of the row which represents the header(columns) of the data. Default will be the first non empty row.
- *                        data_index   : int, (Optional)Index of the row from which actual data(content) starts. Default will be the next row of `header_index`
- *                    }
- * @returns {Promise} DataFrame structure of parsed Excel data
- */
-export const read_excel = async (kwargs) => {
-  var { source, sheet_name, header_index, data_index } = kwargs;
-  var is_a_url = source.match(/(http(s?)):\/\//g);
-  var workbook;
-  if (!header_index) {
-    //default header_index
-    header_index = 1;
-  }
-  if (!data_index) {
-    //default data_index
-    data_index = header_index + 1;
-  }
-  try {
-    if (utils.__is_node_env()) {
-      // inside Node Env
-      if (is_a_url) {
-        let res = await fetch(source, { method: "Get" });
-        res = await res.arrayBuffer();
-        res = new Uint8Array(res);
-        workbook = XLSX.read(res, { type: "array" });
-      } else {
-        workbook = XLSX.readFile(source);
-      }
-    } else {
-      let res = await fetch(source, { method: "Get" });
-      res = await res.arrayBuffer();
-      res = new Uint8Array(res);
-      workbook = XLSX.read(res, { type: "array" });
-    }
-
-    // Parse worksheet from workbook
-    const worksheet = workbook.Sheets[sheet_name || workbook.SheetNames[0]];
-    var range = XLSX.utils.decode_range(worksheet["!ref"]);
-    var column_names = [],
-      data = [];
-    for (var R = header_index - 1; R <= range.e.r; ++R) {
-      var row_data = [];
-      for (var C = range.s.c; C <= range.e.c; ++C) {
-        var cell_ref;
-
-        //Populate column_names
-        if (R == header_index - 1) {
-          cell_ref = XLSX.utils.encode_cell({ c: C, r: header_index - 1 });
-          if (worksheet[cell_ref]) {
-            column_names.push(worksheet[cell_ref].v);
-          }
-        }
-
-        //Populate corresponding data row
-        if (R >= data_index - 1) {
-          cell_ref = XLSX.utils.encode_cell({ c: C, r: R });
-          if (worksheet[cell_ref]) {
-            row_data.push(worksheet[cell_ref].v);
-          }
-        }
-      }
-      if (R >= data_index - 1) {
-        data.push(row_data);
-      }
-    }
-    let df = new DataFrame(data, { columns: column_names });
-    return df;
-  } catch (err) {
-    throw new Error(err);
-  }
-};
 
 /**
  * Opens a file using frictionless.js specification.
@@ -168,10 +83,11 @@ export const read_excel = async (kwargs) => {
  */
 export const read = async (
   path_or_descriptor,
-  configs = { data_num: 0, header: true }
+  configs = {}
 ) => {
-  let data_num = configs["data_num"];
-  let header = configs["header"];
+  let { data_num, header, sheet, size } = configs;
+  data_num = data_num ? data_num : 0;
+  header = header ? header : true;
   let rows, file;
 
   if (isDataset(path_or_descriptor)) {
@@ -180,13 +96,11 @@ export const read = async (
     );
     const dataset = await Dataset.load(path_or_descriptor);
     file = dataset.resources[data_num];
-    //TODO: toArray does not work in browser env, so this feature breaks when build for the web.
-    // To fix this, we need a function to convert stream into text
-    rows = await toArray(await file.rows());
+    rows = await toArray(await file.rows({ sheet, size }));
   } else {
     try {
-      file = open(path_or_descriptor);
-      rows = await toArray(await file.rows());
+      file = open(path_or_descriptor, {});
+      rows = await toArray(await file.rows({ sheet, size }));
     } catch (error) {
       console.log(error);
     }
@@ -205,14 +119,3 @@ export const read = async (
     return df;
   }
 };
-
-// /**
-//  * Reads a Database into DataFrame
-//  *
-//  * @param {source} URL or local file path to retreive JSON file.
-//  * @returns {Promise} DataFrame structure of parsed CSV data
-//  */
-// export const read_sql = async (source) => {
-
-//     return "TODO"
-// }
