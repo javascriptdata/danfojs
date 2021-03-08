@@ -272,7 +272,13 @@ export class date_range {
 
       let val = m_range[i];
 
-      let d_date = new Date(start_date.getFullYear() + val[0], val[1], 0).getDate();
+      let d_date = null;
+      if (i === m_range.length - 1) {
+        d_date = new Date(start_date.getFullYear() + val[0], val[1], end_date.getDate()).getDate();
+      } else {
+        d_date = new Date(start_date.getFullYear() + val[0], val[1], 0).getDate();
+
+      }
 
       sum += d_date;
 
