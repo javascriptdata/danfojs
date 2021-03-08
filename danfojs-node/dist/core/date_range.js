@@ -37,7 +37,7 @@ class date_range {
       this.freq = "D";
     }
 
-    this.freq_list = ["M", "D", "s", "H", "m", "Y"];
+    this.freq_list = [ "M", "D", "s", "H", "m", "Y" ];
 
     if (this.freq.length == 1) {
       if (!this.freq_list.includes(this.freq)) {
@@ -89,7 +89,7 @@ class date_range {
         range_array = this.month_range(range_array);
       }
 
-      let date_range = range_array.map(x => {
+      let date_range = range_array.map((x) => {
         return this.set_dateProps(start_date, this.freq, x);
       });
       date_range[date_range.length - 1] = end_date;
@@ -110,7 +110,7 @@ class date_range {
         range_array = this.offset_count(range_array, offset);
       }
 
-      let date_range = range_array.map(x => {
+      let date_range = range_array.map((x) => {
         return this.set_dateProps(start_date, this.freq, x);
       });
       let date_string = this.toLocalString(date_range);
@@ -126,7 +126,7 @@ class date_range {
         range_array = this.offset_count(range_array, offset);
       }
 
-      let date_range = range_array.map(x => {
+      let date_range = range_array.map((x) => {
         return this.set_dateProps(end_date, this.freq, x);
       });
       let date_string = this.toLocalString(date_range);
@@ -138,29 +138,29 @@ class date_range {
     let rslt = null;
 
     switch (ftype) {
-      case "M":
-        rslt = date.getMonth();
-        break;
+    case "M":
+      rslt = date.getMonth();
+      break;
 
-      case "Y":
-        rslt = date.getFullYear();
-        break;
+    case "Y":
+      rslt = date.getFullYear();
+      break;
 
-      case "s":
-        rslt = date.getSeconds();
-        break;
+    case "s":
+      rslt = date.getSeconds();
+      break;
 
-      case "D":
-        rslt = date.getDate();
-        break;
+    case "D":
+      rslt = date.getDate();
+      break;
 
-      case "H":
-        rslt = date.getHours();
-        break;
+    case "H":
+      rslt = date.getHours();
+      break;
 
-      case "m":
-        rslt = date.getMinutes();
-        break;
+    case "m":
+      rslt = date.getMinutes();
+      break;
     }
 
     return rslt;
@@ -180,42 +180,42 @@ class date_range {
     let new_date = new Date(date.valueOf());
 
     switch (ftype) {
-      case "M":
-        if (val.length == 2) {
-          new_date.setYear(new_date.getFullYear() + val[0]);
-          new_date.setMonth(parseInt(val[1]));
-        } else {
-          new_date.setMonth(val);
-        }
+    case "M":
+      if (val.length == 2) {
+        new_date.setYear(new_date.getFullYear() + val[0]);
+        new_date.setMonth(parseInt(val[1]));
+      } else {
+        new_date.setMonth(val);
+      }
 
-        break;
+      break;
 
-      case "Y":
-        new_date.setYear(val);
-        break;
+    case "Y":
+      new_date.setYear(val);
+      break;
 
-      case "s":
-        new_date.setSeconds(val);
-        break;
+    case "s":
+      new_date.setSeconds(val);
+      break;
 
-      case "D":
-        new_date.setDate(val);
-        break;
+    case "D":
+      new_date.setDate(val);
+      break;
 
-      case "H":
-        new_date.setHours(val);
-        break;
+    case "H":
+      new_date.setHours(val);
+      break;
 
-      case "m":
-        new_date.setMinutes(val);
-        break;
+    case "m":
+      new_date.setMinutes(val);
+      break;
     }
 
     return new_date;
   }
 
   toLocalString(d_array) {
-    let r_array = d_array.map(x => {
+    let r_array = d_array.map((x) => {
       return x.toLocaleString();
     });
     return r_array;
@@ -231,18 +231,18 @@ class date_range {
   month_range(range) {
     let minus = null;
     let y_val = 0;
-    let d_range = range.map(x => {
+    let d_range = range.map((x) => {
       if (x > 11) {
         if (x % 12 == 0) {
           minus = x;
           y_val = x / 12;
-          return [y_val, x - minus];
+          return [ y_val, x - minus ];
         } else {
-          return [y_val, x - minus];
+          return [ y_val, x - minus ];
         }
       }
 
-      return [y_val, x];
+      return [ y_val, x ];
     });
     return d_range;
   }
@@ -257,7 +257,14 @@ class date_range {
 
     for (let i = 0; i < m_range.length; i++) {
       let val = m_range[i];
-      let d_date = new Date(start_date.getFullYear() + val[0], val[1], 0).getDate();
+      let d_date = null;
+
+      if (i === m_range.length - 1) {
+        d_date = new Date(start_date.getFullYear() + val[0], val[1], end_date.getDate()).getDate();
+      } else {
+        d_date = new Date(start_date.getFullYear() + val[0], val[1], 0).getDate();
+      }
+
       sum += d_date;
     }
 
