@@ -27,10 +27,8 @@ const createConfig = (target) => {
         }
       ]
     },
-    resolve: {
-      fallback: {
-        fs: false
-      }
+    node: {
+      fs: "empty"
     }
   };
 };
