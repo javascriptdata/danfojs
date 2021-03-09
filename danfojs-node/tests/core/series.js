@@ -1,4 +1,4 @@
-import { assert } from "chai";
+import { assert, expect } from "chai";
 import { Series } from "../../src/core/series";
 import * as tf from '@tensorflow/tfjs-node';
 
@@ -79,20 +79,25 @@ describe("Series", function () {
   });
 
   describe("sample", function () {
-    it("Samples n number of random elements from a DataFrame", function () {
+    it("Samples n number of random elements from a DataFrame", async function () {
       let data = [ 1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78 ];
       let sf = new Series(data);
-      assert.deepEqual(sf.sample(7).values.length, 7);
+      assert.deepEqual((await sf.sample(7)).values.length, 7);
     });
-    it("Return all values if n of sample is greater than lenght of Dataframe", function () {
+    it("Return all values if n of sample -1", async function () {
       let data = [ 1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78 ];
       let sf = new Series(data);
-      assert.deepEqual(sf.sample(21).values.length, data.length);
+      assert.deepEqual((await sf.sample(-1)).values.length, data.length);
     });
-    it("Return all values if n of sample is less than 1", function () {
+    it("Throw error if n is greater than lenght of Series", async function () {
       let data = [ 1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78 ];
       let sf = new Series(data);
-      assert.deepEqual(sf.sample(-2).values.length, data.length);
+      try {
+        await sf.sample(100);
+      } catch (e) {
+        expect(e).to.be.instanceOf(Error);
+        expect(e.message).to.eql('Sample size n cannot be bigger than size of dataset');
+      }
     });
   });
 
