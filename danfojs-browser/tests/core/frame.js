@@ -1,7 +1,4 @@
 /* eslint-disable no-undef */
-const fs = require("fs");
-
-const testCSVPath = "./tester.csv";
 
 describe("DataFrame", function () {
 
@@ -164,29 +161,52 @@ describe("DataFrame", function () {
   });
 
   describe("sample", function () {
-    it("Samples n number of random elements from a DataFrame", function () {
+    it("Samples n number of random elements from a DataFrame", async function () {
       let data = [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 20, 30, 40 ], [ 39, 89, 78 ], [ 100, 200, 300 ] ];
       let cols = [ "A", "B", "C" ];
       let df = new dfd.DataFrame(data, { columns: cols });
-      assert.deepEqual(df.sample(2).shape, [ 2, 3 ]);
+      let expected = [ [ 1, 2, 3 ], [ 20, 30, 40 ] ];
+      let values = (await df.sample(2)).values;
+      assert.deepEqual(values, expected);
     });
-    it("Samples n number of random elements from a DataFrame", function () {
+    it("Throw error if n is greater than lenght of Dataframe", async function () {
       let data = [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 20, 30, 40 ], [ 39, 89, 78 ], [ 100, 200, 300 ] ];
       let cols = [ "A", "B", "C" ];
       let df = new dfd.DataFrame(data, { columns: cols });
-      assert.deepEqual(df.sample().shape, [ 5, 3 ]);
+      try {
+        await df.sample(100);
+      } catch (e) {
+        expect(e).to.be.instanceOf(Error);
+        expect(e.message).to.eql('Sample size n cannot be bigger than size of dataset');
+      }
     });
-    it("Return all values if n of sample is greater than lenght of Dataframe", function () {
+    it("Throw error if n is less than -1", async function () {
       let data = [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 20, 30, 40 ], [ 39, 89, 78 ], [ 100, 200, 300 ] ];
       let cols = [ "A", "B", "C" ];
       let df = new dfd.DataFrame(data, { columns: cols });
-      assert.deepEqual(df.sample(6).shape, [ 5, 3 ]);
+      try {
+        await df.sample(-2);
+      } catch (e) {
+        expect(e).to.be.instanceOf(Error);
+        expect(e.message).to.eql('Sample size cannot be less than -1 or 0');
+      }
     });
-    it("Return all values if n of sample is less than 1", function () {
+    it("Throw error if n is 0", async function () {
       let data = [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 20, 30, 40 ], [ 39, 89, 78 ], [ 100, 200, 300 ] ];
       let cols = [ "A", "B", "C" ];
       let df = new dfd.DataFrame(data, { columns: cols });
-      assert.deepEqual(df.sample(-1).shape, [ 5, 3 ]);
+      try {
+        await df.sample(0);
+      } catch (e) {
+        expect(e).to.be.instanceOf(Error);
+        expect(e.message).to.eql('Sample size cannot be less than -1 or 0');
+      }
+    });
+    it("Return all values if n is -1", async function () {
+      let data = [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 20, 30, 40 ], [ 39, 89, 78 ], [ 100, 200, 300 ] ];
+      let cols = [ "A", "B", "C" ];
+      let df = new dfd.DataFrame(data, { columns: cols });
+      assert.deepEqual((await df.sample(-1)).shape, [ 5, 3 ]);
     });
   });
 
@@ -820,7 +840,7 @@ describe("DataFrame", function () {
       let expected = [ [ 2, 4, 6, 'c' ], [ 360, 180, 1, 'b' ], [ 0, 2, 4, 'a' ] ];
       assert.deepEqual(df.sort_values({ "by": "col4", "ascending": false }).values, expected);
     });
-    it("Sort duplicate DataGrame with duplicate columns", function(){
+    it("Sort duplicate DataGrame with duplicate columns", function () {
 
       let data = {
         "A": [ 1, 2, 3, 4, 5, 3, 5, 6, 4, 5, 3, 4 ],
@@ -1025,10 +1045,12 @@ describe("DataFrame", function () {
       df.query({ "column": "B", "is": ">=", "to": 5, inplace: true });
       assert.deepEqual(df.index, [ 1, 2, 3 ]);
     });
-    it("Wrong query value", function(){
-      let data = { "A": [ 30, 1, 2, 3 ],
+    it("Wrong query value", function () {
+      let data = {
+        "A": [ 30, 1, 2, 3 ],
         "B": [ 34, 4, 5, 6 ],
-        "C": [ 20, 20, 30, 40 ] };
+        "C": [ 20, 20, 30, 40 ]
+      };
 
       let cols = [ "A", "B", "C" ];
       let df = new dfd.DataFrame(data, { columns: cols });

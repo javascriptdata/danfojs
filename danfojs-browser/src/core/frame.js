@@ -12,7 +12,7 @@
 * limitations under the License.
 */
 
-import { tensor } from "@tensorflow/tfjs";
+import * as tf from "@tensorflow/tfjs";
 import Ndframe from "./generic";
 import { Series } from "./series";
 import { Utils } from "./utils";
@@ -183,7 +183,7 @@ export class DataFrame extends Ndframe {
           index: new_index
         });
       } else {
-        this.row_data_tensor = tensor(new_data);
+        this.row_data_tensor = tf.tensor(new_data);
         this.data = new_data;
         this.__set_index(new_index);
       }
@@ -266,35 +266,23 @@ export class DataFrame extends Ndframe {
 
   /**
    * Gets [num] number of random rows in a dataframe
-   * @param {rows}  rows --> int
-   * @returns DataFrame
+   * @param {num}  rows --> The number of rows to return
+   * @param {seed}  seed --> (Optional) An integer specifying the random seed that will be used to create the distribution.
+   * @returns {Promise} resolves to a DataFrame object
    */
-  sample(num = 5) {
-    //TODO: Use different sampling strategy
-    if (num > this.values.length || num < 1) {
-      //return all values
-      let config = { columns: this.column_names };
-      return new DataFrame(this.values, config);
-    } else {
-      let values = this.values;
-      let idx = this.index;
-      let new_values = [];
-      let new_idx = [];
-
-      let counts = [ ...Array(idx.length).keys() ]; //set index
-
-      //get random sampled numbers
-      let rand_nums = utils.__sample_from_iter(counts, num, false);
-      rand_nums.map((i) => {
-        new_values.push(values[i]);
-        new_idx.push(idx[i]);
-      });
-
-      let config = { columns: this.column_names, index: new_idx };
-      let df = new DataFrame(new_values, config);
-      return df;
+  async sample(num = -1, seed = 1) {
+    if (num > this.shape[0]) {
+      throw new Error("Sample size n cannot be bigger than size of dataset");
     }
+    if (num < -1 || num == 0) {
+      throw new Error("Sample size cannot be less than -1 or 0");
+    }
+    num = num === -1 ? this.shape[0] : num;
+    const shuffled_index = await tf.data.array(this.index).shuffle(num, seed).take(num).toArray();
+    const df = this.iloc({ rows: shuffled_index });
+    return df;
   }
+
 
   /**
    * Return Addition of DataFrame and other, element-wise (binary operator add).
@@ -916,7 +904,7 @@ export class DataFrame extends Ndframe {
       }
 
       values.map((arr) => {
-        let temp_sum = tensor(arr).sum().arraySync();
+        let temp_sum = tf.tensor(arr).sum().arraySync();
         val_sums.push(Number(temp_sum.toFixed(5)));
       });
 
@@ -940,7 +928,7 @@ export class DataFrame extends Ndframe {
   abs() {
     let data = this.values;
 
-    let tensor_data = tensor(data);
+    let tensor_data = tf.tensor(data);
     let abs_data = tensor_data.abs().arraySync();
     let df = new DataFrame(utils.__round(abs_data, 2, false), {
       columns: this.column_names,
@@ -1406,7 +1394,7 @@ export class DataFrame extends Ndframe {
       }
 
       for (let i = 0; i < df_data.length; i++) {
-        let value = tensor(df_data[i]);
+        let value = tf.tensor(df_data[i]);
         let callable_data;
         try {
           callable_data = callable(value).arraySync();
@@ -1659,18 +1647,18 @@ export class DataFrame extends Ndframe {
               `Shape Error: Operands could not be broadcast together with shapes ${this.shape} and ${val.values.length}.`
             );
           }
-          other = tensor(val.values);
+          other = tf.tensor(val.values);
         } else {
           if (val.values.length != this.shape[1]) {
             throw Error(
               `Shape Error: Operands could not be broadcast together with shapes ${this.shape} and ${val.values.length}.`
             );
           }
-          other = tensor(val.values);
+          other = tf.tensor(val.values);
         }
       } else if (Array.isArray(val)) {
         //Array of Array
-        other = tensor(val);
+        other = tf.tensor(val);
       } else {
         //DataFrame
         other = val.row_data_tensor;
@@ -1679,22 +1667,22 @@ export class DataFrame extends Ndframe {
 
     switch (logical_type) {
     case "lt":
-      int_vals = tensor(this.values).less(other).arraySync();
+      int_vals = tf.tensor(this.values).less(other).arraySync();
       break;
     case "gt":
-      int_vals = tensor(this.values).greater(other).arraySync();
+      int_vals = tf.tensor(this.values).greater(other).arraySync();
       break;
     case "le":
-      int_vals = tensor(this.values).lessEqual(other).arraySync();
+      int_vals = tf.tensor(this.values).lessEqual(other).arraySync();
       break;
     case "ge":
-      int_vals = tensor(this.values).greaterEqual(other).arraySync();
+      int_vals = tf.tensor(this.values).greaterEqual(other).arraySync();
       break;
     case "ne":
-      int_vals = tensor(this.values).notEqual(other).arraySync();
+      int_vals = tf.tensor(this.values).notEqual(other).arraySync();
       break;
     case "eq":
-      int_vals = tensor(this.values).equal(other).arraySync();
+      int_vals = tf.tensor(this.values).equal(other).arraySync();
       break;
     }
     let bool_vals = utils.__map_int_to_bool(int_vals, 2);
@@ -1754,7 +1742,7 @@ export class DataFrame extends Ndframe {
 
         this_tensor = tensors[0].row_data_tensor; //tensorflow uses 1 for rows axis and 0 for column axis
         if (tensors[1].series) {
-          other_tensor = tensor(tensors[1].values, [
+          other_tensor = tf.tensor(tensors[1].values, [
             1,
             tensors[1].values.length
           ]);
@@ -1771,7 +1759,7 @@ export class DataFrame extends Ndframe {
 
         this_tensor = tensors[0].row_data_tensor;
         if (tensors[1].series) {
-          other_tensor = tensor(tensors[1].values, [
+          other_tensor = tf.tensor(tensors[1].values, [
             tensors[1].values.length,
             1
           ]);

@@ -240,32 +240,21 @@ class DataFrame extends _generic.default {
     }
   }
 
-  sample(num = 5) {
-    if (num > this.values.length || num < 1) {
-      let config = {
-        columns: this.column_names
-      };
-      return new DataFrame(this.values, config);
-    } else {
-      let values = this.values;
-      let idx = this.index;
-      let new_values = [];
-      let new_idx = [];
-      let counts = [...Array(idx.length).keys()];
-
-      let rand_nums = utils.__sample_from_iter(counts, num, false);
-
-      rand_nums.map(i => {
-        new_values.push(values[i]);
-        new_idx.push(idx[i]);
-      });
-      let config = {
-        columns: this.column_names,
-        index: new_idx
-      };
-      let df = new DataFrame(new_values, config);
-      return df;
+  async sample(num = -1, seed = 1) {
+    if (num > this.shape[0]) {
+      throw new Error("Sample size n cannot be bigger than size of dataset");
     }
+
+    if (num < -1 || num == 0) {
+      throw new Error("Sample size cannot be less than -1 or 0");
+    }
+
+    num = num === -1 ? this.shape[0] : num;
+    const shuffled_index = await tf.data.array(this.index).shuffle(num, seed).take(num).toArray();
+    const df = this.iloc({
+      rows: shuffled_index
+    });
+    return df;
   }
 
   add(other, axis) {

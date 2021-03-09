@@ -93,7 +93,7 @@ export class DataFrame extends Ndframe {
    *
    */
   drop(kwargs = {}) {
-    let params_needed = [ "columns", "index", "inplace", "axis" ];
+    let params_needed = ["columns", "index", "inplace", "axis"];
     utils._throw_wrong_params_error(kwargs, params_needed);
 
     kwargs["inplace"] = kwargs["inplace"] || false;
@@ -195,11 +195,11 @@ export class DataFrame extends Ndframe {
    * @return DataFrame data stucture
    */
   loc(kwargs = {}) {
-    let params_needed = [ "columns", "rows" ];
+    let params_needed = ["columns", "rows"];
     utils._throw_wrong_params_error(kwargs, params_needed);
 
     kwargs["type"] = "loc";
-    let [ new_data, columns, rows ] = indexLoc(this, kwargs);
+    let [new_data, columns, rows] = indexLoc(this, kwargs);
     let df_columns = { columns: columns };
     let df = new DataFrame(new_data, df_columns);
     df.__set_index(rows);
@@ -212,12 +212,12 @@ export class DataFrame extends Ndframe {
    * @return DataFrame data stucture
    */
   iloc(kwargs = {}) {
-    let params_needed = [ "columns", "rows" ];
+    let params_needed = ["columns", "rows"];
     utils._throw_wrong_params_error(kwargs, params_needed);
 
     kwargs["type"] = "iloc";
 
-    let [ new_data, columns, rows ] = indexLoc(this, kwargs);
+    let [new_data, columns, rows] = indexLoc(this, kwargs);
     let df_columns = { columns: columns };
     let df = new DataFrame(new_data, df_columns);
     df.__set_index(rows);
@@ -265,34 +265,21 @@ export class DataFrame extends Ndframe {
 
   /**
    * Gets [num] number of random rows in a dataframe
-   * @param {rows}  rows --> int
-   * @returns DataFrame
+   * @param {num}  rows --> The number of rows to return
+   * @param {seed}  seed --> (Optional) An integer specifying the random seed that will be used to create the distribution.
+   * @returns {Promise} resolves to a DataFrame object
    */
-  sample(num = 5) {
-    //TODO: Use different sampling strategy
-    if (num > this.values.length || num < 1) {
-      //return all values
-      let config = { columns: this.column_names };
-      return new DataFrame(this.values, config);
-    } else {
-      let values = this.values;
-      let idx = this.index;
-      let new_values = [];
-      let new_idx = [];
-
-      let counts = [ ...Array(idx.length).keys() ]; //set index
-
-      //get random sampled numbers
-      let rand_nums = utils.__sample_from_iter(counts, num, false);
-      rand_nums.map((i) => {
-        new_values.push(values[i]);
-        new_idx.push(idx[i]);
-      });
-
-      let config = { columns: this.column_names, index: new_idx };
-      let df = new DataFrame(new_values, config);
-      return df;
+  async sample(num = -1, seed = 1) {
+    if (num > this.shape[0]) {
+      throw new Error("Sample size n cannot be bigger than size of dataset");
     }
+    if (num < -1 || num == 0) {
+      throw new Error("Sample size cannot be less than -1 or 0");
+    }
+    num = num === -1 ? this.shape[0] : num;
+    const shuffled_index = await tf.data.array(this.index).shuffle(num, seed).take(num).toArray();
+    const df = this.iloc({ rows: shuffled_index });
+    return df;
   }
 
   /**
@@ -303,7 +290,7 @@ export class DataFrame extends Ndframe {
   add(other, axis) {
     if (this.__frame_is_compactible_for_operation) {
       //check if all types a numeric
-      let tensors = this.__get_ops_tensors([ this, other ], axis);
+      let tensors = this.__get_ops_tensors([this, other], axis);
       let sum_vals = tensors[0].add(tensors[1]);
       let col_names = this.columns;
       return this.__get_df_from_tensor(sum_vals, col_names);
@@ -320,7 +307,7 @@ export class DataFrame extends Ndframe {
   sub(other, axis) {
     if (this.__frame_is_compactible_for_operation) {
       //check if all types are numeric
-      let tensors = this.__get_ops_tensors([ this, other ], axis);
+      let tensors = this.__get_ops_tensors([this, other], axis);
       let result = tensors[0].sub(tensors[1]);
       let col_names = this.columns;
       return this.__get_df_from_tensor(result, col_names);
@@ -337,7 +324,7 @@ export class DataFrame extends Ndframe {
   mul(other, axis) {
     if (this.__frame_is_compactible_for_operation) {
       //check if all types are numeric
-      let tensors = this.__get_ops_tensors([ this, other ], axis);
+      let tensors = this.__get_ops_tensors([this, other], axis);
       let result = tensors[0].mul(tensors[1]);
       let col_names = this.columns;
       return this.__get_df_from_tensor(result, col_names);
@@ -354,7 +341,7 @@ export class DataFrame extends Ndframe {
   div(other, axis) {
     if (this.__frame_is_compactible_for_operation) {
       //check if all types are numeric
-      let tensors = this.__get_ops_tensors([ this, other ], axis);
+      let tensors = this.__get_ops_tensors([this, other], axis);
       let result = tensors[0].div(tensors[1]);
       let col_names = this.columns;
       return this.__get_df_from_tensor(result, col_names);
@@ -371,7 +358,7 @@ export class DataFrame extends Ndframe {
   pow(other, axis) {
     if (this.__frame_is_compactible_for_operation) {
       //check if all types are numeric
-      let tensors = this.__get_ops_tensors([ this, other ], axis);
+      let tensors = this.__get_ops_tensors([this, other], axis);
       let result = tensors[0].pow(tensors[1]);
       let col_names = this.columns;
       return this.__get_df_from_tensor(result, col_names);
@@ -388,7 +375,7 @@ export class DataFrame extends Ndframe {
   mod(other, axis) {
     if (this.__frame_is_compactible_for_operation) {
       //check if all types are numeric
-      let tensors = this.__get_ops_tensors([ this, other ], axis);
+      let tensors = this.__get_ops_tensors([this, other], axis);
       let result = tensors[0].mod(tensors[1]);
       let col_names = this.columns;
       return this.__get_df_from_tensor(result, col_names);
@@ -590,7 +577,7 @@ export class DataFrame extends Ndframe {
       for (let i = 0; i < df_data.length; i++) {
         let value = df_data[i];
         let temp_val = value[0];
-        let temp_data = [ temp_val ];
+        let temp_data = [temp_val];
         for (let j = 1; j < value.length; j++) {
           let curr_val = value[j];
           switch (ops) {
@@ -704,8 +691,8 @@ export class DataFrame extends Ndframe {
    * @returns {DataFrame}
    */
   copy() {
-    let df = new DataFrame([ ...this.values ], {
-      columns: [ ...this.column_names ],
+    let df = new DataFrame([...this.values], {
+      columns: [...this.column_names],
       index: this.index,
       dtypes: this.dtypes
     });
@@ -732,7 +719,7 @@ export class DataFrame extends Ndframe {
    * @param {kwargs} {index: Array of new index values}
    */
   set_index(kwargs = {}) {
-    let params_needed = [ "key", "drop", "inplace" ];
+    let params_needed = ["key", "drop", "inplace"];
     utils._throw_wrong_params_error(kwargs, params_needed);
 
     if (!utils.__key_in_object(kwargs, "key")) {
@@ -767,13 +754,13 @@ export class DataFrame extends Ndframe {
       // this.index_arr = kwargs['key']
       this.__set_index(kwargs["key"]);
       if (kwargs["drop"] && typeof kwargs["key_name"] == "string") {
-        this.drop({ columns: [ kwargs["key_name"] ], inplace: true, axis: 1 });
+        this.drop({ columns: [kwargs["key_name"]], inplace: true, axis: 1 });
       }
     } else {
       let df = this.copy();
       df.__set_index(kwargs["key"]);
       if (kwargs["drop"] && typeof kwargs["key_name"] == "string") {
-        df.drop({ columns: [ kwargs["key_name"] ], axis: 1, inplace: true });
+        df.drop({ columns: [kwargs["key_name"]], axis: 1, inplace: true });
       }
       return df;
     }
@@ -786,9 +773,9 @@ export class DataFrame extends Ndframe {
    * @returns {Series}
    */
   describe() {
-    let numeric_df = this.select_dtypes([ "float32", "int32" ]);
+    let numeric_df = this.select_dtypes(["float32", "int32"]);
     let col_names = numeric_df.column_names;
-    let index = [ "count", "mean", "std", "min", "median", "max", "variance" ];
+    let index = ["count", "mean", "std", "min", "median", "max", "variance"];
 
     let stats_arr = {};
     col_names.forEach((name) => {
@@ -801,7 +788,7 @@ export class DataFrame extends Ndframe {
       let max = col_series.max();
       let variance = col_series.var();
 
-      let _stats = [ count, mean, std, min, median, max, variance ];
+      let _stats = [count, mean, std, min, median, max, variance];
       stats_arr[name] = _stats;
     });
     let df = new DataFrame(stats_arr, { index: index });
@@ -818,7 +805,7 @@ export class DataFrame extends Ndframe {
     let col_names = this.column_names;
     let col_vals = {};
     let original_col_vals = this.col_data;
-    const __supported_dtypes = [ "float32", "int32", "string", "boolean" ];
+    const __supported_dtypes = ["float32", "int32", "string", "boolean"];
 
     if (include == undefined) {
       //return all
@@ -962,7 +949,7 @@ export class DataFrame extends Ndframe {
       t_axis = 1;
     }
 
-    return [ tensor_vals, idx, t_axis ];
+    return [tensor_vals, idx, t_axis];
   }
 
   /**
@@ -972,7 +959,7 @@ export class DataFrame extends Ndframe {
    */
   query(kwargs) {
     //define the set of operators to be used
-    let operators = [ ">", "<", "<=", ">=", "==", "!=" ];
+    let operators = [">", "<", "<=", ">=", "==", "!="];
 
     if (!utils.__key_in_object(kwargs, "inplace")) {
       kwargs["inplace"] = false;
@@ -1090,10 +1077,10 @@ export class DataFrame extends Ndframe {
       });
 
       //add new dtype
-      let new_dtypes = [ ...this.dtypes ];
+      let new_dtypes = [...this.dtypes];
       new_dtypes.push(utils.__get_t(value)[0]);
 
-      let new_col_names = [ ...this.columns ];
+      let new_col_names = [...this.columns];
       new_col_names.push(column_name);
 
       this.__update_frame_in_place(
@@ -1127,9 +1114,9 @@ export class DataFrame extends Ndframe {
     if (col.length == 2) {
       if (column_names.includes(col[0])) {
         // eslint-disable-next-line no-unused-vars
-        var [ data1, col_name1 ] = indexLoc(this, {
-          rows: [ `0:${len}` ],
-          columns: [ `${col[0]}` ],
+        var [data1, col_name1] = indexLoc(this, {
+          rows: [`0:${len}`],
+          columns: [`${col[0]}`],
           type: "loc"
         });
       } else {
@@ -1137,16 +1124,16 @@ export class DataFrame extends Ndframe {
       }
       if (column_names.includes(col[1])) {
         // eslint-disable-next-line no-unused-vars
-        var [ data2, col_name2 ] = indexLoc(this, {
-          rows: [ `0:${len}` ],
-          columns: [ `${col[1]}` ],
+        var [data2, col_name2] = indexLoc(this, {
+          rows: [`0:${len}`],
+          columns: [`${col[1]}`],
           type: "loc"
         });
       } else {
         throw new Error(`column ${col[1]} does not exist`);
       }
 
-      key_column = [ col[0], col[1] ];
+      key_column = [col[0], col[1]];
       var column_1_Unique = utils.__unique(data1);
       var column_2_unique = utils.__unique(data2);
 
@@ -1162,16 +1149,16 @@ export class DataFrame extends Ndframe {
     } else {
       if (column_names.includes(col[0])) {
         // eslint-disable-next-line no-redeclare
-        var [ data1, col_name1 ] = indexLoc(this, {
-          rows: [ `0:${len}` ],
-          columns: [ `${col[0]}` ],
+        var [data1, col_name1] = indexLoc(this, {
+          rows: [`0:${len}`],
+          columns: [`${col[0]}`],
           type: "loc"
         });
         // console.log(data1)
       } else {
         throw new Error(`column ${col[0]} does not exist`);
       }
-      key_column = [ col[0] ];
+      key_column = [col[0]];
 
       var column_Unique = utils.__unique(data1);
 
@@ -1203,7 +1190,7 @@ export class DataFrame extends Ndframe {
     let col_indx_objs = utils.__arr_to_obj(this.columns);
     let indx = col_indx_objs[col_name];
     let data = this.col_data[indx];
-    return new Series(data, { columns: [ col_name ] });
+    return new Series(data, { columns: [col_name] });
   }
 
   /**
@@ -1213,7 +1200,7 @@ export class DataFrame extends Ndframe {
    * @return {DataFrame}
    */
   fillna(kwargs = {}) {
-    let params_needed = [ "columns", "values", "inplace" ];
+    let params_needed = ["columns", "values", "inplace"];
     utils._throw_wrong_params_error(kwargs, params_needed);
 
     if (!utils.__key_in_object(kwargs, "inplace")) {
@@ -1359,7 +1346,7 @@ export class DataFrame extends Ndframe {
           columns.push(this.columns[i]);
           if (data.length == 0) {
             for (let j = 0; j < values.length; j++) {
-              data.push([ values[j] ]);
+              data.push([values[j]]);
             }
           } else {
             for (let j = 0; j < data.length; j++) {
@@ -1565,7 +1552,7 @@ export class DataFrame extends Ndframe {
    * @return {Series}
    */
   replace(kwargs = {}) {
-    let params_needed = [ "replace", "with", "in" ];
+    let params_needed = ["replace", "with", "in"];
     utils._throw_wrong_params_error(kwargs, params_needed);
 
     if (utils.__key_in_object(kwargs, "in")) {
@@ -1709,7 +1696,7 @@ export class DataFrame extends Ndframe {
     let len = val.shape[0];
     let new_array = [];
     for (let i = 0; i < len; i++) {
-      let arr = val.slice([ i ], [ 1 ]).arraySync()[0];
+      let arr = val.slice([i], [1]).arraySync()[0];
       new_array.push(arr);
     }
     return new DataFrame(new_array, { columns: col_names });
@@ -1972,7 +1959,7 @@ export class DataFrame extends Ndframe {
    * @returns {DataFrame}
    */
   rename(kwargs = {}) {
-    let params_needed = [ "mapper", "inplace", "axis" ];
+    let params_needed = ["mapper", "inplace", "axis"];
     utils._throw_wrong_params_error(kwargs, params_needed);
 
     // utils.__in_object(kwargs, "columns", "value not defined")
@@ -1989,7 +1976,7 @@ export class DataFrame extends Ndframe {
       //columns
       let old_col_names = Object.keys(kwargs["mapper"]);
       let new_col_names = Object.values(kwargs["mapper"]);
-      let col_names = [ ...this.column_names ];
+      let col_names = [...this.column_names];
 
       old_col_names.forEach((cname, i) => {
         if (!col_names.includes(cname)) {
@@ -2044,7 +2031,7 @@ export class DataFrame extends Ndframe {
       typeof kwargs["ascending"] == "undefined" ? true : kwargs["ascending"];
 
     let index_val = this.index;
-    let [ data, index ] = this.__sort_by(index_val, index_val, asc);
+    let [data, index] = this.__sort_by(index_val, index_val, asc);
 
     if (inplace) {
       this.__update_frame_in_place(data, null, null, index, null);
@@ -2073,7 +2060,7 @@ export class DataFrame extends Ndframe {
       typeof kwargs["ascending"] == "undefined" ? true : kwargs["ascending"];
     let index_val = this.index;
     let column_val = this.column(kwargs["by"]).values;
-    let [ data, index ] = this.__sort_by(column_val, index_val, asc);
+    let [data, index] = this.__sort_by(column_val, index_val, asc);
 
     if (inplace) {
       this.__update_frame_in_place(data, null, null, index, null);
@@ -2163,7 +2150,7 @@ export class DataFrame extends Ndframe {
       indexs.push(df_index[index]);
     }
 
-    return [ data, indexs ];
+    return [data, indexs];
   }
 
   /**
@@ -2188,7 +2175,7 @@ export class DataFrame extends Ndframe {
       df2 = val.copy();
     }
 
-    let concat_df = concat({ df_list: [ this, df2 ], axis: 0 });
+    let concat_df = concat({ df_list: [this, df2], axis: 0 });
 
     return concat_df;
   }
