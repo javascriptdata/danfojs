@@ -31,8 +31,6 @@
             { "before": true
             }
         ],
-    "array-bracket-spacing": [ "error", "always"
-        ],
     "space-infix-ops": "error",
     "object-curly-spacing": [ "error", "always"
         ],
