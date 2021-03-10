@@ -208,21 +208,19 @@ class Series extends _generic.default {
   median() {
     utils._throw_str_dtype_error(this, 'median');
 
-    let values = this.values;
+    let values = utils._remove_nans(this.values);
 
-    let median = utils.__median(values, true);
-
-    return median;
+    let median_val = (0, _mathjs.median)(values);
+    return median_val;
   }
 
   mode() {
-    utils._throw_str_dtype_error(this, 'mode');
+    utils._throw_str_dtype_error(this, 'median');
 
-    let values = this.values;
+    let values = utils._remove_nans(this.values);
 
-    let mode = utils.__mode(values);
-
-    return mode;
+    let modal_val = (0, _mathjs.mode)(values);
+    return modal_val;
   }
 
   min() {
