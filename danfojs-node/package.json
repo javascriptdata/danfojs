@@ -26,7 +26,8 @@
     "mathjs": "7.5.1",
     "node-fetch": "^2.6.1",
     "stream-to-array": "^2.3.0",
-    "table": "^5.4.6"
+    "table": "^5.4.6",
+    "@babel/runtime": "^7.13.10"
   },
   "scripts": {
     "test": "yarn run build && nyc mocha --require @babel/register tests/*",
