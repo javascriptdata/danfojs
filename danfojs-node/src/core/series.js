@@ -15,7 +15,7 @@
 
 
 import * as tf from '@tensorflow/tfjs-node';
-import { variance, std } from 'mathjs';
+import { variance, std, median, mode } from 'mathjs';
 import { Utils } from "./utils";
 import { Str } from "./strings";
 import NDframe from "./generic";
@@ -252,9 +252,9 @@ export class Series extends NDframe {
     */
   median() {
     utils._throw_str_dtype_error(this, 'median');
-    let values = this.values;
-    let median = utils.__median(values, true);
-    return median;
+    let values = utils._remove_nans(this.values);
+    let median_val = median(values);
+    return median_val;
   }
 
 
@@ -263,10 +263,10 @@ export class Series extends NDframe {
     * @returns {Number}
     */
   mode() {
-    utils._throw_str_dtype_error(this, 'mode');
-    let values = this.values;
-    let mode = utils.__mode(values);
-    return mode;
+    utils._throw_str_dtype_error(this, 'median');
+    let values = utils._remove_nans(this.values);
+    let modal_val = mode(values);
+    return modal_val;
   }
 
 
