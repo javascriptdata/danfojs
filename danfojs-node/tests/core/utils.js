@@ -70,11 +70,16 @@ describe("Utils Functions", function () {
       let result = [ 'float32' ];
       assert.deepEqual(utils.__get_t(data), result);
     });
+    it("Returns float type when NaN is present in an 1D array", function () {
+      let data = [ 1, 2, 3, 45, NaN ];
+      let result = [ 'float32' ];
+      assert.deepEqual(utils.__get_t(data), result);
+    });
     it("Returns correct dtype if NaN present in data", function () {
       let data = [
         [18.7, 17.4, 18, NaN, 19.3],
         [ 20, NaN, 19, 18, 20 ]];
-      let result = [ 'float32', 'int32' ];
+      let result = [ 'float32', 'float32' ];
       assert.deepEqual(utils.__get_t(data), result);
     });
     it("Returns the data type present in an 2D array", function () {
@@ -99,7 +104,7 @@ describe("Utils Functions", function () {
     });
     it("Returns string type if values are all NaN", function () {
       let data = [ [ true, false, true ], [ "boy", "girl", "boy" ], [ NaN, undefined, NaN ] ];
-      let result = [ 'boolean', 'string', 'string' ];
+      let result = [ 'boolean', 'string', 'float32' ];
       assert.deepEqual(utils.__get_t(data), result);
     });
   });
