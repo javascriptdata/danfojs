@@ -337,10 +337,10 @@ describe("Series", function () {
     it("Computes the multi-modal values of a Series", function () {
       let data1 = [ 30, 40, 3, 5, 5, 5, 5, 5, 3, 3, 3, 21, 3 ];
       let sf = new dfd.Series(data1);
-      assert.deepEqual(sf.mode(), [ 3, 5 ]);
+      assert.deepEqual(sf.mode(), [ 5, 3 ]);
     });
     it("Computes the modal value of a Series", function () {
-      let data1 = [ 30.1, 3.1, 40.2, 3.1, 5.1 ];
+      let data1 = [ 30.1, 3.1, 40.2, 3.1, 5.1, NaN ];
       let sf = new dfd.Series(data1);
       assert.deepEqual(sf.mode(), [ 3.1 ]);
     });
