@@ -310,7 +310,7 @@ describe("Series", function () {
       assert.deepEqual(sf.median(), 17.5);
     });
     it("Computes the median value of elements across float Series", function () {
-      let data1 = [ 30.1, 40.2, 3.1, 5.1 ];
+      let data1 = [ 30.1, 40.2, 3.1, 5.1, NaN ];
       let sf = new Series(data1);
       assert.deepEqual(sf.median(), 17.6);
     });
