@@ -33,8 +33,7 @@
     "bundle": "webpack --mode production",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
-    "patch": "npm version patch",
-    "publish": "npm publish"
+    "patch": "npm version patch"
   },
   "publishConfig": {
     "access": "public",
