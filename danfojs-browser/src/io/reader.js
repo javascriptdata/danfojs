@@ -47,14 +47,14 @@ export const read_json = async (source) => {
  *
  *  * @param {kwargs} kwargs --> {
  *                        source       : string, URL or local file path to retreive Excel file.
- *                        sheet_name   : string, (Optional) Name of the sheet which u want to parse. Default will be the first sheet.
+ *                        sheet   : string, (Optional) Name of the sheet which u want to parse. Default will be the first sheet.
  *                        header_index : int, (Optional) Index of the row which represents the header(columns) of the data. Default will be the first non empty row.
  *                        data_index   : int, (Optional)Index of the row from which actual data(content) starts. Default will be the next row of `header_index`
  *                    }
  * @returns {Promise} DataFrame structure of parsed Excel data
  */
-export const read_excel = async (kwargs) => {
-  let { source, sheet_name, header_index, data_index } = kwargs;
+export const read_excel = async (source, configs = {}) => {
+  let { sheet, header_index, data_index } = configs;
   let workbook;
   if (!header_index) {
     //default header_index
@@ -72,7 +72,7 @@ export const read_excel = async (kwargs) => {
 
 
     // Parse worksheet from workbook
-    const worksheet = workbook.Sheets[sheet_name || workbook.SheetNames[0]];
+    const worksheet = workbook.Sheets[sheet || workbook.SheetNames[0]];
     let range = XLSX.utils.decode_range(worksheet["!ref"]);
     let column_names = [],
       data = [];
