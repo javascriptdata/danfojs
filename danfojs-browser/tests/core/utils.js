@@ -96,6 +96,13 @@ describe("Utils Functions", function () {
       let result = [ 'boolean', 'string', 'string' ];
       assert.deepEqual(utils.__get_t(data), result);
     });
+    it("Returns correct dtype if NaN present in data", function () {
+      let data = [
+        [ 18.7, 17.4, 18, NaN, 19.3 ],
+        [ 20, NaN, 19, 18, 20 ] ];
+      let result = [ 'float32', 'int32' ];
+      assert.deepEqual(utils.__get_t(data), result);
+    });
   });
 
   describe("__map_int_to_bool", function () {

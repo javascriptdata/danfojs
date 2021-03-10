@@ -213,7 +213,7 @@ export class Utils {
   //infer types from an array of array
   __get_t(arr_val) {
     if (this.__is_1D_array(arr_val)) {
-      const dtypes = [];
+      let dtypes = [];
       let int_tracker = [];
       let float_tracker = [];
       let string_tracker = [];
@@ -227,6 +227,10 @@ export class Utils {
           arr.push(val);
         }
       });
+
+      if (arr.length == 0){
+        dtypes.push("string");
+      }
 
       if (arr.length < config.get_dtype_test_lim) {
         lim = arr.length - 1;
@@ -278,13 +282,9 @@ export class Utils {
 
       return dtypes;
     } else {
-      const dtypes = [];
+      let dtypes = [];
       let lim;
-      if (arr_val[0].length < config.get_dtype_test_lim) {
-        lim = arr_val[0].length - 1;
-      } else {
-        lim = config.get_dtype_test_lim - 1;
-      }
+
       arr_val.forEach((ele) => {
         let int_tracker = [];
         let float_tracker = [];
@@ -296,11 +296,18 @@ export class Utils {
         ele.map((val) => {
           if (!(isNaN(val) && typeof val != "string")) {
             arr.push(val);
-          } else {
-            arr.push("NaN"); //set NaN to string and return dtype ""string". The caller should explicitly convert the dtype
           }
         });
 
+        if (arr.length == 0){
+          dtypes.push("string");
+        }
+
+        if (arr.length < config.get_dtype_test_lim) {
+          lim = arr.length - 1;
+        } else {
+          lim = config.get_dtype_test_lim - 1;
+        }
         arr.forEach((ele, indx) => {
           let count = indx;
           if (typeof ele == "boolean") {
