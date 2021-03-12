@@ -73,31 +73,19 @@ class Series extends _generic.default {
     }
   }
 
-  sample(num = 5) {
-    if (num > this.values.length || num < 1) {
-      let config = {
-        columns: this.column_names
-      };
-      return new Series(this.values, config);
-    } else {
-      let values = this.values;
-      let idx = this.index;
-      let new_values = [];
-      let new_idx = [];
-
-      let rand_nums = utils.__shuffle(num, idx);
-
-      rand_nums.forEach(i => {
-        new_values.push(values[i]);
-        new_idx.push(idx[i]);
-      });
-      let config = {
-        columns: this.column_names,
-        index: new_idx
-      };
-      let sf = new Series(new_values, config);
-      return sf;
+  async sample(num = 5, seed = 1) {
+    if (num > this.shape[0]) {
+      throw new Error("Sample size n cannot be bigger than size of dataset");
     }
+
+    if (num < -1 || num == 0) {
+      throw new Error("Sample size cannot be less than -1 or 0");
+    }
+
+    num = num === -1 ? this.shape[0] : num;
+    const shuffled_index = await tf.data.array(this.index).shuffle(num, seed).take(num).toArray();
+    const sf = this.iloc(shuffled_index);
+    return sf;
   }
 
   add(other) {
@@ -220,21 +208,19 @@ class Series extends _generic.default {
   median() {
     utils._throw_str_dtype_error(this, 'median');
 
-    let values = this.values;
+    let values = utils._remove_nans(this.values);
 
-    let median = utils.__median(values, true);
-
-    return median;
+    let median_val = (0, _mathjs.median)(values);
+    return median_val;
   }
 
   mode() {
-    utils._throw_str_dtype_error(this, 'mode');
+    utils._throw_str_dtype_error(this, 'median');
 
-    let values = this.values;
+    let values = utils._remove_nans(this.values);
 
-    let mode = utils.__mode(values);
-
-    return mode;
+    let modal_val = (0, _mathjs.mode)(values);
+    return modal_val;
   }
 
   min() {

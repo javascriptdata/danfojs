@@ -171,137 +171,83 @@ class Utils {
     }
   }
 
-  __get_t(arr_val) {
-    if (this.__is_1D_array(arr_val)) {
-      const dtypes = [];
-      let int_tracker = [];
-      let float_tracker = [];
-      let string_tracker = [];
-      let bool_tracker = [];
-      let lim;
-      let arr = [];
-      arr_val.map(val => {
-        if (!(isNaN(val) && typeof val != "string")) {
-          arr.push(val);
-        }
-      });
+  __checker(arr_val) {
+    let dtypes = [];
+    let lim;
+    let int_tracker = [];
+    let float_tracker = [];
+    let string_tracker = [];
+    let bool_tracker = [];
 
-      if (arr.length < config.get_dtype_test_lim) {
-        lim = arr.length - 1;
-      } else {
-        lim = config.get_dtype_test_lim - 1;
-      }
+    if (arr_val.length == 0) {
+      dtypes.push("string");
+    }
 
-      arr.forEach((ele, indx) => {
-        let count = indx;
+    if (arr_val.length < config.get_dtype_test_lim) {
+      lim = arr_val.length - 1;
+    } else {
+      lim = config.get_dtype_test_lim - 1;
+    }
 
-        if (typeof ele == "boolean") {
-          float_tracker.push(false);
+    arr_val.forEach((ele, indx) => {
+      let count = indx;
+
+      if (typeof ele == "boolean") {
+        float_tracker.push(false);
+        int_tracker.push(false);
+        string_tracker.push(false);
+        bool_tracker.push(true);
+      } else if (isNaN(ele) && typeof ele != "string") {
+        float_tracker.push(true);
+        int_tracker.push(false);
+        string_tracker.push(false);
+        bool_tracker.push(false);
+      } else if (!isNaN(Number(ele))) {
+        if (ele.toString().includes(".")) {
+          float_tracker.push(true);
           int_tracker.push(false);
           string_tracker.push(false);
-          bool_tracker.push(true);
-        } else if (!isNaN(Number(ele))) {
-          if (ele.toString().includes(".")) {
-            float_tracker.push(true);
-            int_tracker.push(false);
-            string_tracker.push(false);
-            bool_tracker.push(false);
-          } else {
-            float_tracker.push(false);
-            int_tracker.push(true);
-            string_tracker.push(false);
-            bool_tracker.push(false);
-          }
+          bool_tracker.push(false);
         } else {
           float_tracker.push(false);
-          int_tracker.push(false);
-          string_tracker.push(true);
+          int_tracker.push(true);
+          string_tracker.push(false);
           bool_tracker.push(false);
         }
-
-        if (count == lim) {
-          const even = element => element == true;
-
-          if (string_tracker.some(even)) {
-            dtypes.push("string");
-          } else if (float_tracker.some(even)) {
-            dtypes.push("float32");
-          } else if (int_tracker.some(even)) {
-            dtypes.push("int32");
-          } else if (bool_tracker.some(even)) {
-            dtypes.push("boolean");
-          } else {
-            dtypes.push("undefined");
-          }
-        }
-      });
-      return dtypes;
-    } else {
-      const dtypes = [];
-      let lim;
-
-      if (arr_val[0].length < config.get_dtype_test_lim) {
-        lim = arr_val[0].length - 1;
       } else {
-        lim = config.get_dtype_test_lim - 1;
+        float_tracker.push(false);
+        int_tracker.push(false);
+        string_tracker.push(true);
+        bool_tracker.push(false);
       }
 
-      arr_val.forEach(ele => {
-        let int_tracker = [];
-        let float_tracker = [];
-        let string_tracker = [];
-        let bool_tracker = [];
-        let arr = [];
-        ele.map(val => {
-          if (!(isNaN(val) && typeof val != "string")) {
-            arr.push(val);
-          } else {
-            arr.push("NaN");
-          }
-        });
-        arr.forEach((ele, indx) => {
-          let count = indx;
+      if (count == lim) {
+        const even = element => element == true;
 
-          if (typeof ele == "boolean") {
-            float_tracker.push(false);
-            int_tracker.push(false);
-            string_tracker.push(false);
-            bool_tracker.push(true);
-          } else if (!isNaN(Number(ele))) {
-            if (ele.toString().includes(".")) {
-              float_tracker.push(true);
-              int_tracker.push(false);
-              string_tracker.push(false);
-              bool_tracker.push(false);
-            } else {
-              float_tracker.push(false);
-              int_tracker.push(true);
-              string_tracker.push(false);
-              bool_tracker.push(false);
-            }
-          } else {
-            float_tracker.push(false);
-            int_tracker.push(false);
-            string_tracker.push(true);
-            bool_tracker.push(false);
-          }
+        if (string_tracker.some(even)) {
+          dtypes = "string";
+        } else if (float_tracker.some(even)) {
+          dtypes = "float32";
+        } else if (int_tracker.some(even)) {
+          dtypes = "int32";
+        } else if (bool_tracker.some(even)) {
+          dtypes = "boolean";
+        } else {
+          dtypes = "undefined";
+        }
+      }
+    });
+    return dtypes;
+  }
 
-          if (count == lim) {
-            const even = element => element == true;
+  __get_t(arr_val) {
+    const self = this;
 
-            if (string_tracker.some(even)) {
-              dtypes.push("string");
-            } else if (float_tracker.some(even)) {
-              dtypes.push("float32");
-            } else if (int_tracker.some(even)) {
-              dtypes.push("int32");
-            } else if (bool_tracker.some(even)) {
-              dtypes.push("boolean");
-            } else {
-              dtypes.push("undefined");
-            }
-          }
-        });
+    if (this.__is_1D_array(arr_val)) {
+      return [this.__checker(arr_val)];
+    } else {
+      const dtypes = arr_val.map(arr => {
+        return self.__checker(arr);
       });
       return dtypes;
     }

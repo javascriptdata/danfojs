@@ -1,6 +1,6 @@
 {
   "name": "danfojs",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
   "main": "lib/bundle.js",
   "types": "types/index.d.ts",
@@ -21,7 +21,7 @@
     "types"
   ],
   "dependencies": {
-    "@tensorflow/tfjs": "2.8.5",
+    "@tensorflow/tfjs": "3.2.0",
     "mathjs": "7.5.1",
     "table": "^5.4.6",
     "xlsx": "^0.16.7"
@@ -33,8 +33,7 @@
     "bundle": "webpack --mode production",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
-    "patch": "npm version patch",
-    "publish": "npm publish"
+    "patch": "npm version patch"
   },
   "publishConfig": {
     "access": "public",

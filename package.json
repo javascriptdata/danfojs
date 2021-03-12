@@ -4,5 +4,9 @@
     "workspaces": [
         "danfojs-node/**",
         "danfojs-browser/**"
-    ]
+    ], 
+    "scripts": {
+        "build": "cd danfojs-node && yarn build && cd ../danfojs-browser && yarn bundle",
+        "test": "cd danfojs-node && yarn test && cd ../danfojs-browser && yarn test"
+    }
 }

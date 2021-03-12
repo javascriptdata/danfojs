@@ -1,6 +1,6 @@
 {
   "name": "danfojs-node",
-  "version": "0.2.3",
+  "version": "0.2.5",
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
   "main": "dist/index.js",
   "types": "types/index.d.ts",
@@ -21,14 +21,13 @@
     "types"
   ],
   "dependencies": {
-    "@babel/runtime": "^7.12.13",
-    "@tensorflow/tfjs-node": "^2.8.5",
+    "@tensorflow/tfjs-node": "3.2.0",
     "frictionless.js": "0.13.4",
     "mathjs": "7.5.1",
     "node-fetch": "^2.6.1",
     "stream-to-array": "^2.3.0",
     "table": "^5.4.6",
-    "xlsx": "^0.16.7"
+    "@babel/runtime": "^7.13.10"
   },
   "scripts": {
     "test": "yarn run build && nyc mocha --require @babel/register tests/*",
@@ -37,8 +36,7 @@
     "lint": "eslint ./src",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
-    "patch": "npm version patch",
-    "publish": "npm publish"
+    "patch": "npm version patch"
   },
   "publishConfig": {
     "access": "public",
