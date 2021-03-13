@@ -68,7 +68,7 @@ const read_excel = async (source, configs) => {
 
 exports.read_excel = read_excel;
 
-const read = async (path_or_descriptor, configs = {}) => {
+const read = async (source, configs = {}) => {
   let {
     data_num,
     header,
@@ -78,14 +78,14 @@ const read = async (path_or_descriptor, configs = {}) => {
   header = header === undefined ? true : header;
   let rows, file;
 
-  if ((0, _frictionless.isDataset)(path_or_descriptor)) {
+  if ((0, _frictionless.isDataset)(source)) {
     console.log("datapackage.json found. Loading Dataset package from Datahub.io");
-    const dataset = await _frictionless.Dataset.load(path_or_descriptor);
+    const dataset = await _frictionless.Dataset.load(source);
     file = dataset.resources[data_num];
     rows = await (0, _streamToArray.default)(await file.rows());
   } else {
     try {
-      file = (0, _frictionless.open)(path_or_descriptor);
+      file = (0, _frictionless.open)(source);
 
       if (sheet) {
         rows = await (0, _streamToArray.default)(await file.rows({
