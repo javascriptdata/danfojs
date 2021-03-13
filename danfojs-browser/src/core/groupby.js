@@ -102,10 +102,6 @@ export class GroupBy {
      */
   col(col_names){
 
-    // if(!this.column_name.includes(col_name)){
-    //     throw new Error(`Column ${col_name} does not exist in groups`)
-    // }
-
     if (Array.isArray(col_names)){
 
       for (let i = 0; i < col_names.length; i++){
@@ -179,7 +175,11 @@ export class GroupBy {
       "cummin" : "cummin().values"
     };
     let is_array = false;
-
+    //the local variable to store variables to be used in eval
+    // this seems not to be needed in Node version, since local
+    //variable are easily accessed in the eval function
+    let local = null; 
+    
     if (Array.isArray(operation)){
       is_array = true;
     }
@@ -201,10 +201,12 @@ export class GroupBy {
               if (!ops_name.includes(op)){
                 throw new Error("operation does not exist");
               }
-              data = eval(`this.group_col[key1][key2][i].${ops_map[op]}`);
+              local = this.group_col[key1][key2][i];
+              data = eval(`local.${ops_map[op]}`);
 
             } else {
-              data = eval(`this.group_col[key1][key2][i].${operation}`);
+              local = this.group_col[key1][key2][i];
+              data = eval(`local.${operation}`);
             }
             count_group[key1][key2].push(data);
 
@@ -227,10 +229,12 @@ export class GroupBy {
             if (!ops_name.includes(op)){
               throw new Error("operation does not exist");
             }
-            data = eval(`this.group_col[key1][i].${ops_map[op]}`);
+            local = this.group_col[key1][i];
+            data = eval(`local.${ops_map[op]}`);
 
           } else {
-            data = eval(`this.group_col[key1][i].${operation}`);
+            local = this.group_col[key1][i];
+            data = eval(`local.${operation}`);
           }
 
           count_group[key1].push(data);
