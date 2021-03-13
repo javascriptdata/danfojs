@@ -65,9 +65,10 @@ export const read_json = async (source) => {
 
 /**
  * Reads an Excel file from local or remote address
- *  * @param {kwargs} kwargs --> {
- *                     source : string, URL or local file path to retreive Excel file
- *                     configs: object, (Optional) {
+ * @param {string} source URL or local file path to retreive Excel file.
+ * @param {object} configs (Optional) Configuration options when reading excel files
+ *
+ *                          {
  *                            sheet  : string, (Optional) number of the sheet to parse. Default will be the first sheet.
  *                          }
  * @returns {Promise} DataFrame structure of parsed Excel data
@@ -79,16 +80,21 @@ export const read_excel = async (source, configs) => {
 
 /**
  * Opens a file using frictionless.js specification.
- * @param {string} pathOrDescriptor A path to the file/resources. It can be a local file,
+ * @param {string} source A path to the file/resources. It can be a local file,
  * a URL to a tabular data (CSV, EXCEL) or Datahub.io Data Resource.
  * Data comes with extra properties and specification conforming to the Frictionless Data standards.
- * @param {object} configs { data_num (Defaults => 0): The specific dataset to load, when reading data from a datapackage.json,
- *                          header (Defaults => true): Whether the dataset contains header or not.
- *                          }
+ * @param {object} configs {
+ *
+ *                  data_num (Defaults => 0): The specific dataset to load, when reading data from a datapackage.json
+ *
+ *                  header (Defaults => true): Whether the dataset contains header or not.
+ *
+ *                  sheet (Defaults => 0): Number of the excel sheet which u want to load.
+ *                 }
  * @returns {DataFrame} Danfo DataFrame/Series
  */
 export const read = async (
-  path_or_descriptor,
+  source,
   configs = {}
 ) => {
   let { data_num, header, sheet } = configs;
@@ -96,16 +102,16 @@ export const read = async (
   header = header === undefined ? true : header;
   let rows, file;
 
-  if (isDataset(path_or_descriptor)) {
+  if (isDataset(source)) {
     console.log(
       "datapackage.json found. Loading Dataset package from Datahub.io"
     );
-    const dataset = await Dataset.load(path_or_descriptor);
+    const dataset = await Dataset.load(source);
     file = dataset.resources[data_num];
     rows = await toArray(await file.rows());
   } else {
     try {
-      file = open(path_or_descriptor);
+      file = open(source);
       if (sheet) {
         rows = await toArray(await file.rows({ sheet }));
       } else {

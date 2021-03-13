@@ -5,10 +5,15 @@ import { DataFrame } from "../core/frame";
 
 /**
  * Reads a CSV file from local or remote storage
- *
- * @param {source} URL to CSV file
- * @param {config} (Optional). A CSV Config object that contains configurations
+ * @param {string} source URL to CSV file
+ * @param {object} config (Optional). A CSV Config object that contains configurations
  *     for reading and decoding from CSV file(s).
+ *                { start: The index position to start from when reading the CSV file.
+ *
+ *                end: The end position to stop at when reading the CSV file.
+ *
+ *                ...csvConfigs: other supported Tensorflow csvConfig parameters. See https://js.tensorflow.org/api/latest/#data.csv 
+ *                }
  *
  * @returns {Promise} DataFrame structure of parsed CSV data
  */
@@ -30,8 +35,7 @@ export const read_csv = async (source, configs = {}) => {
 
 /**
  * Reads a JSON file from local or remote address
- *
- * @param {source} URL or local file path to retreive JSON file.
+ * @param {string} source URL or local file path to retreive JSON file.
  * @returns {Promise} DataFrame structure of parsed CSV data
  */
 export const read_json = async (source) => {
@@ -44,12 +48,15 @@ export const read_json = async (source) => {
 
 /**
  * Reads an Excel file from local or remote address
+ * @param {string} source URL to Excel file
+ * @param {object} configs {
  *
- *  * @param {kwargs} kwargs --> {
- *                        source       : string, URL or local file path to retreive Excel file.
- *                        sheet   : string, (Optional) Name of the sheet which u want to parse. Default will be the first sheet.
+ *                        sheet : string, (Optional) Name of the sheet which u want to parse. Default will be the first sheet.
+ *
  *                        header_index : int, (Optional) Index of the row which represents the header(columns) of the data. Default will be the first non empty row.
- *                        data_index   : int, (Optional)Index of the row from which actual data(content) starts. Default will be the next row of `header_index`
+ *
+ *                        data_index   : int, (Optional) Index of the row from which actual data(content) starts. Default will be the next row of `header_index`.
+ *
  *                    }
  * @returns {Promise} DataFrame structure of parsed Excel data
  */
