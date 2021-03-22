@@ -129,7 +129,6 @@ describe("groupby", function () {
   //     [ 20, 30, 30, 40 ],
   //     [ 39, 89, 89, 78 ]
   //   ];
-
   //   assert.deepEqual(group_df.col([ "B", "C" ]).cumsum().values, new_data);
   // });
   // it("cummulative max for groupby", function () {
@@ -230,14 +229,43 @@ describe("groupby", function () {
   //   assert.deepEqual(grp.col([ "C", "D" ]).cumsum().values, rslt);
 
   // });
+  // it("should apply grouby operation to all column", function(){
+  //   let data = { 'A': [ 'foo', 'bar', 'foo', 'bar',
+  //     'foo', 'bar', 'foo', 'foo' ],
+  //   'B': [ 'one', 'one', 'two', 'three',
+  //     'two', 'two', 'one', 'three' ],
+  //   'C': [ 1, 3, 2, 4, 5, 2, 6, 7 ],
+  //   'D': [ 3, 2, 4, 1, 5, 6, 7, 8 ] };
+
+  //   let df = new DataFrame(data);
+
+  //   let grp = df.groupby([ "A", "B" ]);
+  //   let rslt = [
+  //     [ 'foo', 'one', 2, 2 ],
+  //     [ 'foo', 'two', 2, 2 ],
+  //     [ 'foo', 'three', 1, 1 ],
+  //     [ 'bar', 'one', 1, 1 ],
+  //     [ 'bar', 'two', 1, 1 ],
+  //     [ 'bar', 'three', 1, 1 ]
+  //   ];
+
+  //   assert.deepEqual(grp.count().values, rslt);
+  // });
   it("Obtain the DataFrame of one of the group", function () {
 
-    let data = [ [ 1, 2, "C" ], [ 4, 5, "D" ], [ 20, 30, "F" ], [ 39, 89, "H" ] ];
-    let cols = [ "A", "B", "C" ];
-    let df = new DataFrame(data, { columns: cols });
+    let data = { 'A': [ 'foo', 'bar', 'foo', 'bar',
+      'foo', 'bar', 'foo', 'foo' ],
+    'B': [ 'one', 'one', 'two', 'three',
+      'two', 'two', 'one', 'three' ],
+    'C': [ 1, 3, 2, 4, 5, 2, 6, 7 ],
+    'D': [ 3, 2, 4, 1, 5, 6, 7, 8 ] };
+    let df = new DataFrame(data);
     let group_df = df.groupby([ "A"]);
     let new_data = [ [ 1, 2, 3 ] ];
-    group_df.apply({ callable: (x) => x.mean() }).print();
+    let g = (x) => {
+      return x.mean();
+    };
+    console.log(group_df.apply((x) => x.count()));
     // assert.deepEqual(group_df.get_groups([ 1 ]).values, new_data);
   });
 
