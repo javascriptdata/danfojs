@@ -9,6 +9,10 @@ var _frame = require("./frame");
 
 var _utils = require("./utils");
 
+var _concat = require("./concat.js");
+
+var _series = require("./series");
+
 const utils = new _utils.Utils();
 
 class GroupBy {
@@ -74,6 +78,8 @@ class GroupBy {
   }
 
   col(col_names) {
+    this.selected_column = col_names;
+
     if (Array.isArray(col_names)) {
       for (let i = 0; i < col_names.length; i++) {
         let col_name = col_names[i];
@@ -392,6 +398,69 @@ class GroupBy {
       column.push(...group_col);
       return new _frame.DataFrame(df_data, {
         columns: column
+      });
+    }
+  }
+
+  apply(kwargs) {
+    let isCol;
+    let column_names;
+    let df_data;
+    let callable = kwargs["callable"];
+
+    if (kwargs["isCol"]) {
+      isCol = kwargs['isCol'];
+    } else {
+      isCol = false;
+    }
+
+    let data = [];
+
+    if (isCol && this.group_col) {
+      column_names = this.selected_column;
+      df_data = this.group_col;
+      console.log("here");
+    } else {
+      column_names = this.column_name;
+      df_data = this.data_tensors;
+    }
+
+    if (this.key_col.length == 2) {
+      for (let key in this.data_tensors) {
+        for (let key2 in this.data_tensors[key]) {
+          let callable_rslt = callable(this.data_tensors[key][key2]);
+
+          if (callable_rslt instanceof _frame.DataFrame) {
+            data.push(callable_rslt);
+          } else {
+            data.push(callable_rslt.values);
+          }
+        }
+      }
+    } else {
+      for (let key in df_data) {
+        let callable_rslt = isCol ? callable(df_data[key][0]) : callable(df_data[key]);
+
+        if (callable_rslt instanceof _frame.DataFrame) {
+          data.push(callable_rslt);
+        } else {
+          if (Array.isArray(callable_rslt.values)) {
+            data.push(callable_rslt.values);
+          } else {
+            data.push([callable_rslt]);
+          }
+        }
+      }
+    }
+
+    if (data[0] instanceof _frame.DataFrame) {
+      return (0, _concat.concat)({
+        df_list: data,
+        axis: 0
+      });
+    } else {
+      return new _frame.DataFrame(data, {
+        columns: column_names
       });
     }
   }

@@ -21,6 +21,7 @@ class Concat {
 
     let df_list = null;
     let axis = null;
+    let indexes = null;
 
     if (Array.isArray(kwargs["df_list"])) {
       df_list = kwargs["df_list"];
@@ -44,6 +45,8 @@ class Concat {
       let columns = [];
       let duplicate_col_count = {};
       let max_length = 0;
+      let a_key = Object.keys(df_object)[0];
+      indexes = df_object[a_key].index;
 
       for (let key in df_object) {
         let column = df_object[key].columns;
@@ -108,15 +111,24 @@ class Concat {
       }
 
       let df = new _frame.DataFrame(data, {
-        columns: columns
+        columns: columns,
+        index: indexes
       });
       return df;
     } else {
       let columns = [];
+      let row_indexes = [];
+      let col_i = 0;
 
       for (let key in df_list) {
         let column = df_list[key].columns;
         columns.push(...column);
+        indexes = df_list[key].index;
+        let r_index = indexes.map(val => {
+          return `${val}_row${col_i}`;
+        });
+        row_indexes.push(...r_index);
+        col_i += 1;
       }
 
       let column_set = new Set(columns);
@@ -167,11 +179,14 @@ class Concat {
 
       if (Array.isArray(data[0])) {
         let df = new _frame.DataFrame(data, {
-          columns: columns
+          columns: columns,
+          index: row_indexes
         });
         return df;
       } else {
-        let sf = new _series.Series(data);
+        let sf = new _series.Series(data, {
+          index: row_indexes
+        });
         return sf;
       }
     }
