@@ -15,6 +15,7 @@ export class Concat {
 
     let df_list = null; //set the df_list to null
     let axis = null; // set axis to null
+    let indexes = null;
 
     //check if df_list is an array
     if (Array.isArray(kwargs["df_list"])) {
@@ -41,13 +42,14 @@ export class Concat {
 
 
     let df_object = Object.assign({}, df_list); // convert the array to object
-
+    
     if (axis == 1) {
 
       let columns = [];
       let duplicate_col_count = {};
       let max_length = 0;
-
+      let a_key = Object.keys(df_object)[0];
+      indexes = df_object[a_key].index;
       for (let key in df_object) {
 
         let column = df_object[key].columns;
@@ -121,15 +123,22 @@ export class Concat {
         }
       }
 
-      let df = new DataFrame(data, { columns: columns }); //convert to dataframe
+      let df = new DataFrame(data, { columns: columns, index: indexes }); //convert to dataframe
       return df;
     } else {
       //concatenate base on axis 0
       let columns = [];
-
+      let row_indexes = [];
+      let col_i = 0;
       for (let key in df_list) {
         let column = df_list[key].columns;
         columns.push(...column);
+        indexes = df_list[key].index;
+        let r_index = indexes.map((val) => {
+          return `${val}_row${col_i}`;
+        });
+        row_indexes.push(...r_index);
+        col_i += 1;
       }
 
       let column_set = new Set(columns);
@@ -187,10 +196,10 @@ export class Concat {
       }
 
       if (Array.isArray(data[0])){
-        let df = new DataFrame(data, { columns: columns });
+        let df = new DataFrame(data, { columns: columns, index: row_indexes });
         return df;
       } else {
-        let sf = new Series(data);
+        let sf = new Series(data, { index: row_indexes });
         return sf;
       }
 
