@@ -65,7 +65,7 @@ describe("groupby", function () {
       [ 20, 30, 1 ],
       [ 39, 89, 1 ]
     ];
-    
+
     assert.deepEqual(group_df.col([ "C" ]).count().values, new_data);
   });
   it("sum column element in group", function () {
@@ -127,7 +127,6 @@ describe("groupby", function () {
       [ 20, 30, 30, 40 ],
       [ 39, 89, 89, 78 ]
     ];
-
     assert.deepEqual(group_df.col([ "B", "C" ]).cumsum().values, new_data);
   });
   it("cummulative max for groupby", function () {
@@ -137,7 +136,7 @@ describe("groupby", function () {
     let df = new dfd.DataFrame(data, { columns: cols });
     let group_df = df.groupby([ "A" ]);
     let new_data = [ [ 1, 3 ], [ 4, 6 ], [ 20, 40 ], [ 39, 78 ] ];
-    
+
 
     assert.deepEqual(group_df.col([ "C" ]).cummax().values, new_data);
   });
@@ -227,6 +226,70 @@ describe("groupby", function () {
     ];
     assert.deepEqual(grp.col([ "C", "D" ]).cumsum().values, rslt);
 
+  });
+  it("should apply grouby operation to all column", function(){
+    let data = { 'A': [ 'foo', 'bar', 'foo', 'bar',
+      'foo', 'bar', 'foo', 'foo' ],
+    'B': [ 'one', 'one', 'two', 'three',
+      'two', 'two', 'one', 'three' ],
+    'C': [ 1, 3, 2, 4, 5, 2, 6, 7 ],
+    'D': [ 3, 2, 4, 1, 5, 6, 7, 8 ] };
+
+    let df = new dfd.DataFrame(data);
+
+    let grp = df.groupby([ "A", "B" ]);
+    let rslt = [
+      [ 'foo', 'one', 2, 2 ],
+      [ 'foo', 'two', 2, 2 ],
+      [ 'foo', 'three', 1, 1 ],
+      [ 'bar', 'one', 1, 1 ],
+      [ 'bar', 'two', 1, 1 ],
+      [ 'bar', 'three', 1, 1 ]
+    ];
+
+    assert.deepEqual(grp.count().values, rslt);
+  });
+  it("should apply function to specific column", function () {
+
+    let data = { 'A': [ 'foo', 'bar', 'foo', 'bar',
+      'foo', 'bar', 'foo', 'foo' ],
+    'B': [ 'one', 'one', 'two', 'three',
+      'two', 'two', 'one', 'three' ],
+    'C': [ 1, 3, 2, 4, 5, 2, 6, 7 ],
+    'D': [ 3, 2, 4, 1, 5, 6, 7, 8 ] };
+    let df = new dfd.DataFrame(data);
+    let group_df = df.groupby([ "A"]);
+    let rslt = [
+      [ 'foo', 5, 3 ], [ 'foo', 6, 4 ],
+      [ 'foo', 7, 7 ], [ 'foo', 9, 8 ],
+      [ 'foo', 10, 9 ], [ 'foo', 5, 3 ],
+      [ 'foo', 6, 4 ], [ 'foo', 7, 7 ],
+      [ 'foo', 9, 8 ], [ 'foo', 10, 9 ],
+      [ 'bar', 4, 5 ], [ 'bar', 3, 6 ],
+      [ 'bar', 8, 4 ], [ 'bar', 4, 5 ],
+      [ 'bar', 3, 6 ], [ 'bar', 8, 4 ]
+    ];
+    assert.deepEqual(group_df.col(['D', 'C']).apply((x) => x.add(2)).values, rslt);
+  });
+  it("should apply function to group column", function () {
+
+    let data = { 'A': [ 'foo', 'bar', 'foo', 'bar',
+      'foo', 'bar', 'foo', 'foo' ],
+    'B': [ 'one', 'one', 'two', 'three',
+      'two', 'two', 'one', 'three' ],
+    'C': [ 1, 3, 2, 4, 5, 2, 6, 7 ],
+    'D': [ 3, 2, 4, 1, 5, 6, 7, 8 ] };
+    let df = new dfd.DataFrame(data);
+    let group_df = df.groupby([ "A", "B"]);
+    let rslt = [
+      [ 'foo', 'one', 2, 2 ],
+      [ 'foo', 'two', 2, 2 ],
+      [ 'foo', 'three', 1, 1 ],
+      [ 'bar', 'one', 1, 1 ],
+      [ 'bar', 'two', 1, 1 ],
+      [ 'bar', 'three', 1, 1 ]
+    ];
+    assert.deepEqual(group_df.apply((x) => x.count()).values, rslt);
   });
 
 });

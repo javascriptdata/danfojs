@@ -1,5 +1,6 @@
 import { DataFrame } from "./frame";
 import { Utils } from "./utils";
+import { Series } from "./series";
 const utils = new Utils;
 
 /**
@@ -101,11 +102,7 @@ export class GroupBy {
      * @return Groupby data structure
      */
   col(col_names){
-
-    // if(!this.column_name.includes(col_name)){
-    //     throw new Error(`Column ${col_name} does not exist in groups`)
-    // }
-
+    this.selected_column = col_names; // store col_names for use later in .apply
     if (Array.isArray(col_names)){
 
       for (let i = 0; i < col_names.length; i++){
@@ -119,42 +116,47 @@ export class GroupBy {
       throw new Error(`Col_name must be an array of column`);
     }
 
-    this.group_col_name = col_names; // store the column name
+    // let group_col_name = col_names; // store the column name
+    let group_col = {};
     if (this.key_col.length == 2){
-
-      this.group_col = {};
 
       for (var key1 in this.data_tensors){
 
-        this.group_col[key1] = {};
+        group_col[key1] = {};
         for (var key2 in this.data_tensors[key1]){
 
-          this.group_col[key1][key2] = [];
+          group_col[key1][key2] = [];
           for (let i = 0; i < col_names.length; i++){
             let col_name = col_names[i];
             let data = this.data_tensors[key1][key2].column(col_name);
-            this.group_col[key1][key2].push(data);
+            group_col[key1][key2].push(data);
           }
 
         }
       }
     } else {
-
-      this.group_col = {};
-
       for (let key1 in this.data_tensors){
 
-        this.group_col[key1] = [];
+        group_col[key1] = [];
         for (let i = 0; i < col_names.length; i++){
           let col_name = col_names[i];
           let data = this.data_tensors[key1].column(col_name);
-          this.group_col[key1].push(data);
+          group_col[key1].push(data);
         }
 
       }
     }
+    const gp = new GroupBy(
+      null,
+      this.key_col,
+      null,
+      col_names
+    );
 
-    return this;
+    gp.group_col = group_col;
+    gp.group_col_name = col_names;
+    // return gp;
+    return gp;
   }
 
   /**
@@ -244,70 +246,60 @@ export class GroupBy {
 
   }
 
+  operations(ops, name) {
+    if (!this.group_col) {
+      let column = this.column_name.filter((val) => !this.key_col.includes(val));
+      let col_gp = this.col(column);
+      let value = col_gp.arithemetic(ops);
+      let df = col_gp.to_DataFrame(col_gp.key_col, col_gp.group_col_name, value, name);
+      return df;
+    } else {
+      let value = this.arithemetic(ops);
+      let df = this.to_DataFrame(this.key_col, this.group_col_name, value, name);
+      return df;
+    }
+  }
   count(){
-
-    let value = this.arithemetic("count()");
-    let df = this.to_DataFrame(this.key_col, this.group_col_name, value, "count");
-    return df;
+    return this.operations("count()", "count");
   }
 
   sum(){
-    let value = this.arithemetic("sum()");
-    let df = this.to_DataFrame(this.key_col, this.group_col_name, value, "sum");
-    return df;
+    return this.operations("sum()", "sum");
   }
 
   std(){
-    let value = this.arithemetic("std()");
-    let df = this.to_DataFrame(this.key_col, this.group_col_name, value, "std");
-    return df;
+    return this.operations("std()", "std");
   }
 
   var(){
-    let value = this.arithemetic("var()");
-    let df = this.to_DataFrame(this.key_col, this.group_col_name, value, "var");
-    return df;
+    return this.operations("var()", "var");
   }
 
   mean(){
-    let value = this.arithemetic("mean()");
-    let df = this.to_DataFrame(this.key_col, this.group_col_name, value, "mean");
-    return df;
+    return this.operations("mean()", "mean");
   }
 
   cumsum(){
-    let value = this.arithemetic("cumsum().values");
-    let df = this.to_DataFrame(this.key_col, this.group_col_name, value, "cumsum");
-    return df;
+    return this.operations("cumsum().values", "cumsum");
   }
   cummax(){
-    let value = this.arithemetic("cummax().values");
-    let df = this.to_DataFrame(this.key_col, this.group_col_name, value, "cummax");
-    return df;
+    return this.operations("cummax().values", "cummax");
   }
 
   cumprod(){
-    let value = this.arithemetic("cumprod().values");
-    let df = this.to_DataFrame(this.key_col, this.group_col_name, value, "cumprod");
-    return df;
+    return this.operations("cumprod().values", "cumprod");
   }
 
   cummin(){
-    let value = this.arithemetic("cummin().values");
-    let df = this.to_DataFrame(this.key_col, this.group_col_name, value, "cummin");
-    return df;
+    return this.operations("cummin().values", "cummin");
   }
 
   max(){
-    let value = this.arithemetic("max()");
-    let df = this.to_DataFrame(this.key_col, this.group_col_name, value, "max");
-    return df;
+    return this.operations("max()", "max");
   }
 
   min(){
-    let value = this.arithemetic("min()");
-    let df = this.to_DataFrame(this.key_col, this.group_col_name, value, "min");
-    return df;
+    return this.operations("min()", "min");
   }
 
   /**
@@ -346,17 +338,16 @@ export class GroupBy {
     let columns = Object.keys(kwargs);
     let operations = columns.map((x) => { return kwargs[x].toLocaleLowerCase(); });
 
-    this.col(columns);
+    let col_gp = this.col(columns);
 
-    let data = this.arithemetic(operations);
-    let df = this.to_DataFrame(this.key_col, this.group_col_name, data, operations);
+    let data = col_gp.arithemetic(operations);
+    let df = this.to_DataFrame(col_gp.key_col, col_gp.group_col_name, data, operations);
 
     return df;
   }
 
   to_DataFrame(key_col, col, data, ops){
 
-    // console.log(data);
     if (key_col.length == 2){
       let df_data = [];
       for (let key_1 in data){
@@ -449,6 +440,63 @@ export class GroupBy {
 
       return new DataFrame(df_data, { columns: column });
     }
+  }
+
+  apply(callable){
+    let df_data;
+    let column;
+    if (!this.group_col) {
+      column = this.column_name.filter((val) => !this.key_col.includes(val));
+      let col_gp = this.col(column);
+      df_data = col_gp.group_col;
+    } else {
+      column = this.group_col_name;
+      df_data = this.group_col;
+    }
+    let data = [];
+    let count_group = {};
+    if (this.key_col.length == 2) {
+
+      for (let key in this.data_tensors) {
+        count_group[key] = {};
+        for (let key2 in this.data_tensors[key]) {
+          count_group[key][key2] = [];
+          for (let i = 0; i < df_data[key][key2].length; i++ ) {
+            let callable_rslt = callable(df_data[key][key2][i]);
+            if (callable_rslt instanceof DataFrame) {
+              count_group[key][key2].push(callable_rslt.values);
+            } else {
+              if (callable_rslt instanceof Series) {
+                count_group[key][key2].push(callable_rslt.values);
+              } else {
+                count_group[key][key2].push(callable_rslt);
+              }
+            }
+          }
+
+
+        }
+      }
+    } else {
+      for (let key in df_data) {
+        count_group[key] = [];
+        for (let i = 0; i < df_data[key].length; i++ ){
+          let callable_rslt = callable(df_data[key][i]);
+          if (callable_rslt instanceof DataFrame) {
+            count_group[key].push(callable_rslt.values);
+          } else {
+            if (callable_rslt instanceof Series) {
+              count_group[key].push(callable_rslt.values);
+            } else {
+              count_group[key].push(callable_rslt);
+            }
+
+          }
+        }
+
+      }
+    }
+    return this.to_DataFrame(this.key_col, column, count_group, "apply");
   }
 
 }
