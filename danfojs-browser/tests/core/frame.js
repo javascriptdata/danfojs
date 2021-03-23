@@ -2276,7 +2276,7 @@ describe("DataFrame", function () {
       let df2 = new dfd.DataFrame([ [ 20, 40, 60, "d" ] ], { "columns": [ "col1", "col2", "col3", "col4" ] });
 
       let rslt_df = df.append(df2);
-      assert.deepEqual(rslt_df.index, [ 0, 1, 2, 3 ]);
+      assert.deepEqual(rslt_df.index, [ "0_row0", "1_row0", "2_row0", "0_row1" ]);
 
     });
   });
