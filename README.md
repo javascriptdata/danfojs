@@ -186,7 +186,7 @@ Output in Node Console:
 The official documentation can be found [here](https://danfo.jsdata.org)
 
 ## Discussion and Development
-Development discussions take place on our [issues](https://github.com/opensource9ja/danfojs/issues) tab. 
+Development discussions take place [here](https://github.com/opensource9ja/danfojs/discussions). 
 
 ## Contributing to Danfo
 All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome. A detailed overview on how to contribute can be found in the [contributing guide](https://danfo.jsdata.org/contributing-guide).
