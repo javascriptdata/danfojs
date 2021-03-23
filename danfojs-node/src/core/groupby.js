@@ -1,8 +1,6 @@
 import { DataFrame } from "./frame";
 import { Utils } from "./utils";
-import { concat } from "./concat.js";
 import { Series } from "./series";
-import { data } from "@tensorflow/tfjs-node";
 const utils = new Utils;
 
 /**
@@ -350,7 +348,6 @@ export class GroupBy {
 
   to_DataFrame(key_col, col, data, ops){
 
-    // console.log(data);
     if (key_col.length == 2){
       let df_data = [];
       for (let key_1 in data){
@@ -445,62 +442,6 @@ export class GroupBy {
     }
   }
 
-  //   apply(kwargs){
-  //     let isCol;
-  //     let column_names;
-  //     let df_data;
-  //     let callable = kwargs["callable"];
-  //     if (kwargs["isCol"]) {
-  //       isCol = kwargs['isCol'];
-  //     } else {
-  //       isCol = false;
-  //     }
-
-  //     let data = [];
-  //     if (isCol && this.group_col) {
-  //       column_names = this.selected_column;
-  //       df_data = this.group_col;
-  //       console.log("here");
-  //     } else {
-  //       column_names = this.column_name;
-  //       df_data = this.data_tensors;
-  //     }
-  //     if (this.key_col.length == 2) {
-  //       for (let key in this.data_tensors) {
-  //         for (let key2 in this.data_tensors[key]) {
-  //           let callable_rslt = callable(this.data_tensors[key][key2]);
-  //           if (callable_rslt instanceof DataFrame) {
-  //             data.push(callable_rslt);
-  //           } else {
-  //             data.push(callable_rslt.values);
-  //           }
-  //         }
-  //       }
-  //     } else {
-  //       for (let key in df_data) {
-  //         let callable_rslt = isCol ? callable(df_data[key][0]) : callable(df_data[key]);
-  //         if (callable_rslt instanceof DataFrame) {
-  //           data.push(callable_rslt);
-  //         } else {
-  //           if (Array.isArray(callable_rslt.values)) {
-  //             data.push(callable_rslt.values);
-  //           } else {
-  //             data.push([callable_rslt]);
-  //           }
-
-  //         }
-  //       }
-  //     }
-
-  //     if (data[0] instanceof DataFrame) {
-  //       return concat({ df_list: data, axis: 0 });
-  //     } else {
-  //       return new DataFrame(data, { columns: column_names });
-  //     }
-  //   }
-
-  // }
-
   apply(callable){
     let df_data;
     let column;
@@ -509,6 +450,7 @@ export class GroupBy {
       let col_gp = this.col(column);
       df_data = col_gp.group_col;
     } else {
+      column = this.group_col_name;
       df_data = this.group_col;
     }
     let data = [];
@@ -546,7 +488,6 @@ export class GroupBy {
             if (callable_rslt instanceof Series) {
               count_group[key].push(callable_rslt.values);
             } else {
-              console.log(callable_rslt);
               count_group[key].push(callable_rslt);
             }
 
@@ -555,8 +496,7 @@ export class GroupBy {
 
       }
     }
-    this.to_DataFrame(this.key_col, column, count_group, "apply").print();
-    return count_group;
+    return this.to_DataFrame(this.key_col, column, count_group, "apply");
   }
 
 }
