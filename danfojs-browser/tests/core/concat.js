@@ -1,4 +1,3 @@
-
 describe("Concatenate", function () {
 
   it("Check the axis 0 concatenation", function () {
@@ -44,7 +43,7 @@ describe("Concatenate", function () {
     assert.deepEqual(new_df.values, data_values);
   });
 
-  it("concatenate dfd.dataframe and series along 0 axis", function(){
+  it("concatenate dataframe and series along 0 axis", function(){
 
     let data1 = [ 1, 2, 3, 4 ];
     let data2 = [ 3, 4, 5, 6 ];
@@ -73,7 +72,7 @@ describe("Concatenate", function () {
 
   });
 
-  it("concatenate dfd.dataframe and series along axis 1", function(){
+  it("concatenate dataframe and series along axis 1", function(){
 
     let data = [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 20, 30, 40 ], [ 39, 89, 78 ] ];
     let cols = [ "A", "B", "C" ];
