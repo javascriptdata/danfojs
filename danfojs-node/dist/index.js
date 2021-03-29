@@ -154,5 +154,5 @@ var _utils = require("./core/utils");
 var _tf = _interopRequireWildcard(require("@tensorflow/tfjs-node"));
 
 exports.tf = _tf;
-const _version = "0.2.5";
+const _version = "0.2.6";
 exports._version = _version;
