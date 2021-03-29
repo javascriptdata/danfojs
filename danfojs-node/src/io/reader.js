@@ -19,7 +19,7 @@ export const read_csv = async (source, configs = {}) => {
   let { start, end } = configs;
   if (!(source.startsWith("file://") || source.startsWith("http"))) {
     //probabily a relative path, append file:// to it
-    source = `file://${process.cwd()}/${source}`;
+    source = source.startsWith("/") ? `file://${source}` : `file://${process.cwd()}/${source}`;
   }
 
   let tfdata = [];

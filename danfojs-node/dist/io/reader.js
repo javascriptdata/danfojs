@@ -26,7 +26,7 @@ const read_csv = async (source, configs = {}) => {
   } = configs;
 
   if (!(source.startsWith("file://") || source.startsWith("http"))) {
-    source = `file://${process.cwd()}/${source}`;
+    source = source.startsWith("/") ? `file://${source}` : `file://${process.cwd()}/${source}`;
   }
 
   let tfdata = [];
