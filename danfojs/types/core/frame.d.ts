@@ -346,7 +346,7 @@ export class DataFrame extends Ndframe {
       * Returns the Tensorflow tensor backing the DataFrame Object
       * @returns {2D tensor}
       */
-   get tensor(): 2;
+   get tensor(): Tensor2D;
    /**
       * Sets the data types of an DataFrame
       * @param {Object} kwargs {column: Name of the column to cast, dtype: [float32, int32, string] data type to cast to}
@@ -398,6 +398,7 @@ export class DataFrame extends Ndframe {
       */
    append(val?: any): DataFrame;
 }
+import { Tensor2D } from "@tensorflow/tfjs-core"
 import Ndframe from "./generic";
 import { Series } from "./series";
 import { GroupBy } from "./groupby";

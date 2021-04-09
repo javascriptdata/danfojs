@@ -13,7 +13,7 @@ export class Series extends NDframe {
      * Returns a Series in Tensorflow's tensor format
      * @returns {1D Tensor}
      */
-   get tensor(): 1;
+   get tensor(): Tensor1D;
    /**
      * Returns the first n values in a Series
      * @param {rows}  Number of rows to return
@@ -364,6 +364,7 @@ export class Series extends NDframe {
       */
    append(val?: any, inplace?: boolean): Series;
 }
+import { Tensor1D } from '@tensorflow/tfjs-core';
 import NDframe from "./generic";
 import { Str } from "./strings";
 import { TimeSeries } from "./timeseries";
