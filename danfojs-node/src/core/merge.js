@@ -75,19 +75,17 @@ export class Merge {
          keys combination.
          */
     for (let i = 0; i < left_values.length; i++) {
-
       let left_value = left_values[i];
-      let right_value = right_values[i];
-
-      let right_key_comb = "";
-      let left_key_comb = "";
+      let left_key_comb_values = [];
 
       //get the value in the column index
       for (let j = 0; j < this.left_col_index.length; j++) {
         let index = this.left_col_index[j];
 
-        left_key_comb += `_${left_value[index]}`;
+        left_key_comb_values.push(left_value[index]);
       }
+      //combine into single hashable string
+      let left_key_comb = left_key_comb_values.join('_');
 
       let self = this; // assign the this scope to self
       //filter out the value that are not the column key
@@ -99,30 +97,38 @@ export class Merge {
       //before storing the key combination and the value
       //associated with it
       if (utils.__key_in_object(this.left_key_dict, left_key_comb)) {
-        this.left_key_dict[left_key_comb].push(left_value_filter);
+        this.left_key_dict[left_key_comb].filters.push(left_value_filter);
       } else {
-        this.left_key_dict[left_key_comb] = [ left_value_filter ];
+        this.left_key_dict[left_key_comb] = {
+          filters: [left_value_filter],
+          comb_values: left_key_comb_values
+        };
       }
 
     }
     for (let i = 0; i < right_values.length; i++) {
       let right_value = right_values[i];
-      let right_key_comb = "";
+      let right_key_comb_values = [];
 
       for (let j = 0; j < this.right_col_index.length; j++) {
         let index = this.right_col_index[j];
 
-        right_key_comb += `_${right_value[index]}`;
+        right_key_comb_values.push(right_value[index]);
       }
+      let right_key_comb = right_key_comb_values.join('_');
+
       let self = this;
       let right_value_filter = right_value.filter(function (val, index) {
         return !self.right_col_index.includes(index);
       });
 
       if (utils.__key_in_object(this.right_key_dict, right_key_comb)) {
-        this.right_key_dict[right_key_comb].push(right_value_filter);
+        this.right_key_dict[right_key_comb].filters.push(right_value_filter);
       } else {
-        this.right_key_dict[right_key_comb] = [ right_value_filter ];
+        this.right_key_dict[right_key_comb] = {
+          filters: [right_value_filter],
+          comb_values: right_key_comb_values
+        };
       }
     }
 
@@ -242,7 +248,8 @@ export class Merge {
       });
 
       if (utils.__key_in_object(this.left_key_dict, key)) {
-        let left_row = this.left_key_dict[key];
+        let left_row = this.left_key_dict[key].filters;
+        let key_array = this.left_key_dict[key].comb_values;
 
 
         for (let left_i = 0; left_i < left_row.length; left_i++) {
@@ -251,7 +258,7 @@ export class Merge {
 
           if (utils.__key_in_object(this.right_key_dict, key)) {
 
-            let right_row = this.right_key_dict[key];
+            let right_row = this.right_key_dict[key].filters;
 
             for (let r_i = 0; r_i < right_row.length; r_i++) {
 
@@ -280,7 +287,8 @@ export class Merge {
         }
       } else {
 
-        let right_row = this.right_key_dict[key];
+        let right_row = this.right_key_dict[key].filters;
+        let key_array = this.right_key_dict[key].comb_values;
 
         for (let i = 0; i < right_row.length; i++) {
 
