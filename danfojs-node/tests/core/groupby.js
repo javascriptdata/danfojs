@@ -262,14 +262,14 @@ describe("groupby", function () {
     let df = new DataFrame(data);
     let group_df = df.groupby([ "A"]);
     let rslt = [
-      [ 'foo', 5, 3 ], [ 'foo', 6, 4 ],
-      [ 'foo', 7, 7 ], [ 'foo', 9, 8 ],
-      [ 'foo', 10, 9 ], [ 'foo', 5, 3 ],
-      [ 'foo', 6, 4 ], [ 'foo', 7, 7 ],
-      [ 'foo', 9, 8 ], [ 'foo', 10, 9 ],
-      [ 'bar', 4, 5 ], [ 'bar', 3, 6 ],
-      [ 'bar', 8, 4 ], [ 'bar', 4, 5 ],
-      [ 'bar', 3, 6 ], [ 'bar', 8, 4 ]
+      [ 'foo', 5, 3 ],
+      [ 'foo', 6, 4 ],
+      [ 'foo', 7, 7 ],
+      [ 'foo', 9, 8 ],
+      [ 'foo', 10, 9 ],
+      [ 'bar', 4, 5 ],
+      [ 'bar', 3, 6 ],
+      [ 'bar', 8, 4 ]
     ];
     assert.deepEqual(group_df.col(['D', 'C']).apply((x) => x.add(2)).values, rslt);
   });
@@ -293,5 +293,4 @@ describe("groupby", function () {
     ];
     assert.deepEqual(group_df.apply((x) => x.count()).values, rslt);
   });
-
 });
