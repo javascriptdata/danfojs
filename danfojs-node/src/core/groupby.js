@@ -417,10 +417,12 @@ export class GroupBy {
                 key_data[j].push(col_data[j]);
               } else {
                 key_data[j].push(col_data[j]);
+                // console.log("key_data", key_data);
               }
             }
-            df_data.push(...key_data);
+            // df_data.push(...key_data);
           }
+          df_data.push(...key_data);
 
         } else {
           key_data[0] = isNaN(parseInt(key_1)) ? key_1 : parseInt(key_1);
@@ -456,10 +458,11 @@ export class GroupBy {
     let data = [];
     let count_group = {};
     if (this.key_col.length == 2) {
-
-      for (let key in this.data_tensors) {
+      
+      for (let key in df_data) {
         count_group[key] = {};
-        for (let key2 in this.data_tensors[key]) {
+        for (let key2 in df_data[key]) {
+          let index;
           count_group[key][key2] = [];
           for (let i = 0; i < df_data[key][key2].length; i++ ) {
             let callable_rslt = callable(df_data[key][key2][i]);
