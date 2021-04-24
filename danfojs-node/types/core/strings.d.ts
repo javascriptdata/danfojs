@@ -70,7 +70,7 @@ export class Str {
      * @params {replaceValue: String | Character} string to replace with
      * @return {array}
      */
-   replace(searchValue?: string, replaceValue?: string): any[];
+   replace(searchValue?: string | RegExp, replaceValue?: string): any[];
    /**
       * Returns a new string with a specified number of copies of an existing string
       * @params {num: Integer} Number of times to repeat
