@@ -19,7 +19,7 @@ import { DataFrame } from "../core/frame";
  */
 export const read_csv = async (source, configs = {}) => {
   let { start, end } = configs;
-  if (!(source.startsWith("https") || source.startsWith("http"))) {
+  if (!(source.startsWith("https") || source.startsWith("http") || source.startsWith("blob"))) {
     throw new Error("Cannot read local file in browser environment");
   }
   let tfdata = [];
