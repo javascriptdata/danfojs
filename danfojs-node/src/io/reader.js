@@ -17,7 +17,7 @@ import { DataFrame } from "../core/frame";
  */
 export const read_csv = async (source, configs = {}) => {
   let { start, end } = configs;
-  if (!(source.startsWith("file://") || source.startsWith("http"))) {
+  if (!(source.startsWith("file://") || source.startsWith("http") || source.startsWith("blob"))) {
     //probabily a relative path, append file:// to it
     source = source.startsWith("/") ? `file://${source}` : `file://${process.cwd()}/${source}`;
   }
