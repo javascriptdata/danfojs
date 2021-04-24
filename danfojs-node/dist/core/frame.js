@@ -928,6 +928,10 @@ class DataFrame extends _generic.default {
     let column_names = this.column_names;
     let col_dict = {};
     let key_column = null;
+    let col_index = col.map(val => column_names.indexOf(val));
+    let col_dtype = this.dtypes.filter((val, index) => {
+      return col_index.includes(index);
+    });
 
     if (col.length == 2) {
       if (column_names.includes(col[0])) {
@@ -986,7 +990,7 @@ class DataFrame extends _generic.default {
       }
     }
 
-    let groups = new _groupby.GroupBy(col_dict, key_column, this.values, column_names).group();
+    let groups = new _groupby.GroupBy(col_dict, key_column, this.values, column_names, col_dtype).group();
     return groups;
   }
 
