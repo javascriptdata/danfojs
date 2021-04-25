@@ -1112,6 +1112,10 @@ export class DataFrame extends Ndframe {
     let column_names = this.column_names;
     let col_dict = {};
     let key_column = null;
+    let col_index = col.map((val) => column_names.indexOf(val));
+    let col_dtype = this.dtypes.filter((val, index) => {
+      return col_index.includes(index);
+    });
 
     if (col.length == 2) {
       if (column_names.includes(col[0])) {
@@ -1174,7 +1178,8 @@ export class DataFrame extends Ndframe {
       col_dict,
       key_column,
       this.values,
-      column_names
+      column_names,
+      col_dtype
     ).group();
 
     return groups;

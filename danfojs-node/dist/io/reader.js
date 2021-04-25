@@ -25,7 +25,7 @@ const read_csv = async (source, configs = {}) => {
     end
   } = configs;
 
-  if (!(source.startsWith("file://") || source.startsWith("http"))) {
+  if (!(source.startsWith("file://") || source.startsWith("http") || source.startsWith("blob"))) {
     source = source.startsWith("/") ? `file://${source}` : `file://${process.cwd()}/${source}`;
   }
 
