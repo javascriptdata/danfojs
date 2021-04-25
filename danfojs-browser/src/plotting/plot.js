@@ -411,7 +411,7 @@ export class Plot {
         }
       });
 
-      trace['x'] = this.ndframe[this_config['y']].values;
+      trace['x'] = this.ndframe[this_config['x']].values;
       trace['type'] = "histogram";
 
       Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
