@@ -45,7 +45,7 @@ export class Plot {
       let y = this.ndframe.values;
 
       params.forEach((param) => {
-        if (!param == "layout") {
+        if(!(param == "layout")) {
           trace[param] = config[param];
         }
       });
