@@ -29,72 +29,39 @@ export class GroupBy {
      * @returns Groupby data structure
      */
   group(){
+    for (const value of this.data){
+      const col_indexes = this.key_col.map((key) => this.column_name.indexOf(key));
+      const col_values = col_indexes.map((idx) => value[idx]);
 
-    if (this.key_col.length == 2){ //check if the dataframe is group by two columns
-
-
-      for (var i = 0; i < this.data.length; i++){
-
-        let col1_index = this.column_name.indexOf(this.key_col[0]);
-        let col2_index = this.column_name.indexOf(this.key_col[1]);
-
-        let value = this.data[i];
-
-        let col1_value = value[col1_index];
-        let col2_value = value[col2_index];
-
-
-        if (Object.prototype.hasOwnProperty.call(this.col_dict, col1_value)){
-          if (Object.prototype.hasOwnProperty.call(this.col_dict[col1_value], col2_value)){
-
-            this.col_dict[col1_value][col2_value].push(value);
-          }
-
-        }
-
+      let sub_col_dict = this.col_dict;
+      for (const col_value of col_values){
+        if (!(col_value in sub_col_dict))
+          break;
+        if (col_value === col_values[col_values.length - 1])
+          sub_col_dict[col_value].push(value);
+        else
+          sub_col_dict = sub_col_dict[col_value];
       }
-
-      for (var key in this.col_dict){
-        this.data_tensors[key] = {};
-
-        for (var key2 in this.col_dict[key]){
-
-          let data = this.col_dict[key][key2];
-
-          if (data.length == 0){
-            delete this.col_dict[key][key2]; //delete the empty key.
-          } else {
-            this.data_tensors[key][key2] = new DataFrame(data, { columns:this.column_name });
-          }
-
-        }
-      }
-    } else {
-      for (let i = 0; i < this.data.length; i++){
-
-        let col1_index = this.column_name.indexOf(this.key_col[0]);
-
-        let value = this.data[i];
-
-        let col1_value = value[col1_index];
-
-        if (Object.prototype.hasOwnProperty.call(this.col_dict, col1_value)){
-
-          this.col_dict[col1_value].push(value);
-
-        }
-      }
-      for (let key in this.col_dict){
-        let data = this.col_dict[key];
-
-        this.data_tensors[key] = new DataFrame(data, { columns:this.column_name });
-
-      }
-
     }
 
-    return this;
+    const self = this;
+    function dfs(sub_col_dict, sub_data_tensors){
+      for (const [ key, value ] of Object.entries(sub_col_dict)){
+        if (Array.isArray(value)) {
+          if (value.length === 0)
+            delete sub_col_dict[key];
+          else
+            sub_data_tensors[key] = new DataFrame(value, { columns:self.column_name });
+        } else {
+          if (!(key in sub_data_tensors))
+            sub_data_tensors[key] = {};
+          dfs(value, sub_data_tensors[key]);
+        }
+      }
+    }
+    dfs(this.col_dict, this.data_tensors);
 
+    return this;
   }
 
   /**
@@ -117,36 +84,19 @@ export class GroupBy {
       throw new Error(`Col_name must be an array of column`);
     }
 
-    // let group_col_name = col_names; // store the column name
-    let group_col = {};
-    if (this.key_col.length == 2){
-
-      for (var key1 in this.data_tensors){
-
-        group_col[key1] = {};
-        for (var key2 in this.data_tensors[key1]){
-
-          group_col[key1][key2] = [];
-          for (let i = 0; i < col_names.length; i++){
-            let col_name = col_names[i];
-            let data = this.data_tensors[key1][key2].column(col_name);
-            group_col[key1][key2].push(data);
-          }
-
+    const group_col = {};
+    function dfs(sub_data_tensors, sub_group_col) {
+      for (const [ key, value ] of Object.entries(sub_data_tensors)){
+        if (value instanceof DataFrame) {
+          sub_group_col[key] = col_names.map((col_name) => value.column(col_name));
+        } else {
+          sub_group_col[key] = {};
+          dfs(value, sub_group_col[key]);
         }
-      }
-    } else {
-      for (let key1 in this.data_tensors){
-
-        group_col[key1] = [];
-        for (let i = 0; i < col_names.length; i++){
-          let col_name = col_names[i];
-          let data = this.data_tensors[key1].column(col_name);
-          group_col[key1].push(data);
-        }
-
       }
     }
+    dfs(this.data_tensors, group_col);
+
     const gp = new GroupBy(
       null,
       this.key_col,
@@ -154,24 +104,20 @@ export class GroupBy {
       col_names,
       this.col_dtype
     );
-
     gp.group_col = group_col;
     gp.group_col_name = col_names;
-    // return gp;
     return gp;
   }
 
 
   /**
      * Basic root of all column arithemetic in groups
-     * @param {operation} operatioin String
+     * @param {operation} operation String
      */
   arithemetic(operation){
-
-    let ops_name = [ "mean", "sum", "count", "mode", "std", "var", "cumsum", "cumprod",
+    const ops_name = [ "mean", "sum", "count", "mode", "std", "var", "cumsum", "cumprod",
       "cummax", "cummin" ];
-
-    let ops_map = {
+    const ops_map = {
       "mean": "mean()",
       "sum": "sum()",
       "mode": "mode()",
@@ -183,78 +129,44 @@ export class GroupBy {
       "cummax" : "cummax().values",
       "cummin" : "cummin().values"
     };
-    let is_array = false;
+    const is_array_operation = Array.isArray(operation);
+    const count_group = {};
+
     //the local variable to store variables to be used in eval
     // this seems not to be needed in Node version, since local
     //variable are easily accessed in the eval function
     let local = null;
-
-    if (Array.isArray(operation)){
-      is_array = true;
-    }
-
-    if (this.key_col.length == 2){
-
-      let count_group = {};
-
-      for (var key1 in this.group_col){
-
-        count_group[key1] = {};
-        for (var key2 in this.group_col[key1]){
-
-          count_group[key1][key2] = [];
-          for (let i = 0; i < this.group_col[key1][key2].length; i++ ){
-            let data = null;
-            if (is_array){
-              let op = operation[i];
+    function dfs(sub_count_group, sub_group_col) {
+      for (const [ key, value ] of Object.entries(sub_group_col)){
+        if (Array.isArray(value)) {
+          sub_count_group[key] = [];
+          let data;
+          if (is_array_operation) {
+            for (let i = 0; i < value.length; i++){
+              const op = operation[i];
               if (!ops_name.includes(op)){
                 throw new Error("operation does not exist");
               }
-              local = this.group_col[key1][key2][i];
+              local = value[i];
               data = eval(`local.${ops_map[op]}`);
-
-            } else {
-              local = this.group_col[key1][key2][i];
-              data = eval(`local.${operation}`);
+              sub_count_group[key].push(data);
             }
-            count_group[key1][key2].push(data);
-
-          }
-
-        }
-      }
-      return count_group;
-
-    } else {
-      let count_group = {};
-
-      for (let key1 in this.group_col){
-
-        count_group[key1] = [];
-        for (let i = 0; i < this.group_col[key1].length; i++ ){
-          let data = null;
-          if (is_array){
-            let op = operation[i];
-            if (!ops_name.includes(op)){
-              throw new Error("operation does not exist");
-            }
-            local = this.group_col[key1][i];
-            data = eval(`local.${ops_map[op]}`);
-
           } else {
-            local = this.group_col[key1][i];
-            data = eval(`local.${operation}`);
+            value.forEach((v) => {
+              local = v;
+              data = eval(`local.${operation}`);
+              sub_count_group[key].push(data);
+            });
           }
-
-          count_group[key1].push(data);
-
+        } else {
+          sub_count_group[key] = {};
+          dfs(sub_count_group[key], value);
         }
       }
-
-      return count_group;
     }
 
-
+    dfs(count_group, this.group_col);
+    return count_group;
   }
 
   operations(ops, name) {
@@ -318,29 +230,25 @@ export class GroupBy {
      * @param {*} key [Array]
      */
   get_groups(key){
+    if (this.key_col.length < 2)
+      return this.data_tensors[key];
 
-    if (this.key_col.length == 2){
+    if (key.length !== this.key_col.length)
+      throw new Error("specify the group by column");
 
-      if (key.length == 2){
-        let key1 = key[0];
-        let key2 = key[1];
-
-        utils.__is_object(this.data_tensors, key1, `Key Error: ${key1} not in object`);
-        return this.data_tensors[key1][key2];
-      } else { throw new Error("specify the two group by column"); }
-    } else if (this.key_col.length == 1){
-
-      if (key.length == 1){
-
-        utils.__is_object(this.data_tensors, key[0], `Key Error: ${key[0]} not in object`);
-        return this.data_tensors[key[0]];
-      } else { throw new Error("specify the one group by column"); }
+    utils.__is_object(this.data_tensors, key[0], `Key Error: ${key[0]} not in object`);
+    const last_key = key[key.length - 1];
+    let sub_data_tensors = this.data_tensors;
+    for (const k of key) {
+      if (k === last_key)
+        return sub_data_tensors[k];
+      else
+        sub_data_tensors = sub_data_tensors[k];
     }
-    return this.data_tensors[key];
   }
 
   /**
-     * Map every column to an operaton
+     * Map every column to an operation
      * @param {kwargs} kwargs {column name: math operation}
      * @example .agg({"A": "mean","B": "sum","C":"count"})
      */
@@ -358,99 +266,36 @@ export class GroupBy {
   }
 
   to_DataFrame(key_col, col, data, ops){
+    const df_data = [];
 
-    if (key_col.length == 2){
-      let df_data = [];
-      for (let key_1 in data){
-
-        let key_val = data[key_1];
-
-        for (let key_2 in key_val){
-          let k_data = key_val[key_2];
-          let key_data = [];
-
-
-          if (Array.isArray(k_data[0])){
-            for (let i = 0; i < k_data.length; i++){
-              let col_data = k_data[i];
-
-              for (let j = 0; j < col_data.length; j++ ){
-
-                if (typeof key_data[j] === "undefined" ){
-                  key_data[j] = [];
-                  key_data[j][0] = this.col_dtype[0] === "string" ? key_1 : parseInt(key_1);
-                  key_data[j][1] = this.col_dtype[1] === "string" ? key_2 : parseInt(key_2);
-                  key_data[j].push(col_data[j]);
-                } else {
-                  key_data[j].push(col_data[j]);
-                }
-              }
-            }
-            df_data.push(...key_data);
-
-          } else {
-            key_data[0] = this.col_dtype[0] === "string" ? key_1 : parseInt(key_1);
-            key_data[1] = this.col_dtype[1] === "string" ? key_2 : parseInt(key_2);
-            key_data.push(...k_data);
-            df_data.push(key_data);
-          }
-
-
+    function concatPathAndNode(path, node, col_dtype) {
+      if (Array.isArray(node)) {
+        if (Array.isArray(node[0])) {
+          const transposed_node = node[0].map((_, colIndex) => node.map((row) => row[colIndex]));
+          for (const n_array of transposed_node)
+            df_data.push(path.concat(n_array));
+        } else
+          df_data.push(path.concat(node));
+      } else {
+        for (const [ k, child ] of Object.entries(node)) {
+          const sanitized_k = col_dtype[0] === "string" ? k : parseInt(k);
+          concatPathAndNode(path.concat([ sanitized_k ]), child, col_dtype.slice(1));
         }
-
       }
-      let column = [ ...key_col ];
-
-      let group_col = col.slice().map((x, i) => {
-        if (Array.isArray(ops)){
-          return `${x}_${ops[i]}`;
-        }
-        return `${x}_${ops}`;
-      });
-      column.push(...group_col);
-      return new DataFrame(df_data, { columns: column });
-    } else {
-      let df_data = [];
-      for (let key_1 in data){
-
-        let key_val = data[key_1];
-
-        let key_data = [];
-        if (Array.isArray(key_val[0])){
-          for (let i = 0; i < key_val.length; i++){
-            let col_data = key_val[i];
-
-            for (let j = 0; j < col_data.length; j++ ){
-
-              if (typeof key_data[j] === "undefined" ){
-                key_data[j] = [];
-                key_data[j][0] = this.col_dtype[0] === "string" ? key_1 : parseInt(key_1);
-                key_data[j].push(col_data[j]);
-              } else {
-                key_data[j].push(col_data[j]);
-              }
-            }
-            // df_data.push(...key_data);
-          }
-          df_data.push(...key_data);
-        } else {
-          key_data[0] = this.col_dtype[0] === "string" ? key_1 : parseInt(key_1);
-          key_data.push(...key_val);
-          df_data.push(key_data);
-        }
-
-      }
-      let column = [ ...key_col ];
-      let group_col = col.slice().map((x, i) => {
-        if (Array.isArray(ops)){
-          return `${x}_${ops[i]}`;
-        }
-        return `${x}_${ops}`;
-      });
-      column.push(...group_col);
-
-      return new DataFrame(df_data, { columns: column });
     }
+
+    concatPathAndNode([], data, this.col_dtype);
+
+    const column = [ ...key_col ];
+    const group_col = col.slice().map((x, i) => {
+      if (Array.isArray(ops)){
+        return `${x}_${ops[i]}`;
+      }
+      return `${x}_${ops}`;
+    });
+    column.push(...group_col);
+
+    return new DataFrame(df_data, { columns: column });
   }
 
   apply(callable){
@@ -458,56 +303,33 @@ export class GroupBy {
     let column;
     if (!this.group_col) {
       column = this.column_name.filter((val) => !this.key_col.includes(val));
-      let col_gp = this.col(column);
+      const col_gp = this.col(column);
       df_data = col_gp.group_col;
     } else {
       column = this.group_col_name;
       df_data = this.group_col;
     }
-    let data = [];
-    let count_group = {};
-    if (this.key_col.length == 2) {
-      
-      for (let key in df_data) {
-        count_group[key] = {};
-        for (let key2 in df_data[key]) {
-          let index;
-          count_group[key][key2] = [];
-          for (let i = 0; i < df_data[key][key2].length; i++ ) {
-            let callable_rslt = callable(df_data[key][key2][i]);
-            if (callable_rslt instanceof DataFrame) {
-              count_group[key][key2].push(callable_rslt.values);
-            } else {
-              if (callable_rslt instanceof Series) {
-                count_group[key][key2].push(callable_rslt.values);
-              } else {
-                count_group[key][key2].push(callable_rslt);
-              }
-            }
-          }
+    const count_group = {};
 
-
+    function recursiveCount(sub_df_data, sub_count_group) {
+      for (const [ key, value ] of Object.entries(sub_df_data)) {
+        if (Array.isArray(value)) {
+          sub_count_group[key] = value.map(( callable_value ) => {
+            const callable_rslt = callable(callable_value);
+            if ((callable_rslt instanceof DataFrame) || (callable_rslt instanceof Series))
+              return callable_rslt.values;
+            else
+              return callable_rslt;
+          });
+        } else {
+          sub_count_group[key] = {};
+          recursiveCount(value, sub_count_group[key]);
         }
-      }
-    } else {
-      for (let key in df_data) {
-        count_group[key] = [];
-        for (let i = 0; i < df_data[key].length; i++ ){
-          let callable_rslt = callable(df_data[key][i]);
-          if (callable_rslt instanceof DataFrame) {
-            count_group[key].push(callable_rslt.values);
-          } else {
-            if (callable_rslt instanceof Series) {
-              count_group[key].push(callable_rslt.values);
-            } else {
-              count_group[key].push(callable_rslt);
-            }
-
-          }
-        }
-
       }
     }
+
+    recursiveCount(df_data, count_group);
+
     return this.to_DataFrame(this.key_col, column, count_group, "apply");
   }
 

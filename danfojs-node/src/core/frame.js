@@ -1106,80 +1106,48 @@ export class DataFrame extends Ndframe {
    * @param {col}  col is a list of column with maximum length of two
    */
   groupby(col) {
-    let len = this.shape[0];
-    let column_names = this.column_names;
-    let col_dict = {};
-    let key_column = null;
-    let col_index = col.map((val) => column_names.indexOf(val));
-    let col_dtype = this.dtypes.filter((val, index) => {
+    const len = this.shape[0];
+    const column_names = this.column_names;
+    const col_index = col.map((val) => column_names.indexOf(val));
+    const col_dtype = this.dtypes.filter((val, index) => {
       return col_index.includes(index);
     });
-    if (col.length == 2) {
-      if (column_names.includes(col[0])) {
-        // eslint-disable-next-line no-unused-vars
-        var [data1, col_name1] = indexLoc(this, {
-          rows: [`0:${len}`],
-          columns: [`${col[0]}`],
+
+    const self = this;
+    const data = col.map(
+      (column_name) => {
+        if (!(column_names.includes(column_name)))
+          throw new Error(`column ${column_name} does not exist`);
+        const [ column_data, _ ] = indexLoc(self, {
+          rows: [ `0:${len}` ],
+          columns: [ `${column_name}` ],
           type: "loc"
         });
-      } else {
-        throw new Error(`column ${col[0]} does not exist`);
+        return column_data;
       }
-      if (column_names.includes(col[1])) {
-        // eslint-disable-next-line no-unused-vars
-        var [data2, col_name2] = indexLoc(this, {
-          rows: [`0:${len}`],
-          columns: [`${col[1]}`],
-          type: "loc"
-        });
-      } else {
-        throw new Error(`column ${col[1]} does not exist`);
-      }
+    );
 
-      key_column = [col[0], col[1]];
-      var column_1_Unique = utils.__unique(data1);
-      var column_2_unique = utils.__unique(data2);
+    const unique_columns = data.map((column_data) => utils.__unique(column_data));
 
-      for (var i = 0; i < column_1_Unique.length; i++) {
-        let col_value = column_1_Unique[i];
-        col_dict[col_value] = {};
-
-        for (var j = 0; j < column_2_unique.length; j++) {
-          let col2_value = column_2_unique[j];
-          col_dict[col_value][col2_value] = [];
-        }
-      }
-    } else {
-      if (column_names.includes(col[0])) {
-        // eslint-disable-next-line no-redeclare
-        var [data1, col_name1] = indexLoc(this, {
-          rows: [`0:${len}`],
-          columns: [`${col[0]}`],
-          type: "loc"
-        });
-        // console.log(data1)
-      } else {
-        throw new Error(`column ${col[0]} does not exist`);
-      }
-      key_column = [col[0]];
-
-      var column_Unique = utils.__unique(data1);
-
-      for (let i = 0; i < column_Unique.length; i++) {
-        let col_value = column_Unique[i];
-        col_dict[col_value] = [];
-      }
+    function getRecursiveDict(uniq_columns) {
+      const first_uniq_columns = uniq_columns[0];
+      const remaining_columns = uniq_columns.slice(1);
+      const c_dict = {};
+      if (!remaining_columns.length)
+        first_uniq_columns.forEach((col_value) => c_dict[col_value] = []);
+      else
+        first_uniq_columns.forEach((col_value) => c_dict[col_value] = getRecursiveDict(remaining_columns));
+      return c_dict;
     }
+    const col_dict = getRecursiveDict(unique_columns);
 
-    let groups = new GroupBy(
+    return new GroupBy(
       col_dict,
-      key_column,
+      col,
       this.values,
       column_names,
       col_dtype
     ).group();
-
-    return groups;
   }
 
   /**
