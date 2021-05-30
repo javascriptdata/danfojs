@@ -20,26 +20,26 @@ export const indexLoc = (ndframe, kwargs) => {
         //console.log("here", kwargs["rows"].length)
         if (kwargs["rows"][0].includes(":")) {
 
-          let row_split = kwargs["rows"][0].split(":");
+          let column_split = kwargs["rows"][0].split(":");
 
           if (kwargs['type'] == 'loc') {
             //get index of first and last occurence of label
             let start, end;
-            if (isNaN(Number(row_split[0]))) {
-              start = ndframe.index.indexOf(row_split[0]);
+            if (isNaN(Number(column_split[0]))) {
+              start = ndframe.index.indexOf(column_split[0]);
             } else {
-              start = Number(row_split[0]);
+              start = Number(column_split[0]);
             }
 
-            if (isNaN(Number(row_split[1]))) {
-              end = ndframe.index.lastIndexOf(row_split[1]) - 1 || (ndframe.values.length - 1);
+            if (isNaN(Number(column_split[1]))) {
+              end = ndframe.index.lastIndexOf(column_split[1]) - 1 || (ndframe.values.length - 1);
             } else {
-              end = Number(row_split[1]) - 1 || (ndframe.values.length - 1);
+              end = Number(column_split[1]) - 1 || (ndframe.values.length - 1);
             }
             rows = utils.__range(start, end);
           } else {
-            let start = parseInt(row_split[0]) || 0;
-            let end = parseInt(row_split[1]) - 1 || (ndframe.values.length - 1);
+            let start = parseInt(column_split[0]) || 0;
+            let end = parseInt(column_split[1]) - 1 || (ndframe.values.length - 1);
 
             if (typeof start == "number" && typeof end == "number") {
               rows = utils.__range(start, end);
@@ -90,16 +90,16 @@ export const indexLoc = (ndframe, kwargs) => {
     if (Array.isArray(kwargs["columns"])) {
       if (kwargs["columns"].length == 1 && kwargs["columns"][0].includes(":")) {
 
-        let row_split = kwargs["columns"][0].split(":");
+        let column_split = kwargs["columns"][0].split(":");
         let start, end;
 
-        if (kwargs["type"] == "iloc" || (row_split[0] == "")) {
-          start = parseInt(row_split[0]) || 0;
-          end = parseInt(row_split[1]) - 1 || (ndframe.values[0].length - 1);
+        if (kwargs["type"] == "iloc" || (column_split[0] == "")) {
+          start = parseInt(column_split[0]) || 0;
+          end = parseInt(column_split[1]) - 1 === 0 ? 0 : parseInt(column_split[1]) - 1;
         } else {
 
-          start = parseInt(ndframe.columns.indexOf(row_split[0]));
-          end = parseInt(ndframe.columns.indexOf(row_split[1])) - 1;
+          start = parseInt(ndframe.columns.indexOf(column_split[0]));
+          end = parseInt(ndframe.columns.indexOf(column_split[1])) - 1;
         }
 
 
