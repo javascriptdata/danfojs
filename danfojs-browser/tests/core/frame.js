@@ -2352,4 +2352,28 @@ describe("DataFrame", function () {
 
     });
   });
+  describe("Str", function () {
+    it("Str (startsWith) works for columns selected from a DF", function () {
+      let data = {
+        "Name": [ "Apples", "Bake", "Application", undefined ],
+        "Count": [ 2, 5, 4, 10 ],
+        "Price": [ 200, 300, 40, 250 ]
+      };
+
+      let df = new dfd.DataFrame(data);
+      let name_sf = df['Name'];
+      assert.deepEqual(name_sf.str.startsWith("App").values, [ true, false, true, false ]);
+    });
+    it("Str (toLowerCase) works for columns selected from a DF", function () {
+      let data = {
+        "Name": [ "Apples", "Bake", "Application", undefined ],
+        "Count": [ 2, 5, 4, 10 ],
+        "Price": [ 200, 300, 40, 250 ]
+      };
+
+      let df = new dfd.DataFrame(data);
+      let name_sf = df['Name'];
+      assert.deepEqual(name_sf.str.toLowerCase().values, [ "apples", "bake", "application", NaN ]);
+    });
+  });
 });

@@ -1195,20 +1195,14 @@ export class Series extends NDframe {
 
 
   /**
-     * Exposes numerous string methods to manipulate Series
-     */
+   * Exposes numerous string methods to manipulate Series of type string
+   */
   get str() {
-    let values = this.values;
-    if (this.dtypes[0] != "string") {
-      let new_vals = [];
-      //convert each value in array to string
-      values.forEach((val) => {
-        new_vals.push(String(val));
-      });
-      let sf = new Series(new_vals, { columns: this.column_names, index: this.index });
-      return new Str(sf);
+    if (this.dtypes[0] == "string") {
+      return new Str(this);
+    } else {
+      throw new Error("Cannot call accessor str on non-string type");
     }
-    return new Str(this);
 
   }
 

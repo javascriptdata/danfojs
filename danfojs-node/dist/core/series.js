@@ -961,21 +961,11 @@ class Series extends _generic.default {
   }
 
   get str() {
-    let values = this.values;
-
-    if (this.dtypes[0] != "string") {
-      let new_vals = [];
-      values.forEach(val => {
-        new_vals.push(String(val));
-      });
-      let sf = new Series(new_vals, {
-        columns: this.column_names,
-        index: this.index
-      });
-      return new _strings.Str(sf);
+    if (this.dtypes[0] == "string") {
+      return new _strings.Str(this);
+    } else {
+      throw new Error("Cannot call accessor str on non-string type");
     }
-
-    return new _strings.Str(this);
   }
 
   get dt() {

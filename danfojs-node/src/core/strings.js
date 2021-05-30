@@ -16,7 +16,12 @@ export class Str {
   toLowerCase() {
     let new_arr = [];
     this.array.map((val) => {
-      new_arr.push(val.toLowerCase());
+      if (isNaN(val) && typeof val != "string") {
+        new_arr.push(val);
+      } else {
+        new_arr.push(val.toLowerCase());
+      }
+
     });
     let sf = this.__create_new_sf_from(new_arr, this.series);
     return sf;
@@ -29,7 +34,12 @@ export class Str {
   toUpperCase() {
     let new_arr = [];
     this.array.map((val) => {
-      new_arr.push(val.toUpperCase());
+      if (isNaN(val) && typeof val != "string") {
+        new_arr.push(val);
+      } else {
+        new_arr.push(val.toUpperCase());
+      }
+
     });
     let sf = this.__create_new_sf_from(new_arr, this.series);
     return sf;
@@ -42,10 +52,15 @@ export class Str {
   capitalize() {
     let new_arr = [];
     this.array.map((val) => {
-      let f_char = val.slice(0, 1);
-      let l_char = val.slice(1);
-      let new_str = `${f_char.toUpperCase()}${l_char.toLowerCase()}`;
-      new_arr.push(new_str);
+      if (isNaN(val) && typeof val != "string") {
+        new_arr.push(val);
+      } else {
+        let f_char = val.slice(0, 1);
+        let l_char = val.slice(1);
+        let new_str = `${f_char.toUpperCase()}${l_char.toLowerCase()}`;
+        new_arr.push(new_str);
+      }
+
     });
     let sf = this.__create_new_sf_from(new_arr, this.series);
     return sf;
@@ -60,7 +75,11 @@ export class Str {
   charAt(index = 0) {
     let new_arr = [];
     this.array.map((val) => {
-      new_arr.push(val.charAt(index));
+      if (isNaN(val) && typeof val != "string") {
+        new_arr.push(val);
+      } else {
+        new_arr.push(val.charAt(index));
+      }
     });
     let sf = this.__create_new_sf_from(new_arr, this.series);
     return sf;
@@ -94,10 +113,18 @@ export class Str {
 
       this.array.map((val) => {
         if (position == 1) {
-          new_arr.push(val.concat(other));
+          if (isNaN(val) && typeof val != "string") {
+            new_arr.push(String(val).concat(other));
+          } else {
+            new_arr.push(val.concat(other));
+          }
 
         } else {
-          new_arr.push(other.concat(val));
+          if (isNaN(val) && typeof val != "string") {
+            new_arr.push(other.concat(String(val)));
+          } else {
+            new_arr.push(other.concat(val));
+          }
         }
       });
       let sf = this.__create_new_sf_from(new_arr, this.series);
@@ -114,8 +141,12 @@ export class Str {
     */
   startsWith(str = "") {
     let new_arr = [];
-    this.array.map((val) => {
-      new_arr.push(val.startsWith(str));
+    this.array.forEach((val) => {
+      if (isNaN(val) && typeof val != "string") {
+        new_arr.push(false);
+      } else {
+        new_arr.push(val.startsWith(str));
+      }
     });
     let sf = this.__create_new_sf_from(new_arr, this.series);
     return sf;
@@ -129,7 +160,11 @@ export class Str {
   endsWith(str = "") {
     let new_arr = [];
     this.array.map((val) => {
-      new_arr.push(val.endsWith(str));
+      if (isNaN(val) && typeof val != "string") {
+        new_arr.push(false);
+      } else {
+        new_arr.push(val.endsWith(str));
+      }
     });
     let sf = this.__create_new_sf_from(new_arr, this.series);
     return sf;
@@ -143,7 +178,11 @@ export class Str {
   includes(str = "") {
     let new_arr = [];
     this.array.map((val) => {
-      new_arr.push(val.includes(str));
+      if (isNaN(val) && typeof val != "string") {
+        new_arr.push(false);
+      } else {
+        new_arr.push(val.includes(str));
+      }
     });
     let sf = this.__create_new_sf_from(new_arr, this.series);
     return sf;
@@ -157,7 +196,11 @@ export class Str {
   indexOf(str = "") {
     let new_arr = [];
     this.array.map((val) => {
-      new_arr.push(val.indexOf(str));
+      if (isNaN(val) && typeof val != "string") {
+        new_arr.push(-1);
+      } else {
+        new_arr.push(val.indexOf(str));
+      }
     });
     let sf = this.__create_new_sf_from(new_arr, this.series);
     return sf;
@@ -171,7 +214,11 @@ export class Str {
   lastIndexOf(str = "") {
     let new_arr = [];
     this.array.map((val) => {
-      new_arr.push(val.lastIndexOf(str));
+      if (isNaN(val) && typeof val != "string") {
+        new_arr.push(-1);
+      } else {
+        new_arr.push(val.lastIndexOf(str));
+      }
     });
     let sf = this.__create_new_sf_from(new_arr, this.series);
     return sf;
@@ -187,7 +234,11 @@ export class Str {
   replace(searchValue = "", replaceValue = "") {
     let new_arr = [];
     this.array.map((val) => {
-      new_arr.push(val.replace(searchValue, replaceValue));
+      if (isNaN(val) && typeof val != "string") {
+        new_arr.push(val);
+      } else {
+        new_arr.push(val.replace(searchValue, replaceValue));
+      }
     });
     let sf = this.__create_new_sf_from(new_arr, this.series);
     return sf;
@@ -201,7 +252,11 @@ export class Str {
   repeat(num = 1) {
     let new_arr = [];
     this.array.map((val) => {
-      new_arr.push(val.repeat(num));
+      if (isNaN(val) && typeof val != "string") {
+        new_arr.push(val);
+      } else {
+        new_arr.push(val.repeat(num));
+      }
     });
     let sf = this.__create_new_sf_from(new_arr, this.series);
     return sf;
@@ -216,7 +271,11 @@ export class Str {
   search(str = "") {
     let new_arr = [];
     this.array.map((val) => {
-      new_arr.push(val.search(str));
+      if (isNaN(val) && typeof val != "string") {
+        new_arr.push(-1);
+      } else {
+        new_arr.push(val.search(str));
+      }
     });
     let sf = this.__create_new_sf_from(new_arr, this.series);
     return sf;
@@ -231,7 +290,11 @@ export class Str {
   slice(startIndex = 0, endIndex = 1) {
     let new_arr = [];
     this.array.map((val) => {
-      new_arr.push(val.slice(startIndex, endIndex));
+      if (isNaN(val) && typeof val != "string") {
+        new_arr.push(val);
+      } else {
+        new_arr.push(val.slice(startIndex, endIndex));
+      }
     });
     let sf = this.__create_new_sf_from(new_arr, this.series);
     return sf;
@@ -246,7 +309,11 @@ export class Str {
   split(splitVal = " ") {
     let new_arr = [];
     this.array.map((val) => {
-      new_arr.push(val.split(splitVal));
+      if (isNaN(val) && typeof val != "string") {
+        new_arr.push(val);
+      } else {
+        new_arr.push(val.split(splitVal));
+      }
     });
     let sf = this.__create_new_sf_from(new_arr, this.series);
     return sf;
@@ -261,7 +328,11 @@ export class Str {
   substr(startIndex = 0, num = 1) {
     let new_arr = [];
     this.array.map((val) => {
-      new_arr.push(val.substr(startIndex, num));
+      if (isNaN(val) && typeof val != "string") {
+        new_arr.push(val);
+      } else {
+        new_arr.push(val.substr(startIndex, num));
+      }
     });
     let sf = this.__create_new_sf_from(new_arr, this.series);
     return sf;
@@ -276,7 +347,11 @@ export class Str {
   substring(startIndex = 0, endIndex = 1) {
     let new_arr = [];
     this.array.map((val) => {
-      new_arr.push(val.substring(startIndex, endIndex));
+      if (isNaN(val) && typeof val != "string") {
+        new_arr.push(val);
+      } else {
+        new_arr.push(val.substring(startIndex, endIndex));
+      }
     });
     let sf = this.__create_new_sf_from(new_arr, this.series);
     return sf;
@@ -289,7 +364,11 @@ export class Str {
   trim() {
     let new_arr = [];
     this.array.map((val) => {
-      new_arr.push(val.trim());
+      if (isNaN(val) && typeof val != "string") {
+        new_arr.push(val);
+      } else {
+        new_arr.push(val.trim());
+      }
     });
     let sf = this.__create_new_sf_from(new_arr, this.series);
     return sf;
@@ -304,10 +383,14 @@ export class Str {
   join(valToJoin = "", joinChar = " ") {
     let new_arr = [];
     this.array.map((val) => {
-      let l_char = val;
-      let r_char = valToJoin;
-      let new_char = `${l_char}${joinChar}${r_char}`;
-      new_arr.push(new_char);
+      if (isNaN(val) && typeof val != "string") {
+        new_arr.push(val);
+      } else {
+        let l_char = val;
+        let r_char = valToJoin;
+        let new_char = `${l_char}${joinChar}${r_char}`;
+        new_arr.push(new_char);
+      }
     });
     let sf = this.__create_new_sf_from(new_arr, this.series);
     return sf;
@@ -320,7 +403,11 @@ export class Str {
   len() {
     let new_arr = [];
     this.array.map((val) => {
-      new_arr.push(val.length);
+      if (isNaN(val) && typeof val != "string") {
+        new_arr.push(val);
+      } else {
+        new_arr.push(val.length);
+      }
     });
     let sf = this.__create_new_sf_from(new_arr, this.series);
     return sf;
