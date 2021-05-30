@@ -924,74 +924,34 @@ class DataFrame extends _generic.default {
   }
 
   groupby(col) {
-    let len = this.shape[0];
-    let column_names = this.column_names;
-    let col_dict = {};
-    let key_column = null;
-    let col_index = col.map(val => column_names.indexOf(val));
-    let col_dtype = this.dtypes.filter((val, index) => {
+    const len = this.shape[0];
+    const column_names = this.column_names;
+    const col_index = col.map(val => column_names.indexOf(val));
+    const col_dtype = this.dtypes.filter((val, index) => {
       return col_index.includes(index);
     });
+    const self = this;
+    const data = col.map(column_name => {
+      if (!column_names.includes(column_name)) throw new Error(`column ${column_name} does not exist`);
+      const [column_data, _] = (0, _indexing.indexLoc)(self, {
+        rows: [`0:${len}`],
+        columns: [`${column_name}`],
+        type: "loc"
+      });
+      return column_data;
+    });
+    const unique_columns = data.map(column_data => utils.__unique(column_data));
 
-    if (col.length == 2) {
-      if (column_names.includes(col[0])) {
-        var [data1, col_name1] = (0, _indexing.indexLoc)(this, {
-          rows: [`0:${len}`],
-          columns: [`${col[0]}`],
-          type: "loc"
-        });
-      } else {
-        throw new Error(`column ${col[0]} does not exist`);
-      }
-
-      if (column_names.includes(col[1])) {
-        var [data2, col_name2] = (0, _indexing.indexLoc)(this, {
-          rows: [`0:${len}`],
-          columns: [`${col[1]}`],
-          type: "loc"
-        });
-      } else {
-        throw new Error(`column ${col[1]} does not exist`);
-      }
-
-      key_column = [col[0], col[1]];
-
-      var column_1_Unique = utils.__unique(data1);
-
-      var column_2_unique = utils.__unique(data2);
-
-      for (var i = 0; i < column_1_Unique.length; i++) {
-        let col_value = column_1_Unique[i];
-        col_dict[col_value] = {};
-
-        for (var j = 0; j < column_2_unique.length; j++) {
-          let col2_value = column_2_unique[j];
-          col_dict[col_value][col2_value] = [];
-        }
-      }
-    } else {
-      if (column_names.includes(col[0])) {
-        var [data1, col_name1] = (0, _indexing.indexLoc)(this, {
-          rows: [`0:${len}`],
-          columns: [`${col[0]}`],
-          type: "loc"
-        });
-      } else {
-        throw new Error(`column ${col[0]} does not exist`);
-      }
-
-      key_column = [col[0]];
-
-      var column_Unique = utils.__unique(data1);
-
-      for (let i = 0; i < column_Unique.length; i++) {
-        let col_value = column_Unique[i];
-        col_dict[col_value] = [];
-      }
+    function getRecursiveDict(uniq_columns) {
+      const first_uniq_columns = uniq_columns[0];
+      const remaining_columns = uniq_columns.slice(1);
+      const c_dict = {};
+      if (!remaining_columns.length) first_uniq_columns.forEach(col_value => c_dict[col_value] = []);else first_uniq_columns.forEach(col_value => c_dict[col_value] = getRecursiveDict(remaining_columns));
+      return c_dict;
     }
 
-    let groups = new _groupby.GroupBy(col_dict, key_column, this.values, column_names, col_dtype).group();
-    return groups;
+    const col_dict = getRecursiveDict(unique_columns);
+    return new _groupby.GroupBy(col_dict, col, this.values, column_names, col_dtype).group();
   }
 
   column(col_name) {
