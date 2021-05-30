@@ -155,5 +155,5 @@ var _strings = require("./core/strings");
 
 var _utils = require("./core/utils");
 
-const _version = "0.2.6";
+const _version = "0.2.7";
 exports._version = _version;
