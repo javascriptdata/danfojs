@@ -1134,11 +1134,17 @@ describe("Series", function () {
       assert.deepEqual(sf.str.charAt(2).values, res);
     });
 
-    it("Returns the concat of numeric series", function () {
+    it("Throws error on concat of numeric series", function () {
       let data = [ 1, 2, 3, 4, 5, 6 ];
-      let res = [ "120", "220", "320", "420", "520", "620" ];
       let sf = new dfd.Series(data);
-      assert.deepEqual(sf.str.concat("20", 1).values, res);
+      assert.throws(
+        () => {
+          sf.str.concat("20", 1);
+        },
+        Error,
+        "Cannot call accessor str on non-string type"
+      );
+
     });
   });
 

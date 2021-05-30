@@ -1069,30 +1069,30 @@ export class Series extends NDframe {
       let bool = null;
       switch (b_ops) {
 
-        case "lt":
-          bool = l_val < r_val ? true : false;
-          data.push(bool);
-          break;
-        case "gt":
-          bool = l_val > r_val ? true : false;
-          data.push(bool);
-          break;
-        case "le":
-          bool = l_val <= r_val ? true : false;
-          data.push(bool);
-          break;
-        case "ge":
-          bool = l_val >= r_val ? true : false;
-          data.push(bool);
-          break;
-        case "ne":
-          bool = l_val != r_val ? true : false;
-          data.push(bool);
-          break;
-        case "eq":
-          bool = l_val === r_val ? true : false;
-          data.push(bool);
-          break;
+      case "lt":
+        bool = l_val < r_val ? true : false;
+        data.push(bool);
+        break;
+      case "gt":
+        bool = l_val > r_val ? true : false;
+        data.push(bool);
+        break;
+      case "le":
+        bool = l_val <= r_val ? true : false;
+        data.push(bool);
+        break;
+      case "ge":
+        bool = l_val >= r_val ? true : false;
+        data.push(bool);
+        break;
+      case "ne":
+        bool = l_val != r_val ? true : false;
+        data.push(bool);
+        break;
+      case "eq":
+        bool = l_val === r_val ? true : false;
+        data.push(bool);
+        break;
       }
     }
     return new Series(data);
@@ -1113,30 +1113,30 @@ export class Series extends NDframe {
 
       let curr_val = s_data[i];
       switch (ops) {
-        case "max":
-          if (curr_val > temp_val) {
-            data.push(curr_val);
-            temp_val = curr_val;
-          } else {
-            data.push(temp_val);
-          }
-          break;
-        case "min":
-          if (curr_val < temp_val) {
-            data.push(curr_val);
-            temp_val = curr_val;
-          } else {
-            data.push(temp_val);
-          }
-          break;
-        case "sum":
-          temp_val = temp_val + curr_val;
+      case "max":
+        if (curr_val > temp_val) {
+          data.push(curr_val);
+          temp_val = curr_val;
+        } else {
           data.push(temp_val);
-          break;
-        case "prod":
-          temp_val = temp_val * curr_val;
+        }
+        break;
+      case "min":
+        if (curr_val < temp_val) {
+          data.push(curr_val);
+          temp_val = curr_val;
+        } else {
           data.push(temp_val);
-          break;
+        }
+        break;
+      case "sum":
+        temp_val = temp_val + curr_val;
+        data.push(temp_val);
+        break;
+      case "prod":
+        temp_val = temp_val * curr_val;
+        data.push(temp_val);
+        break;
 
       }
     }
@@ -1164,28 +1164,28 @@ export class Series extends NDframe {
     let new_values = [];
 
     switch (dtype) {
-      case "float32":
-        col_values.forEach((val) => {
-          new_values.push(Number(val));
-        });
-        break;
-      case "int32":
-        col_values.forEach((val) => {
-          new_values.push(Number(Number(val).toFixed()));
-        });
-        break;
-      case "string":
-        col_values.forEach((val) => {
-          new_values.push(String(val));
-        });
-        break;
-      case "boolean":
-        col_values.forEach((val) => {
-          new_values.push(Boolean(val));
-        });
-        break;
-      default:
-        break;
+    case "float32":
+      col_values.forEach((val) => {
+        new_values.push(Number(val));
+      });
+      break;
+    case "int32":
+      col_values.forEach((val) => {
+        new_values.push(Number(Number(val).toFixed()));
+      });
+      break;
+    case "string":
+      col_values.forEach((val) => {
+        new_values.push(String(val));
+      });
+      break;
+    case "boolean":
+      col_values.forEach((val) => {
+        new_values.push(Boolean(val));
+      });
+      break;
+    default:
+      break;
     }
 
     let sf = new Series(new_values, { dtypes: dtype, index: this.index });
@@ -1195,20 +1195,14 @@ export class Series extends NDframe {
 
 
   /**
-     * Exposes numerous string methods to manipulate Series
+     * Exposes numerous string methods to manipulate Series of type string
      */
   get str() {
-    let values = this.values;
-    if (this.dtypes[0] != "string") {
-      let new_vals = [];
-      //convert each value in array to string
-      values.forEach((val) => {
-        new_vals.push(String(val));
-      });
-      let sf = new Series(new_vals, { columns: this.column_names, index: this.index });
-      return new Str(sf);
+    if (this.dtypes[0] == "string") {
+      return new Str(this);
+    } else {
+      throw new Error("Cannot call accessor str on non-string type");
     }
-    return new Str(this);
 
   }
 
