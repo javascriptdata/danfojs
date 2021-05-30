@@ -66,7 +66,7 @@ To use Danfo.js via script tags, copy and paste the CDN below to the body of you
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.plot.ly/plotly-1.2.0.min.js"></script> 
-    <script src="https://cdn.jsdelivr.net/npm/danfojs@0.2.5/lib/bundle.min.js"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/danfojs@0.2.6/lib/bundle.min.js"></script> 
 
     <title>Document</title>
 </head>
