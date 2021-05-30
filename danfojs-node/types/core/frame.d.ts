@@ -334,7 +334,7 @@ export class DataFrame extends Ndframe {
          * Returns the data types in the DataFrame
          * @return {Array} list of data types for each column
          */
-   get ctypes(): any[];
+   get ctypes(): Series;
    /**
       * Make plots of Series or DataFrame.
       * Uses the Plotly as backend, so supports Plotly's configuration parameters
