@@ -87,10 +87,18 @@ const indexLoc = (ndframe, kwargs) => {
         let column_split = kwargs["columns"][0].split(":");
         let start, end;
 
-        if (kwargs["type"] == "iloc" || column_split[0] == "") {
-          start = parseInt(column_split[0]) || 0;
-          end = parseInt(column_split[1]) - 1 === 0 ? 0 : parseInt(column_split[1]) - 1;
-          console.log(start, end);
+        if (kwargs["type"] == "iloc") {
+          if (column_split[0] == "") {
+            start = 0;
+          } else {
+            start = parseInt(column_split[0]) || 0;
+          }
+
+          if (column_split[1] == "") {
+            end = parseInt(ndframe.columns.length - 1);
+          } else {
+            end = parseInt(column_split[1]) - 1 === 0 ? 0 : parseInt(column_split[1]) - 1;
+          }
         } else {
           start = parseInt(ndframe.columns.indexOf(column_split[0]));
           end = parseInt(ndframe.columns.indexOf(column_split[1])) - 1;

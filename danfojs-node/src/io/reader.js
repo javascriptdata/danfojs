@@ -103,7 +103,7 @@ export const read = async (
   let rows, file;
 
   if (isDataset(source)) {
-    console.log(
+    console.info(
       "datapackage.json found. Loading Dataset package from Datahub.io"
     );
     const dataset = await Dataset.load(source);

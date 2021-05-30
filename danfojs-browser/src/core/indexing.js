@@ -17,7 +17,6 @@ export const indexLoc = (ndframe, kwargs) => {
     if (Array.isArray(kwargs["rows"])) {
 
       if (kwargs["rows"].length == 1 && typeof kwargs["rows"][0] == "string") {
-        //console.log("here", kwargs["rows"].length)
         if (kwargs["rows"][0].includes(":")) {
 
           let column_split = kwargs["rows"][0].split(":");
@@ -93,15 +92,23 @@ export const indexLoc = (ndframe, kwargs) => {
         let column_split = kwargs["columns"][0].split(":");
         let start, end;
 
-        if (kwargs["type"] == "iloc" || (column_split[0] == "")) {
-          start = parseInt(column_split[0]) || 0;
-          end = parseInt(column_split[1]) - 1 === 0 ? 0 : parseInt(column_split[1]) - 1;
-        } else {
+        if (kwargs["type"] == "iloc") {
+          if (column_split[0] == "") {
+            start = 0;
+          } else {
+            start = parseInt(column_split[0]) || 0;
+          }
 
+          if (column_split[1] == "") {
+            end = parseInt(ndframe.columns.length - 1);
+          } else {
+            end = parseInt(column_split[1]) - 1 === 0 ? 0 : parseInt(column_split[1]) - 1;
+          }
+
+        } else {
           start = parseInt(ndframe.columns.indexOf(column_split[0]));
           end = parseInt(ndframe.columns.indexOf(column_split[1])) - 1;
         }
-
 
         if (typeof start == "number" && typeof end == "number") {
 
@@ -136,7 +143,7 @@ export const indexLoc = (ndframe, kwargs) => {
       throw new Error(`Specified row index ${row_val} is bigger than maximum row index of ${max_rowIndex}`);
     }
 
-    if (Array.isArray(data_values[0])){
+    if (Array.isArray(data_values[0])) {
 
       let value = data_values[row_val];
       let row_data = [];

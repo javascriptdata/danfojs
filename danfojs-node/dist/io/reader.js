@@ -79,7 +79,7 @@ const read = async (source, configs = {}) => {
   let rows, file;
 
   if ((0, _frictionless.isDataset)(source)) {
-    console.log("datapackage.json found. Loading Dataset package from Datahub.io");
+    console.info("datapackage.json found. Loading Dataset package from Datahub.io");
     const dataset = await _frictionless.Dataset.load(source);
     file = dataset.resources[data_num];
     rows = await (0, _streamToArray.default)(await file.rows());

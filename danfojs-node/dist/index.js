@@ -125,6 +125,10 @@ exports.tf = exports._version = void 0;
 
 var _generic = _interopRequireDefault(require("./core/generic"));
 
+var tf = _interopRequireWildcard(require("@tensorflow/tfjs-node"));
+
+exports.tf = tf;
+
 var _series = require("./core/series");
 
 var _frame = require("./core/frame");
@@ -151,8 +155,5 @@ var _strings = require("./core/strings");
 
 var _utils = require("./core/utils");
 
-var _tf = _interopRequireWildcard(require("@tensorflow/tfjs-node"));
-
-exports.tf = _tf;
 const _version = "0.2.6";
 exports._version = _version;

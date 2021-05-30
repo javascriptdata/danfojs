@@ -1223,6 +1223,18 @@ describe("Series", function () {
 
       assert.deepEqual(sf.iloc([ "1:4" ]).values, expected_val);
     });
+    it("indexing by slicing format ':5' works", function () {
+      let data = [ 1, 2, 3, 4, "a", "b", "c" ];
+      let sf = new dfd.Series(data);
+      let expected_val = [ 1, 2, 3, 4, 'a' ];
+      assert.deepEqual(sf.iloc([ ":5" ]).values, expected_val);
+    });
+    it("indexing by slicing format '2:` works", function () {
+      let data = [ 1, 2, 3, 4, "a", "b", "c" ];
+      let sf = new dfd.Series(data);
+      let expected_val = [ 3, 4, "a", "b", "c" ];
+      assert.deepEqual(sf.iloc([ "2:" ]).values, expected_val);
+    });
   });
 
   describe("append", function () {
