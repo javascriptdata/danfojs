@@ -423,6 +423,68 @@ describe("DataFrame", function () {
 
     });
 
+    it("column slice starting with 0 and returning a single result works", function () {
+      let data = {
+        "Name": [ "Apples", "Mango", "Banana", "Pear" ],
+        "Count": [ 21, 5, 30, 10 ],
+        "Price": [ 200, 300, 40, 250 ]
+      };
+      let df = new dfd.DataFrame(data);
+      let sub_df = df.iloc({ rows: [ "2:3" ], columns: [ "0:1" ] });
+      const result = [ [ "Banana" ] ];
+      assert.deepEqual(sub_df.values, result);
+
+    });
+    it("column slice with format '0:' works", function () {
+      let data = {
+        "Name": [ "Apples", "Mango", "Banana", "Pear" ],
+        "Count": [ 21, 5, 30, 10 ],
+        "Price": [ 200, 300, 40, 250 ]
+      };
+      let df = new dfd.DataFrame(data);
+      let sub_df = df.iloc({ rows: [ "2:3" ], columns: [ "0:" ] });
+      const result = [ [ "Banana", 30, 40 ] ];
+      assert.deepEqual(sub_df.values, result);
+
+    });
+    it("column slice with format ':2' works", function () {
+      let data = {
+        "Name": [ "Apples", "Mango", "Banana", "Pear" ],
+        "Count": [ 21, 5, 30, 10 ],
+        "Price": [ 200, 300, 40, 250 ]
+      };
+      let df = new dfd.DataFrame(data);
+      let sub_df = df.iloc({ rows: [ "2:3" ], columns: [ ":2" ] });
+      const result = [ [ "Banana", 30 ] ];
+      assert.deepEqual(sub_df.values, result);
+
+    });
+    it("row slice with format ':2' works", function () {
+      let data = {
+        "Name": [ "Apples", "Mango", "Banana", "Pear" ],
+        "Count": [ 21, 5, 30, 10 ],
+        "Price": [ 200, 300, 40, 250 ]
+      };
+      let df = new dfd.DataFrame(data);
+      let sub_df = df.iloc({ rows: [ ":2" ], columns: [ ":1" ] });
+      const result = [ [ 'Apples' ], [ 'Mango' ] ];
+      assert.deepEqual(sub_df.values, result);
+
+    });
+    it("row slice with format '1:' works", function () {
+      let data = {
+        "Name": [ "Apples", "Mango", "Banana", "Pear" ],
+        "Count": [ 21, 5, 30, 10 ],
+        "Price": [ 200, 300, 40, 250 ]
+      };
+      let df = new dfd.DataFrame(data);
+      let sub_df = df.iloc({ rows: [ ":2" ], columns: [ ":2" ] });
+      const result = [ [ 'Apples', 21 ], [ 'Mango', 5 ] ];
+      assert.deepEqual(sub_df.values, result);
+
+    });
+
+
   });
 
 

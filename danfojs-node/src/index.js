@@ -1,4 +1,5 @@
 import NDframe from "./core/generic";
+import * as tf from "@tensorflow/tfjs-node";
 
 export { Series } from "./core/series";
 export { DataFrame } from "./core/frame";
@@ -14,6 +15,6 @@ export { Configs } from "./config/config";
 export { NDframe };
 export { Str } from "./core/strings";
 export { Utils } from "./core/utils";
-export * as tf from "@tensorflow/tfjs-node";
+export { tf };
 
 export const _version = "0.2.6";
