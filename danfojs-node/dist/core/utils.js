@@ -37,7 +37,7 @@ class Utils {
   }
 
   __is_object(value) {
-    return value && typeof value === "object" && value.constructor === Object;
+    return value && typeof value === "object" && value.constructor && value.constructor.name === "Object";
   }
 
   __is_null(value) {

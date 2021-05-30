@@ -21,7 +21,7 @@
     "types"
   ],
   "dependencies": {
-    "@tensorflow/tfjs": "3.3.0",
+    "@tensorflow/tfjs": "3.6.0",
     "mathjs": "7.5.1",
     "table": "^5.4.6",
     "xlsx": "^0.16.7"

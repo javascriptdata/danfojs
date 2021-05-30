@@ -34,7 +34,7 @@ export class Utils {
 
   // Returns if a value is an object
   __is_object(value) {
-    return value && typeof value === "object" && value.constructor === Object;
+    return value && typeof value === "object" && value.constructor && value.constructor.name === "Object";
   }
 
   // Returns if a value is null
