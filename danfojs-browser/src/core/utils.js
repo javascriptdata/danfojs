@@ -104,7 +104,7 @@ export class Utils {
     } else {
       var selected = new Set();
       // eslint-disable-next-line no-empty
-      while (selected.add((Math.random() * n) | 0).size < k) {}
+      while (selected.add((Math.random() * n) | 0).size < k) { }
       // eslint-disable-next-line no-undef
       return Array.prototype.map.call(selected, (i) => population[i]);
     }
@@ -210,7 +210,7 @@ export class Utils {
     }
   }
 
-  __checker(arr_val){
+  __checker(arr_val) {
     let dtypes = [];
     let lim;
     let int_tracker = [];
@@ -218,7 +218,7 @@ export class Utils {
     let string_tracker = [];
     let bool_tracker = [];
 
-    if (arr_val.length == 0){
+    if (arr_val.length == 0) {
       dtypes.push("string");
     }
 
@@ -234,7 +234,7 @@ export class Utils {
         int_tracker.push(false);
         string_tracker.push(false);
         bool_tracker.push(true);
-      } else if (isNaN(ele) && typeof ele != "string"){
+      } else if (isNaN(ele) && typeof ele != "string") {
         float_tracker.push(true);
         int_tracker.push(false);
         string_tracker.push(false);
@@ -621,6 +621,21 @@ export class Utils {
    */
   _remove_nans(arr) {
     let values = arr.filter((val) => !isNaN(val) && typeof val != "string");
+    return values;
+  }
+
+  /**
+* Replace NaN with null before tensor operations
+* @param {*} arr
+*/
+  _replace_nan_with_null(arr) {
+    let values = arr.map((val) => {
+      if (isNaN(val)) {
+        return null;
+      } else {
+        return val;
+      }
+    });
     return values;
   }
 

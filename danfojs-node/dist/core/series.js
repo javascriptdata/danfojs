@@ -241,11 +241,15 @@ class Series extends _generic.default {
     utils._throw_str_dtype_error(this, 'sum');
 
     if (this.dtypes[0] == "boolean") {
-      let temp_sum = this.row_data_tensor.sum().arraySync();
+      let temp = utils._remove_nans(this.values);
+
+      let temp_sum = tf.tensor(temp).sum().arraySync();
       return Number(temp_sum);
     }
 
-    let temp_sum = this.row_data_tensor.sum().arraySync();
+    let temp = utils._remove_nans(this.values);
+
+    let temp_sum = tf.tensor(temp).sum().arraySync();
     return Number(temp_sum.toFixed(5));
   }
 

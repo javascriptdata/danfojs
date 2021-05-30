@@ -552,6 +552,17 @@ class Utils {
     return values;
   }
 
+  _replace_nan_with_null(arr) {
+    let values = arr.map(val => {
+      if (isNaN(val)) {
+        return null;
+      } else {
+        return val;
+      }
+    });
+    return values;
+  }
+
   __get_duplicate(arr) {
     let temp_obj = {};
     let rslt_obj = {};

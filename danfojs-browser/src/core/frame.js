@@ -392,16 +392,31 @@ export class DataFrame extends Ndframe {
    * @returns {Series}
    */
   mean(axis = 1) {
-    if (this.__frame_is_compactible_for_operation) {
-      //check if all types are numeric
-      let operands = this.__get_tensor_and_idx(this, axis);
-      let tensor_vals = operands[0];
-      let idx = operands[1];
-      let result = tensor_vals.mean(operands[2]);
-      let sf = new Series(result.arraySync(), { index: idx });
+    if (this.__frame_is_compactible_for_operation()) {
+      let values;
+      let val_mean = [];
+      if (axis == 1) {
+        values = this.col_data;
+      } else {
+        values = this.values;
+      }
+
+      values.map((arr) => {
+        let temp = utils._remove_nans(arr);
+        let temp_mean = tf.tensor(temp).mean().arraySync();
+        val_mean.push(Number(temp_mean.toFixed(5)));
+      });
+
+      let new_index;
+      if (axis == 1) {
+        new_index = this.column_names;
+      } else {
+        new_index = this.index;
+      }
+      let sf = new Series(val_mean, { columns: "sum", index: new_index });
       return sf;
     } else {
-      throw Error("TypeError: Dtypes of columns must be Float of Int");
+      throw Error("Dtype Error: Operation can not be performed on string type");
     }
   }
 
@@ -904,7 +919,8 @@ export class DataFrame extends Ndframe {
       }
 
       values.map((arr) => {
-        let temp_sum = tf.tensor(arr).sum().arraySync();
+        let temp = utils._remove_nans(arr);
+        let temp_sum = tf.tensor(temp).sum().arraySync();
         val_sums.push(Number(temp_sum.toFixed(5)));
       });
 

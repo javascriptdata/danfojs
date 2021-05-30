@@ -289,6 +289,11 @@ describe("Series", function () {
       let sf = new dfd.Series(data1);
       assert.deepEqual(sf.mean(), 19.625);
     });
+    it("Computes the mean of elements in a float series with NaN", function () {
+      let data1 = [ 30.1, 40.2, 3.1, 5.1, NaN ];
+      let sf = new dfd.Series(data1);
+      assert.deepEqual(sf.mean(), 19.625);
+    });
     it("Throws error if dtype is string", function () {
       let data1 = [ "boy", "girl", "Man" ];
       let sf = new dfd.Series(data1);
@@ -330,6 +335,11 @@ describe("Series", function () {
       let data1 = [ true, true, false, false, false ];
       let sf = new dfd.Series(data1);
       assert.deepEqual(sf.sum(), 2);
+    });
+    it("Sum values a Series with missing values", function () {
+      let data1 = [ 11, NaN, 2, 2 ];
+      let sf = new dfd.Series(data1);
+      assert.deepEqual(sf.sum(), 15);
     });
   });
 

@@ -390,17 +390,33 @@ export class DataFrame extends Ndframe {
    * @returns {Series}
    */
   mean(axis = 1) {
-    if (this.__frame_is_compactible_for_operation) {
-      //check if all types are numeric
-      let operands = this.__get_tensor_and_idx(this, axis);
-      let tensor_vals = operands[0];
-      let idx = operands[1];
-      let result = tensor_vals.mean(operands[2]);
-      let sf = new Series(result.arraySync(), { index: idx });
+    if (this.__frame_is_compactible_for_operation()) {
+      let values;
+      let val_mean = [];
+      if (axis == 1) {
+        values = this.col_data;
+      } else {
+        values = this.values;
+      }
+
+      values.map((arr) => {
+        let temp = utils._remove_nans(arr);
+        let temp_mean = tf.tensor(temp).mean().arraySync();
+        val_mean.push(Number(temp_mean.toFixed(5)));
+      });
+
+      let new_index;
+      if (axis == 1) {
+        new_index = this.column_names;
+      } else {
+        new_index = this.index;
+      }
+      let sf = new Series(val_mean, { columns: "sum", index: new_index });
       return sf;
     } else {
-      throw Error("TypeError: Dtypes of columns must be Float of Int");
+      throw Error("Dtype Error: Operation can not be performed on string type");
     }
+
   }
 
   /**
@@ -581,32 +597,32 @@ export class DataFrame extends Ndframe {
         for (let j = 1; j < value.length; j++) {
           let curr_val = value[j];
           switch (ops) {
-          case "max":
-            if (curr_val > temp_val) {
-              temp_val = curr_val;
-              temp_data.push(curr_val);
-            } else {
+            case "max":
+              if (curr_val > temp_val) {
+                temp_val = curr_val;
+                temp_data.push(curr_val);
+              } else {
+                temp_data.push(temp_val);
+              }
+              break;
+            case "min":
+              if (curr_val < temp_val) {
+                temp_val = curr_val;
+                temp_data.push(curr_val);
+              } else {
+                temp_data.push(temp_val);
+              }
+              break;
+            case "sum":
+              temp_val = temp_val + curr_val;
               temp_data.push(temp_val);
-            }
-            break;
-          case "min":
-            if (curr_val < temp_val) {
-              temp_val = curr_val;
-              temp_data.push(curr_val);
-            } else {
+
+              break;
+            case "prod":
+              temp_val = temp_val * curr_val;
               temp_data.push(temp_val);
-            }
-            break;
-          case "sum":
-            temp_val = temp_val + curr_val;
-            temp_data.push(temp_val);
 
-            break;
-          case "prod":
-            temp_val = temp_val * curr_val;
-            temp_data.push(temp_val);
-
-            break;
+              break;
           }
         }
         data.push(temp_data);
@@ -902,7 +918,8 @@ export class DataFrame extends Ndframe {
       }
 
       values.map((arr) => {
-        let temp_sum = tf.tensor(arr).sum().arraySync();
+        let temp = utils._remove_nans(arr);
+        let temp_sum = tf.tensor(temp).sum().arraySync();
         val_sums.push(Number(temp_sum.toFixed(5)));
       });
 
@@ -938,10 +955,14 @@ export class DataFrame extends Ndframe {
   __get_tensor_and_idx(df, axis) {
     let tensor_vals, idx, t_axis;
     if (axis == 1) {
-      //Tensorflow uses 0 for column and 1 for rows,
-      // we use the opposite for consistency with Pandas (0 : row, 1: columns)
-      tensor_vals = df.row_data_tensor;
+      let temp_tensor_vals = df.row_data_tensor;
+      // Why do we flatten and replace NaNs with Null? See https://github.com/opensource9ja/danfojs/issues/200
+      let flat_tensor_array = tf.util.flatten(temp_tensor_vals.arraySync());
+      const flat_tensor_array_without_nans = utils._replace_nan_with_null(flat_tensor_array);
+      tensor_vals = tf.tensor(flat_tensor_array_without_nans, temp_tensor_vals.shape);
       idx = df.column_names;
+      //Tensorflow uses 0 for column and 1 for rows,
+      // we use the opposite for consistency with the Pandas API (0 : row, 1: columns)
       t_axis = 0; //switch the axis
     } else {
       tensor_vals = df.row_data_tensor;
@@ -1118,9 +1139,9 @@ export class DataFrame extends Ndframe {
       (column_name) => {
         if (!(column_names.includes(column_name)))
           throw new Error(`column ${column_name} does not exist`);
-        const [ column_data, _ ] = indexLoc(self, {
-          rows: [ `0:${len}` ],
-          columns: [ `${column_name}` ],
+        const [column_data, _] = indexLoc(self, {
+          rows: [`0:${len}`],
+          columns: [`${column_name}`],
           type: "loc"
         });
         return column_data;
@@ -1636,24 +1657,24 @@ export class DataFrame extends Ndframe {
     }
 
     switch (logical_type) {
-    case "lt":
-      int_vals = tf.tensor(this.values).less(other).arraySync();
-      break;
-    case "gt":
-      int_vals = tf.tensor(this.values).greater(other).arraySync();
-      break;
-    case "le":
-      int_vals = tf.tensor(this.values).lessEqual(other).arraySync();
-      break;
-    case "ge":
-      int_vals = tf.tensor(this.values).greaterEqual(other).arraySync();
-      break;
-    case "ne":
-      int_vals = tf.tensor(this.values).notEqual(other).arraySync();
-      break;
-    case "eq":
-      int_vals = tf.tensor(this.values).equal(other).arraySync();
-      break;
+      case "lt":
+        int_vals = tf.tensor(this.values).less(other).arraySync();
+        break;
+      case "gt":
+        int_vals = tf.tensor(this.values).greater(other).arraySync();
+        break;
+      case "le":
+        int_vals = tf.tensor(this.values).lessEqual(other).arraySync();
+        break;
+      case "ge":
+        int_vals = tf.tensor(this.values).greaterEqual(other).arraySync();
+        break;
+      case "ne":
+        int_vals = tf.tensor(this.values).notEqual(other).arraySync();
+        break;
+      case "eq":
+        int_vals = tf.tensor(this.values).equal(other).arraySync();
+        break;
     }
     let bool_vals = utils.__map_int_to_bool(int_vals, 2);
     let df = new DataFrame(bool_vals, {
@@ -1825,27 +1846,27 @@ export class DataFrame extends Ndframe {
     let temp_col = col_values[col_idx];
 
     switch (kwargs["dtype"]) {
-    case "float32":
-      temp_col.map((val) => {
-        new_col_values.push(Number(val));
-      });
-      col_values[col_idx] = new_col_values;
-      break;
-    case "int32":
-      temp_col.map((val) => {
-        new_col_values.push(Number(Number(val).toFixed()));
-      });
-      col_values[col_idx] = new_col_values;
+      case "float32":
+        temp_col.map((val) => {
+          new_col_values.push(Number(val));
+        });
+        col_values[col_idx] = new_col_values;
+        break;
+      case "int32":
+        temp_col.map((val) => {
+          new_col_values.push(Number(Number(val).toFixed()));
+        });
+        col_values[col_idx] = new_col_values;
 
-      break;
-    case "string":
-      temp_col.map((val) => {
-        new_col_values.push(String(val));
-      });
-      col_values[col_idx] = new_col_values;
-      break;
-    default:
-      break;
+        break;
+      case "string":
+        temp_col.map((val) => {
+          new_col_values.push(String(val));
+        });
+        col_values[col_idx] = new_col_values;
+        break;
+      default:
+        break;
     }
 
     let new_col_obj = {};
