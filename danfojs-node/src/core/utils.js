@@ -104,7 +104,7 @@ export class Utils {
     } else {
       var selected = new Set();
       // eslint-disable-next-line no-empty
-      while (selected.add((Math.random() * n) | 0).size < k) {}
+      while (selected.add((Math.random() * n) | 0).size < k) { }
       // eslint-disable-next-line no-undef
       return Array.prototype.map.call(selected, (i) => population[i]);
     }
@@ -166,7 +166,7 @@ export class Utils {
       }
       rows_arr.push(temp_row);
     }
-    return [ rows_arr, col_names ];
+    return [rows_arr, col_names];
   }
 
   //converts a 2D array of array to 1D for Series Class
@@ -210,7 +210,7 @@ export class Utils {
     }
   }
 
-  __checker(arr_val){
+  __checker(arr_val) {
     let dtypes = [];
     let lim;
     let int_tracker = [];
@@ -218,7 +218,7 @@ export class Utils {
     let string_tracker = [];
     let bool_tracker = [];
 
-    if (arr_val.length == 0){
+    if (arr_val.length == 0) {
       dtypes.push("string");
     }
 
@@ -234,7 +234,7 @@ export class Utils {
         int_tracker.push(false);
         string_tracker.push(false);
         bool_tracker.push(true);
-      } else if (isNaN(ele) && typeof ele != "string"){
+      } else if (isNaN(ele) && typeof ele != "string") {
         float_tracker.push(true);
         int_tracker.push(false);
         string_tracker.push(false);
@@ -624,6 +624,21 @@ export class Utils {
     return values;
   }
 
+  /**
+ * Replace NaN with null before tensor operations
+ * @param {*} arr
+ */
+  _replace_nan_with_null(arr) {
+    let values = arr.map((val) => {
+      if (isNaN(val)) {
+        return null;
+      } else {
+        return val;
+      }
+    });
+    return values;
+  }
+
   __get_duplicate(arr) {
     let temp_obj = {};
     let rslt_obj = {};
@@ -635,7 +650,7 @@ export class Utils {
       } else {
         temp_obj[val] = {};
         temp_obj[val]["count"] = 1;
-        temp_obj[val]["index"] = [ index ];
+        temp_obj[val]["index"] = [index];
       }
     });
 
@@ -660,14 +675,14 @@ export class Utils {
    */
   _sort_arr_with_index(arr1, arr2, dtype) {
     let sorted_idx = arr1.map((item, index) => {
-      return [ arr2[index], item ];
+      return [arr2[index], item];
     });
     if (dtype == "string") {
       sorted_idx.sort();
     } else {
-      sorted_idx.sort(([ arg1 ], [ arg2 ]) => arg2 - arg1);
+      sorted_idx.sort(([arg1], [arg2]) => arg2 - arg1);
     }
 
-    return sorted_idx.map(([ , item ]) => item);
+    return sorted_idx.map(([, item]) => item);
   }
 }

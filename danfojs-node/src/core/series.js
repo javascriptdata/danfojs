@@ -179,7 +179,7 @@ export class Series extends NDframe {
   div(other, round = true) {
     if (utils.__is_number(other)) {
       let div_result = this.tensor.div(other);
-      return new Series(div_result.arraySync(), { columns: this.column_names, dtypes: [ div_result.dtype ] });
+      return new Series(div_result.arraySync(), { columns: this.column_names, dtypes: [div_result.dtype] });
     } else {
       if (this.__check_series_op_compactibility) {
         let dtype;
@@ -193,7 +193,7 @@ export class Series extends NDframe {
         let tensor1 = this.tensor.asType(dtype);
         let tensor2 = other.tensor.asType(dtype);
         let result = tensor1.div(tensor2);
-        return new Series(result.arraySync(), { columns: this.column_names, dtypes: [ result.dtype ] });
+        return new Series(result.arraySync(), { columns: this.column_names, dtypes: [result.dtype] });
       }
     }
   }
@@ -300,11 +300,14 @@ export class Series extends NDframe {
     */
   sum() {
     utils._throw_str_dtype_error(this, 'sum');
+
     if (this.dtypes[0] == "boolean") {
-      let temp_sum = this.row_data_tensor.sum().arraySync();
+      let temp = utils._remove_nans(this.values);
+      let temp_sum = tf.tensor(temp).sum().arraySync();
       return Number(temp_sum);
     }
-    let temp_sum = this.row_data_tensor.sum().arraySync();
+    let temp = utils._remove_nans(this.values);
+    let temp_sum = tf.tensor(temp).sum().arraySync();
     return Number(temp_sum.toFixed(5));
   }
 
@@ -420,7 +423,7 @@ export class Series extends NDframe {
     let sf = new Series(new_arr, {
       index: this.index,
       columns: this.column_names,
-      dtypes: [ "boolean" ]
+      dtypes: ["boolean"]
     });
     return sf;
   }
@@ -431,7 +434,7 @@ export class Series extends NDframe {
      * @return {Series}
      */
   fillna(kwargs = {}) {
-    let params_needed = [ "value", "inplace" ];
+    let params_needed = ["value", "inplace"];
     utils._throw_wrong_params_error(kwargs, params_needed);
 
     kwargs['inplace'] = kwargs['inplace'] || false;
@@ -469,7 +472,7 @@ export class Series extends NDframe {
     * @returns {Series}
     */
   sort_values(kwargs = {}) {
-    let params_needed = [ "inplace", "ascending" ];
+    let params_needed = ["inplace", "ascending"];
     utils._throw_wrong_params_error(kwargs, params_needed);
 
     if (!('ascending' in kwargs)) {
@@ -481,7 +484,7 @@ export class Series extends NDframe {
     }
 
     let sorted_values = [];
-    let arr_obj = [ ...this.values ];
+    let arr_obj = [...this.values];
     let range_idx = utils.__range(0, this.index.length - 1);
     let sorted_idx = utils._sort_arr_with_index(range_idx, arr_obj, this.dtypes[0]);
 
@@ -510,10 +513,10 @@ export class Series extends NDframe {
     */
   copy() {
 
-    let sf = new Series([ ...this.values ], {
-      columns: [ ...this.column_names ],
-      index: [ ...this.index ],
-      dtypes: [ ...this.dtypes[0] ]
+    let sf = new Series([...this.values], {
+      columns: [...this.column_names],
+      index: [...this.index],
+      dtypes: [...this.dtypes[0]]
     });
     return sf;
   }
@@ -530,7 +533,7 @@ export class Series extends NDframe {
       return null;
     } else {
 
-      let index = [ 'count', 'mean', 'std', 'min', 'median', 'max', 'variance' ];
+      let index = ['count', 'mean', 'std', 'min', 'median', 'max', 'variance'];
       let count = this.count();
       let mean = this.mean();
       let std = this.std();
@@ -539,7 +542,7 @@ export class Series extends NDframe {
       let max = this.max();
       let variance = this.var();
 
-      let vals = [ count, mean, std, min, median, max, variance ];
+      let vals = [count, mean, std, min, median, max, variance];
       let sf = new Series(vals, { columns: this.columns, index: index });
       return sf;
 
@@ -555,7 +558,7 @@ export class Series extends NDframe {
     * @param {kwargs} {inplace: Modify the Series in place (do not create a new object}
     */
   reset_index(kwargs = {}) {
-    let params_needed = [ "inplace" ];
+    let params_needed = ["inplace"];
     utils._throw_wrong_params_error(kwargs, params_needed);
 
     kwargs['inplace'] = kwargs['inplace'] || false;
@@ -578,7 +581,7 @@ export class Series extends NDframe {
     */
   set_index(kwargs = {}) {
 
-    let params_needed = [ "index", "inplace" ];
+    let params_needed = ["index", "inplace"];
     utils._throw_wrong_params_error(kwargs, params_needed);
 
 
@@ -833,7 +836,7 @@ export class Series extends NDframe {
     * @return {Series}
     */
   replace(kwargs = {}) {
-    let params_needed = [ "replace", "with", "inplace" ];
+    let params_needed = ["replace", "with", "inplace"];
     utils._throw_wrong_params_error(kwargs, params_needed);
 
     kwargs['inplace'] = kwargs['inplace'] || false;
@@ -877,7 +880,7 @@ export class Series extends NDframe {
      * @return {Series}
      */
   dropna(kwargs = {}) {
-    let params_needed = [ "inplace" ];
+    let params_needed = ["inplace"];
     utils._throw_wrong_params_error(kwargs, params_needed);
 
     kwargs['inplace'] = kwargs['inplace'] || false;
@@ -954,7 +957,7 @@ export class Series extends NDframe {
      * @return {Series}
      */
   drop_duplicates(kwargs = {}) {
-    let params_needed = [ "inplace", "keep" ];
+    let params_needed = ["inplace", "keep"];
     utils._throw_wrong_params_error(kwargs, params_needed);
 
     kwargs['inplace'] = kwargs['inplace'] || false;
@@ -1010,7 +1013,7 @@ export class Series extends NDframe {
     let max_row = config.get_max_row;
     let data_arr = [];
     let table_config = {};
-    let header = [ "" ].concat(this.columns);
+    let header = [""].concat(this.columns);
     let idx, data;
 
     if (this.values.length > max_row) {
@@ -1023,7 +1026,7 @@ export class Series extends NDframe {
     }
 
     idx.forEach((val, i) => {
-      let row = [ val ].concat(data[i]);
+      let row = [val].concat(data[i]);
       data_arr.push(row);
     });
 
@@ -1031,7 +1034,7 @@ export class Series extends NDframe {
     table_config[0] = 10;
     table_config[1] = { width: table_width, truncate: table_truncate };
 
-    let table_data = [ header ].concat(data_arr); //Add the column names to values before printing
+    let table_data = [header].concat(data_arr); //Add the column names to values before printing
     return table(table_data, { columns: table_config });
   }
 
@@ -1045,7 +1048,7 @@ export class Series extends NDframe {
     let l_series = this.values;
 
     if (typeof other == "number") {
-      r_series = [ ...l_series ].fill(other); //create array of repeated value for broadcasting
+      r_series = [...l_series].fill(other); //create array of repeated value for broadcasting
     } else {
       if (!(other instanceof Series)) {
         throw new Error("Value Error: 'other' must be an instance of Series");
@@ -1066,30 +1069,30 @@ export class Series extends NDframe {
       let bool = null;
       switch (b_ops) {
 
-      case "lt":
-        bool = l_val < r_val ? true : false;
-        data.push(bool);
-        break;
-      case "gt":
-        bool = l_val > r_val ? true : false;
-        data.push(bool);
-        break;
-      case "le":
-        bool = l_val <= r_val ? true : false;
-        data.push(bool);
-        break;
-      case "ge":
-        bool = l_val >= r_val ? true : false;
-        data.push(bool);
-        break;
-      case "ne":
-        bool = l_val != r_val ? true : false;
-        data.push(bool);
-        break;
-      case "eq":
-        bool = l_val === r_val ? true : false;
-        data.push(bool);
-        break;
+        case "lt":
+          bool = l_val < r_val ? true : false;
+          data.push(bool);
+          break;
+        case "gt":
+          bool = l_val > r_val ? true : false;
+          data.push(bool);
+          break;
+        case "le":
+          bool = l_val <= r_val ? true : false;
+          data.push(bool);
+          break;
+        case "ge":
+          bool = l_val >= r_val ? true : false;
+          data.push(bool);
+          break;
+        case "ne":
+          bool = l_val != r_val ? true : false;
+          data.push(bool);
+          break;
+        case "eq":
+          bool = l_val === r_val ? true : false;
+          data.push(bool);
+          break;
       }
     }
     return new Series(data);
@@ -1104,36 +1107,36 @@ export class Series extends NDframe {
 
     let s_data = this.values;
     let temp_val = s_data[0];
-    let data = [ temp_val ];
+    let data = [temp_val];
 
     for (let i = 1; i < s_data.length; i++) {
 
       let curr_val = s_data[i];
       switch (ops) {
-      case "max":
-        if (curr_val > temp_val) {
-          data.push(curr_val);
-          temp_val = curr_val;
-        } else {
+        case "max":
+          if (curr_val > temp_val) {
+            data.push(curr_val);
+            temp_val = curr_val;
+          } else {
+            data.push(temp_val);
+          }
+          break;
+        case "min":
+          if (curr_val < temp_val) {
+            data.push(curr_val);
+            temp_val = curr_val;
+          } else {
+            data.push(temp_val);
+          }
+          break;
+        case "sum":
+          temp_val = temp_val + curr_val;
           data.push(temp_val);
-        }
-        break;
-      case "min":
-        if (curr_val < temp_val) {
-          data.push(curr_val);
-          temp_val = curr_val;
-        } else {
+          break;
+        case "prod":
+          temp_val = temp_val * curr_val;
           data.push(temp_val);
-        }
-        break;
-      case "sum":
-        temp_val = temp_val + curr_val;
-        data.push(temp_val);
-        break;
-      case "prod":
-        temp_val = temp_val * curr_val;
-        data.push(temp_val);
-        break;
+          break;
 
       }
     }
@@ -1147,7 +1150,7 @@ export class Series extends NDframe {
      *@returns {Series}
      */
   astype(dtype) {
-    const __supported_dtypes = [ 'float32', "int32", 'string', 'boolean' ];
+    const __supported_dtypes = ['float32', "int32", 'string', 'boolean'];
 
     if (!dtype) {
       throw Error("Value Error: Please specify dtype to cast to");
@@ -1161,28 +1164,28 @@ export class Series extends NDframe {
     let new_values = [];
 
     switch (dtype) {
-    case "float32":
-      col_values.forEach((val) => {
-        new_values.push(Number(val));
-      });
-      break;
-    case "int32":
-      col_values.forEach((val) => {
-        new_values.push(Number(Number(val).toFixed()));
-      });
-      break;
-    case "string":
-      col_values.forEach((val) => {
-        new_values.push(String(val));
-      });
-      break;
-    case "boolean":
-      col_values.forEach((val) => {
-        new_values.push(Boolean(val));
-      });
-      break;
-    default:
-      break;
+      case "float32":
+        col_values.forEach((val) => {
+          new_values.push(Number(val));
+        });
+        break;
+      case "int32":
+        col_values.forEach((val) => {
+          new_values.push(Number(Number(val).toFixed()));
+        });
+        break;
+      case "string":
+        col_values.forEach((val) => {
+          new_values.push(String(val));
+        });
+        break;
+      case "boolean":
+        col_values.forEach((val) => {
+          new_values.push(Boolean(val));
+        });
+        break;
+      default:
+        break;
     }
 
     let sf = new Series(new_values, { dtypes: dtype, index: this.index });
@@ -1248,7 +1251,7 @@ export class Series extends NDframe {
     kwargs["rows"] = row;
     kwargs["type"] = "iloc";
 
-    let [ new_data, columns, rows ] = indexLoc(this, kwargs);
+    let [new_data, columns, rows] = indexLoc(this, kwargs);
     let sf = new Series(new_data, { columns: columns, index: rows });
 
     return sf;

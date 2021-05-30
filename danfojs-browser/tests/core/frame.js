@@ -627,6 +627,11 @@ describe("DataFrame", function () {
       let df = new dfd.DataFrame(data);
       assert.deepEqual(df.mean(0).values, [ 2, 300 ]);
     });
+    it("Removes NaN before calculating mean of a DataFrame", function () {
+      let data = [ [ 11, 20, 3 ], [ NaN, 15, 6 ], [ 2, 30, 40 ], [ 2, 89, 78 ] ];
+      let df = new dfd.DataFrame(data);
+      assert.deepEqual(df.mean().values, [ 5, 38.5, 31.75 ]);
+    });
   });
 
   describe("median", function () {
@@ -1927,7 +1932,12 @@ describe("DataFrame", function () {
       let res = [ 1, 2, 1, 1 ];
       assert.deepEqual(df.sum().values, res);
     });
-
+    it("Sum values of a df with missing values", function () {
+      let data1 = [ [ 11, 20, 3 ], [ null, 15, 6 ], [ 2, 30, 40 ], [ 2, 89, 78 ] ];
+      let df = new dfd.DataFrame(data1);
+      let res = [ 15, 154, 127 ];
+      assert.deepEqual(df.sum().values, res);
+    });
   });
 
   describe("abs", function () {
