@@ -53,6 +53,7 @@ To use Danfo.js via script tags, copy and paste the CDN below to the body of you
 ```html
     <script src="https://cdn.jsdelivr.net/npm/danfojs@0.2.7/lib/bundle.min.js"></script> 
 ```
+See all available versions [here](https://www.jsdelivr.com/package/npm/danfojs)
 
 ### Example Usage in the Browser
 
