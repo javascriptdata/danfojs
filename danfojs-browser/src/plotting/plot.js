@@ -655,7 +655,8 @@ export class Plot {
           params.forEach((param) => { //TODO accept individual configuration for traces
             trace[param] = config[param];
           });
-          trace["y"] = this.ndframe[c_name].values;
+          trace["x"] = this.ndframe[c_name].values; 
+          trace["y"] = this.ndframe.index;
           trace['name'] = c_name;
           trace['type'] = 'box';
           data.push(trace);
