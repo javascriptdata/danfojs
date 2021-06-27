@@ -7,7 +7,7 @@ const createConfig = (target) => {
     devtool: "source-map",
     context: path.resolve(__dirname),
     entry: {
-      index: `./src/index.js`
+      index: `./build/index.js`
     },
     target: target,
     output: {

@@ -22,15 +22,18 @@
   ],
   "dependencies": {
     "@tensorflow/tfjs": "3.6.0",
+    "awesome-typescript-loader": "^5.2.1",
     "mathjs": "7.5.1",
+    "source-map-loader": "^3.0.0",
     "table": "^5.4.6",
     "xlsx": "^0.16.7"
   },
   "scripts": {
     "test": "yarn run bundle && karma start --single-run --browsers ChromeHeadless karma.conf.js",
-    "build": "babel ./src -d ./dist --no-comments",
+    "build": "rimraf ./build && tsc",
+    "dev": "nodemon",
     "lint": "eslint ./src",
-    "bundle": "webpack --mode production",
+    "bundle": "yarn build && webpack --mode development",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
     "patch": "npm version patch"
