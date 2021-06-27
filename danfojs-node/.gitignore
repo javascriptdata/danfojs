@@ -5,3 +5,4 @@ coverage
 danfojs/data
 .DS_Store
 .idea/
+build

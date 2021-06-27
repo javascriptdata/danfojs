@@ -21,18 +21,18 @@
     "types"
   ],
   "dependencies": {
+    "@babel/runtime": "^7.13.10",
     "@tensorflow/tfjs-node": "3.6.1",
     "frictionless.js": "0.13.4",
     "mathjs": "7.5.1",
     "node-fetch": "^2.6.1",
     "stream-to-array": "^2.3.0",
-    "table": "^5.4.6",
-    "@babel/runtime": "^7.13.10"
+    "table": "^5.4.6"
   },
   "scripts": {
-    "test": "yarn run build && nyc mocha --require @babel/register tests/*",
-    "dev": "yarn run lint && babel ./src -d dist --no-comments",
-    "build": "babel ./src -d ./dist --no-comments",
+    "test": "yarn build && nyc mocha --require @babel/register tests/*",
+    "dev": "nodemon",
+    "build": "rimraf ./build && tsc",
     "lint": "eslint ./src",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
@@ -66,11 +66,16 @@
     "@babel/plugin-transform-runtime": "^7.12.10",
     "@babel/preset-env": "^7.10.4",
     "@babel/register": "^7.10.1",
+    "@types/node": "^15.12.5",
     "chai": "^4.2.0",
     "coveralls": "^3.1.0",
     "eslint": "^7.1.0",
     "mocha": "^7.2.0",
+    "nodemon": "^2.0.7",
     "nyc": "^15.1.0",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.0.0",
+    "typescript": "^4.3.4",
     "yarn": "^1.22.10"
   },
   "nyc": {
