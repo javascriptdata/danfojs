@@ -685,4 +685,24 @@ export class Utils {
 
     return sorted_idx.map(([, item]) => item);
   }
+
+    /**
+   * Shuffle an array with psuedorandomly with a seed value
+   * @param {Array} array
+   * @param {int} seed
+   *
+   * @returns shuffled array
+   */
+  __seedShuffle( array, seed){
+	
+
+    Math.seedrandom(seed);
+  
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+    
+  }
 }
