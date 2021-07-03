@@ -27,7 +27,7 @@
     "table": "^5.4.6"
   },
   "scripts": {
-    "test": "yarn build && nyc mocha --require @babel/register tests/*",
+    "test": "yarn build && nyc mocha --require @babel/register build/*",
     "dev": "nodemon",
     "build": "rimraf ./build && tsc",
     "lint": "eslint ./src",
@@ -63,6 +63,8 @@
     "@babel/plugin-transform-runtime": "^7.12.10",
     "@babel/preset-env": "^7.10.4",
     "@babel/register": "^7.10.1",
+    "@types/chai": "^4.2.19",
+    "@types/mocha": "^8.2.2",
     "@types/node": "^15.12.5",
     "chai": "^4.2.0",
     "coveralls": "^3.1.0",

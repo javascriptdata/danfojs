@@ -14,12 +14,15 @@
 */
 
 import * as tf from '@tensorflow/tfjs-node';
-import Configs from './config';
+import { baseConfig } from './defaults'
+import Config from './config';
+
+const config = new Config(baseConfig);
 
 /**
  * Utility class for working with Frames and Series
  */
-class Utils {
+export default class Utils {
     /**
      * Removes an element from an array
      * 
@@ -40,7 +43,7 @@ class Utils {
      * @returns 
      */
     isString<T>(value: T): boolean {
-        return typeof value === "string" && (value as any) instanceof String;
+        return typeof value === "string";
     }
 
     /**
@@ -214,13 +217,13 @@ class Utils {
         let stringTracker: Array<boolean> = [];
         let boolTracker: Array<boolean> = [];
 
-        if (arr.length < Configs.getDtypeTestLim) {
-            lim = arr.length - 1;
+        if (arr.length < config.getDtypeTestLim) {
+            lim = arr.length;
         } else {
-            lim = Configs.getDtypeTestLim - 1;
+            lim = config.getDtypeTestLim;
         }
 
-        const arrSlice = arr.slice(0, lim)
+        const arrSlice = arr.slice(0, lim);
 
         for (let i = 0; i < lim; i++) {
             const ele = arrSlice[i];
@@ -424,7 +427,7 @@ class Utils {
      * @param paramsObject The parameters passed to the function
      * @param paramsNeeded The required parameters in the function
      */
-    throwErrorOnWrongParams(paramsObject: Array<string>, paramsNeeded: Array<string>) {
+    throwErrorOnWrongParams<T>(paramsObject: T, paramsNeeded: Array<string>) {
         const keys = Object.keys(paramsObject);
         const bool = [];
         for (let i = 0; i < keys.length; i++) {
@@ -620,5 +623,3 @@ class Utils {
         return sortedIdx.map(([, item]) => item);
     }
 }
-
-export default new Utils()

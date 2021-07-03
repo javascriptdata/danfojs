@@ -12,7 +12,6 @@
 * limitations under the License.
 * ==========================================================================
 */
-import { baseConfig } from './defaults'
 
 type ConfigsConstructorType = {
     tableWidth: number;
@@ -25,7 +24,7 @@ type ConfigsConstructorType = {
 /**
  * Package wide configuration class
  */
-class Configs {
+export default class Configs {
     tableWidth: number;
     tableTruncate: number;
     tableMaxRow: number;
@@ -43,10 +42,10 @@ class Configs {
         this.tableTruncate = tableTruncate || 16; //The maximum number of string before text is truncated in console
         this.tableMaxRow = tableMaxRow || 10; // The maximum number of rows to display in console
         this.tableMaxColInConsole = tableMaxColInConsole || 21; // The maximum number of columns to display in console
-        this.dtypeTestLim = dtypeTestLim || 7; // The number of rows to use when inferring data type
+        this.dtypeTestLim = dtypeTestLim || 10; // The number of rows to use when inferring data type
     }
 
-    set setTableWidth(val: number) {
+    setTableWidth(val: number) {
         this.tableWidth = val;
     }
 
@@ -54,7 +53,7 @@ class Configs {
         return this.tableWidth;
     }
 
-    set setTableMaxColInConsole(val: number) {
+    setTableMaxColInConsole(val: number) {
         this.tableMaxColInConsole = val;
     }
 
@@ -62,7 +61,7 @@ class Configs {
         return this.tableMaxColInConsole;
     }
 
-    set setMaxRow(val: number) {
+    setMaxRow(val: number) {
         this.tableMaxRow = val;
     }
 
@@ -74,7 +73,7 @@ class Configs {
         return this.tableTruncate;
     }
 
-    set setTableTruncate(val: number) {
+    setTableTruncate(val: number) {
         this.tableTruncate = val;
     }
 
@@ -82,9 +81,8 @@ class Configs {
         return this.dtypeTestLim;
     }
 
-    set setDtypeTestLim(val: number) {
+    setDtypeTestLim(val: number) {
         this.dtypeTestLim = val;
     }
 }
 
-export default new Configs(baseConfig);
