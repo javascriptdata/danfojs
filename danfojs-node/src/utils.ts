@@ -14,10 +14,11 @@
 */
 
 import * as tf from '@tensorflow/tfjs-node';
-import { baseConfig } from './defaults'
+import { BASE_CONFIG } from './defaults'
 import Config from './config';
+import { ArrayType } from './types';
 
-const config = new Config(baseConfig);
+const config = new Config(BASE_CONFIG);
 
 /**
  * Utility class for working with Frames and Series
@@ -106,29 +107,33 @@ export default class Utils {
      * @param obj The object to check.
      * @param key The key to find.
      */
-    transposeArray<T>(arr: Array<T[]>): Array<T[]> { //old name: __get_col_values
+    transposeArray(arr: ArrayType): ArrayType { //old name: __get_col_values
         const rowLen: number = arr.length;
-        const colLen: number = (arr[0] as Array<T>).length;
-        const newArr: Array<T[]> = [];
+        if (Array.isArray(arr[0])) {
+            const colLen: number = arr[0].length;
+            const newArr = [];
 
-        for (let i = 0; i <= colLen - 1; i++) {
-            const temp = [];
-            for (let j = 0; j < rowLen; j++) {
-                const _elem = (arr as Array<T[]>)[j][i]
-                temp.push(_elem);
+            for (let i = 0; i <= colLen - 1; i++) {
+                const temp = [];
+                for (let j = 0; j < rowLen; j++) {
+                    const _elem = (arr as any)[j][i]
+                    temp.push(_elem);
+                }
+                newArr.push(temp);
             }
-            newArr.push(temp);
+            return newArr;
+        } else {
+            return arr;
         }
-        return newArr;
     }
 
     /**
      * Retrieve row array and column names from an object of the form {a: [1,2,3,4], b: [30,20, 30, 20]}
      * @param obj The object to retrieve rows and column names from.
      */
-    getRowAndColValues<T>(obj: T): [Array<T[]>, string[]] {
+    getRowAndColValues<T>(obj: T): [ArrayType, string[]] {
         const colNames = Object.keys(obj);
-        const colData: Array<T[]> = Object.values(obj);
+        const colData = Object.values(obj);
         const firstColLen = colData[0].length;
 
         colData.forEach((cdata) => {
@@ -137,7 +142,7 @@ export default class Utils {
             }
         });
 
-        const rowsArr: Array<T[]> = this.transposeArray(colData)
+        const rowsArr: ArrayType = this.transposeArray(colData)
         return [rowsArr, colNames];
     }
 
@@ -158,32 +163,44 @@ export default class Utils {
     }
 
     /**
-     * Replaces all missing values with NaN
+     * Replaces all missing values with Null. Missing values are undefined, NaNs and Infinity
      * @param arr The array
      * @param isSeries Whether the arr is a series or not
      */
-    replaceUndefinedWithNaN<T>(arr: Array<T | T[]>, isSeries: boolean) {
-        if (isSeries) {
+    replaceUndefinedWithNaN<T>(arr: T, isSeries: boolean): ArrayType {
+        if (isSeries && Array.isArray(arr)) {
             const newArr = arr.map((ele) => {
-                if (typeof ele === "undefined" || (ele as unknown as number) == Infinity || ele == null) {
-                    return NaN
-                } else {
-                    return ele
+                if (typeof ele === "undefined") {
+                    return NaN;
                 }
+                if (typeof ele === "number" && (isNaN(ele) || ele == Infinity)) {
+                    return NaN;
+                }
+                if (ele == null) {
+                    return NaN;
+                }
+                return ele
             });
             return newArr;
         } else {
             const newArr = []
-            for (let i = 0; i < arr.length; i++) {
-                const innerArr = arr[i] as Array<T>
-                const temp = innerArr.map((ele: any) => {
-                    if (typeof ele === "undefined" || ele == Infinity || ele == null) {
-                        return NaN
-                    } else {
+            if (Array.isArray(arr)) {
+                for (let i = 0; i < arr.length; i++) {
+                    const innerArr = arr[i]
+                    const temp = innerArr.map((ele: any) => {
+                        if (typeof ele === "undefined") {
+                            return NaN;
+                        }
+                        if (typeof ele === "number" && (isNaN(ele) || ele == Infinity)) {
+                            return NaN;
+                        }
+                        if (ele == null) {
+                            return NaN;
+                        }
                         return ele
-                    }
-                });
-                newArr.push(temp);
+                    });
+                    newArr.push(temp);
+                }
             }
             return newArr;
         }
@@ -193,13 +210,14 @@ export default class Utils {
      * Infer data type from an array
      * @param arr An array or array of arrays
     */
-    inferDtype<T>(arr: Array<T>) {
+    inferDtype(arr: ArrayType) {
         const self = this;
         if (this.is1DArray(arr)) {
             return [this._typeChecker(arr)];
         } else {
-            const dtypes = arr.map((innerArr) => {
-                return self._typeChecker(innerArr as unknown as Array<T>);
+            const arrSlice = this.transposeArray(arr.slice(0, config.getDtypeTestLim))            
+            const dtypes = arrSlice.map((innerArr) => {
+                return self._typeChecker(innerArr as any);
             });
             return dtypes;
         }
@@ -209,7 +227,7 @@ export default class Utils {
      * Private type checker used by inferDtype function
      * @param arr The array
      */
-    private _typeChecker<T>(arr: Array<T>) {
+    private _typeChecker(arr: ArrayType) {
         let dtypes: string;
         let lim: number;
         let intTracker: Array<boolean> = [];
@@ -287,7 +305,7 @@ export default class Utils {
      * Checks if array is 1D
      * @param arr The array 
     */
-    is1DArray<T>(arr: Array<T>): boolean {
+    is1DArray(arr: ArrayType): boolean {
         if (
             typeof arr[0] == "number" ||
             typeof arr[0] == "string" ||

@@ -12,14 +12,7 @@
 * limitations under the License.
 * ==========================================================================
 */
-
-type ConfigsConstructorType = {
-    tableWidth: number;
-    tableTruncate: number;
-    tableMaxRow: number;
-    tableMaxColInConsole: number;
-    dtypeTestLim: number;
-}
+import { ConfigsType } from './types'
 
 /**
  * Package wide configuration class
@@ -37,7 +30,7 @@ export default class Configs {
         tableMaxRow,
         tableMaxColInConsole,
         dtypeTestLim,
-    }: ConfigsConstructorType) {
+    }: ConfigsType) {
         this.tableWidth = tableWidth || 17; //The width of each column printed in console
         this.tableTruncate = tableTruncate || 16; //The maximum number of string before text is truncated in console
         this.tableMaxRow = tableMaxRow || 10; // The maximum number of rows to display in console
