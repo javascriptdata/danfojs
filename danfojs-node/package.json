@@ -24,12 +24,13 @@
     "@tensorflow/tfjs-node": "3.6.1",
     "mathjs": "7.5.1",
     "node-fetch": "^2.6.1",
-    "table": "^5.4.6"
+    "table": "6.7.1"
   },
   "scripts": {
     "test": "yarn build && nyc mocha --require @babel/register build/*",
     "dev": "nodemon",
-    "build": "rimraf ./build && tsc",
+    "build": "tsc",
+    "build:clean": "rimraf ./build && tsc",
     "lint": "eslint ./src",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
@@ -66,6 +67,7 @@
     "@types/chai": "^4.2.19",
     "@types/mocha": "^8.2.2",
     "@types/node": "^15.12.5",
+    "@types/table": "^6.3.2",
     "chai": "^4.2.0",
     "coveralls": "^3.1.0",
     "eslint": "^7.1.0",
