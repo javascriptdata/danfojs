@@ -28,7 +28,7 @@ describe("Generic (NDFrame)", function () {
         it("prints the default assigned column names in 2D frame", function () {
             let data = [["Boy", 20], ["Girl", 25]];
             let ndframe = new NDframe({ data });
-            assert.deepEqual(ndframe.columnNames, [0, 1]);
+            assert.deepEqual(ndframe.columnNames, ["0", "1"]);
         });
         it("prints the assigned column names", function () {
             let data = [["Boy", 20], ["Girl", 25]];
@@ -99,6 +99,106 @@ describe("Generic (NDFrame)", function () {
             assert.deepEqual(ndframe.values, [["A", NaN], [NaN, 2]]);
         });
     });
+
+    describe("NDframe column data", function () {
+        it("retrieves the col data created from an Ndframe with two columns", function () {
+            let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4] };
+            let ndframe = new NDframe({ data });
+            // @ts-ignore 
+            // Ignoring ts error here because the propertiesm are dynamic
+            // and as such won't be available at compile time            
+            assert.deepEqual(ndframe["alpha"], ["A", "B", "C", "D"]);
+            // @ts-ignore
+            assert.deepEqual(ndframe["count"], [1, 2, 3, 4]);
+        });
+        it("retrieves the column data from an ndframe with threee columns", function () {
+            let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
+            let ndframe = new NDframe({ data });
+            /* @ts-ignore */
+            assert.deepEqual(ndframe["alpha"], ["A", "B", "C", "D"]);
+            // @ts-ignore
+            assert.deepEqual(ndframe["count"], [1, 2, 3, 4]);
+            // @ts-ignore
+            assert.deepEqual(ndframe["sum"], [20.3, 30.456, 40.90, 90.1]);
+        });
+
+        it("Set column count by subseting", function () {
+            let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
+            let ndframe = new NDframe({ data });
+            /* @ts-ignore */
+            ndframe["alpha"] = ["E", "F", "G", "H"]
+            /* @ts-ignore */
+            assert.deepEqual(ndframe["alpha"], ["E", "F", "G", "H"]);
+            assert.deepEqual(ndframe.values[0], ['E', 1, 20.3]);
+            assert.deepEqual(ndframe.dtypes, ["string", "int32", "float32",]);
+            // @ts-ignore
+            assert.deepEqual(ndframe["count"], [1, 2, 3, 4]);
+            // @ts-ignore
+            assert.deepEqual(ndframe["sum"], [20.3, 30.456, 40.90, 90.1]);
+        });
+
+        it("Correct dtype is set after setting a column by subseting", function () {
+            let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
+            let ndframe = new NDframe({ data });
+            /* @ts-ignore */
+            ndframe["alpha"] = [2.4, 5.6, 32.5, 1]
+            /* @ts-ignore */
+            assert.deepEqual(ndframe["alpha"], [2.4, 5.6, 32.5, 1]);
+            assert.deepEqual(ndframe.values[0], [2.4, 1, 20.3]);
+            assert.deepEqual(ndframe.values[1], [5.6, 2, 30.456]);
+            assert.deepEqual(ndframe.values[2], [32.5, 3, 40.90]);
+            assert.deepEqual(ndframe.values[3], [1, 4, 90.1]);
+            assert.deepEqual(ndframe.dtypes, ["float32", "int32", "float32",]);
+        });
+
+        it("retrieves the col data created from an Ndframe with two columns in low memory mode", function () {
+            let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4] };
+            let ndframe = new NDframe({ data, config: { lowMemoryMode: true } });
+            // @ts-ignore
+            assert.deepEqual(ndframe["alpha"], ["A", "B", "C", "D"]);
+            // @ts-ignore
+            assert.deepEqual(ndframe["count"], [1, 2, 3, 4]);
+        });
+        it("retrieves the column data from an ndframe with threee columns in low memory mode", function () {
+            let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
+            let ndframe = new NDframe({ data, config: { lowMemoryMode: true } });
+            /* @ts-ignore */
+            assert.deepEqual(ndframe["alpha"], ["A", "B", "C", "D"]);
+            // @ts-ignore
+            assert.deepEqual(ndframe["count"], [1, 2, 3, 4]);
+            // @ts-ignore
+            assert.deepEqual(ndframe["sum"], [20.3, 30.456, 40.90, 90.1]);
+        });
+
+        it("Set column count by subseting (low memory mode) ", function () {
+            let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
+            let ndframe = new NDframe({ data, config: { lowMemoryMode: true } });
+            /* @ts-ignore */
+            ndframe["alpha"] = ["E", "F", "G", "H"]
+            /* @ts-ignore */
+            assert.deepEqual(ndframe["alpha"], ["E", "F", "G", "H"]);
+            assert.deepEqual(ndframe.values[0], ['E', 1, 20.3]);
+            assert.deepEqual(ndframe.dtypes, ["string", "int32", "float32",]);
+            // @ts-ignore
+            assert.deepEqual(ndframe["count"], [1, 2, 3, 4]);
+            // @ts-ignore
+            assert.deepEqual(ndframe["sum"], [20.3, 30.456, 40.90, 90.1]);
+        });
+        
+        it("Correct dtype is set after setting a column by subseting (low memory mode) ", function () {
+            let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
+            let ndframe = new NDframe({ data, config: { lowMemoryMode: true } });
+            /* @ts-ignore */
+            ndframe["alpha"] = [2.4, 5.6, 32.5, 1]
+            /* @ts-ignore */
+            assert.deepEqual(ndframe["alpha"], [2.4, 5.6, 32.5, 1]);
+            assert.deepEqual(ndframe.values[0], [2.4, 1, 20.3]);
+            assert.deepEqual(ndframe.values[1], [5.6, 2, 30.456]);
+            assert.deepEqual(ndframe.values[2], [32.5, 3, 40.90]);
+            assert.deepEqual(ndframe.values[3], [1, 4, 90.1]);
+            assert.deepEqual(ndframe.dtypes, ["float32", "int32", "float32",]);
+        });
+    })
 
     describe("NDframe Created from a Tensor", function () {
 

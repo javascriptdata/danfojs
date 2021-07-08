@@ -27,21 +27,28 @@ const utils = new Utils();
  * N-Dimension data structure. Stores multi-dimensional
  * data in a size-mutable, labeled data structure. Analogous to the Python Pandas DataFrame.
  *
- * @param {data} Array JSON, Tensor. Block of data.
- * @param {kwargs} Object Optional Configuration Object
- *                 {columns: Array of column names. If not specified and data is an array of array, use range index.
- *                  dtypes: Data types of the columns,
- *                  index: row index for subseting array }
+ * @param  Object   
+ * 
+ *  data:  1D or 2D Array, JSON, Tensor, Block of data.
+ * 
+ *  index: Array of numeric or string names for subseting array. If not specified, indexes are auto generated.
+ * 
+ *  columnNames: Array of column names. If not specified, column names are auto generated.
+ * 
+ *  dtypes: Array of data types for each the column. If not specified, dtypes inferred.
+ * 
+ *  config: General configuration object for NDframe      
  *
  * @returns NDframe
  */
 export default class NDframe implements NDframeInterface {
-    $isSeries: boolean
-    $data: ArrayType = []
-    $index: Array<string | number> = []
-    $columnNames: string[] | number[] = []
-    $dtypes: Array<string> = []
-    $config: Configs
+    private $isSeries: boolean
+    private $data: ArrayType = []
+    private $dataIncolumnFormat: ArrayType = []
+    private $index: Array<string | number> = []
+    private $columnNames: string[] = []
+    private $dtypes: Array<string> = []
+    private $config: Configs
 
     constructor({ data, index, columnNames, dtypes, config }: NdframeInputDataType) {
         if (config) {
@@ -78,16 +85,93 @@ export default class NDframe implements NDframeInterface {
         }
     }
 
+    private $setInternalColumnDataProperty() {
+        const self = this;
+        const columnNames = this.$columnNames;
+        for (let i = 0; i < columnNames.length; i++) {
+            const columnName = columnNames[i];
+            Object.defineProperty(self, columnName, {
+                get() {
+                    return self.$getColumnData(columnName)
+
+                },
+                set(arr: ArrayType) {
+                    self.$setColumnData(columnName, arr);
+                }
+            })
+        }
+
+    }
+
+    private $getColumnData(columnName: string) {
+        const columnIndex = this.$columnNames.indexOf(columnName)
+
+        if (columnIndex == -1) {
+            ErrorThrower.throwColumnNotFoundError(this)
+        }
+
+        if (this.$config.isLowMemoryMode) {
+            //generate the data dynamically> Runs in O(n), where n is length of rows
+            const columnData = []
+            for (let i = 0; i < this.$data.length; i++) {
+                const row: any = this.$data[i];
+                columnData.push(row[columnIndex])
+            }
+            return columnData
+        } else {
+            //get data from saved column data. Runs in O(1)
+            return this.$dataIncolumnFormat[columnIndex]
+        }
+
+    }
+
+    private $setColumnData(columnName: string, arr: ArrayType): void {
+        const columnIndex = this.$columnNames.indexOf(columnName)
+        if (columnIndex == -1) {
+            ErrorThrower.throwColumnNotFoundError(this)
+        }
+
+        if (!(arr.length !== this.shape[1])) {
+            ErrorThrower.throwColumnLengthError(this, this.shape[1])
+        }
+
+        if (this.$config.isLowMemoryMode) {
+            //Update row ($data) array
+            for (let i = 0; i < this.$data.length; i++) {
+                (this.$data as any)[i][columnIndex] = arr[i]
+            }
+            //Update the dtypes
+            this.$dtypes[columnIndex] = utils.inferDtype(arr)[0]
+        } else {
+            //Update row ($data) array
+            for (let i = 0; i < this.$data.length; i++) {
+                (this.$data as any)[i][columnIndex] = arr[i]
+            }
+            //Update column ($dataIncolumnFormat) array since it's available in object
+            (this.$dataIncolumnFormat as any)[columnIndex] = arr
+
+            //Update the dtypes
+            this.$dtypes[columnIndex] = utils.inferDtype(arr)[0]
+        }
+
+    }
+
     /**
      * Load array of data into NDFrame
      * @param data The array of data to load into NDFrame
      * 
     */
-    loadArray({ data, index, columnNames, dtypes }: LoadArrayDataType): void {
+    private loadArray({ data, index, columnNames, dtypes }: LoadArrayDataType): void {
         this.$data = utils.replaceUndefinedWithNaN(data, this.$isSeries);
+        if (!this.$config.isLowMemoryMode) {
+            //In NOT low memory mode, we transpose the array and save in column format.
+            //This makes column data retrieval run in constant time
+            this.$dataIncolumnFormat = utils.transposeArray(data)
+        }
         this.setIndex(index);
         this.setColumnNames(columnNames);
         this.setDtypes(dtypes);
+        this.$setInternalColumnDataProperty()
     }
 
     /**
@@ -99,12 +183,12 @@ export default class NDframe implements NDframeInterface {
      * 
      * type 2 object are of the form {a: [1,2,3,4], b: [30,20, 30, 20}]}
     */
-    loadObject({ data, type, index, columnNames, dtypes }: LoadObjectDataType): void {
+    private loadObject({ data, type, index, columnNames, dtypes }: LoadObjectDataType): void {
         if (type === 1 && Array.isArray(data)) {
             const _data = (data).map((item) => {
                 return Object.values(item);
             });
-            
+
             let _columnNames;
 
             if (columnNames) {
@@ -224,7 +308,7 @@ export default class NDframe implements NDframeInterface {
         return this.$columnNames
     }
 
-    setColumnNames(columnNames: string[] | number[] | undefined) {
+    setColumnNames(columnNames?: string[]) {
         if (this.$isSeries) {
             if (columnNames) {
                 if (columnNames.length != 1) {
@@ -234,14 +318,14 @@ export default class NDframe implements NDframeInterface {
             } else {
                 this.$columnNames = ["0"]
             }
-        } else {   
+        } else {
             if (columnNames) {
-                if (columnNames.length != this.shape[1]  ) {                    
+                if (columnNames.length != this.shape[1]) {
                     ErrorThrower.throwColumnNamesLengthError(this, columnNames)
                 }
                 this.$columnNames = columnNames
             } else {
-                this.$columnNames = utils.range(0, this.shape[1]   - 1) //generate columns
+                this.$columnNames = (utils.range(0, this.shape[1] - 1)).map((val) => `${val}`) //generate columns
             }
         }
     }
@@ -251,7 +335,9 @@ export default class NDframe implements NDframeInterface {
         if (this.$isSeries) {
             return [this.$data.length, 1];
         } else {
-            return this.tensor.shape
+            const rowLen = (this.$data as ArrayType).length
+            const colLen = (this.$data[0] as ArrayType).length
+            return [rowLen, colLen]
         }
 
     }
@@ -264,17 +350,15 @@ export default class NDframe implements NDframeInterface {
         return this.tensor.size
     }
 
-    // isNaN(): Array<string | string[] | number | number[]> {
+    toCsv(): Array<string | string[]> {
+        ErrorThrower.throwNotImplementedError()
+        return []
+    }
 
-    // }
-
-    // toCsv(): Array<string | string[]> {
-
-    // }
-
-    // toJson(): string {
-
-    // }
+    toJson(): string {
+        ErrorThrower.throwNotImplementedError()
+        return ""
+    }
 
     /**
      * Prints NDframe to console as a grid of row and columns.
