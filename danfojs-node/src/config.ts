@@ -23,6 +23,7 @@ export default class Configs {
     tableMaxRow: number;
     tableMaxColInConsole: number;
     dtypeTestLim: number;
+    lowMemoryMode: boolean;
 
     constructor({
         tableWidth,
@@ -30,12 +31,14 @@ export default class Configs {
         tableMaxRow,
         tableMaxColInConsole,
         dtypeTestLim,
+        lowMemoryMode
     }: ConfigsType) {
         this.tableWidth = tableWidth || 17; //The width of each column printed in console
         this.tableTruncate = tableTruncate || 16; //The maximum number of string before text is truncated in console
         this.tableMaxRow = tableMaxRow || 10; // The maximum number of rows to display in console
         this.tableMaxColInConsole = tableMaxColInConsole || 21; // The maximum number of columns to display in console
         this.dtypeTestLim = dtypeTestLim || 10; // The number of rows to use when inferring data type
+        this.lowMemoryMode = lowMemoryMode // Whether to use minimal memory or not.
     }
 
     setTableWidth(val: number) {
@@ -76,6 +79,14 @@ export default class Configs {
 
     setDtypeTestLim(val: number) {
         this.dtypeTestLim = val;
+    }
+
+    get isLowMemoryMode(): boolean {
+        return this.lowMemoryMode;
+    }
+
+    setIsLowMemoryMode(val: boolean) {
+        this.lowMemoryMode = val;
     }
 }
 

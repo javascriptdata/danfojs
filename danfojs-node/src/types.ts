@@ -3,11 +3,12 @@ import { Tensor } from '@tensorflow/tfjs-node';
 
 //Start of Config class types
 export type ConfigsType = {
-    tableWidth: number;
-    tableTruncate: number;
-    tableMaxRow: number;
-    tableMaxColInConsole: number;
-    dtypeTestLim: number;
+    tableWidth?: number;
+    tableTruncate?: number;
+    tableMaxRow?: number;
+    tableMaxColInConsole?: number;
+    dtypeTestLim?: number;
+    lowMemoryMode: boolean
 }
 //End of Config class types
 
@@ -21,10 +22,16 @@ export type ArrayType = Array<
     | boolean[]
     | (number | string | boolean)[]>
 
+export type ArrayType2D = Array<
+    | number[]
+    | string[]
+    | boolean[]
+    | (number | string | boolean)[]>
+
 export interface BaseDataOptionType {
     type?: number;
     index?: Array<string | number>
-    columnNames?: string[] | number[]
+    columnNames?: string[]
     dtypes?: Array<string>
     config?: ConfigsType;
 }
@@ -47,25 +54,20 @@ export type AxisType = {
 }
 
 export interface NDframeInterface {
-    loadArray({ data, index, columnNames, dtypes }: LoadArrayDataType): void;
-    loadObject({ data, index, columnNames, dtypes }: LoadObjectDataType): void;
     setDtypes(dtypes: Array<string>, infer: boolean): void;
+    setIndex(index: Array<string | number>): void;
+    resetIndex(): void;
+    setColumnNames(columnNames: string[]): void
     get dtypes(): Array<string>;
     get ndim(): number;
     get axis(): AxisType;
     get index(): Array<string | number>;
-    setIndex(index: Array<string | number>): void;
-    resetIndex(): void;
     get columnNames(): string[] | number[]
-    setColumnNames(columnNames: string[] | number[]): void
     get shape(): Array<number>;
     get values(): ArrayType
     get tensor(): Tensor;
-    // isNaN(): Array<string | string[] | number | number[]>;
     get size(): number;
-    // toCsv(): Array<string | string[]>;
-    // toJson(): string;
-    // toString(): string;
+    toCsv(): Array<string | string[]>;
+    toJson(): string;
     print(): void;
-
 }

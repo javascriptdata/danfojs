@@ -16,7 +16,7 @@
 import * as tf from '@tensorflow/tfjs-node';
 import { BASE_CONFIG } from './defaults'
 import Config from './config';
-import { ArrayType } from './types';
+import { ArrayType, ArrayType2D } from './types';
 
 const config = new Config(BASE_CONFIG);
 
@@ -33,13 +33,13 @@ export default class Utils {
      * @param arr The array to filter.
      * @param index The index to filter by.
      */
-    removeElementFromArray<T>(arr: Array<T>, index: number): Array<T> {
-        const newArr = arr.filter((_: T, i: number) => i != index);
+    removeElementFromArray(arr: ArrayType, index: number): ArrayType {
+        const newArr = arr.filter((_, i: number) => i != index);
         return newArr;
     }
 
     /**
-     * Checks if value is a string.
+     * Check if value is a string.
      * @param value The value to check.
      * @returns 
      */
@@ -98,7 +98,7 @@ export default class Utils {
      * @param obj The object to check.
      * @param key The key to find.
      */
-    keyInObject<T>(obj: T, key: number | string): boolean {
+    keyInObject(obj: object, key: number | string): boolean {
         return Object.prototype.hasOwnProperty.call(obj, key)
     }
 
@@ -131,7 +131,7 @@ export default class Utils {
      * Retrieve row array and column names from an object of the form {a: [1,2,3,4], b: [30,20, 30, 20]}
      * @param obj The object to retrieve rows and column names from.
      */
-    getRowAndColValues<T>(obj: T): [ArrayType, string[]] {
+    getRowAndColValues(obj: object): [ArrayType, string[]] {
         const colNames = Object.keys(obj);
         const colData = Object.values(obj);
         const firstColLen = colData[0].length;
@@ -142,7 +142,7 @@ export default class Utils {
             }
         });
 
-        const rowsArr: ArrayType = this.transposeArray(colData)
+        const rowsArr = this.transposeArray(colData)
         return [rowsArr, colNames];
     }
 
@@ -150,7 +150,7 @@ export default class Utils {
      * Converts a 2D array of array to 1D array for Series Class
      * @param arr The array to convert.
      */
-    convert2DArrayToSeriesArray<T>(arr: Array<T>): Array<string> {
+    convert2DArrayToSeriesArray(arr: ArrayType): Array<string> {
         const newArr: Array<string> = [];
         arr.map((val) => {
             if (this.isObject(val)) {
@@ -163,11 +163,11 @@ export default class Utils {
     }
 
     /**
-     * Replaces all missing values with Null. Missing values are undefined, NaNs and Infinity
+     * Replaces all missing values with NaN. Missing values are undefined, Null and Infinity
      * @param arr The array
      * @param isSeries Whether the arr is a series or not
      */
-    replaceUndefinedWithNaN<T>(arr: T, isSeries: boolean): ArrayType {
+    replaceUndefinedWithNaN<T>(arr: Array<T | T[]>, isSeries: boolean): Array<number | T | T[]> {
         if (isSeries && Array.isArray(arr)) {
             const newArr = arr.map((ele) => {
                 if (typeof ele === "undefined") {
@@ -187,7 +187,7 @@ export default class Utils {
             if (Array.isArray(arr)) {
                 for (let i = 0; i < arr.length; i++) {
                     const innerArr = arr[i]
-                    const temp = innerArr.map((ele: any) => {
+                    const temp = (innerArr as unknown as ArrayType2D).map((ele: any) => {
                         if (typeof ele === "undefined") {
                             return NaN;
                         }
@@ -203,11 +203,10 @@ export default class Utils {
                 }
             }
             return newArr;
-        }
-    }
+        }    }
 
     /**
-     * Infer data type from an array
+     * Infer data type from an array or array of arrays
      * @param arr An array or array of arrays
     */
     inferDtype(arr: ArrayType) {
@@ -215,7 +214,7 @@ export default class Utils {
         if (this.is1DArray(arr)) {
             return [this._typeChecker(arr)];
         } else {
-            const arrSlice = this.transposeArray(arr.slice(0, config.getDtypeTestLim))            
+            const arrSlice = this.transposeArray(arr.slice(0, config.getDtypeTestLim))
             const dtypes = arrSlice.map((innerArr) => {
                 return self._typeChecker(innerArr as any);
             });
@@ -293,10 +292,10 @@ export default class Utils {
     }
 
     /**
-     * Returns the unique values in an array
+     * Returns the unique values in an 1D array
      * @param arr The array 
     */
-    unique<T>(arr: Array<T>): Array<T> {
+    unique(arr: ArrayType): ArrayType {
         const uniqueArr = new Set(arr);
         return Array.from(uniqueArr);
     }
@@ -321,11 +320,12 @@ export default class Utils {
      * Converts an array to an object using array index as object keys
      * @param arr The array 
     */
-    convertArrayToObject<T>(arr: Array<T>) { //__arr_to_obj
+    convertArrayToObject(arr: ArrayType) {
         const arrObj: any = {};
-        arr.forEach((ele, i) => {
-            arrObj[ele] = i;
-        });
+        for (let i = 0; i < arr.length; i++) {
+            arrObj[i] = arr[i];
+
+        }
         return arrObj;
     }
 
@@ -335,44 +335,47 @@ export default class Utils {
      * @param val whether to return the value count instead of the null count
      * @param isSeries Whether the array is of type series or not
      */
-    countNaNs<T>(arr: Array<T | T[]>, returnVal: boolean = true, isSeries: boolean): number | Array<number> {
+    countNaNs(arr: ArrayType, returnVal: boolean = true, isSeries: boolean): number | Array<number> {
         if (isSeries) {
             let nullCount = 0;
             let valCount = 0;
-            arr.forEach((ele) => {
+            for (let i = 0; i < arr.length; i++) {
+                const ele = arr[i];
                 if (Number.isNaN(ele)) {
                     nullCount = nullCount + 1;
                 } else {
                     valCount = valCount + 1;
                 }
-            });
+
+            }
             if (returnVal) {
                 return valCount;
             } else {
                 return nullCount;
             }
         } else {
-            const resultArr: Array<number> = [];
-            arr.forEach((innerArr) => {
+            const resultArr = [];
+            for (let i = 0; i < arr.length; i++) {
+                const innerArr = arr[i];
                 let nullCount = 0;
                 let valCount = 0;
-                (innerArr as Array<T>).forEach((ele: any) => {
+                for (let i = 0; i < (innerArr as unknown as ArrayType2D).length; i++) {
+                    const ele = (innerArr as unknown as ArrayType2D)[i];
                     if (Number.isNaN(ele)) {
                         nullCount = nullCount + 1;
                     } else {
                         valCount = valCount + 1;
                     }
-                });
+                }
 
                 if (returnVal) {
                     resultArr.push(valCount);
                 } else {
                     resultArr.push(nullCount);
                 }
-            });
+            }
             return resultArr;
-        }
-    }
+        }    }
 
     /**
      * Round elements of an array or array of arrays to specified dp
@@ -380,25 +383,46 @@ export default class Utils {
      * @param dp The number of dp to round to
      * @param isSeries Whether the array is of type Series or not
      */
-    round(arr: Array<number | number[]>, dp: number = 2, isSeries: boolean) {
+    round(arr: Array<number | number[]>, dp: number = 2, isSeries: boolean): ArrayType {
         if (dp < 0) {
             dp = 1;
         }
+
         if (isSeries) {
-            const newArr: Array<number> = [];
-            arr.map((val) => {
-                newArr.push(Number((val as number).toFixed(dp)));
-            });
+            const newArr = [];
+            for (let i = 0; i < arr.length; i++) {
+                const ele = arr[i];
+                if (typeof ele == "number") {
+                    newArr.push(Number((ele).toFixed(dp)));
+                } else {
+                    newArr.push(ele)
+                }
+            }
             return newArr;
         } else {
-            const resultArr: Array<number[]> = [];
-            arr.forEach((inerArr) => {
+            const resultArr = [];
+            for (let i = 0; i < arr.length; i++) {
+                const innerVal = arr[i];
                 const newArr: Array<number> = [];
-                (inerArr as Array<number>).forEach((val) => {
-                    newArr.push(Number(val.toFixed(dp)));
-                });
-                resultArr.push(newArr);
-            });
+                if (Array.isArray(innerVal)) {
+                    for (let i = 0; i < innerVal.length; i++) {
+                        const ele = innerVal[i];
+                        if (typeof ele == "number") {
+                            newArr.push(Number((ele).toFixed(dp)));
+                        } else {
+                            newArr.push(ele)
+                        }
+                    }
+                    resultArr.push(newArr);
+                } else {
+                    if (typeof innerVal == "number") {
+                        newArr.push(Number((innerVal).toFixed(dp)));
+                    } else {
+                        newArr.push(innerVal)
+                    }
+                }
+
+            }
             return resultArr;
         }
     }
@@ -407,7 +431,7 @@ export default class Utils {
      * Checks if a func is a function
      * @param func 
      */
-    isFunction<T>(func: T): boolean {
+    isFunction(func: object): boolean {
         return typeof func == "function";
     }
 
@@ -445,7 +469,7 @@ export default class Utils {
      * @param paramsObject The parameters passed to the function
      * @param paramsNeeded The required parameters in the function
      */
-    throwErrorOnWrongParams<T>(paramsObject: T, paramsNeeded: Array<string>) {
+    throwErrorOnWrongParams(paramsObject: object, paramsNeeded: Array<string>) {
         const keys = Object.keys(paramsObject);
         const bool = [];
         for (let i = 0; i < keys.length; i++) {
@@ -489,7 +513,7 @@ export default class Utils {
      * @param row 
      * @param column 
      */
-    zeros(row: number, column: number): Array<number[]> {
+    zeros(row: number, column: number): ArrayType {
         const zeroData = [];
         for (let i = 0; i < row; i++) {
             const colData = Array(column);
@@ -506,7 +530,7 @@ export default class Utils {
      * @param num 
      * @param array 
      */
-    shuffle<T>(array: Array<T>, num: number,) {
+    shuffle(array: ArrayType, num: number): ArrayType {
         let i = array.length;
         let j = 0;
         let temp;
@@ -527,7 +551,7 @@ export default class Utils {
      * @param ascending 
      * @returns 
      */
-    sort<T>(arr: Array<T>, ascending: boolean = true): Array<T> {
+    sort(arr: ArrayType, ascending: boolean = true): ArrayType {
         const sorted = [...arr]
         return sorted.sort((a, b) => {
             if (ascending) {
@@ -567,10 +591,10 @@ export default class Utils {
     }
 
     /**
-     * Remove NaN values from an array
+     * Remove NaN values from 1D array
      * @param arr
      */
-    removeNansFromArray<T>(arr: Array<T>) {
+    removeNansFromArray(arr: ArrayType): ArrayType {
         const values = arr.filter((val) => !isNaN(val as unknown as number) && typeof val != "string");
         return values;
     }
@@ -579,7 +603,7 @@ export default class Utils {
      * Replace NaN with null before tensor operations
      * @param arr
      */
-    replaceNanWithNull<T>(arr: Array<T>) {
+    replaceNanWithNull(arr: ArrayType) {
         const values = arr.map((val) => {
             if (isNaN(val as unknown as number)) {
                 return null;
@@ -598,16 +622,17 @@ export default class Utils {
         const tempObj: any = {};
         const resultObj: any = {};
 
-        arr.forEach((val, index) => {
+        for (let i = 0; i < arr.length; i++) {
+            const val = arr[i];
             if (this.keyInObject(tempObj, val as unknown as string | number)) {
                 tempObj[val]["count"] += 1;
-                tempObj[val]["index"].push(index);
+                tempObj[val]["index"].push(i);
             } else {
                 tempObj[val] = {};
                 tempObj[val]["count"] = 1;
-                tempObj[val]["index"] = [index];
+                tempObj[val]["index"] = [i];
             }
-        });
+        }
 
         for (let key in tempObj) {
             if (tempObj[key]["count"] >= 2) {
@@ -628,7 +653,7 @@ export default class Utils {
      *
      * @returns sorted index
      */
-    sortArrayByIndex<T>(arr1: Array<T>, arr2: Array<T>, dtype: string) {
+    sortArrayByIndex(arr1: ArrayType, arr2: ArrayType, dtype: string) {
         const sortedIdx = arr1.map((item, index) => {
             return [arr2[index], item];
         });
