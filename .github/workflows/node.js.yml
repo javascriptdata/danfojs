@@ -26,5 +26,5 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: cd danfojs-node && yarn
     - run: cd danfojs-node && yarn test
-    - run: cd danfojs-browser && yarn
-    - run: cd danfojs-browser && yarn test
+    # - run: cd danfojs-browser && yarn
+    # - run: cd danfojs-browser && yarn test
