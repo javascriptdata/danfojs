@@ -1,4 +1,4 @@
-import NDframe from "./core/generic"
+import NDframe from "./generic"
 import { DATA_TYPES } from "./defaults"
 
 /**
@@ -38,6 +38,16 @@ class ErrorThrower {
 
     throwNotImplementedError = (): void => {
         const msg = `Method not implemented`
+        throw new Error(msg)
+    }
+
+    throwIlocRowIndexError = (): void => {
+        const msg = `rows parameter must be a Array. For example: rows: [1,2] or rows: ["0:10"]`
+        throw new Error(msg)
+    }
+
+    throwIlocColumnsIndexError = (): void => {
+        const msg = `columns parameter must be a Array. For example: columns: [1,2] or columns: ["0:10"]`
         throw new Error(msg)
     }
 }

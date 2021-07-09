@@ -1,5 +1,5 @@
 import { Tensor } from '@tensorflow/tfjs-node';
-
+import Series from './series/series';
 
 //Start of Config class types
 export type ConfigsType = {
@@ -14,7 +14,7 @@ export type ConfigsType = {
 
 //Start of Generic class types
 export type ArrayType = Array<
-    | number
+    number
     | number[]
     | string
     | string[]
@@ -23,10 +23,16 @@ export type ArrayType = Array<
     | (number | string | boolean)[]>
 
 export type ArrayType2D = Array<
-    | number[]
+    number[]
     | string[]
     | boolean[]
     | (number | string | boolean)[]>
+
+export type ArrayType1D = Array<
+    number
+    | string
+    | boolean
+    | (number | string | boolean)>
 
 export interface BaseDataOptionType {
     type?: number;
@@ -70,4 +76,13 @@ export interface NDframeInterface {
     toCsv(): Array<string | string[]>;
     toJson(): string;
     print(): void;
+}
+
+//End of Generic class types
+
+//Start of Series class types
+
+export type SeriesIlocType = {
+    ndFrame: Series
+    rows: Array<string | number>
 }

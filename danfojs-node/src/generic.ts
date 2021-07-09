@@ -15,11 +15,18 @@
 
 import * as tf from '@tensorflow/tfjs-node';
 // import { table } from "table";
-import Utils from "../utils";
-import Configs from "../config";
-import { BASE_CONFIG, DATA_TYPES } from '../defaults';
-import { NDframeInterface, NdframeInputDataType, LoadArrayDataType, LoadObjectDataType, ArrayType, AxisType } from '../types'
-import ErrorThrower from '../errors';
+import Utils from "./utils";
+import Configs from "./config";
+import { BASE_CONFIG, DATA_TYPES } from './defaults';
+import {
+    NDframeInterface,
+    NdframeInputDataType,
+    LoadArrayDataType,
+    LoadObjectDataType,
+    ArrayType,
+    AxisType
+} from './types'
+import ErrorThrower from './errors';
 
 const utils = new Utils();
 
@@ -275,6 +282,11 @@ export default class NDframe implements NDframeInterface {
 
     get index(): Array<string | number> {
         return this.$index
+
+    }
+
+    get config(): Configs {
+        return this.$config
 
     }
 
