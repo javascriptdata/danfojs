@@ -28,7 +28,7 @@
   },
   "scripts": {
     "test": "nyc mocha --require ts-node/register test/**/*",
-    "test:clean": "yarn build:clean && nyc mocha --require @babel/register test/*",
+    "test:clean": "yarn build:clean && nyc mocha --require ts-node/register test/**/*",
     "dev": "nodemon",
     "build": "tsc",
     "build:clean": "rimraf ./build && tsc",

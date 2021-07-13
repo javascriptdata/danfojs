@@ -17,6 +17,7 @@ import * as tf from '@tensorflow/tfjs-node';
 import { BASE_CONFIG } from './defaults'
 import Config from './config';
 import { ArrayType, ArrayType2D } from './types';
+import { Series } from '../';
 
 const config = new Config(BASE_CONFIG);
 
@@ -203,7 +204,8 @@ export default class Utils {
                 }
             }
             return newArr;
-        }    }
+        }
+    }
 
     /**
      * Infer data type from an array or array of arrays
@@ -375,7 +377,8 @@ export default class Utils {
                 }
             }
             return resultArr;
-        }    }
+        }
+    }
 
     /**
      * Round elements of an array or array of arrays to specified dp
@@ -664,5 +667,55 @@ export default class Utils {
         }
 
         return sortedIdx.map(([, item]) => item);
+    }
+
+    /**
+ * Returns a new series with properties of the old series
+ * 
+ * @param series The series to copy
+*/
+    createNdframeFromNewDataWithOldProps({ ndFrame, newData, isSeries }: { ndFrame: Series, newData: any, isSeries: boolean }): Series {
+        if (isSeries) {
+            return new Series({
+                data: newData,
+                index: ndFrame.index,
+                columnNames: ndFrame.columnNames,
+                dtypes: ndFrame.dtypes,
+                config: ndFrame.config
+            })
+        } else {
+            return ndFrame
+            // return new Frame({
+            //     data: newData,
+            //     index: ndframe.index,
+            //     columnNames: ndframe.columnNames,
+            //     dtypes: ndframe.dtypes,
+            //     config: ndframe.config
+            // })
+        }
+    }
+
+    /**
+    * Checks if two series are compatible for a mathematical operation
+    * @param object 
+    * 
+    *   firstSeries ==>  First Series object
+    * 
+    *   secondSeries ==> Second Series object to comapre with
+    * 
+    *   operation ==> The mathematical operation
+    */
+    checkSeriesOpCompactibility({ firstSeries, secondSeries, operation }: {
+        firstSeries: Series, secondSeries: Series, operation: string
+    }): { status: boolean, message: string } {
+        if (firstSeries.shape[0] != secondSeries.shape[0]) {
+            const message = "Shape Error: Series shape do not match"
+            return { status: false, message }
+        }
+        if (firstSeries.dtypes[0] == 'string' || secondSeries.dtypes[0] == 'string') {
+            const message = `dtype Error: Cannot perform operation "${operation}" on Series with dtype string}`
+            return { status: false, message }
+        }
+        return { status: true, message: "" }
     }
 }

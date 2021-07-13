@@ -1,5 +1,5 @@
 import { Tensor } from '@tensorflow/tfjs-node';
-import Series from '../series/series';
+import Series from '../series';
 
 //Start of Config class types
 export type ConfigsType = {

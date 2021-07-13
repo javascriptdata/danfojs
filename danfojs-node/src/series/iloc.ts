@@ -13,11 +13,15 @@
 * ==========================================================================
 */
 
-import Series from "../../series/series";
-import Utils from "../../shared/utils"
+import Series from "./";
+import Utils from "../shared/utils"
 
 const utils = new Utils();
 
+/**
+   * Slice a Series by specified row index
+   * @param Object 
+*/
 export function _iloc({ ndFrame, rows }: {
     ndFrame: Series
     rows: Array<string | number>
