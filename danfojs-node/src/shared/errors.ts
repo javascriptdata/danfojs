@@ -1,4 +1,4 @@
-import NDframe from "./generic"
+import NDframe from "../core/generic"
 import { DATA_TYPES } from "./defaults"
 
 /**

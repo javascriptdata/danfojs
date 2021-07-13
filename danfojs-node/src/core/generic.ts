@@ -15,9 +15,9 @@
 
 import * as tf from '@tensorflow/tfjs-node';
 // import { table } from "table";
-import Utils from "./utils";
-import Configs from "./config";
-import { BASE_CONFIG, DATA_TYPES } from './defaults';
+import Utils from "../shared/utils";
+import Configs from "../shared/config";
+import { BASE_CONFIG, DATA_TYPES } from '../shared/defaults';
 import {
     NDframeInterface,
     NdframeInputDataType,
@@ -25,8 +25,8 @@ import {
     LoadObjectDataType,
     ArrayType,
     AxisType
-} from './types'
-import ErrorThrower from './errors';
+} from '../shared/types'
+import ErrorThrower from '../shared/errors';
 
 const utils = new Utils();
 

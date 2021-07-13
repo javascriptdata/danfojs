@@ -14,7 +14,7 @@
 */
 
 import Series from "../../series/series";
-import Utils from "../../utils"
+import Utils from "../../shared/utils"
 
 const utils = new Utils();
 

@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import Series from "../series";
+import { Series } from "../../../build";
 
 describe("Series iloc", function () {
 

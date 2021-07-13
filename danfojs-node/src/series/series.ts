@@ -13,7 +13,7 @@
 * ==========================================================================
 */
 
-import NDframe from "../generic";
+import NDframe from "../core/generic";
 import { _iloc } from "./ops/iloc";
 
 /**

@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import NDframe from './generic';
+import { NDframe } from '../../build';
 import * as tf from '@tensorflow/tfjs-node';
 
 
@@ -184,7 +184,7 @@ describe("Generic (NDFrame)", function () {
             // @ts-ignore
             assert.deepEqual(ndframe["sum"], [20.3, 30.456, 40.90, 90.1]);
         });
-        
+
         it("Correct dtype is set after setting a column by subseting (low memory mode) ", function () {
             let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
             let ndframe = new NDframe({ data, config: { lowMemoryMode: true } });

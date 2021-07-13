@@ -1,8 +1,8 @@
 import { assert } from 'chai';
-import Configs from './config';
-import { BASE_CONFIG } from './defaults'
+import { Config } from '../../build';
+import { BASE_CONFIG } from '../../build/shared/defaults'
 
-const config = new Configs(BASE_CONFIG);
+const config = new Config(BASE_CONFIG);
 
 describe("Config", function () {
   it("gets the default config val for table width", () => {

@@ -1,8 +1,8 @@
-// import NDframe from "./core/generic";
+import NDframe from "./core/generic";
 // import * as tf from "@tensorflow/tfjs-node";
-import Config from './config';
-import Util from './utils';
-// export { Series } from "./core/series";
+import Config from './shared/config';
+import Utils from './shared/utils';
+import Series from "./series/series";
 // export { DataFrame } from "./core/frame";
 // export { to_datetime } from "./core/timeseries";
 // export { read_csv, read_json, read_excel, read } from "./io/reader";
@@ -16,5 +16,5 @@ import Util from './utils';
 // export { Str } from "./core/strings";
 // export { tf };
 
-export { Config, Util }
+export { NDframe, Config, Utils, Series }
 // export const _version = "0.2.7";
