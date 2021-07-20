@@ -66,21 +66,8 @@ export class DataFrame extends Ndframe {
    */
   async to_csv(csvFilePath = "") {
     const csvContent = await super.to_csv();
-    // behave differently for Node vs Web
-    if (typeof window === "undefined") {
-      // Write CSV on Node.js
-      // eslint-disable-next-line no-undef
-      const fs = require("fs");
-      fs.writeFileSync(
-        csvFilePath,
-        csvContent,
-        (err) => err && console.error(err)
-      );
-    } else {
-      // Download CSV on Web
-      const webCSV = "data:text/csv;charset=utf-8," + csvContent;
-      window.open(encodeURI(webCSV));
-    }
+    const webCSV = "data:text/csv;charset=utf-8," + csvContent;
+    window.open(encodeURI(webCSV));
     return csvContent;
   }
 
