@@ -2071,6 +2071,7 @@ export class DataFrame extends Ndframe {
     col_vals.forEach((col, i) => {
       // self[col_names[i]] = new Series(col, { columns: col_names[i], index: self.index })
       Object.defineProperty(self, col_names[i], {
+        configurable: true,
         get() {
           return new Series(col, { columns: col_names[i], index: self.index });
         },
