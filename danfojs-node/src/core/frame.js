@@ -597,32 +597,32 @@ export class DataFrame extends Ndframe {
         for (let j = 1; j < value.length; j++) {
           let curr_val = value[j];
           switch (ops) {
-            case "max":
-              if (curr_val > temp_val) {
-                temp_val = curr_val;
-                temp_data.push(curr_val);
-              } else {
-                temp_data.push(temp_val);
-              }
-              break;
-            case "min":
-              if (curr_val < temp_val) {
-                temp_val = curr_val;
-                temp_data.push(curr_val);
-              } else {
-                temp_data.push(temp_val);
-              }
-              break;
-            case "sum":
-              temp_val = temp_val + curr_val;
+          case "max":
+            if (curr_val > temp_val) {
+              temp_val = curr_val;
+              temp_data.push(curr_val);
+            } else {
               temp_data.push(temp_val);
-
-              break;
-            case "prod":
-              temp_val = temp_val * curr_val;
+            }
+            break;
+          case "min":
+            if (curr_val < temp_val) {
+              temp_val = curr_val;
+              temp_data.push(curr_val);
+            } else {
               temp_data.push(temp_val);
+            }
+            break;
+          case "sum":
+            temp_val = temp_val + curr_val;
+            temp_data.push(temp_val);
 
-              break;
+            break;
+          case "prod":
+            temp_val = temp_val * curr_val;
+            temp_data.push(temp_val);
+
+            break;
           }
         }
         data.push(temp_data);
@@ -1657,24 +1657,24 @@ export class DataFrame extends Ndframe {
     }
 
     switch (logical_type) {
-      case "lt":
-        int_vals = tf.tensor(this.values).less(other).arraySync();
-        break;
-      case "gt":
-        int_vals = tf.tensor(this.values).greater(other).arraySync();
-        break;
-      case "le":
-        int_vals = tf.tensor(this.values).lessEqual(other).arraySync();
-        break;
-      case "ge":
-        int_vals = tf.tensor(this.values).greaterEqual(other).arraySync();
-        break;
-      case "ne":
-        int_vals = tf.tensor(this.values).notEqual(other).arraySync();
-        break;
-      case "eq":
-        int_vals = tf.tensor(this.values).equal(other).arraySync();
-        break;
+    case "lt":
+      int_vals = tf.tensor(this.values).less(other).arraySync();
+      break;
+    case "gt":
+      int_vals = tf.tensor(this.values).greater(other).arraySync();
+      break;
+    case "le":
+      int_vals = tf.tensor(this.values).lessEqual(other).arraySync();
+      break;
+    case "ge":
+      int_vals = tf.tensor(this.values).greaterEqual(other).arraySync();
+      break;
+    case "ne":
+      int_vals = tf.tensor(this.values).notEqual(other).arraySync();
+      break;
+    case "eq":
+      int_vals = tf.tensor(this.values).equal(other).arraySync();
+      break;
     }
     let bool_vals = utils.__map_int_to_bool(int_vals, 2);
     let df = new DataFrame(bool_vals, {
@@ -1846,27 +1846,27 @@ export class DataFrame extends Ndframe {
     let temp_col = col_values[col_idx];
 
     switch (kwargs["dtype"]) {
-      case "float32":
-        temp_col.map((val) => {
-          new_col_values.push(Number(val));
-        });
-        col_values[col_idx] = new_col_values;
-        break;
-      case "int32":
-        temp_col.map((val) => {
-          new_col_values.push(Number(Number(val).toFixed()));
-        });
-        col_values[col_idx] = new_col_values;
+    case "float32":
+      temp_col.map((val) => {
+        new_col_values.push(Number(val));
+      });
+      col_values[col_idx] = new_col_values;
+      break;
+    case "int32":
+      temp_col.map((val) => {
+        new_col_values.push(Number(Number(val).toFixed()));
+      });
+      col_values[col_idx] = new_col_values;
 
-        break;
-      case "string":
-        temp_col.map((val) => {
-          new_col_values.push(String(val));
-        });
-        col_values[col_idx] = new_col_values;
-        break;
-      default:
-        break;
+      break;
+    case "string":
+      temp_col.map((val) => {
+        new_col_values.push(String(val));
+      });
+      col_values[col_idx] = new_col_values;
+      break;
+    default:
+      break;
     }
 
     let new_col_obj = {};
@@ -2160,7 +2160,7 @@ export class DataFrame extends Ndframe {
             `length Mixmatch: The lenght of provided value (${val.length}) does not match the original DataFrame (${this.shape[1]})`
           );
         }
-        df2 = new DataFrame(val);
+        df2 = new DataFrame(val, { columns:this.columns });
       }
     } else if (utils.__is_object(val)) {
       df2 = new DataFrame(val);

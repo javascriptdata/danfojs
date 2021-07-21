@@ -1861,7 +1861,9 @@ class DataFrame extends _generic.default {
           throw Error(`length Mixmatch: The lenght of provided value (${val.length}) does not match the original DataFrame (${this.shape[1]})`);
         }
 
-        df2 = new DataFrame(val);
+        df2 = new DataFrame(val, {
+          columns: this.columns
+        });
       }
     } else if (utils.__is_object(val)) {
       df2 = new DataFrame(val);
