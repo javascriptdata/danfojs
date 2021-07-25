@@ -11,6 +11,8 @@ var _utils = require("./utils");
 
 var _series = require("./series");
 
+var _concat = require("./concat");
+
 const utils = new _utils.Utils();
 
 class GroupBy {
@@ -229,9 +231,13 @@ class GroupBy {
     function concatPathAndNode(path, node, col_dtype) {
       if (Array.isArray(node)) {
         if (Array.isArray(node[0])) {
-          const transposed_node = node[0].map((_, colIndex) => node.map(row => row[colIndex]));
+          if (ops != "apply") {
+            const transposed_node = node[0].map((_, colIndex) => node.map(row => row[colIndex]));
 
-          for (const n_array of transposed_node) df_data.push(path.concat(n_array));
+            for (const n_array of transposed_node) df_data.push(path.concat(n_array));
+          } else {
+            for (const n_array of node) df_data.push(path.concat(n_array));
+          }
         } else df_data.push(path.concat(node));
       } else {
         for (const [k, child] of Object.entries(node)) {
@@ -274,10 +280,25 @@ class GroupBy {
     function recursiveCount(sub_df_data, sub_count_group) {
       for (const [key, value] of Object.entries(sub_df_data)) {
         if (Array.isArray(value)) {
-          sub_count_group[key] = value.map(callable_value => {
-            const callable_rslt = callable(callable_value);
-            if (callable_rslt instanceof _frame.DataFrame || callable_rslt instanceof _series.Series) return callable_rslt.values;else return callable_rslt;
-          });
+          let callable_value;
+
+          if (value.length > 1) {
+            callable_value = (0, _concat.concat)({
+              df_list: value,
+              axis: 1
+            });
+          } else {
+            callable_value = value[0];
+          }
+
+          const callable_rslt = callable(callable_value);
+
+          if (callable_rslt instanceof _frame.DataFrame) {
+            column = callable_rslt.columns;
+            sub_count_group[key] = callable_rslt.values;
+          } else if (callable_rslt instanceof _series.Series) {
+            sub_count_group[key] = callable_rslt.values;
+          } else sub_count_group = callable_rslt;
         } else {
           sub_count_group[key] = {};
           recursiveCount(value, sub_count_group[key]);

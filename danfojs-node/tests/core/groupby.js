@@ -1,5 +1,6 @@
 import { assert } from "chai";
 import { DataFrame } from '../../src/core/frame';
+import { Series } from '../../src/core/series';
 
 describe("groupby", function () {
   it("Check group by One column data", function () {
