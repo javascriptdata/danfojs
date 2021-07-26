@@ -24,7 +24,7 @@
     "@tensorflow/tfjs": "3.6.0",
     "mathjs": "7.5.1",
     "table": "^5.4.6",
-    "xlsx": "^0.16.7"
+    "xlsx": "^0.17.0"
   },
   "scripts": {
     "test": "yarn run bundle && karma start --single-run --browsers ChromeHeadless karma.conf.js",
