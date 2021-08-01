@@ -6,7 +6,7 @@
         "danfojs-browser/**"
     ], 
     "scripts": {
-        "build": "cd danfojs-node && yarn build && cd ../danfojs-browser && yarn bundle",
-        "test": "cd danfojs-node && yarn test:clean && cd ../danfojs-browser && yarn test"
+        "build": "cd danfojs-node && yarn build:clean",
+        "test": "cd danfojs-node && yarn test:clean"
     }
 }
