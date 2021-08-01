@@ -2,7 +2,7 @@ import NDframe from "./core/generic";
 // import * as tf from "@tensorflow/tfjs-node";
 import Config from './shared/config';
 import Utils from './shared/utils';
-import Series from "./series";
+import Series from "./core/series";
 // export { DataFrame } from "./core/frame";
 // export { to_datetime } from "./core/timeseries";
 // export { read_csv, read_json, read_excel, read } from "./io/reader";

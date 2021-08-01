@@ -259,13 +259,13 @@ describe("Generic (NDFrame)", function () {
         it("sets the index of an NDframe", function () {
             let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }];
             let df = new NDframe({ data });
-            df.setIndex(["A", "B", "C"]);
+            df.$setIndex(["A", "B", "C"]);
             assert.deepEqual(df.index, ["A", "B", "C"]);
         });
         it("Returns the index of an NDframe created from an Array", function () {
             let data = [[12, 2, 20], [90, 5, 23], [45, 56, 70], [9, 10, 19]];
             let df = new NDframe({ data });
-            df.setIndex([10, 20, 30, 40]);
+            df.$setIndex([10, 20, 30, 40]);
             assert.deepEqual(df.index, [10, 20, 30, 40]);
         });
     });

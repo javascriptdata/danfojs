@@ -108,4 +108,18 @@ describe("Series Functions", () => {
             assert.throws(() => { sf.div(sf2) }, Error, "Shape Error: Series shape do not match")
         })
     });
+
+    describe("toString", function () {
+        it("Prints a series to the console", async function () {
+            let data = [1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78];
+            let sf = new Series({ data });
+            sf.print()
+        });
+        it("Prints a series to the console", async function () {
+            let data = ["This is a long text group and I want it to print in full",
+                "This is a long text group and I want it to print in full"];
+            let sf = new Series({ data });
+            sf.print()
+        });
+    });
 })

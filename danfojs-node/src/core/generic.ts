@@ -14,17 +14,18 @@
 */
 
 import * as tf from '@tensorflow/tfjs-node';
-// import { table } from "table";
 import Utils from "../shared/utils";
 import Configs from "../shared/config";
+import { _iloc } from "./iloc"
 import { BASE_CONFIG, DATA_TYPES } from '../shared/defaults';
 import {
     NDframeInterface,
     NdframeInputDataType,
     LoadArrayDataType,
     LoadObjectDataType,
-    ArrayType,
-    AxisType
+    AxisType,
+    ArrayType1D,
+    ArrayType2D
 } from '../shared/types'
 import ErrorThrower from '../shared/errors';
 
@@ -50,12 +51,12 @@ const utils = new Utils();
  */
 export default class NDframe implements NDframeInterface {
     private $isSeries: boolean
-    private $data: ArrayType = []
-    private $dataIncolumnFormat: ArrayType = []
+    private $data: ArrayType1D | ArrayType2D = []
+    private $dataIncolumnFormat: ArrayType1D | ArrayType2D = []
     private $index: Array<string | number> = []
     private $columnNames: string[] = []
     private $dtypes: Array<string> = []
-    private $config: Configs
+    protected $config: Configs
 
     constructor({ data, index, columnNames, dtypes, config }: NdframeInputDataType) {
         if (config) {
@@ -102,7 +103,7 @@ export default class NDframe implements NDframeInterface {
                     return self.$getColumnData(columnName)
 
                 },
-                set(arr: ArrayType) {
+                set(arr: ArrayType1D | ArrayType2D) {
                     self.$setColumnData(columnName, arr);
                 }
             })
@@ -132,7 +133,7 @@ export default class NDframe implements NDframeInterface {
 
     }
 
-    private $setColumnData(columnName: string, arr: ArrayType): void {
+    private $setColumnData(columnName: string, arr: ArrayType1D | ArrayType2D): void {
         const columnIndex = this.$columnNames.indexOf(columnName)
         if (columnIndex == -1) {
             ErrorThrower.throwColumnNotFoundError(this)
@@ -175,9 +176,9 @@ export default class NDframe implements NDframeInterface {
             //This makes column data retrieval run in constant time
             this.$dataIncolumnFormat = utils.transposeArray(data)
         }
-        this.setIndex(index);
-        this.setColumnNames(columnNames);
-        this.setDtypes(dtypes);
+        this.$setIndex(index);
+        this.$setColumnNames(columnNames);
+        this.$setDtypes(dtypes);
         this.$setInternalColumnDataProperty()
     }
 
@@ -229,7 +230,7 @@ export default class NDframe implements NDframeInterface {
         return this.$dtypes
     }
 
-    setDtypes(dtypes: Array<string> | undefined): void {
+    $setDtypes(dtypes: Array<string> | undefined): void {
         if (this.$isSeries) {
             if (dtypes) {
                 if (dtypes.length != 1) {
@@ -290,7 +291,7 @@ export default class NDframe implements NDframeInterface {
 
     }
 
-    setIndex(index: Array<string | number> | undefined): void {
+    $setIndex(index: Array<string | number> | undefined): void {
         if (this.$isSeries) {
             if (index) {
                 if (index.length != this.shape[0]) {
@@ -312,7 +313,7 @@ export default class NDframe implements NDframeInterface {
         }
     }
 
-    resetIndex(): void {
+    $resetIndex(): void {
         this.$index = utils.range(0, this.shape[0])
     }
 
@@ -320,7 +321,7 @@ export default class NDframe implements NDframeInterface {
         return this.$columnNames
     }
 
-    setColumnNames(columnNames?: string[]) {
+    $setColumnNames(columnNames?: string[]) {
         if (this.$isSeries) {
             if (columnNames) {
                 if (columnNames.length != 1) {
@@ -347,14 +348,14 @@ export default class NDframe implements NDframeInterface {
         if (this.$isSeries) {
             return [this.$data.length, 1];
         } else {
-            const rowLen = (this.$data as ArrayType).length
-            const colLen = (this.$data[0] as ArrayType).length
+            const rowLen = (this.$data).length
+            const colLen = (this.$data[0] as []).length
             return [rowLen, colLen]
         }
 
     }
 
-    get values(): ArrayType {
+    get values(): ArrayType1D | ArrayType2D {
         return this.$data;
     }
 
@@ -362,119 +363,15 @@ export default class NDframe implements NDframeInterface {
         return this.tensor.size
     }
 
-    toCsv(): Array<string | string[]> {
-        ErrorThrower.throwNotImplementedError()
-        return []
-    }
-
-    toJson(): string {
+    async toCsv(): Promise<String> {
         ErrorThrower.throwNotImplementedError()
         return ""
     }
 
-    /**
-     * Prints NDframe to console as a grid of row and columns.
-    */
-    // toString(): string {
-    //     const tableWidth = this.$config.getTableWidth
-    //     const tableTruncateLen = this.$config.getTableTruncate;
-    //     const maxRow = this.$config.getMaxRow;
-    //     const maxColInConsole = this.$config.getTableMaxColInConsole;
-    //     const columnLen = this.$columnNames.length
-
-    //     let dataArr: any;
-    //     let tableConfig: any
-    //     let header = [];
-
-    //     if (columnLen > maxColInConsole) {
-    //         //truncate displayed columns to fit in the console
-    //         let firstFourCols = this.$columnNames.slice(0, 4);
-    //         let lastThreeCols = this.$columnNames.slice(columnLen - 4);
-    //         //join columns with ellipse in the middle
-    //         header = ["", ...firstFourCols, "...", ...lastThreeCols]
-
-    //         let subIdx = []
-    //         let values1: any
-    //         let values2: any
-
-    //         if (this.values.length > maxRow) {
-    //             //slice Object to show [max_rows]
-    //             let dfSubsetOne = indexLoc({
-    //                 ndframe: this,
-    //                 rows: [`0:${maxRow}`],
-    //                 columns: ["0:4"]
-    //             });
-
-    //             let dfSubsetTwo = indexLoc({
-    //                 ndframe: this,
-    //                 rows: [`0:${maxRow}`],
-    //                 columns: [`${columnLen - 4}:`]
-    //             });
-
-    //             subIdx = this.index.slice(0, maxRow);
-    //             values1 = dfSubsetOne.values;
-    //             values2 = dfSubsetTwo.values;
-
-    //         } else {
-    //             let dfSubsetOne = indexLoc({
-    //                 ndframe: this,
-    //                 rows: ["0:"],
-    //                 columns: ["0:4"]
-    //             });
-
-    //             let dfSubsetTwo = indexLoc({
-    //                 ndframe: this,
-    //                 rows: ["0:"],
-    //                 columns: [`${columnLen - 4}:`]
-    //             });
-
-    //             subIdx = this.index.slice(0, maxRow);
-    //             values1 = dfSubsetOne.values;
-    //             values2 = dfSubsetTwo.values;
-    //         }
-
-    //         // merge dfs
-    //         subIdx.map((val, i) => {
-    //             let row = [val].concat(values1[i]).concat(["..."]).concat(values2[i]);
-    //             dataArr.push(row);
-    //         });
-    //     } else {
-    //         //display all columns
-    //         header = ["", ...this.$columnNames]
-    //         let idx: Array<string | number> = []
-    //         let values: any
-
-    //         if (this.values.length > maxRow) {
-    //             //slice Object to show a max of [max_rows]
-    //             let [data, _, index] = indexLoc({
-    //                 ndframe: this,
-    //                 rows: [`0:${maxRow}`],
-    //                 columns: this.$columnNames
-    //             });
-
-    //             idx = index
-    //             values = data.values;
-    //         } else {
-    //             values = this.values;
-    //             idx = this.index;
-    //         }
-
-    //         // merge cols
-    //         idx.forEach((val, i) => {
-    //             let row = [val, ...values[i]];
-    //             dataArr.push(row);
-    //         });
-    //     }
-
-    //     //set column width of all columns
-    //     tableConfig[0] = 10;
-    //     for (let index = 1; index < header.length; index++) {
-    //         tableConfig[index] = { width: tableWidth, truncate: tableTruncateLen };
-    //     }
-
-    //     let tabledata = [header, ...dataArr]; //Add the column names to values before printing
-    //     return table(tabledata, { columns: tableConfig });
-    // }
+    async toJson(): Promise<String> {
+        ErrorThrower.throwNotImplementedError()
+        return ""
+    }
 
     /**
      * Pretty prints n number of rows in a DataFrame or isSeries in the console
