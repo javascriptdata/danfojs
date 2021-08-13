@@ -182,7 +182,7 @@ describe("Utils", function () {
 
             assert.throws(() => {
                 utils.throwErrorOnWrongParams(kwargs, paramsNeeded)
-            }, Error, `Params Error: Required parameter not found. Your params must be any of the following [${paramsNeeded}]`);
+            }, Error, `Params Error: Required parameter not found. Your params must include the following [${paramsNeeded}]`);
         })
 
         it("check if the right params are passed to a function 2", function () {
