@@ -22,7 +22,7 @@
   ],
   "dependencies": {
     "@tensorflow/tfjs-node": "3.6.1",
-    "mathjs": "7.5.1",
+    "mathjs": "^9.4.4",
     "node-fetch": "^2.6.1",
     "table": "6.7.1"
   },
@@ -66,6 +66,7 @@
     "@babel/preset-env": "^7.10.4",
     "@babel/register": "^7.10.1",
     "@types/chai": "^4.2.19",
+    "@types/mathjs": "^9.4.2",
     "@types/mocha": "^8.2.2",
     "@types/node": "^15.12.5",
     "@types/table": "^6.3.2",

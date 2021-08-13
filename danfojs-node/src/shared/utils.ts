@@ -109,6 +109,8 @@ export default class Utils {
      * @param key The key to find.
      */
     transposeArray(arr: ArrayType1D | ArrayType2D): ArrayType1D | ArrayType2D { //old name: __get_col_values
+        if (arr.length === 0) return arr
+
         const rowLen: number = arr.length;
         if (Array.isArray(arr[0])) {
             const colLen: number = arr[0].length;
@@ -169,6 +171,8 @@ export default class Utils {
      * @param isSeries Whether the arr is a series or not
      */
     replaceUndefinedWithNaN(arr: ArrayType1D | ArrayType2D, isSeries: boolean): ArrayType1D | ArrayType2D {
+        if (arr.length === 0) return arr;
+
         if (isSeries && Array.isArray(arr)) {
             const newArr = arr.map((ele) => {
                 if (typeof ele === "undefined") {
@@ -297,7 +301,7 @@ export default class Utils {
      * Returns the unique values in an 1D array
      * @param arr The array 
     */
-    unique(arr: ArrayType1D ): ArrayType1D {
+    unique(arr: ArrayType1D): ArrayType1D {
         const uniqueArr = new Set(arr);
         return Array.from(uniqueArr);
     }
@@ -386,7 +390,7 @@ export default class Utils {
      * @param dp The number of dp to round to
      * @param isSeries Whether the array is of type Series or not
      */
-    round(arr: Array<number | number[]>, dp: number = 2, isSeries: boolean): ArrayType1D | ArrayType2D {
+    round(arr: Array<number | number[]>, dp: number = 1, isSeries: boolean): ArrayType1D | ArrayType2D {
         if (dp < 0) {
             dp = 1;
         }
@@ -485,7 +489,7 @@ export default class Utils {
         const truthy = (element: boolean) => element == false;
         if (bool.some(truthy)) {
             throw Error(
-                `Params Error: Required parameter not found. Your params must be any of the following [${paramsNeeded}]`
+                `Params Error: Required parameter not found. Your params must include the following [${paramsNeeded}]`
             );
         }
     }
@@ -507,6 +511,27 @@ export default class Utils {
         } else {
             const newArr: Array<boolean> = [];
             arr.map((val) => newArr.push(val == 1));
+            return newArr;
+        }
+    }
+
+    /**
+     * Maps boolean values (false, true) to integer equivalent (0, 1)
+     * @param arr The array of booleans
+     * @param dim The dimension of the array
+     */
+    mapBooleansToIntegers(arr: Array<boolean | boolean[]>, dim: number): Array<number | number[]> {
+        if (dim == 2) {
+            const newArr: Array<number[]> = [];
+            arr.map((innerArr) => {
+                const temp: Array<number> = [];
+                (innerArr as Array<boolean>).map((val) => temp.push(val ? 1 : 0));
+                newArr.push(temp);
+            });
+            return newArr;
+        } else {
+            const newArr: Array<number> = [];
+            arr.map((val) => newArr.push(val ? 1 : 0));
             return newArr;
         }
     }
@@ -598,7 +623,7 @@ export default class Utils {
      * @param arr
      */
     removeNansFromArray(arr: ArrayType1D): ArrayType1D {
-        const values = arr.filter((val) => !isNaN(val as unknown as number) && typeof val != "string");
+        const values = arr.filter((val) => !(isNaN(val as unknown as number) && typeof val != "string"));
         return values;
     }
 
@@ -676,13 +701,14 @@ export default class Utils {
 */
     createNdframeFromNewDataWithOldProps({ ndFrame, newData, isSeries }: { ndFrame: Series, newData: any, isSeries: boolean }): Series {
         if (isSeries) {
-            return new Series({
-                data: newData,
-                index: ndFrame.index,
-                columnNames: ndFrame.columnNames,
-                dtypes: ndFrame.dtypes,
-                config: ndFrame.config
-            })
+            return new Series(
+                newData,
+                {
+                    index: ndFrame.index,
+                    columnNames: ndFrame.columnNames,
+                    dtypes: ndFrame.dtypes,
+                    config: ndFrame.config
+                })
         } else {
             return ndFrame
             // return new Frame({

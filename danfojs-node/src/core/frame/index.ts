@@ -39,11 +39,11 @@ const utils = new Utils();
  *  config: General configuration object for NDframe      
  *
  */
-/* @ts-ignore */ //COMMENT OUR WHEN METHODS HAVE BEEN IMPLEMENTED
+/* @ts-ignore */ //COMMENT OUT WHEN METHODS HAVE BEEN IMPLEMENTED
 export default class DataFrame extends NDframe implements DataFrameInterface {
 
-    constructor({ data, index, columnNames, dtypes, config }: NdframeInputDataType) {
-        super({ data, index, columnNames, dtypes, config });
+    constructor(data: any, { index, columnNames, dtypes, config }: NdframeInputDataType) {
+        super({ data, index, columnNames, dtypes, config, isSeries: false });
     }
 
     /**

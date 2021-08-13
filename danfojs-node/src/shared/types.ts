@@ -46,16 +46,28 @@ export interface BaseDataOptionType {
     dtypes?: Array<string>
     config?: ConfigsType;
 }
-export interface NdframeInputDataType extends BaseDataOptionType {
+export interface NdframeInputDataType {
     data: any
+    type?: number;
+    index?: Array<string | number>
+    columnNames?: string[]
+    dtypes?: Array<string>
+    config?: ConfigsType;
+    isSeries: boolean;
 }
-
-export interface LoadArrayDataType extends BaseDataOptionType {
+export interface LoadArrayDataType {
     data: ArrayType1D | ArrayType2D
+    index?: Array<string | number>
+    columnNames?: string[]
+    dtypes?: Array<string>
 }
 
-export interface LoadObjectDataType extends BaseDataOptionType {
+export interface LoadObjectDataType {
     data: object | Array<object>
+    type?: number;
+    index?: Array<string | number>
+    columnNames?: string[]
+    dtypes?: Array<string>
 }
 
 export type AxisType = {
@@ -107,7 +119,11 @@ export interface SeriesInterface extends NDframeInterface {
     count(): number
     maximum(other: Series | number): Series
     minimum(other: Series | number): Series
-    round(dp: number): Series
+    round(args:
+        {
+            dp: number,
+            inplace: boolean
+        }): Series | void
     std(): number
     var(): number
     isNa(): Series
@@ -116,7 +132,7 @@ export interface SeriesInterface extends NDframeInterface {
             value: number | string | boolean,
             inplace?: boolean
         }
-    ): Series
+    ): Series | void
     sortValues(args:
         {
             inplace?: boolean

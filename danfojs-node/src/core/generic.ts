@@ -52,6 +52,7 @@ const utils = new Utils();
 export default class NDframe implements NDframeInterface {
     private $isSeries: boolean;
     private $data: any
+    private $tensor: any
     private $dataIncolumnFormat: ArrayType1D | ArrayType2D = []
     private $index: Array<string | number> = []
     private $columnNames: string[] = []
@@ -172,6 +173,7 @@ export default class NDframe implements NDframeInterface {
     */
     private loadArray({ data, index, columnNames, dtypes }: LoadArrayDataType): void {
         this.$data = utils.replaceUndefinedWithNaN(data, this.$isSeries);
+        this.$tensor = tf.tensor(this.$data as any)
         if (!this.$config.isLowMemoryMode) {
             //In NOT low memory mode, we transpose the array and save in column format.
             //This makes column data retrieval run in constant time
@@ -224,7 +226,7 @@ export default class NDframe implements NDframeInterface {
 
 
     get tensor(): tf.Tensor {
-        return tf.tensor(this.$data as any)
+        return this.$tensor
     }
 
     get dtypes(): Array<string> {
@@ -287,13 +289,13 @@ export default class NDframe implements NDframeInterface {
         };
     }
 
-    get index(): Array<string | number> {
-        return this.$index
+    get config(): Configs {
+        return this.$config
 
     }
 
-    get config(): Configs {
-        return this.$config
+    get index(): Array<string | number> {
+        return this.$index
 
     }
 
@@ -356,6 +358,13 @@ export default class NDframe implements NDframeInterface {
 
     get values(): ArrayType1D | ArrayType2D {
         return this.$data;
+    }
+
+    protected $setValues(values: ArrayType1D | ArrayType2D): void {
+        if (values.length != this.shape[0]) {
+            throw new Error("Length of new values must match shape of existing NDframe")
+        }
+        this.$data = values
     }
 
     get size(): number {

@@ -87,13 +87,15 @@ export function _iloc({ ndFrame, rows }: {
         newIndex.push(_seriesIndex[rowIndx])
     }
 
-    const sf = new Series({
-        data: newData,
-        index: newIndex,
-        columnNames: ndFrame.columnNames,
-        dtypes: ndFrame.dtypes,
-        config: ndFrame.config
-    })
+    
+    const sf = new Series(
+        newData,
+        {
+            index: newIndex,
+            columnNames: ndFrame.columnNames,
+            dtypes: ndFrame.dtypes,
+            config: ndFrame.config
+        })
 
 
     return sf

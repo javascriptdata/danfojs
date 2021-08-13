@@ -50,6 +50,11 @@ class ErrorThrower {
         const msg = `columns parameter must be a Array. For example: columns: [1,2] or columns: ["0:10"]`
         throw new Error(msg)
     }
+
+    throwStringDtypeOperationError = (operation: string): void => {
+        const msg = `dtype error: String data type does not support ${operation} operation`
+        throw new Error(msg)
+    }
 }
 
 export default new ErrorThrower()
