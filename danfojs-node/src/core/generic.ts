@@ -50,15 +50,16 @@ const utils = new Utils();
  * @returns NDframe
  */
 export default class NDframe implements NDframeInterface {
-    private $isSeries: boolean
-    private $data: ArrayType1D | ArrayType2D = []
+    private $isSeries: boolean;
+    private $data: any
     private $dataIncolumnFormat: ArrayType1D | ArrayType2D = []
     private $index: Array<string | number> = []
     private $columnNames: string[] = []
     private $dtypes: Array<string> = []
     protected $config: Configs
 
-    constructor({ data, index, columnNames, dtypes, config }: NdframeInputDataType) {
+    constructor({ data, index, columnNames, dtypes, config, isSeries }: NdframeInputDataType) {
+        this.$isSeries = isSeries
         if (config) {
             this.$config = new Configs(config);
         } else {
@@ -69,11 +70,11 @@ export default class NDframe implements NDframeInterface {
             data = data.arraySync();
         }
 
-        if (utils.is1DArray(data)) {
-            this.$isSeries = true;
+        if (data === undefined || (Array.isArray(data) && data.length === 0)) {
+            this.loadArray({ data: [], index: [], columnNames: [], dtypes: [] });
+        } else if (utils.is1DArray(data)) {
             this.loadArray({ data, index, columnNames, dtypes });
         } else {
-            this.$isSeries = false;
 
             if (utils.isObject((data)[0])) {
                 this.loadObject({ data, type: 1, index, columnNames, dtypes });
@@ -233,11 +234,11 @@ export default class NDframe implements NDframeInterface {
     $setDtypes(dtypes: Array<string> | undefined): void {
         if (this.$isSeries) {
             if (dtypes) {
-                if (dtypes.length != 1) {
+                if (this.$data.length != 0 && dtypes.length != 1) {
                     ErrorThrower.throwDtypesLengthError(this, dtypes)
                 }
 
-                if (!(DATA_TYPES.includes(dtypes[0]))) {
+                if (!(DATA_TYPES.includes(`${dtypes[0]}`))) {
                     ErrorThrower.throwDtypeNotSupportedError(dtypes[0])
                 }
 
@@ -248,17 +249,22 @@ export default class NDframe implements NDframeInterface {
 
         } else {
             if (dtypes) {
-                if (dtypes.length != this.shape[1]) {
+                if (this.$data.length != 0 && dtypes.length != this.shape[1]) {
                     ErrorThrower.throwDtypesLengthError(this, dtypes)
                 }
 
-                dtypes.forEach((dtype) => {
-                    if (!(DATA_TYPES.includes(dtype))) {
-                        ErrorThrower.throwDtypeNotSupportedError(dtype)
-                    }
-                })
+                if (this.$data.length == 0 && dtypes.length == 0) {
+                    this.$dtypes = dtypes
+                } else {
+                    dtypes.forEach((dtype) => {
+                        if (!(DATA_TYPES.includes(dtype))) {
+                            ErrorThrower.throwDtypeNotSupportedError(dtype)
+                        }
+                    })
 
-                this.$dtypes = dtypes
+                    this.$dtypes = dtypes
+
+                }
 
             } else {
                 this.$dtypes = utils.inferDtype(this.$data)
@@ -292,24 +298,14 @@ export default class NDframe implements NDframeInterface {
     }
 
     $setIndex(index: Array<string | number> | undefined): void {
-        if (this.$isSeries) {
-            if (index) {
-                if (index.length != this.shape[0]) {
-                    ErrorThrower.throwIndexLengthError(this, index)
-                }
-                this.$index = index
-            } else {
-                this.$index = utils.range(0, this.shape[0] - 1) //generate index
+        if (index) {
+
+            if (this.$data.length != 0 && index.length != this.shape[0]) {
+                ErrorThrower.throwIndexLengthError(this, index)
             }
+            this.$index = index
         } else {
-            if (index) {
-                if (index.length != this.shape[0]) {
-                    ErrorThrower.throwIndexLengthError(this, index)
-                }
-                this.$index = index
-            } else {
-                this.$index = utils.range(0, this.shape[0] - 1)
-            }
+            this.$index = utils.range(0, this.shape[0] - 1) //generate index
         }
     }
 
@@ -322,9 +318,10 @@ export default class NDframe implements NDframeInterface {
     }
 
     $setColumnNames(columnNames?: string[]) {
+
         if (this.$isSeries) {
             if (columnNames) {
-                if (columnNames.length != 1) {
+                if (this.$data.length != 0 && columnNames.length != 1 && typeof columnNames != 'string') {
                     ErrorThrower.throwColumnNamesLengthError(this, columnNames)
                 }
                 this.$columnNames = columnNames
@@ -333,7 +330,8 @@ export default class NDframe implements NDframeInterface {
             }
         } else {
             if (columnNames) {
-                if (columnNames.length != this.shape[1]) {
+
+                if (this.$data.length != 0 && columnNames.length != this.shape[1]) {
                     ErrorThrower.throwColumnNamesLengthError(this, columnNames)
                 }
                 this.$columnNames = columnNames
@@ -345,6 +343,7 @@ export default class NDframe implements NDframeInterface {
 
 
     get shape(): Array<number> {
+        if (this.$data.length === 0) return [0, 0]
         if (this.$isSeries) {
             return [this.$data.length, 1];
         } else {
