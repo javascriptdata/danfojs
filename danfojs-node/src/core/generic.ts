@@ -52,7 +52,6 @@ const utils = new Utils();
 export default class NDframe implements NDframeInterface {
     private $isSeries: boolean;
     private $data: any
-    private $tensor: any
     private $dataIncolumnFormat: ArrayType1D | ArrayType2D = []
     private $index: Array<string | number> = []
     private $columnNames: string[] = []
@@ -173,7 +172,6 @@ export default class NDframe implements NDframeInterface {
     */
     private loadArray({ data, index, columnNames, dtypes }: LoadArrayDataType): void {
         this.$data = utils.replaceUndefinedWithNaN(data, this.$isSeries);
-        this.$tensor = tf.tensor(this.$data as any)
         if (!this.$config.isLowMemoryMode) {
             //In NOT low memory mode, we transpose the array and save in column format.
             //This makes column data retrieval run in constant time
@@ -226,7 +224,7 @@ export default class NDframe implements NDframeInterface {
 
 
     get tensor(): tf.Tensor {
-        return this.$tensor
+        return tf.tensor(this.$data as any)
     }
 
     get dtypes(): Array<string> {
@@ -361,10 +359,38 @@ export default class NDframe implements NDframeInterface {
     }
 
     protected $setValues(values: ArrayType1D | ArrayType2D): void {
-        if (values.length != this.shape[0]) {
-            throw new Error("Length of new values must match shape of existing NDframe")
+        if (this.$isSeries) {
+            if (values.length != this.shape[0]) {
+                ErrorThrower.throwRowLengthError(this, values.length)
+            }
+
+            this.$data = values
+            this.$dtypes = utils.inferDtype(values) //Dtype may change depeneding on the value set
+
+            if (!this.$config.isLowMemoryMode) {
+                this.$dataIncolumnFormat = values
+            }
+
+        } else {
+            if (values.length != this.shape[0]) {
+                ErrorThrower.throwRowLengthError(this, values.length)
+            }
+
+            values.forEach(value => {
+                if ((value as ArrayType1D).length != this.shape[1]) {
+                    ErrorThrower.throwColumnLengthError(this, values.length)
+                }
+            })
+
+            this.$data = values
+            this.$dtypes = utils.inferDtype(values)
+
+            if (!this.$config.isLowMemoryMode) {
+                this.$dataIncolumnFormat = utils.transposeArray(values)
+            }
+
         }
-        this.$data = values
+
     }
 
     get size(): number {

@@ -31,6 +31,11 @@ class ErrorThrower {
         throw new Error(msg)
     }
 
+    throwRowLengthError = (ndframe: NDframe, arrLen: number): void => {
+        const msg = `Row data length mismatch. You provided data with length ${arrLen} but Ndframe has row of lenght ${ndframe.shape[0]}`
+        throw new Error(msg)
+    }
+
     throwColumnNotFoundError = (ndframe: NDframe): void => {
         const msg = `Column not found!. Column name must be one of ${ndframe.columnNames}`
         throw new Error(msg)
@@ -55,6 +60,12 @@ class ErrorThrower {
         const msg = `dtype error: String data type does not support ${operation} operation`
         throw new Error(msg)
     }
+
+    throwSeriesMathOpLengthError = (ndframe: NDframe, other: NDframe): void => {
+        const msg = `Row length mismatch. Length of other (${other.shape[0]}), must be the same as Ndframe (${ndframe.shape[0]})`
+        throw new Error(msg)
+    }
+
 }
 
 export default new ErrorThrower()

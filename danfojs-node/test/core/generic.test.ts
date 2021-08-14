@@ -104,45 +104,32 @@ describe("Generic (NDFrame)", function () {
         it("retrieves the col data created from an Ndframe with two columns", function () {
             let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4] };
             let ndframe = new NDframe({ data, isSeries: false });
-            // @ts-ignore 
-            // Ignoring ts error here because the propertiesm are dynamic
-            // and as such won't be available at compile time            
             assert.deepEqual(ndframe["alpha"], ["A", "B", "C", "D"]);
-            // @ts-ignore
             assert.deepEqual(ndframe["count"], [1, 2, 3, 4]);
         });
         it("retrieves the column data from an ndframe with threee columns", function () {
             let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
             let ndframe = new NDframe({ data, isSeries: false });
-            /* @ts-ignore */
             assert.deepEqual(ndframe["alpha"], ["A", "B", "C", "D"]);
-            // @ts-ignore
             assert.deepEqual(ndframe["count"], [1, 2, 3, 4]);
-            // @ts-ignore
             assert.deepEqual(ndframe["sum"], [20.3, 30.456, 40.90, 90.1]);
         });
 
         it("Set column count by subseting", function () {
             let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
             let ndframe = new NDframe({ data, isSeries: false });
-            /* @ts-ignore */
             ndframe["alpha"] = ["E", "F", "G", "H"]
-            /* @ts-ignore */
             assert.deepEqual(ndframe["alpha"], ["E", "F", "G", "H"]);
             assert.deepEqual(ndframe.values[0], ['E', 1, 20.3]);
             assert.deepEqual(ndframe.dtypes, ["string", "int32", "float32",]);
-            // @ts-ignore
             assert.deepEqual(ndframe["count"], [1, 2, 3, 4]);
-            // @ts-ignore
             assert.deepEqual(ndframe["sum"], [20.3, 30.456, 40.90, 90.1]);
         });
 
         it("Correct dtype is set after setting a column by subseting", function () {
             let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
             let ndframe = new NDframe({ data, isSeries: false });
-            /* @ts-ignore */
             ndframe["alpha"] = [2.4, 5.6, 32.5, 1]
-            /* @ts-ignore */
             assert.deepEqual(ndframe["alpha"], [2.4, 5.6, 32.5, 1]);
             assert.deepEqual(ndframe.values[0], [2.4, 1, 20.3]);
             assert.deepEqual(ndframe.values[1], [5.6, 2, 30.456]);
@@ -154,43 +141,32 @@ describe("Generic (NDFrame)", function () {
         it("retrieves the col data created from an Ndframe with two columns in low memory mode", function () {
             let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4] };
             let ndframe = new NDframe({ data, config: { lowMemoryMode: true }, isSeries: false });
-            // @ts-ignore
             assert.deepEqual(ndframe["alpha"], ["A", "B", "C", "D"]);
-            // @ts-ignore
             assert.deepEqual(ndframe["count"], [1, 2, 3, 4]);
         });
         it("retrieves the column data from an ndframe with threee columns in low memory mode", function () {
             let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
             let ndframe = new NDframe({ data, config: { lowMemoryMode: true }, isSeries: false });
-            /* @ts-ignore */
             assert.deepEqual(ndframe["alpha"], ["A", "B", "C", "D"]);
-            // @ts-ignore
             assert.deepEqual(ndframe["count"], [1, 2, 3, 4]);
-            // @ts-ignore
             assert.deepEqual(ndframe["sum"], [20.3, 30.456, 40.90, 90.1]);
         });
 
         it("Set column count by subseting (low memory mode) ", function () {
             let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
             let ndframe = new NDframe({ data, config: { lowMemoryMode: true }, isSeries: false });
-            /* @ts-ignore */
             ndframe["alpha"] = ["E", "F", "G", "H"]
-            /* @ts-ignore */
             assert.deepEqual(ndframe["alpha"], ["E", "F", "G", "H"]);
             assert.deepEqual(ndframe.values[0], ['E', 1, 20.3]);
             assert.deepEqual(ndframe.dtypes, ["string", "int32", "float32",]);
-            // @ts-ignore
             assert.deepEqual(ndframe["count"], [1, 2, 3, 4]);
-            // @ts-ignore
             assert.deepEqual(ndframe["sum"], [20.3, 30.456, 40.90, 90.1]);
         });
 
         it("Correct dtype is set after setting a column by subseting (low memory mode) ", function () {
             let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
             let ndframe = new NDframe({ data, config: { lowMemoryMode: true }, isSeries: false });
-            /* @ts-ignore */
             ndframe["alpha"] = [2.4, 5.6, 32.5, 1]
-            /* @ts-ignore */
             assert.deepEqual(ndframe["alpha"], [2.4, 5.6, 32.5, 1]);
             assert.deepEqual(ndframe.values[0], [2.4, 1, 20.3]);
             assert.deepEqual(ndframe.values[1], [5.6, 2, 30.456]);
@@ -198,6 +174,80 @@ describe("Generic (NDFrame)", function () {
             assert.deepEqual(ndframe.values[3], [1, 4, 90.1]);
             assert.deepEqual(ndframe.dtypes, ["float32", "int32", "float32",]);
         });
+    })
+
+    describe("Replacing row data", function () {
+        it("retrieves the col data after row data is replaced in a DataFrame", function () {
+            let data = { alpha: ["A", "B"], count: [1, 2] };
+            let ndframe = new NDframe({ data, isSeries: false });
+            ndframe.$setValues([["A", 20], ["D", 211]])
+            assert.deepEqual(ndframe["alpha"], ["A", "D"]);
+            assert.deepEqual(ndframe["count"], [20, 211]);
+
+        });
+        it("Correct dtypes is inferred after row data is replaced in a DataFrame", function () {
+            let data = { alpha: ["A", "B"], count: [1, 2] };
+            let ndframe = new NDframe({ data, isSeries: false });
+            ndframe.$setValues([[20, 20], [11.4, 211]])
+            assert.deepEqual(ndframe.dtypes, ["float32", "int32"]);
+
+        });
+        it("Throws row length error on invalid data length in DataFrame", function () {
+            let data = { alpha: ["A", "B"], count: [1, 2] };
+            let ndframe = new NDframe({ data, isSeries: false });
+            assert.throws(
+                () => {
+                    ndframe.$setValues([[20, 20], [11.4, 211], [11.4, 211]])
+                },
+                Error,
+                "Row data length mismatch. You provided data with length 3 but Ndframe has row of lenght 2"
+            );
+        });
+        it("Throws column length error on invalid data length in DataFrame", function () {
+            let data = { alpha: ["A", "B"], count: [1, 2] };
+            let ndframe = new NDframe({ data, isSeries: false });
+            assert.throws(
+                () => {
+                    ndframe.$setValues([[20, 211], [20, 20, 11.4, 211]])
+                },
+                Error,
+                "Column data length mismatch. You provided data with length 2 but Ndframe has column of lenght 2"
+            );
+        });
+        it("retrieves the col data after row data is replaced in a Series", function () {
+            let data = ["A", "B", 1, 2]
+            let ndframe = new NDframe({ data, isSeries: true });
+            ndframe.$setValues(["A", "D", "E", "O"])
+            assert.deepEqual(ndframe.values, ["A", "D", "E", "O"]);
+            assert.deepEqual(ndframe.$dataIncolumnFormat, ["A", "D", "E", "O"]);
+
+        });
+        it("Correct dtypes is inferred after updating values", function () {
+            let data = ["A", "D", "E", "O"]
+            let ndframe = new NDframe({ data, isSeries: true });
+            ndframe.$setValues([1, 2, 3, 4])
+            assert.deepEqual(ndframe.values, [1, 2, 3, 4]);
+            assert.deepEqual(ndframe.dtypes[0], "int32");
+        });
+        it("Correct dtypes is inferred after updating values in low memory mode", function () {
+            let data = ["A", "D", "E", "O"]
+            let ndframe = new NDframe({ data, isSeries: true, config: { lowMemoryMode: true } });
+            ndframe.$setValues([1, 2, 3, 4])
+            assert.deepEqual(ndframe.values, [1, 2, 3, 4]);
+            assert.deepEqual(ndframe.dtypes[0], "int32");
+        });
+        it("Throws row length error on invalid data length", function () {
+            let data = ["A", "D", "E", "O"]
+            let ndframe = new NDframe({ data, isSeries: true, config: { lowMemoryMode: true } });
+            assert.throws(
+                () => {
+                    ndframe.$setValues([1, 2, 3, 4, 1, 3])
+                },
+                Error,
+                "Row data length mismatch. You provided data with length 6 but Ndframe has row of lenght 4"
+            );
+        });
+
     })
 
     describe("NDframe Created from a Tensor", function () {
