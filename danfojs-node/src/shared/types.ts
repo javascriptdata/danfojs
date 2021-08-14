@@ -35,6 +35,7 @@ export type ConfigsType = {
     tableMaxColInConsole?: number;
     dtypeTestLim?: number;
     lowMemoryMode: boolean
+    useTfjsMathFunctions?: boolean
 }
 //End of Config class types
 
@@ -97,19 +98,16 @@ export interface NDframeInterface {
 
 //Start of Series class types
 export interface SeriesInterface extends NDframeInterface {
-    iloc(args:
-        {
-            rows?: Array<string | number>,
-        }): Series;
+    iloc(rows: Array<string | number>): Series;
     head(rows?: number): Series
     tail(rows?: number): Series
-    sample(num?: number, seed?: number): Promise<Series>;
-    add(other: Series | number): Series
-    sub(other: Series | number): Series
-    mul(other: Series | number): Series
-    div(other: Series | number, round?: boolean): Series
-    pow(other: Series | number): Series
-    mod(other: Series | number): Series
+    sample(num: number, options: { seed: number }): Promise<Series>;
+    add(other: Series | number, options: { inplace: boolean }): Series | void;
+    sub(other: Series | number, options: { inplace: boolean }): Series | void;
+    mul(other: Series | number, options: { inplace: boolean }): Series | void;
+    div(other: Series | number, options: { inplace: boolean }): Series | void;
+    pow(other: Series | number, options: { inplace: boolean }): Series | void;
+    mod(other: Series | number, options: { inplace: boolean }): Series | void;
     mean(): number
     median(): number
     mode(): number
@@ -119,26 +117,12 @@ export interface SeriesInterface extends NDframeInterface {
     count(): number
     maximum(other: Series | number): Series
     minimum(other: Series | number): Series
-    round(args:
-        {
-            dp: number,
-            inplace: boolean
-        }): Series | void
+    round(dp: number, options: { inplace: boolean }): Series | void
     std(): number
     var(): number
     isNa(): Series
-    fillNa(args:
-        {
-            value: number | string | boolean,
-            inplace?: boolean
-        }
-    ): Series | void
-    sortValues(args:
-        {
-            inplace?: boolean
-            ascending?: boolean
-        }
-    ): Series
+    fillNa(value: number | string | boolean, options: { inplace: boolean }): Series | void
+    sortValues(ascending: number | string | boolean, options: { inplace: boolean }): Series | void
     copy(): Series
     describe(): Series
     resetIndex(args: { inplace?: boolean }): Series
@@ -220,7 +204,7 @@ export interface DataFrameInterface extends NDframeInterface {
         }): DataFrame;
     head(rows?: number): DataFrame
     tail(rows?: number): DataFrame
-    sample(num?: number, seed?: number): Promise<DataFrame>;
+    sample(num: number, options: { seed: number }): Promise<DataFrame>;
     add(args: { other: DataFrame | number, axis?: 0 | 1 }): DataFrame
     sub(args: { other: DataFrame | number, axis?: 0 | 1 }): DataFrame
     mul(args: { other: DataFrame | number, axis?: 0 | 1 }): DataFrame

@@ -22,7 +22,8 @@ export const BASE_CONFIG = {
     tableMaxRow: 10,
     tableMaxColInConsole: 21,
     dtypeTestLim: 7,
-    lowMemoryMode: false
+    lowMemoryMode: false,
+    useTfjsMathFunctions: false
 }
 
 export const DATA_TYPES = ["float32", "int32", "string", "boolean", 'undefined'];

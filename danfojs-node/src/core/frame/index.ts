@@ -60,44 +60,44 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      *    A slice object with ints, e.g. 1:7.
      * 
     */
-    iloc({ rows }: { rows: Array<string | number> }) {
-        return _iloc({ ndFrame: this, rows })
-    }
+    // iloc({ rows }: { rows: Array<string | number> }) {
+    //     return _iloc({ ndFrame: this, rows })
+    // }
 
-    /**
-      * Returns the first n values in a DataFrame
-      * @param rows The number of rows to return
-    */
-    head(rows: number = 5): DataFrame {
-        return this.iloc({ rows: [`0:${rows}`] })
-    }
+    // /**
+    //   * Returns the first n values in a DataFrame
+    //   * @param rows The number of rows to return
+    // */
+    // head(rows: number = 5): DataFrame {
+    //     return this.iloc({ rows: [`0:${rows}`] })
+    // }
 
-    /**
-      * Returns the last n values in a DataFrame
-      * @param rows The number of rows to return
-    */
-    tail(rows: number = 5): DataFrame {
-        const startIdx = this.shape[0] - rows
-        return this.iloc({ rows: [`${startIdx}:`] })
-    }
+    // /**
+    //   * Returns the last n values in a DataFrame
+    //   * @param rows The number of rows to return
+    // */
+    // tail(rows: number = 5): any {
+    //     const startIdx = this.shape[0] - rows
+    //     return this.iloc([`${startIdx}:`])
+    // }
 
-    /**
-     * Gets [num] number of random rows in a dataframe
-     * @param num The number of rows to return
-     * @param seed (Optional) An integer specifying the random seed that will be used to create the distribution.
-      */
-    async sample(num = 5, seed = 1): Promise<DataFrame> {
-        if (num > this.shape[0]) {
-            throw new Error("Sample size n cannot be bigger than size of dataset");
-        }
-        if (num < -1 || num == 0) {
-            throw new Error("Sample size cannot be less than -1 or be equal to 0");
-        }
-        num = num === -1 ? this.shape[0] : num;
+    // /**
+    //  * Gets [num] number of random rows in a dataframe
+    //  * @param num The number of rows to return
+    //  * @param seed (Optional) An integer specifying the random seed that will be used to create the distribution.
+    //   */
+    // async sample(num = 5, seed = 1): Promise<DataFrame> {
+    //     if (num > this.shape[0]) {
+    //         throw new Error("Sample size n cannot be bigger than size of dataset");
+    //     }
+    //     if (num < -1 || num == 0) {
+    //         throw new Error("Sample size cannot be less than -1 or be equal to 0");
+    //     }
+    //     num = num === -1 ? this.shape[0] : num;
 
-        const shuffledIndex = await tf.data.array(this.index).shuffle(num, `${seed}`).take(num).toArray();
-        const sf = this.iloc({ rows: shuffledIndex });
-        return sf;
-    }
+    //     const shuffledIndex = await tf.data.array(this.index).shuffle(num, `${seed}`).take(num).toArray();
+    //     const sf = this.iloc({ rows: shuffledIndex });
+    //     return sf;
+    // }
 
 }

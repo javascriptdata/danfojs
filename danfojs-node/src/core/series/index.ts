@@ -46,23 +46,24 @@ const utils = new Utils();
 export default class Series extends NDframe implements SeriesInterface {
 
     constructor(data: any = [], options: BaseDataOptionType = {}) {
+        let { index, columnNames, dtypes, config } = options;
         if (Array.isArray(data[0]) || utils.isObject(data[0])) {
             data = utils.convert2DArrayToSeriesArray(data);
             super({
                 data,
-                index: options.index,
-                columnNames: options.columnNames,
-                dtypes: options.dtypes,
-                config: options.config,
+                index,
+                columnNames,
+                dtypes,
+                config,
                 isSeries: true
             });
         } else {
             super({
                 data,
-                index: options.index,
-                columnNames: options.columnNames,
-                dtypes: options.dtypes,
-                config: options.config,
+                index,
+                columnNames,
+                dtypes,
+                config,
                 isSeries: true
             });
         }
@@ -82,7 +83,7 @@ export default class Series extends NDframe implements SeriesInterface {
      *    A slice object with ints, e.g. 1:7.
      * 
     */
-    iloc({ rows }: { rows: Array<string | number> }) {
+    iloc(rows: Array<string | number>) {
         return _iloc({ ndFrame: this, rows })
     }
 
@@ -91,7 +92,7 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param rows The number of rows to return
     */
     head(rows: number = 5): Series {
-        return this.iloc({ rows: [`0:${rows}`] })
+        return this.iloc([`0:${rows}`])
     }
 
     /**
@@ -100,15 +101,18 @@ export default class Series extends NDframe implements SeriesInterface {
     */
     tail(rows: number = 5): Series {
         const startIdx = this.shape[0] - rows
-        return this.iloc({ rows: [`${startIdx}:`] })
+        return this.iloc([`${startIdx}:`])
     }
 
     /**
-     * Gets [num] number of random rows in a dataframe
+     * Returns specified number of random rows in a Series
      * @param num The number of rows to return
-     * @param seed (Optional) An integer specifying the random seed that will be used to create the distribution.
-      */
-    async sample(num = 5, seed = 1): Promise<Series> {
+     * @param options (Optional) Object with the following options:
+     * @param options.seed An integer specifying the random seed that will be used to create the distribution.
+    */
+    async sample(num = 5, options: { seed: number } = { seed: 1 }): Promise<Series> {
+        let { seed } = options;
+
         if (num > this.shape[0]) {
             throw new Error("Sample size n cannot be bigger than size of dataset");
         }
@@ -118,7 +122,7 @@ export default class Series extends NDframe implements SeriesInterface {
         num = num === -1 ? this.shape[0] : num;
 
         const shuffledIndex = await tf.data.array(this.index).shuffle(num, `${seed}`).take(num).toArray();
-        const sf = this.iloc({ rows: shuffledIndex });
+        const sf = this.iloc(shuffledIndex);
         return sf;
     }
 
@@ -127,8 +131,18 @@ export default class Series extends NDframe implements SeriesInterface {
       * Equivalent to series + other
       * @param other Series or Number to add
       */
-    add(other: Series | number): Series {
-        return _genericMathOp({ ndFrame: this, other, operation: "add" })
+    add(other: Series | number, options: { inplace: boolean } = { inplace: false }): Series | void {
+        const { inplace } = options
+
+        if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("add")
+
+        const newData = _genericMathOp({ ndFrame: this, other, operation: "add" })
+
+        if (inplace) {
+            this.$setValues(newData as ArrayType1D)
+        } else {
+            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
+        }
     }
 
     /**
@@ -136,8 +150,18 @@ export default class Series extends NDframe implements SeriesInterface {
       * Equivalent to series - other
       * @param other Number to subtract
       */
-    sub(other: Series | number): Series {
-        return _genericMathOp({ ndFrame: this, other, operation: "sub" })
+    sub(other: Series | number, options: { inplace?: boolean } = { inplace: false }): Series | void {
+        const { inplace } = options
+
+        if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("sub")
+
+        const newData = _genericMathOp({ ndFrame: this, other, operation: "sub" })
+
+        if (inplace) {
+            this.$setValues(newData as ArrayType1D)
+        } else {
+            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
+        }
 
     }
 
@@ -146,8 +170,18 @@ export default class Series extends NDframe implements SeriesInterface {
       * Equivalent to series * other
       * @param other Number to multiply with.
     */
-    mul(other: Series | number): Series {
-        return _genericMathOp({ ndFrame: this, other, operation: "mul" })
+    mul(other: Series | number, options: { inplace?: boolean } = { inplace: false }): Series | void {
+        const { inplace } = options
+
+        if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("mul")
+
+        const newData = _genericMathOp({ ndFrame: this, other, operation: "mul" })
+
+        if (inplace) {
+            this.$setValues(newData as ArrayType1D)
+        } else {
+            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
+        }
     }
 
     /**
@@ -155,42 +189,17 @@ export default class Series extends NDframe implements SeriesInterface {
       * Equivalent to series / other
       * @param other Series or number to divide with.
       */
-    div(other: Series | number, round = true): Series {
-        if (typeof other == "number") {
-            const divResult = this.tensor.div(other)
-            return new Series(
-                divResult.arraySync(),
-                {
-                    index: this.index,
-                    columnNames: this.columnNames,
-                    dtypes: [divResult.dtype],
-                    config: this.config
-                })
+    div(other: Series | number, options: { inplace?: boolean } = { inplace: false }): Series | void {
+        const { inplace } = options
+
+        if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("div")
+
+        const newData = _genericMathOp({ ndFrame: this, other, operation: "div" })
+
+        if (inplace) {
+            this.$setValues(newData as ArrayType1D)
         } else {
-            const { status, message } = utils.checkSeriesOpCompactibility({ firstSeries: this, secondSeries: other, operation: "div" })
-            if (status) {
-                let dtype
-                //Check if caller needs a float division
-                if (round) {
-                    dtype = "float32";
-                } else {
-                    dtype = "int32";
-                }
-                //dtype may change after division because of how TFJS works internally, so save dtypes first
-                const tensor1 = this.tensor.asType(dtype as "float32" | "int32");
-                const tensor2 = other.tensor.asType(dtype as "float32" | "int32");
-                const divResult = tensor1.div(tensor2);
-                return new Series(
-                    divResult.arraySync(),
-                    {
-                        index: this.index,
-                        columnNames: this.columnNames,
-                        dtypes: [divResult.dtype],
-                        config: this.config
-                    })
-            } else {
-                throw new Error(message);
-            }
+            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
         }
     }
 
@@ -199,8 +208,18 @@ export default class Series extends NDframe implements SeriesInterface {
       * Equivalent to series ** other
       *  @param other Number to multiply with.
       */
-    pow(other: Series | number): Series {
-        return _genericMathOp({ ndFrame: this, other, operation: "pow" })
+    pow(other: Series | number, options: { inplace?: boolean } = { inplace: false }): Series | void {
+        const { inplace } = options
+
+        if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("pow")
+
+        const newData = _genericMathOp({ ndFrame: this, other, operation: "pow" })
+
+        if (inplace) {
+            this.$setValues(newData as ArrayType1D)
+        } else {
+            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
+        }
     }
 
     /**
@@ -208,8 +227,18 @@ export default class Series extends NDframe implements SeriesInterface {
       * Equivalent to series % other
       *  @param other Number to modulo with
     */
-    mod(other: Series | number): Series {
-        return _genericMathOp({ ndFrame: this, other, operation: "mod" })
+    mod(other: Series | number, options: { inplace?: boolean } = { inplace: false }): Series | void {
+        const { inplace } = options
+
+        if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("mod")
+
+        const newData = _genericMathOp({ ndFrame: this, other, operation: "mod" })
+
+        if (inplace) {
+            this.$setValues(newData as ArrayType1D)
+        } else {
+            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
+        }
     }
 
     /**
@@ -231,6 +260,7 @@ export default class Series extends NDframe implements SeriesInterface {
     */
     mean(): number {
         const values = this._checkAndCleanValues(this.values as ArrayType1D, "mean")
+        if (this.config.toUseTfjsMathFunctions) return tf.tensor(values).mean().arraySync() as number
         return (values.reduce((a, b) => a + b) / values.length) as number
     }
 
@@ -256,8 +286,11 @@ export default class Series extends NDframe implements SeriesInterface {
     */
     min(): number {
         const values = this._checkAndCleanValues(this.values as ArrayType1D, "min")
-        return min(values)
-
+        let smallestValue = values[0]
+        for (let i = 0; i < values.length; i++) {
+            smallestValue = smallestValue < values[i] ? smallestValue : values[i]
+        }
+        return smallestValue
     }
 
     /**
@@ -266,7 +299,11 @@ export default class Series extends NDframe implements SeriesInterface {
     */
     max(): number {
         const values = this._checkAndCleanValues(this.values as ArrayType1D, "max")
-        return max(values)
+        let biggestValue = values[0]
+        for (let i = 0; i < values.length; i++) {
+            biggestValue = biggestValue > values[i] ? biggestValue : values[i]
+        }
+        return biggestValue
     }
 
     /**
@@ -274,6 +311,7 @@ export default class Series extends NDframe implements SeriesInterface {
     */
     sum(): number {
         const values = this._checkAndCleanValues(this.values as ArrayType1D, "sum")
+        if (this.config.toUseTfjsMathFunctions) return tf.tensor(values).sum().arraySync() as number
         return values.reduce((sum, value) => sum + value, 0)
     }
 
@@ -298,19 +336,16 @@ export default class Series extends NDframe implements SeriesInterface {
                 index: this.index
             });
         } else {
-            const { status, message } = utils.checkSeriesOpCompactibility({ firstSeries: this, secondSeries: other, operation: "maximum" })
-            if (status) {
-                const tensor1 = this.tensor.asType(this.dtypes[0] as any);
-                const tensor2 = other.tensor;
-                const result = tensor1.maximum(tensor2).arraySync();
-                return new Series(result,
-                    {
-                        columnNames: this.columnNames,
-                        index: this.index
-                    });
-            } else {
-                throw new Error(message);
-            }
+            utils.checkSeriesOpCompactibility({ firstSeries: this, secondSeries: other, operation: "maximum" })
+            const tensor1 = this.tensor.asType(this.dtypes[0] as any);
+            const tensor2 = other.tensor;
+            const result = tensor1.maximum(tensor2).arraySync();
+            return new Series(result,
+                {
+                    columnNames: this.columnNames,
+                    index: this.index
+                });
+
         }
     }
 
@@ -327,19 +362,16 @@ export default class Series extends NDframe implements SeriesInterface {
                 index: this.index
             });
         } else {
-            const { status, message } = utils.checkSeriesOpCompactibility({ firstSeries: this, secondSeries: other, operation: "maximum" })
-            if (status) {
-                const tensor1 = this.tensor.asType(this.dtypes[0] as any);
-                const tensor2 = other.tensor;
-                const result = tensor1.minimum(tensor2).arraySync();
-                return new Series(result,
-                    {
-                        columnNames: this.columnNames,
-                        index: this.index
-                    });
-            } else {
-                throw new Error(message);
-            }
+            utils.checkSeriesOpCompactibility({ firstSeries: this, secondSeries: other, operation: "maximum" })
+
+            const tensor1 = this.tensor.asType(this.dtypes[0] as any);
+            const tensor2 = other.tensor;
+            const result = tensor1.minimum(tensor2).arraySync();
+            return new Series(result,
+                {
+                    columnNames: this.columnNames,
+                    index: this.index
+                });
         }
     }
 
@@ -349,22 +381,20 @@ export default class Series extends NDframe implements SeriesInterface {
      * @params args.dp Number of Decimal places to round to
      * @params args.inplace Boolean indicating whether to perform the operation inplace or not
     */
-    round(args = { dp: 1, inplace: false }): Series | void {
+    round(dp = 1, options: { inplace: boolean } = { inplace: false }): Series | void {
+        const { inplace } = options
 
         const values = utils.removeNansFromArray(this.values as ArrayType1D)
-        const newValues = utils.round(values as number[], args.dp, true);
+        const newValues = utils.round(values as number[], dp, true);
 
-        if (args.inplace) {
+        if (inplace) {
             this.$setValues(newValues)
         } else {
-            const sf = new Series(newValues,
-                {
-                    columnNames: this.columnNames,
-                    index: this.index,
-                    dtypes: this.dtypes,
-                    config: this.config
-                });
-            return sf;
+            return utils.createNdframeFromNewDataWithOldProps({
+                ndFrame: this,
+                newData: newValues,
+                isSeries: true
+            })
         }
 
     }
@@ -412,18 +442,12 @@ export default class Series extends NDframe implements SeriesInterface {
      * @params args.value The value to replace NaN with
      * @params args.inplace Boolean indicating whether to perform the operation inplace or not
     */
-    fillNa({ value, inplace }:
-        {
-            value: number | string | boolean,
-            inplace?: boolean
-        }
-    ): Series | void {
+    fillNa(value: number | string | boolean, options: { inplace: boolean } = { inplace: false }): Series | void {
+        const { inplace } = options
 
         if (!value) {
             throw Error('Value Error: Must specify value to replace with');
         }
-
-        inplace = inplace === undefined ? false : inplace;
 
         const newValues: ArrayType1D = [];
         (this.values as ArrayType1D).forEach((val) => {
@@ -437,14 +461,11 @@ export default class Series extends NDframe implements SeriesInterface {
         if (inplace) {
             this.$setValues(newValues)
         } else {
-            const sf = new Series(newValues,
-                {
-                    columnNames: this.columnNames,
-                    index: this.index,
-                    dtypes: this.dtypes,
-                    config: this.config
-                });
-            return sf;
+            return utils.createNdframeFromNewDataWithOldProps({
+                ndFrame: this,
+                newData: newValues,
+                isSeries: true
+            })
         }
     }
 
@@ -491,19 +512,19 @@ export default class Series extends NDframe implements SeriesInterface {
     // }
 
 
-    // /**
-    //   * Makes a deep copy of a Series
-    //   * @returns {Series}
-    //   */
-    // copy() {
+    /**
+      * Makes a deep copy of a Series
+    */
+    copy(): Series {
 
-    //     let sf = new Series([...this.values], {
-    //         columns: [...this.column_names],
-    //         index: [...this.index],
-    //         dtypes: [...this.dtypes[0]]
-    //     });
-    //     return sf;
-    // }
+        const sf = new Series([...this.values], {
+            columnNames: [...this.columnNames],
+            index: [...this.index],
+            dtypes: [...this.dtypes],
+            config: { ...this.config }
+        });
+        return sf;
+    }
 
 
     // /**
@@ -913,9 +934,7 @@ export default class Series extends NDframe implements SeriesInterface {
 
         if (this.shape[0] > maxRow) {
             //slice rows to show [max_rows] rows
-            const sfSlice = this.iloc({
-                rows: [`0:${maxRow}`]
-            });
+            const sfSlice = this.iloc([`0:${maxRow}`]);
 
             indx = sfSlice.index
             values = sfSlice.values;

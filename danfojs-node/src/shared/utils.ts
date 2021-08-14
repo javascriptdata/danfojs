@@ -18,6 +18,7 @@ import { BASE_CONFIG } from './defaults'
 import Config from './config';
 import { ArrayType1D, ArrayType2D } from './types';
 import { Series } from '../';
+import ErrorThrower from '../shared/errors'
 
 const config = new Config(BASE_CONFIG);
 
@@ -695,10 +696,10 @@ export default class Utils {
     }
 
     /**
- * Returns a new series with properties of the old series
- * 
- * @param series The series to copy
-*/
+     * Returns a new series with properties of the old series
+     * 
+     * @param series The series to copy
+    */
     createNdframeFromNewDataWithOldProps({ ndFrame, newData, isSeries }: { ndFrame: Series, newData: any, isSeries: boolean }): Series {
         if (isSeries) {
             return new Series(
@@ -733,15 +734,13 @@ export default class Utils {
     */
     checkSeriesOpCompactibility({ firstSeries, secondSeries, operation }: {
         firstSeries: Series, secondSeries: Series, operation: string
-    }): { status: boolean, message: string } {
+    }): void {
+
         if (firstSeries.shape[0] != secondSeries.shape[0]) {
-            const message = "Shape Error: Series shape do not match"
-            return { status: false, message }
+            ErrorThrower.throwSeriesMathOpLengthError(firstSeries, secondSeries)
         }
         if (firstSeries.dtypes[0] == 'string' || secondSeries.dtypes[0] == 'string') {
-            const message = `dtype Error: Cannot perform operation "${operation}" on Series with dtype string}`
-            return { status: false, message }
+            ErrorThrower.throwStringDtypeOperationError(operation)
         }
-        return { status: true, message: "" }
     }
 }
