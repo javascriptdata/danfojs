@@ -73,6 +73,142 @@ describe("Series Functions", () => {
         });
     });
 
+    describe("add", function () {
+        it("Return Addition of series with another series", function () {
+            let data = [1, 2, 3, 4, 5, 6];
+            let data2 = [30, 40, 39, 1, 2, 1];
+            let sf = new Series(data);
+            let sf2 = new Series(data2);
+            assert.deepEqual(sf.add(sf2).values, [31, 42, 42, 5, 7, 7]);
+        });
+        it("Return Addition of series with a single value (Broadcasting)", function () {
+            let data = [1, 2, 3, 4, 5];
+            let sf = new Series(data);
+            assert.deepEqual(sf.add(1).values, [2, 3, 4, 5, 6]);
+        });
+        it("Return Addition of series with another series inplace", function () {
+            let data = [1, 2, 3, 4, 5, 6];
+            let data2 = [30, 40, 39, 1, 2, 1];
+            let sf = new Series(data);
+            let sf2 = new Series(data2);
+            sf.add(sf2, { inplace: true })
+            assert.deepEqual(sf.values, [31, 42, 42, 5, 7, 7]);
+        });
+        it("Return Addition of series with a single value (Broadcasting) inplace", function () {
+            let data = [1, 2, 3, 4, 5];
+            let sf = new Series(data);
+            sf.add(1, { inplace: true })
+            assert.deepEqual(sf.values, [2, 3, 4, 5, 6]);
+        });
+        it("Dtype is properly updated on addition of series with a single float value inplace", function () {
+            let data = [1, 2, 3, 4, 5];
+            let sf = new Series(data);
+            sf.add(1.23, { inplace: true })
+            assert.deepEqual(sf.dtypes[0], "float32");
+            assert.deepEqual(sf.values, [2.23, 3.23, 4.23, 5.23, 6.23]);
+        });
+        it("Add works properly when using tfjs add function", function () {
+            let data = [1, 2, 3, 4, 5];
+            let sf = new Series(data, { config: { useTfjsMathFunctions: true } });
+            sf.add(1.23, { inplace: true })
+            assert.deepEqual(sf.dtypes[0], "float32");
+            assert.deepEqual(sf.values, [2.2300000190734863, 3.2300000190734863, 4.230000019073486, 5.230000019073486, 6.230000019073486]);
+        });
+        it("Add works properly when using tfjs add function on Series", function () {
+            let data = [1, 2, 3, 4, 5];
+            let sf = new Series(data, { config: { useTfjsMathFunctions: true } });
+            let sf2 = new Series([1.23, 1.23, 1.23, 1.23, 1.23]);
+            sf.add(sf2, { inplace: true })
+            console.log(sf);
+            assert.deepEqual(sf.values, [2.2300000190734863, 3.2300000190734863, 4.230000019073486, 5.230000019073486, 6.230000019073486]);
+        });
+        it("Throws type error on addition of string type", function () {
+            let data = [1, 2, 3, 4];
+            let data2 = ["A", "B", "C", "d"];
+            let sf = new Series(data);
+            let sf2 = new Series(data2);
+            assert.throws(
+                () => {
+                    sf.add(sf2);
+                },
+                Error,
+                "dtype error: String data type does not support add operation"
+            );
+        });
+        it("Throws length error if series lenght mixmatch", function () {
+            let data = [1, 2, 3, 4]
+            let data2 = [1, 2, 3, 4, 5, 6]
+            let sf = new Series(data)
+            let sf2 = new Series(data2)
+            assert.throws(() => { sf.add(sf2) }, Error, "Row length mismatch. Length of other (6), must be the same as Ndframe (4)")
+        })
+    });
+
+    describe("sub", function () {
+        it("Return Subtraction of series with another series", function () {
+            let data1 = [30, 40, 39, 1, 2, 1];
+            let data2 = [1, 2, 3, 4, 5, 6];
+            let sf1 = new Series(data1);
+            let sf2 = new Series(data2);
+            assert.deepEqual(sf1.sub(sf2).values, [29, 38, 36, -3, -3, -5]);
+        });
+        it("Return Subtraction of series with a single value (Broadcasting)", function () {
+            let data = [1, 2, 3, 4, 5];
+            let sf = new Series(data);
+            assert.deepEqual(sf.sub(1).values, [0, 1, 2, 3, 4]);
+        });
+        it("Throws type error on Subtraction of string type", function () {
+            let data = [1, 2, 3, 4];
+            let data2 = ["A", "B", "C", "d"];
+            let sf = new Series(data);
+            let sf2 = new Series(data2);
+            assert.throws(
+                () => {
+                    sf.sub(sf2);
+                },
+                Error,
+                "dtype error: String data type does not support sub operation"
+            );
+        });
+        it("Throws length error if series lenght mixmatch", function () {
+            let data = [1, 2, 3, 4]
+            let data2 = [1, 2, 3, 4, 5, 6]
+            let sf = new Series(data)
+            let sf2 = new Series(data2)
+            assert.throws(() => { sf.sub(sf2) }, Error, "Row length mismatch. Length of other (6), must be the same as Ndframe (4)")
+        })
+    });
+
+    describe("mul", function () {
+        it("Return multiplication of series with another series", function () {
+            let data1 = [30, 40, 3, 5];
+            let data2 = [1, 2, 3, 4];
+            let sf1 = new Series(data1);
+            let sf2 = new Series(data2);
+            assert.deepEqual(sf1.mul(sf2).values, [30, 80, 9, 20]);
+        });
+        it("Return multiplication of series with a single value (Broadcasting)", function () {
+            let data = [1, 2, 3, 4, 5];
+            let sf = new Series(data);
+            assert.deepEqual(sf.mul(1).values, [1, 2, 3, 4, 5]);
+        });
+        it("Throws type error on multiplication of string type", function () {
+            let data = [1, 2, 3, 4]
+            let data2 = ["A", "B", "C", "d"]
+            let sf = new Series(data)
+            let sf2 = new Series(data2)
+            assert.throws(() => { sf.mul(sf2) }, Error, "dtype error: String data type does not support mul operation")
+        })
+        it("Throws length error if series lenght mixmatch", function () {
+            let data = [1, 2, 3, 4]
+            let data2 = [1, 2, 3, 4, 5, 6]
+            let sf = new Series(data)
+            let sf2 = new Series(data2)
+            assert.throws(() => { sf.mul(sf2) }, Error, "Row length mismatch. Length of other (6), must be the same as Ndframe (4)")
+        })
+    });
+
+
     describe("div", function () {
         it("Return float division of series with another series", function () {
             let data1 = [30, 40, 3, 5];
@@ -86,7 +222,7 @@ describe("Series Functions", () => {
             let data2 = [1, 2, 3, 4];
             let sf1 = new Series(data1);
             let sf2 = new Series(data2);
-            assert.deepEqual(sf1.div(sf2, false).values, [30, 20, 1, 1]);
+            assert.deepEqual(sf1.div(sf2, false).values, [30, 20, 1, 1.25]);
         });
         it("Return division of series with a single value (Broadcasting)", function () {
             let data = [10, 2, 3, 90];
@@ -98,15 +234,58 @@ describe("Series Functions", () => {
             let data2 = ["A", "B", "C", "d"]
             let sf = new Series(data)
             let sf2 = new Series(data2)
-            assert.throws(() => { sf.div(sf2) }, Error, `dtype Error: Cannot perform operation "div" on Series with dtype string`)
+            assert.throws(() => { sf.div(sf2) }, Error, `dtype error: String data type does not support div operation`)
         })
         it("Throws length error if series lenght mixmatch", function () {
             let data = [1, 2, 3, 4]
             let data2 = [1, 2, 3, 4, 5, 6]
             let sf = new Series(data)
             let sf2 = new Series(data2)
-            assert.throws(() => { sf.div(sf2) }, Error, "Shape Error: Series shape do not match")
+            assert.throws(() => { sf.div(sf2) }, Error, "Row length mismatch. Length of other (6), must be the same as Ndframe (4)")
         })
+    });
+
+    describe("pow", function () {
+        it("Return Exponetial power of series with another series", function () {
+            let data1 = [2, 3, 4, 5];
+            let data2 = [1, 2, 3, 0];
+            let sf1 = new Series(data1);
+            let sf2 = new Series(data2);
+            assert.deepEqual(sf1.pow(sf2).values, [2, 9, 64, 1]);
+        });
+        it("Return Exponetial power of series with a single value (Broadcasting)", function () {
+            let data = [1, 2, 3, 4, 5];
+            let sf = new Series(data);
+            assert.deepEqual(sf.pow(2).values, [1, 4, 9, 16, 25]);
+        });
+    });
+
+    describe("mod", function () {
+        it("Return modulo of series with another float series", function () {
+            let data1 = [2, 30, 4, 5];
+            let data2 = [1.1, 2.2, 3.3, 2.4];
+            let sf1 = new Series(data1);
+            let sf2 = new Series(data2);
+            let expected = [
+                0.8999999999999999,
+                1.3999999999999977,
+                0.7000000000000002,
+                0.20000000000000018
+            ];
+            assert.deepEqual(sf1.mod(sf2).values, expected);
+        });
+        it("Return modulo of series with another int series", function () {
+            let data1 = [2, 30, 4, 5];
+            let data2 = [1, 2, 3, 1];
+            let sf1 = new Series(data1);
+            let sf2 = new Series(data2);
+            assert.deepEqual(sf1.mod(sf2).values, [0, 0, 1, 0]);
+        });
+        it("Return modulo power of series with a single value (Broadcasting)", function () {
+            let data = [1, 2, 3, 4, 5];
+            let sf = new Series(data);
+            assert.deepEqual(sf.mod(2).values, [1, 0, 1, 0, 1]);
+        });
     });
 
     describe("toString", function () {
@@ -146,6 +325,11 @@ describe("Series Functions", () => {
         it("Computes the mean of elements in a int series", function () {
             let data1 = [30, 40, 3, 5, NaN];
             let sf = new Series(data1);
+            assert.deepEqual(sf.mean(), 19.5);
+        });
+        it("Computes the mean of elements in a int series using TFJS", function () {
+            let data1 = [30, 40, 3, 5, NaN];
+            let sf = new Series(data1, { config: { useTfjsMathFunctions: true } });
             assert.deepEqual(sf.mean(), 19.5);
         });
         it("Computes the mean of elements in a float series", function () {
@@ -330,18 +514,18 @@ describe("Series Functions", () => {
         it("Rounds elements in a Series to 1dp", function () {
             let data1 = [30.21091, 40.190901, 3.564, 5.0212];
             let sf = new Series(data1);
-            assert.deepEqual(sf.round({ dp: 1 }).values, [30.2, 40.2, 3.6, 5.0]);
+            assert.deepEqual(sf.round(1).values, [30.2, 40.2, 3.6, 5.0]);
         });
         it("Rounds elements in a Series to 2dp", function () {
             let data1 = [30.2191, 40.190901, 3.564, 5.0212];
             let sf = new Series(data1);
-            assert.deepEqual(sf.round({ dp: 2 }).values, [30.22, 40.19, 3.56, 5.02]);
+            assert.deepEqual(sf.round(2).values, [30.22, 40.19, 3.56, 5.02]);
         });
 
         it("Rounds elements in a Series to 2dp inplace", function () {
             let data1 = [30.2191, 40.190901, 3.564, 5.0212];
             let sf = new Series(data1);
-            sf.round({ dp: 2, inplace: true })
+            sf.round(2, { inplace: true })
             assert.deepEqual(sf.values, [30.22, 40.19, 3.56, 5.02]);
         });
 
@@ -365,7 +549,7 @@ describe("Series Functions", () => {
                     sf1.maximum(sf2);
                 },
                 Error,
-                "Shape Error: Series shape do not match"
+                "Row length mismatch. Length of other (3), must be the same as Ndframe (4)"
             );
         });
     });
@@ -409,16 +593,25 @@ describe("Series Functions", () => {
         it("replace all NaN value with specified value", function () {
             let data = [NaN, 1, 2, 33, 4, NaN, 5, 6, 7, 8];
             let sf = new Series(data);
-            let sf_val = [-999, 1, 2, 33, 4, -999, 5, 6, 7, 8];
-            sf.fillNa({ value: -999, inplace: true });
-            assert.deepEqual(sf.values, sf_val);
+            let sfVal = [-999, 1, 2, 33, 4, -999, 5, 6, 7, 8];
+            sf.fillNa(-999, { inplace: true });
+            assert.deepEqual(sf.values, sfVal);
         });
         it("replace all NaN value in string Series with specified value", function () {
             let data = [NaN, "boy", NaN, "hey", "Man", undefined];
             let sf = new Series(data);
-            let sf_val = ["filled", "boy", "filled", "hey", "Man", "filled"];
-            let sf_fill = sf.fillNa({ value: "filled" });
-            assert.deepEqual(sf_fill.values, sf_val);
+            let sfVal = ["filled", "boy", "filled", "hey", "Man", "filled"];
+            let sfFill = sf.fillNa("filled");
+            assert.deepEqual(sfFill.values, sfVal);
+        });
+        it("Data is in right format after filling", function () {
+            let data = [NaN, "boy", NaN, "hey", "Man", undefined];
+            let sf = new Series(data);
+            let sfVal = ["filled", "boy", "filled", "hey", "Man", "filled"];
+            let sfFill = sf.fillNa("filled");
+            assert.deepEqual(sfFill.values, sfVal);
+            assert.deepEqual(sfFill.$dataIncolumnFormat, sfVal);
+
         });
     });
 
