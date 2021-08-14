@@ -14,6 +14,7 @@
 */
 import Series from "./series";
 import Utils from "../shared/utils"
+import { ArrayType1D } from "@base/shared/types";
 
 const utils = new Utils();
 
@@ -31,58 +32,106 @@ export function _genericMathOp({ ndFrame, other, operation }: {
     ndFrame: Series
     other: Series | number
     operation: string
-}): Series {
+}): ArrayType1D {
     if (typeof other === 'number') {
         //broadcast operation
         let newData;
         switch (operation) {
             case 'add':
-                newData = ndFrame.tensor.add(other).arraySync();
-                return utils.createNdframeFromNewDataWithOldProps({ ndFrame, newData, isSeries: true });
+                if (ndFrame.config.toUseTfjsMathFunctions) {
+                    return ndFrame.tensor.add(other).arraySync() as ArrayType1D
+                } else {
+                    newData = (ndFrame.values as number[]).map((ele => ele + other))
+                    return newData
+                }
             case 'sub':
-                newData = ndFrame.tensor.sub(other).arraySync();
-                return utils.createNdframeFromNewDataWithOldProps({ ndFrame, newData, isSeries: true });
+                if (ndFrame.config.toUseTfjsMathFunctions) {
+                    return ndFrame.tensor.sub(other).arraySync() as ArrayType1D
+                } else {
+                    newData = (ndFrame.values as number[]).map((ele => ele - other))
+                    return newData
+                }
             case 'mul':
-                newData = ndFrame.tensor.mul(other).arraySync();
-                return utils.createNdframeFromNewDataWithOldProps({ ndFrame, newData, isSeries: true });
+                if (ndFrame.config.toUseTfjsMathFunctions) {
+                    return ndFrame.tensor.mul(other).arraySync() as ArrayType1D
+                } else {
+                    newData = (ndFrame.values as number[]).map((ele => ele * other))
+                    return newData
+                }
+            case 'div':
+                if (ndFrame.config.toUseTfjsMathFunctions) {
+                    return ndFrame.tensor.div(other).arraySync() as ArrayType1D
+                } else {
+                    newData = (ndFrame.values as number[]).map((ele => ele / other))
+                    return newData
+                }
             case 'mod':
-                newData = ndFrame.tensor.mod(other).arraySync();
-                return utils.createNdframeFromNewDataWithOldProps({ ndFrame, newData, isSeries: true });
+                if (ndFrame.config.toUseTfjsMathFunctions) {
+                    return ndFrame.tensor.mod(other).arraySync() as ArrayType1D
+                } else {
+                    newData = (ndFrame.values as number[]).map((ele => ele % other))
+                    return newData
+                }
             case 'pow':
-                newData = ndFrame.tensor.pow(other).arraySync();
-                return utils.createNdframeFromNewDataWithOldProps({ ndFrame, newData, isSeries: true });
+                if (ndFrame.config.toUseTfjsMathFunctions) {
+                    return ndFrame.tensor.pow(other).arraySync() as ArrayType1D
+                } else {
+                    newData = (ndFrame.values as number[]).map((ele => ele ** other))
+                    return newData
+                }
             default:
                 throw new Error(`${operation} is not implemented`);
 
         }
     } else {
-        const { status, message } = utils.checkSeriesOpCompactibility({ firstSeries: ndFrame, secondSeries: other, operation })
+        utils.checkSeriesOpCompactibility({ firstSeries: ndFrame, secondSeries: other, operation })
 
-        if (status) {
-            let newData;
-            switch (operation) {
-                case 'add':
-                    newData = ndFrame.tensor.add(other.tensor).arraySync();
-                    return utils.createNdframeFromNewDataWithOldProps({ ndFrame, newData, isSeries: true });
-                case 'sub':
-                    newData = ndFrame.tensor.sub(other.tensor).arraySync();
-                    return utils.createNdframeFromNewDataWithOldProps({ ndFrame, newData, isSeries: true });
-                case 'mul':
-                    newData = ndFrame.tensor.mul(other.tensor).arraySync();
-                    return utils.createNdframeFromNewDataWithOldProps({ ndFrame, newData, isSeries: true });
-                case 'mod':
-                    newData = ndFrame.tensor.mod(other.tensor).arraySync();
-                    return utils.createNdframeFromNewDataWithOldProps({ ndFrame, newData, isSeries: true });
-                case 'pow':
-                    newData = ndFrame.tensor.pow(other.tensor).arraySync();
-                    return utils.createNdframeFromNewDataWithOldProps({ ndFrame, newData, isSeries: true });
-                default:
-                    throw new Error(`${operation} is not implemented`);
-
-            }
-
-        } else {
-            throw new Error(message);
+        let newData;
+        switch (operation) {
+            case 'add':
+                if (ndFrame.config.toUseTfjsMathFunctions) {
+                    return ndFrame.tensor.add(other.tensor).arraySync() as ArrayType1D
+                } else {
+                    newData = (ndFrame.values as number[]).map((ele, index) => { return ele + (other.values as number[])[index] })
+                    return newData
+                }
+            case 'sub':
+                if (ndFrame.config.toUseTfjsMathFunctions) {
+                    return ndFrame.tensor.sub(other.tensor).arraySync() as ArrayType1D
+                } else {
+                    newData = (ndFrame.values as number[]).map((ele, index) => { return ele - (other.values as number[])[index] })
+                    return newData
+                }
+            case 'mul':
+                if (ndFrame.config.toUseTfjsMathFunctions) {
+                    return ndFrame.tensor.mul(other.tensor).arraySync() as ArrayType1D
+                } else {
+                    newData = (ndFrame.values as number[]).map((ele, index) => { return ele * (other.values as number[])[index] })
+                    return newData
+                }
+            case 'div':
+                if (ndFrame.config.toUseTfjsMathFunctions) {
+                    return ndFrame.tensor.div(other.tensor).arraySync() as ArrayType1D
+                } else {
+                    newData = (ndFrame.values as number[]).map((ele, index) => { return ele / (other.values as number[])[index] })
+                    return newData
+                }
+            case 'mod':
+                if (ndFrame.config.toUseTfjsMathFunctions) {
+                    return ndFrame.tensor.mod(other.tensor).arraySync() as ArrayType1D
+                } else {
+                    newData = (ndFrame.values as number[]).map((ele, index) => { return ele % (other.values as number[])[index] })
+                    return newData
+                }
+            case 'pow':
+                if (ndFrame.config.toUseTfjsMathFunctions) {
+                    return ndFrame.tensor.pow(other.tensor).arraySync() as ArrayType1D
+                } else {
+                    newData = (ndFrame.values as number[]).map((ele, index) => { return ele ** (other.values as number[])[index] })
+                    return newData
+                }
+            default:
+                throw new Error(`${operation} is not implemented`);
         }
     }
 

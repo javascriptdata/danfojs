@@ -24,6 +24,7 @@ export default class Configs {
     tableMaxColInConsole: number;
     dtypeTestLim: number;
     lowMemoryMode: boolean;
+    useTfjsMathFunctions: boolean;
 
     constructor({
         tableWidth,
@@ -31,7 +32,8 @@ export default class Configs {
         tableMaxRow,
         tableMaxColInConsole,
         dtypeTestLim,
-        lowMemoryMode
+        lowMemoryMode,
+        useTfjsMathFunctions
     }: ConfigsType) {
         this.tableWidth = tableWidth || 17; //The width of each column printed in console
         this.tableTruncate = tableTruncate || 16; //The maximum number of string before text is truncated in console
@@ -39,6 +41,7 @@ export default class Configs {
         this.tableMaxColInConsole = tableMaxColInConsole || 21; // The maximum number of columns to display in console
         this.dtypeTestLim = dtypeTestLim || 10; // The number of rows to use when inferring data type
         this.lowMemoryMode = lowMemoryMode // Whether to use minimal memory or not.
+        this.useTfjsMathFunctions = useTfjsMathFunctions || false //whether to use tfjs lib for performing math operations
     }
 
     setTableWidth(val: number) {
@@ -87,6 +90,14 @@ export default class Configs {
 
     setIsLowMemoryMode(val: boolean) {
         this.lowMemoryMode = val;
+    }
+
+    get toUseTfjsMathFunctions(): boolean {
+        return this.useTfjsMathFunctions;
+    }
+
+    setUseTfjsMathFunctions(val: boolean) {
+        this.useTfjsMathFunctions = val;
     }
 }
 
