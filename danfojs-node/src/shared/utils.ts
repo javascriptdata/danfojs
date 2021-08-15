@@ -154,13 +154,12 @@ export default class Utils {
      * Converts a 2D array of array to 1D array for Series Class
      * @param arr The array to convert.
      */
-    convert2DArrayToSeriesArray(arr: ArrayType1D | ArrayType2D): Array<string> {
-        const newArr: Array<string> = [];
-        arr.map((val) => {
+    convert2DArrayToSeriesArray(arr: ArrayType2D): Array<string> {
+        const newArr = arr.map((val) => {
             if (this.isObject(val)) {
-                newArr.push(JSON.stringify(val));
+                return JSON.stringify(val)
             } else {
-                newArr.push(`${val}`);
+                return `${val}`
             }
         });
         return newArr;
@@ -692,7 +691,7 @@ export default class Utils {
             sortedIdx.sort(([arg1], [arg2]) => (arg2 as unknown as number) - (arg1 as unknown as number));
         }
 
-        return sortedIdx.map(([, item]) => item);
+        return sortedIdx.map(([, item]) => item) as number[] 
     }
 
     /**

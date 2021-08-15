@@ -15,13 +15,15 @@
 import * as tf from '@tensorflow/tfjs-node';
 import NDframe from "../../core/generic";
 import { table } from "table";
-import { variance, std, median, mode, mean, min, max, sum, round } from 'mathjs';
+import { variance, std, median, mode } from 'mathjs';
 import { _iloc } from "../iloc";
 import { _genericMathOp } from "../generic.math.ops";
 import Utils from "../../shared/utils"
 import ErrorThrower from "../../shared/errors"
-import { ArrayType1D, ArrayType2D, BaseDataOptionType, NdframeInputDataType, SeriesInterface } from "../../shared/types";
+import { ArrayType1D, BaseDataOptionType, SeriesInterface } from "../../shared/types";
+import { DATA_TYPES } from '../../shared/defaults'
 import { performance } from 'perf_hooks';
+import { Str } from '../strings';
 
 const utils = new Utils();
 
@@ -42,11 +44,11 @@ const utils = new Utils();
  *  config: General configuration object for NDframe      
  *
  */
-/* @ts-ignore */ //COMMENT OUR WHEN METHODS HAVE BEEN IMPLEMENTED
+/* @ts-ignore */ //COMMENT OUT WHEN METHODS HAVE BEEN IMPLEMENTED
 export default class Series extends NDframe implements SeriesInterface {
 
     constructor(data: any = [], options: BaseDataOptionType = {}) {
-        let { index, columnNames, dtypes, config } = options;
+        const { index, columnNames, dtypes, config } = options;
         if (Array.isArray(data[0]) || utils.isObject(data[0])) {
             data = utils.convert2DArrayToSeriesArray(data);
             super({
@@ -107,11 +109,10 @@ export default class Series extends NDframe implements SeriesInterface {
     /**
      * Returns specified number of random rows in a Series
      * @param num The number of rows to return
-     * @param options (Optional) Object with the following options:
      * @param options.seed An integer specifying the random seed that will be used to create the distribution.
     */
     async sample(num = 5, options: { seed: number } = { seed: 1 }): Promise<Series> {
-        let { seed } = options;
+        let { seed = 1 } = options;
 
         if (num > this.shape[0]) {
             throw new Error("Sample size n cannot be bigger than size of dataset");
@@ -130,9 +131,10 @@ export default class Series extends NDframe implements SeriesInterface {
       * Return Addition of series and other, element-wise (binary operator add).
       * Equivalent to series + other
       * @param other Series or Number to add
+      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
       */
     add(other: Series | number, options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace } = options
+        const { inplace = false } = options
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("add")
 
@@ -149,9 +151,10 @@ export default class Series extends NDframe implements SeriesInterface {
       * Returns the subtraction between a series and other, element-wise (binary operator subtraction).
       * Equivalent to series - other
       * @param other Number to subtract
+      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
       */
     sub(other: Series | number, options: { inplace?: boolean } = { inplace: false }): Series | void {
-        const { inplace } = options
+        const { inplace = false } = options
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("sub")
 
@@ -169,9 +172,10 @@ export default class Series extends NDframe implements SeriesInterface {
       * Return Multiplication of series and other, element-wise (binary operator mul).
       * Equivalent to series * other
       * @param other Number to multiply with.
+      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
     mul(other: Series | number, options: { inplace?: boolean } = { inplace: false }): Series | void {
-        const { inplace } = options
+        const { inplace = false } = options
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("mul")
 
@@ -188,9 +192,10 @@ export default class Series extends NDframe implements SeriesInterface {
       * Return division of series and other, element-wise (binary operator div).
       * Equivalent to series / other
       * @param other Series or number to divide with.
+      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
       */
     div(other: Series | number, options: { inplace?: boolean } = { inplace: false }): Series | void {
-        const { inplace } = options
+        const { inplace = false } = options
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("div")
 
@@ -206,10 +211,11 @@ export default class Series extends NDframe implements SeriesInterface {
     /**
       * Return Exponential power of series and other, element-wise (binary operator pow).
       * Equivalent to series ** other
-      *  @param other Number to multiply with.
+      * @param other Number to multiply with.
+      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
       */
     pow(other: Series | number, options: { inplace?: boolean } = { inplace: false }): Series | void {
-        const { inplace } = options
+        const { inplace = false } = options
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("pow")
 
@@ -225,10 +231,11 @@ export default class Series extends NDframe implements SeriesInterface {
     /**
       * Return Modulo of series and other, element-wise (binary operator mod).
       * Equivalent to series % other
-      *  @param other Number to modulo with
+      * @param other Number to modulo with
+      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    mod(other: Series | number, options: { inplace?: boolean } = { inplace: false }): Series | void {
-        const { inplace } = options
+    mod(other: Series | number, options: { inplace: boolean } = { inplace: false }): Series | void {
+        const { inplace = false } = options
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("mod")
 
@@ -377,9 +384,8 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
      * Round each value in a Series to the specified number of decimals.
-     * @params args Object with the method arguments
-     * @params args.dp Number of Decimal places to round to
-     * @params args.inplace Boolean indicating whether to perform the operation inplace or not
+     * @param dp Number of Decimal places to round to
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
     round(dp = 1, options: { inplace: boolean } = { inplace: false }): Series | void {
         const { inplace } = options
@@ -437,15 +443,14 @@ export default class Series extends NDframe implements SeriesInterface {
     }
 
     /**
-     * Replace all NaN with a specified value"
-     * @params args Object with the method arguments
-     * @params args.value The value to replace NaN with
-     * @params args.inplace Boolean indicating whether to perform the operation inplace or not
+     * Replace all NaN with a specified value
+     * @param value The value to replace NaN with
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    fillNa(value: number | string | boolean, options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace } = options
+    fillNa(value: number | string | boolean, options = { inplace: false }): Series | void {
+        const { inplace } = options;
 
-        if (!value) {
+        if (!value && typeof value !== 'boolean') {
             throw Error('Value Error: Must specify value to replace with');
         }
 
@@ -470,46 +475,41 @@ export default class Series extends NDframe implements SeriesInterface {
     }
 
 
-    // /**
-    //   * Sort a Series in ascending or descending order by some criterion.
-    //   *  @param {kwargs} Object, {ascending (Bool): Whether to return sorted values in ascending order or not,
-    //   *                           inplace (Bool): Whether to perform sorting on the original Series or not}
-    //   * @returns {Series}
-    //   */
-    // sort_values(kwargs = {}) {
-    //     let paramsNeeded = ["inplace", "ascending"];
-    //     utils._throw_wrong_params_error(kwargs, paramsNeeded);
+    /**
+      * Sort a Series in ascending or descending order by some criterion.
+      * @param options Method options
+      * @param ascending Whether to return sorted values in ascending order or not. Defaults to true
+      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    sortValues(ascending = true, options = { inplace: false }): Series | void {
+        const { inplace = false } = options;
 
-    //     if (!('ascending' in kwargs)) {
-    //         kwargs['ascending'] = true;
-    //     }
+        let sortedValues = [];
+        const rangeIdx = utils.range(0, this.index.length - 1);
+        let sortedIdx = utils.sortArrayByIndex(rangeIdx, this.values, this.dtypes[0]);
 
-    //     if (!('inplace' in kwargs)) {
-    //         kwargs['inplace'] = false;
-    //     }
+        for (let indx of sortedIdx) {
+            sortedValues.push(this.values[indx])
+        }
 
-    //     let sorted_values = [];
-    //     let arr_obj = [...this.values];
-    //     let range_idx = utils.__range(0, this.index.length - 1);
-    //     let sorted_idx = utils._sort_arr_with_index(range_idx, arr_obj, this.dtypes[0]);
+        if (ascending) {
+            sortedValues = sortedValues.reverse();
+            sortedIdx = sortedIdx.reverse();
+        }
 
-    //     sorted_idx.forEach((idx) => {
-    //         sorted_values.push(this.values[idx]);
-    //     });
+        if (inplace) {
+            this.$setValues(sortedValues as ArrayType1D)
+            this.$setIndex(sortedIdx);
+        } else {
+            const sf = new Series(sortedValues, {
+                index: sortedIdx,
+                dtypes: this.dtypes,
+                config: this.config
+            });
+            return sf;
 
-    //     if (kwargs['ascending']) {
-    //         sorted_values = sorted_values.reverse();
-    //         sorted_idx = sorted_idx.reverse();
-    //     }
-
-    //     if (kwargs['inplace']) {
-    //         this.data = sorted_values;
-    //         this.__set_index(sorted_idx);
-    //     } else {
-    //         let sf = new Series(sorted_values, { columns: this.column_names, index: sorted_idx });
-    //         return sf;
-    //     }
-    // }
+        }
+    }
 
 
     /**
@@ -527,400 +527,667 @@ export default class Series extends NDframe implements SeriesInterface {
     }
 
 
+    /**
+      * Generate descriptive statistics.
+      * Descriptive statistics include those that summarize the central tendency,
+      * dispersion and shape of a dataset’s distribution, excluding NaN values.
+    */
+    describe(): Series {
+        if (this.dtypes[0] == "string") {
+            throw new Error("DType Error: Cannot generate descriptive statistics for Series with string dtype")
+        } else {
+
+            const index = ['count', 'mean', 'std', 'min', 'median', 'max', 'variance'];
+            const count = this.count();
+            const mean = this.mean();
+            const std = this.std();
+            const min = this.min();
+            const median = this.median();
+            const max = this.max();
+            const variance = this.var();
+
+            const data = [count, mean, std, min, median, max, variance];
+            const sf = new Series(data, { index: index });
+            return sf;
+
+        }
+    }
+
+
+    /**
+      * Returns Series with the index reset.
+      * This is useful when index is meaningless and needs to be reset to the default before another operation.
+      */
+    resetIndex(options: { inplace?: boolean } = { inplace: false }): Series | void {
+        const { inplace } = options;
+        if (inplace) {
+            this.$resetIndex();
+        } else {
+            const sf = this.copy();
+            sf.$resetIndex();
+            return sf;
+        }
+    }
+
+    /**
+      * Set the Series index (row labels) using an array of the same length.
+      * @param index Array of new index values,
+      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    setIndex(index: Array<number | string | (number | string)>, options: { inplace: boolean } = { inplace: false }): Series | void {
+        const { inplace = false } = options;
+
+        if (!index) {
+            throw Error('Param Error: Must specify index array');
+        }
+
+        if (inplace) {
+            this.$setIndex(index)
+        } else {
+            const sf = this.copy();
+            sf.$setIndex(index)
+            return sf;
+        }
+    }
+
+
+    /**
+       * map all the element in a column to a variable or function
+       * @param callable callable can either be a funtion or an object
+       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    map(callable: any, options: { inplace: boolean } = { inplace: false }): Series | void {
+        const { inplace = false } = options;
+        const isCallable = utils.isFunction(callable);
+
+        const data = this.values.map((val: any) => {
+            if (isCallable) {
+                return callable(val);
+            } else if (utils.isObject(callable)) {
+                if (val in callable) {
+                    return callable[val];
+                } else {
+                    return NaN;
+                }
+            } else {
+                throw new Error("Param Error: callable must either be a function or an object");
+            }
+        });
+
+        if (inplace) {
+            this.$setValues(data)
+        } else {
+            const sf = this.copy();
+            sf.$setValues(data)
+            return sf;
+        }
+    }
+
+    /**
+       * Applies a function to each element of a Series
+       * @param callable Function to apply to each element of the series
+       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    apply(callable: any, options: { inplace: boolean } = { inplace: false }): Series | void {
+        const { inplace = false } = options;
+        const isCallable = utils.isFunction(callable);
+        if (!isCallable) {
+            throw new Error("Param Error: callable must be a function");
+        }
+
+        const data = this.values.map((val) => {
+            return callable(val);
+        });
+
+        if (inplace) {
+            this.$setValues(data)
+        } else {
+            const sf = this.copy();
+            sf.$setValues(data)
+            return sf;
+        }
+    }
+
+    /**
+     * Returns a Series with only the unique value(s) in the original Series
+    */
+    unique(): Series {
+        const newValues = new Set(this.values as ArrayType1D);
+        let series = new Series(Array.from(newValues));
+        return series;
+    }
+
+    /**
+       * Return the number of unique elements in a Series
+    */
+    nUnique(): number {
+        return this.unique().values.length;
+    }
+
+    /**
+     * Returns unique values and their counts in a Series
+    */
+    valueCounts(): Series {
+        const sData = this.values;
+        const dataDict: any = {};
+        for (let i = 0; i < sData.length; i++) {
+            const val = sData[i];
+            if (`${val}` in dataDict) {
+                dataDict[`${val}`] = dataDict[`${val}`] + 1;
+            } else {
+                dataDict[`${val}`] = 1;
+            }
+        }
+
+        const index = Object.keys(dataDict).map((x) => {
+            return parseInt(x) ? parseInt(x) : x;
+        });
+        const data = Object.values(dataDict);
+
+        const series = new Series(data, { index: index });
+        return series;
+
+    }
+
+    /**
+      * Returns the absolute values in Series
+      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    abs(options: { inplace: boolean } = { inplace: false }): Series | void {
+        if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("abs")
+        const { inplace = false } = options;
+        let newValues;
+
+        if (this.config.toUseTfjsMathFunctions) {
+            newValues = this.tensor.abs().arraySync()
+        } else {
+            newValues = this.values.map(val => Math.abs(val as number));
+        }
+
+        if (inplace) {
+            this.$setValues(newValues as ArrayType1D)
+        } else {
+            const sf = this.copy();
+            sf.$setValues(newValues as ArrayType1D)
+            return sf;
+        }
+    }
+
+    /**
+      * Returns the cumulative sum over a Series
+    */
+    cumSum(options: { inplace: boolean } = { inplace: false }): Series | void {
+        return this.cumOps("sum", options);
+    }
+
+    /**
+       * Returns cumulative minimum over a Series
+    */
+    cumMin(options: { inplace: boolean } = { inplace: false }): Series | void {
+        return this.cumOps("min", options);
+    }
+
+
+    /**
+       * Returns cumulative maximum over a Series
+    */
+    cumMax(options: { inplace: boolean } = { inplace: false }): Series | void {
+        return this.cumOps("max", options);
+
+    }
+
+    /**
+       * Returns cumulative product over a Series
+    */
+    cumProd(options: { inplace: boolean } = { inplace: false }): Series | void {
+        return this.cumOps("prod", options);
+    }
+
+    /**
+     * perform cumulative operation on series data
+    */
+    private cumOps(ops: string, options: { inplace: boolean }): Series | void {
+        if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError(ops)
+        const { inplace } = options;
+
+        const sData = this.values;
+        let tempval = sData[0];
+        const data = [tempval];
+
+        for (let i = 1; i < sData.length; i++) {
+            let currVal = sData[i];
+            switch (ops) {
+                case "max":
+                    if (currVal > tempval) {
+                        data.push(currVal);
+                        tempval = currVal;
+                    } else {
+                        data.push(tempval);
+                    }
+                    break;
+                case "min":
+                    if (currVal < tempval) {
+                        data.push(currVal);
+                        tempval = currVal;
+                    } else {
+                        data.push(tempval);
+                    }
+                    break;
+                case "sum":
+                    tempval = (tempval as number) + (currVal as number)
+                    data.push(tempval);
+                    break;
+                case "prod":
+                    tempval = (tempval as number) * (currVal as number)
+                    data.push(tempval);
+                    break;
+
+            }
+        }
+
+        if (inplace) {
+            this.$setValues(data as ArrayType1D)
+        } else {
+            const sf = this.copy();
+            sf.$setValues(data as ArrayType1D)
+            return sf;
+        }
+    }
+
+
+    /**
+       * Returns less than of series and other. Supports element wise operations
+       * @param other Series or number to compare against
+    */
+    lt(other: Series | number): Series {
+        return this.boolOps(other, "lt");
+    }
+
+    /**
+       * Returns Greater than of series and other. Supports element wise operations
+       * @param {other} Series, Scalar
+       * @return {Series}
+       */
+    gt(other: Series | number): Series {
+        return this.boolOps(other, "gt");
+    }
+
+    /**
+       * Returns Less than or Equal to of series and other. Supports element wise operations
+       * @param {other} Series, Scalar
+       * @return {Series}
+       */
+    le(other: Series | number): Series {
+        return this.boolOps(other, "le");
+    }
+
+    /**
+       * Returns Greater than or Equal to of series and other. Supports element wise operations
+       * @param {other} Series, Scalar
+       * @return {Series}
+       */
+    ge(other: Series | number): Series {
+        return this.boolOps(other, "ge");
+    }
+
+    /**
+        * Returns Not Equal to of series and other. Supports element wise operations
+        * @param {other} Series, Scalar
+        * @return {Series}
+        */
+    ne(other: Series | number): Series {
+        return this.boolOps(other, "ne");
+    }
+
+    /**
+       * Returns Equal to of series and other. Supports element wise operations
+       * @param {other} Series, Scalar
+       * @return {Series}
+       */
+    eq(other: Series | number): Series {
+        return this.boolOps(other, "eq");
+    }
+
+    /**
+     * Perform boolean operations on bool values
+     * @param other Other Series or number to compare with
+     * @param bOps Name of operation to perform [ne, ge, le, gt, lt, eq]
+     */
+    private boolOps(other: Series | number, bOps: string) {
+        const data = [];
+        const lSeries = this.values;
+        let rSeries;
+
+        if (typeof other == "number") {
+            rSeries = Array(this.values.length).fill(other); //create array of repeated value for broadcasting
+        } else {
+            if (!(other instanceof Series)) {
+                throw new Error("Param Error: 'other' must be a Series");
+            }
+            rSeries = other.values;
+        }
+
+        if (!(lSeries.length === rSeries.length)) {
+            throw new Error("Length Error: Both Series must be of the same length");
+        }
+
+
+        for (let i = 0; i < lSeries.length; i++) {
+            let lVal = lSeries[i];
+            let rVal = rSeries[i];
+            let bool = null;
+            switch (bOps) {
+                case "lt":
+                    bool = lVal < rVal ? true : false;
+                    data.push(bool);
+                    break;
+                case "gt":
+                    bool = lVal > rVal ? true : false;
+                    data.push(bool);
+                    break;
+                case "le":
+                    bool = lVal <= rVal ? true : false;
+                    data.push(bool);
+                    break;
+                case "ge":
+                    bool = lVal >= rVal ? true : false;
+                    data.push(bool);
+                    break;
+                case "ne":
+                    bool = lVal != rVal ? true : false;
+                    data.push(bool);
+                    break;
+                case "eq":
+                    bool = lVal === rVal ? true : false;
+                    data.push(bool);
+                    break;
+            }
+        }
+        return new Series(data);
+
+    }
+
+    /**
+      * Replace all occurence of a value with a new value
+      * @param oldValue The value you want to replace
+      * @param newValue The new value you want to replace the old value with
+      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    replace(
+        oldValue: string | number | boolean,
+        newValue: string | number | boolean,
+        options: { inplace: boolean } = { inplace: false }
+    ): Series | void {
+        const { inplace = false } = options;
+
+        if (!oldValue && typeof oldValue !== 'boolean') {
+            throw Error(`Params Error: Must specify param 'oldValue' to replace`);
+        }
+
+        if (!newValue && typeof oldValue !== 'boolean') {
+            throw Error(`Params Error: Must specify param 'newValue' to replace with`);
+        }
+
+        const newArr: any = [];
+        const oldArr = [...this.values]
+
+        oldArr.forEach((val) => {
+            if (val === oldValue) {
+                newArr.push(newValue);
+            } else {
+                newArr.push(val);
+            }
+        });
+
+        if (inplace) {
+            this.$setValues(newArr)
+        } else {
+            const sf = this.copy();
+            sf.$setValues(newArr)
+            return sf;
+        }
+
+    }
+
+    /**
+     * Drops all missing values (NaN) from a Series.
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    dropNa(options: { inplace: boolean } = { inplace: false }) {
+        const { inplace = false } = options;
+
+        const oldValues = this.values;
+        const oldIndex = this.index;
+        const newValues: ArrayType1D = [];
+        const newIndex: Array<string | number> = [];
+        const isNaVals = this.isNa().values;
+
+        isNaVals.forEach((val, i) => {
+            if (!val) {
+                newValues.push((oldValues as ArrayType1D)[i]);
+                newIndex.push(oldIndex[i])
+            }
+        });
+
+        if (inplace) {
+            this.$setValues(newValues, false)
+            this.$setIndex(newIndex)
+        } else {
+            const sf = this.copy();
+            sf.$setValues(newValues, false)
+            sf.$setIndex(newIndex)
+            return sf;
+        }
+
+    }
+
+    /**
+     * Return the integer indices that would sort the Series.
+     * @param ascending boolean true: will sort the Series in ascending order, false: will sort in descending order
+     */
+    argSort(ascending = true): Series {
+        const sortedIndex = this.sortValues(ascending);
+        const sf = new Series(sortedIndex?.index);
+        return sf;
+    }
+
+    /**
+       * Return int position of the largest value in the Series.
+    */
+    argMax(): number {
+        return this.tensor.argMax().arraySync() as number
+    }
+
+
+    /**
+       * Return int position of the smallest value in the Series.
+    */
+    argMin(): number {
+        return this.tensor.argMin().arraySync() as number
+    }
+
+    /**
+     * Remove duplicate values from a Series
+     * @param keep "first" | "last", which dupliate value to keep
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    dropDuplicates(keep: "first" | "last" = "first", options: { inplace: boolean } = { inplace: false }): Series | void {
+        const { inplace = false } = options;
+
+        if (!(["first", "last"].includes(keep))) {
+            throw Error(`Params Error: Keep must be one of 'first' or 'last'`);
+        }
+
+        let dataArr: ArrayType1D
+        let newArr: ArrayType1D = [];
+        let oldIndex: Array<string | number>
+        let newIndex: Array<string | number> = [];
+
+        if (keep === "last") {
+            dataArr = (this.values as ArrayType1D).reverse();
+            oldIndex = this.index.reverse();
+        } else {
+            dataArr = (this.values as ArrayType1D)
+            oldIndex = this.index;
+        }
+
+        dataArr.forEach((val, i) => {
+            if (!newArr.includes(val)) {
+                newIndex.push(oldIndex[i]);
+                newArr.push(val);
+            }
+        });
+
+        if (keep === "last") {
+            //re-reversed the array and index to its true order
+            newArr = newArr.reverse();
+            newIndex = newIndex.reverse();
+        }
+
+        if (inplace) {
+            this.$setValues(newArr, false)
+            this.$setIndex(newIndex)
+        } else {
+            const sf = this.copy();
+            sf.$setValues(newArr, false)
+            sf.$setIndex(newIndex)
+            return sf;
+        }
+
+    }
+
+    /**
+     * Cast Series to specified data type
+     * @param dtype Data type to cast to. One of [float32, int32, string, boolean, undefined]
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     */
+    asType(dtype: "float32" | "int32" | "string" | "boolean" | "undefined", options: { inplace: boolean } = { inplace: false }): Series | void {
+        const { inplace = false } = options;
+
+        if (!dtype) {
+            throw Error("Param Error: Please specify dtype to cast to");
+        }
+
+        if (!(DATA_TYPES.includes(dtype))) {
+            throw Error(`dtype ${dtype} not supported. dtype must be one of ${DATA_TYPES}`);
+        }
+
+        const oldValues = this.values;
+        const newValues: ArrayType1D = [];
+
+        switch (dtype) {
+            case "float32":
+                oldValues.forEach((val) => {
+                    newValues.push(Number(val));
+                });
+                break;
+            case "int32":
+                oldValues.forEach((val) => {
+                    newValues.push(Number(Number(val).toFixed()));
+                });
+                break;
+            case "string":
+                oldValues.forEach((val) => {
+                    newValues.push(String(val));
+                });
+                break;
+            case "boolean":
+                oldValues.forEach((val) => {
+                    newValues.push(Boolean(val));
+                });
+                break;
+            case "undefined":
+                oldValues.forEach((_) => {
+                    newValues.push(NaN);
+                });
+                break;
+            default:
+                break;
+        }
+
+        if (inplace) {
+            this.$setValues(newValues, false)
+            this.$setDtypes([dtype])
+        } else {
+            const sf = this.copy();
+            sf.$setValues(newValues, false)
+            sf.$setDtypes([dtype])
+            return sf;
+        }
+
+    }
+
+    /**
+     * Add a new value or values to the end of a Series
+     * @param newValues Single value | Array | Series to append to the Series 
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     */
+    append(
+        newValue: Series | Array<number | string | boolean> | number | string | boolean,
+        options: { inplace: boolean, resetIndex?: boolean } = { inplace: false, resetIndex: false }
+    ): Series | void {
+        const { inplace = false, resetIndex = false } = options;
+
+        if (!newValue && typeof newValue !== "boolean") {
+            throw Error("Param Error: Please specify newValues to append to Series");
+        }
+        const newData = [...this.values]
+        const newIndx = [...this.index]
+
+        if (Array.isArray(newValue)) {
+            newValue.forEach((el, i) => {
+                newData.push(el);
+                newIndx.push(i);
+            });
+        } else if (newValue instanceof Series) {
+            const _value = newValue.values;
+            const _index = newValue.index;
+            _value.forEach((el, i) => {
+                newData.push(el);
+                newIndx.push(_index[i]);
+            });
+        } else {
+            newData.push(newValue);
+            newIndx.push(0);
+        }
+
+        if (inplace) {
+            this.$setValues(newData as ArrayType1D, false)
+            resetIndex ? this.$resetIndex() : this.$setIndex(newIndx)
+        } else {
+            const sf = this.copy();
+            sf.$setValues(newData as ArrayType1D, false)
+            resetIndex ? sf.$resetIndex() : sf.$setIndex(newIndx)
+            return sf;
+        }
+    }
+
+    /**
+     * Returns dtype of Series
+    */
+    get dtype(): string {
+        return this.dtypes[0];
+    }
+
+    /**
+     * Exposes numerous string methods to manipulate Series of type string
+    */
+    get str() {
+        if (this.dtypes[0] == "string") {
+            return new Str(this);
+        } else {
+            throw new Error("Cannot call accessor str on non-string type");
+        }
+
+    }
+
     // /**
-    //   * Generate descriptive statistics.
-    //   * Descriptive statistics include those that summarize the central tendency,
-    //   * dispersion and shape of a dataset’s distribution, excluding NaN values.
-    //   * @returns {Series}
-    //   */
-    // describe() {
-    //     if (this.dtypes[0] == "string") {
-    //         return null;
-    //     } else {
-
-    //         let index = ['count', 'mean', 'std', 'min', 'median', 'max', 'variance'];
-    //         let count = this.count();
-    //         let mean = this.mean();
-    //         let std = this.std();
-    //         let min = this.min();
-    //         let median = this.median();
-    //         let max = this.max();
-    //         let variance = this.var();
-
-    //         let vals = [count, mean, std, min, median, max, variance];
-    //         let sf = new Series(vals, { columns: this.columns, index: index });
-    //         return sf;
-
-    //     }
-
-
-    // }
-
-
-    // /**
-    //   * Returns Series with the index reset.
-    //   * This is useful when index is meaningless and needs to be reset to the default before another operation.
-    //   * @param {kwargs} {inplace: Modify the Series in place (do not create a new object}
-    //   */
-    // reset_index(kwargs = {}) {
-    //     let paramsNeeded = ["inplace"];
-    //     utils._throw_wrong_params_error(kwargs, paramsNeeded);
-
-    //     kwargs['inplace'] = kwargs['inplace'] || false;
-
-    //     if (kwargs['inplace']) {
-    //         this.__reset_index();
-    //     } else {
-    //         let sf = this.copy();
-    //         sf.__reset_index();
-    //         return sf;
-    //     }
-    // }
-
-    // /**
-    //   * Returns Series with the specified index.
-    //   * Set the Series index (row labels) using an array of the same length.
-    //   * @param {kwargs} {index: Array of new index values,
-    //   *                  inplace: If operation should happen inplace
-    //   *                   }
-    //   */
-    // set_index(kwargs = {}) {
-
-    //     let paramsNeeded = ["index", "inplace"];
-    //     utils._throw_wrong_params_error(kwargs, paramsNeeded);
-
-
-    //     kwargs['inplace'] = kwargs['inplace'] || false;
-
-    //     if (!('index' in kwargs)) {
-    //         throw Error("Index ValueError: You must specify an array of index");
-    //     }
-
-    //     if (kwargs['index'].length != this.index.length) {
-    //         throw Error(`Index LengthError: Lenght of new Index array ${kwargs['index'].length} must match lenght of existing index ${this.index.length}`);
-    //     }
-
-    //     if (kwargs['inplace']) {
-    //         this.index_arr = kwargs['index'];
-    //     } else {
-    //         let sf = this.copy();
-    //         sf.__set_index(kwargs['index']);
-    //         return sf;
-    //     }
-    // }
-
-
-    // /**
-    //    * map all the element in a column to a variable or function
-    //    * @param{callable} callable can either be a funtion or an object
-    //    * @return {Array}
-    //    */
-    // map(callable) {
-    //     let is_callable = utils.__is_function(callable);
-
-    //     let data = this.data.map((val) => {
-    //         if (is_callable) {
-    //             return callable(val);
-    //         } else {
-    //             if (utils.__is_object(callable)) {
-
-    //                 if (val in callable) {
-    //                     return callable[val];
-    //                 } else {
-    //                     return NaN;
-    //                 }
-    //             } else {
-    //                 throw new Error("callable must either be a function or an object");
-    //             }
-    //         }
-    //     });
-    //     let sf = new Series(data, {
-    //         columns: this.column_names,
-    //         index: this.index
-    //     });
-    //     return sf;
-    // }
-
-    // /**
-    //    * Applies a function to each element of a Series
-    //    * @param {Function} Function to apply to each element of the series
-    //    * @return {Array}
-    //    */
-    // apply(callable) {
-    //     let is_callable = utils.__is_function(callable);
-
-    //     if (!is_callable) {
-    //         throw new Error("the arguement most be a function");
-    //     }
-
-    //     let data = this.data.map((val) => {
-    //         return callable(val);
-    //     });
-    //     return new Series(data, { columns: this.column_names, index: this.index });
-    // }
-
-    // /**
-    //    * Returns the unique value(s) in a Series
-    //    * @return {Series}
-    //    */
-    // unique() {
-
-    //     let data_set = new Set(this.values);
-    //     let series = new Series(Array.from(data_set));
-
-    //     return series;
-
-    // }
-
-    // /**
-    //    * Return the number of unique value in a series
-    //    * @return {int}
-    //    */
-    // nunique() {
-    //     return this.unique().values.length;
-    // }
-
-    // /**
-    //    * Returns unique values and their counts in a Series
-    //    * @return {Series}
-    //    */
-    // value_counts() {
-
-    //     let s_data = this.values;
-    //     let data_dict = {};
-
-    //     for (let i = 0; i < s_data.length; i++) {
-    //         let val = s_data[i];
-
-    //         if (val in data_dict) {
-    //             data_dict[val] += 1;
-    //         } else {
-    //             data_dict[val] = 1;
-    //         }
-    //     }
-
-    //     let index = Object.keys(data_dict).map((x) => {
-    //         return parseInt(x) ? parseInt(x) : x;
-    //     });
-    //     let data = Object.values(data_dict);
-
-    //     let series = new Series(data, { index: index });
-    //     return series;
-
-    // }
-
-    // /**
-    //    * Returns the absolute values in Series
-    //    * @return {series}
-    //    */
-    // abs() {
-    //     let abs_data = this.row_data_tensor.abs().arraySync();
-    //     return new Series(utils.__round(abs_data, 2, true));
-    // }
-
-
-    // /**
-    //    * Returns the cumulative sum over a Series
-    //   * @return {Series}
-    //   */
-    // cumsum() {
-    //     let data = this.__cum_ops("sum");
-    //     return data;
-    // }
-
-    // /**
-    //    * Returns cumulative minimum over a Series
-    //    * @returns series
-    //    */
-    // cummin() {
-    //     let data = this.__cum_ops("min");
-    //     return data;
-    // }
-
-    // /**
-    //    * Returns cumulative maximum over a Series
-    //    * @returns series
-    //    */
-    // cummax() {
-    //     let data = this.__cum_ops("max");
-    //     return data;
-    // }
-
-    // /**
-    //    * Returns cumulative product over a Series
-    //    * @returns series
-    //    */
-    // cumprod() {
-    //     let data = this.__cum_ops("prod");
-    //     return data;
-    // }
-
-
-    // /**
-    //    * Returns Less than of series and other. Supports element wise operations
-    //    * @param {other} Series, Scalar
-    //    * @return {Series}
-    //    */
-    // lt(other) {
-    //     return this.__bool_ops(other, "lt");
-    // }
-
-    // /**
-    //    * Returns Greater than of series and other. Supports element wise operations
-    //    * @param {other} Series, Scalar
-    //    * @return {Series}
-    //    */
-    // gt(other) {
-    //     return this.__bool_ops(other, "gt");
-    // }
-
-    // /**
-    //    * Returns Less than or Equal to of series and other. Supports element wise operations
-    //    * @param {other} Series, Scalar
-    //    * @return {Series}
-    //    */
-    // le(other) {
-    //     return this.__bool_ops(other, "le");
-    // }
-
-    // /**
-    //    * Returns Greater than or Equal to of series and other. Supports element wise operations
-    //    * @param {other} Series, Scalar
-    //    * @return {Series}
-    //    */
-    // ge(other) {
-    //     return this.__bool_ops(other, "ge");
-    // }
-
-    // /**
-    //     * Returns Not Equal to of series and other. Supports element wise operations
-    //     * @param {other} Series, Scalar
-    //     * @return {Series}
-    //     */
-    // ne(other) {
-    //     return this.__bool_ops(other, "ne");
-    // }
-
-
-    // /**
-    //    * Returns Equal to of series and other. Supports element wise operations
-    //    * @param {other} Series, Scalar
-    //    * @return {Series}
-    //    */
-    // eq(other) {
-    //     return this.__bool_ops(other, "eq");
-    // }
-
-    // /**
-    //   * Replace all occurence of a value with a new value"
-    //   * @param {kwargs}, {"replace": the value you want to replace,
-    //   *                   "with": the new value you want to replace the olde value with,
-    //   *                   inplace: Perform operation inplace or not}
-    //   * @return {Series}
-    //   */
-    // replace(kwargs = {}) {
-    //     let paramsNeeded = ["replace", "with", "inplace"];
-    //     utils._throw_wrong_params_error(kwargs, paramsNeeded);
-
-    //     kwargs['inplace'] = kwargs['inplace'] || false;
-
-    //     if (!("replace" in kwargs)) {
-    //         throw Error("Params Error: Must specify param 'replace'");
-    //     }
-
-    //     if (!("with" in kwargs)) {
-    //         throw Error("Params Error: Must specify param 'with'");
-    //     }
-
-    //     let replaced_arr = [];
-    //     let old_arr = this.values;
-
-    //     old_arr.forEach((val) => {
-    //         if (val == kwargs['replace']) {
-    //             replaced_arr.push(kwargs['with']);
-    //         } else {
-    //             replaced_arr.push(val);
-    //         }
-    //     });
-
-    //     if (kwargs['inplace']) {
-    //         this.data = replaced_arr;
-    //     } else {
-    //         let sf = new Series(replaced_arr, {
-    //             index: this.index,
-    //             columns: this.columns,
-    //             dtypes: this.dtypes
-    //         });
-    //         return sf;
-    //     }
-
-    // }
-
-
-    // /**
-    //    * Return a new Series with missing values (NaN) removed.
-    //    * @param {kwargs} {inplace: Perform operation inplace or not}
-    //    * @return {Series}
-    //    */
-    // dropna(kwargs = {}) {
-    //     let paramsNeeded = ["inplace"];
-    //     utils._throw_wrong_params_error(kwargs, paramsNeeded);
-
-    //     kwargs['inplace'] = kwargs['inplace'] || false;
-
-    //     let old_values = this.values;
-    //     let old_index = this.index;
-    //     let newValues = [];
-    //     let new_index = [];
-    //     let isna_vals = this.isna().values;
-
-    //     isna_vals.forEach((val, i) => {
-    //         if (!val) {
-    //             newValues.push(old_values[i]);
-    //             new_index.push(old_index[i]);
-    //         }
-    //     });
-    //     if (kwargs['inplace']) {
-    //         this.index_arr = new_index;
-    //         this.data = newValues;
-    //     } else {
-    //         let sf = new Series(newValues, {
-    //             columns: this.column_names,
-    //             index: new_index,
-    //             dtypes: this.dtypes
-    //         });
-    //         return sf;
-    //     }
-
-    // }
-
-    // /**
-    //  * Return the integer indices that would sort the Series.
-    //  * @param {ascending} boolean true: will sort the Series in ascending order, false: will sort in descending order
-    //  * @return {Series}
-    //  */
-    // argsort(ascending = true) {
-    //     let sorted_index = this.sort_values({ ascending: ascending }).index;
-    //     let sf = new Series(sorted_index);
-    //     return sf;
-    // }
-
-    // /**
-    //    * Return int position of the largest value in the Series.
-    //    * @return {Number}
-    //    */
-    // argmax() {
-    //     return this.row_data_tensor.argMax().arraySync();
-    // }
-
-
-    // /**
-    //    * Return int position of the smallest value in the Series.
-    //    * @param {ascending} boolean true: will sort the Series in ascending order, false: will sort in descending order
-    //    * @return {Series}
-    //    */
-    // argmin() {
-    //     return this.row_data_tensor.argMin().arraySync();
+    //   * Returns Danfo Time Object that exposes different time properties
+    // */
+    // get dt() {
+    //     const timeseries = new TimeSeries({ data: this }); // parsed to date-time
+    //     timeseries.preprocessed();
+    //     return timeseries;
 
     // }
 

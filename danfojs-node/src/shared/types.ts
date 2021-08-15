@@ -9,11 +9,6 @@ export enum DTYPES {
     boolean,
     undefined
 }
-export enum KEEP {
-    first,
-    last
-}
-
 
 export type ArrayType2D = Array<
     number[]
@@ -122,62 +117,41 @@ export interface SeriesInterface extends NDframeInterface {
     var(): number
     isNa(): Series
     fillNa(value: number | string | boolean, options: { inplace: boolean }): Series | void
-    sortValues(ascending: number | string | boolean, options: { inplace: boolean }): Series | void
+    sortValues(ascending: boolean, options: { inplace: boolean }): Series | void
     copy(): Series
     describe(): Series
-    resetIndex(args: { inplace?: boolean }): Series
-    setIndex(args:
-        {
-            index: Array<number | string | (number | string)>,
-            inplace?: boolean
-        }
-    ): Series
-    map(callable:
-        object |
-        ((val: number | string | boolean) => number | string | boolean))
-        : Series
-    apply(callable: (val: number | string | boolean) => number | string | boolean)
-        : Series
+    resetIndex(options: { inplace: boolean }): Series | void
+    setIndex(index: Array<number | string | (number | string)>, options: { inplace: boolean }): Series | void
+    map(
+        callable: any,
+        options: { inplace: boolean })
+        : Series | void
+    apply(callable: any): Series | void
     unique(): Series
     nUnique(): number
     valueCounts(): Series
-    abs(): Series
-    cumSum(): Series
-    cumMin(): Series
-    cumMax(): Series
-    cumProd(): Series
+    abs(options: { inplace: boolean }): Series | void
+    cumSum(options: { inplace: boolean }): Series | void
+    cumMin(options: { inplace: boolean }): Series | void
+    cumMax(options: { inplace: boolean }): Series | void
+    cumProd(options: { inplace: boolean }): Series | void
     lt(other: Series | number): Series
     gt(other: Series | number): Series
     le(other: Series | number): Series
     ge(other: Series | number): Series
     ne(other: Series | number): Series
     eq(other: Series | number): Series
-    replace(args:
-        {
-            replace: number | string | boolean,
-            with: number | string | boolean,
-            inplace?: boolean
-        }
-    ): Series
-    dropNa(args: { inplace?: boolean }): Series
+    replace(oldValue: string | number | boolean, newValue: string | number | boolean, options: { inplace: boolean }): Series | void
+    dropNa(options: { inplace: boolean }): Series | void
     argSort(): Series
-    argMax(): Series
-    argMin(): Series
+    argMax(): number
+    argMin(): number
     get dtype(): string
-    dropDuplicates(args:
-        {
-            inplace: boolean,
-            keep?: KEEP
-        }): Series
-    asType(dtype: DTYPES): Series
+    dropDuplicates(keep: "first" | "last", options: { inplace: boolean }): Series | void
+    asType(dtype: "float32" | "int32" | "string" | "boolean" | "undefined", options: { inplace: boolean }): Series | void
     get str(): any //Change to STR class type later
     get dt(): any //Change to DT class type later
-    append(args:
-        {
-            value: Series | ArrayType1D | number | string | boolean
-            inplace?: boolean,
-        }): Series
-
+    append(newValues: Series | Array<number | string | boolean> | number | string | boolean, options: { inplace: boolean }): Series | void
     toString(): string;
 
 }

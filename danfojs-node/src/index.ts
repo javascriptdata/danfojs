@@ -13,7 +13,7 @@ import Series from "./core/series";
 // export { date_range } from "./core/date_range";
 // export { get_dummies } from "./core/get_dummies";
 // export { NDframe };
-// export { Str } from "./core/strings";
+export { Str } from "./core/strings";
 // export { tf };
 
 export { NDframe, Config, Utils, Series }

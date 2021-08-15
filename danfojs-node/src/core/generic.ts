@@ -71,23 +71,23 @@ export default class NDframe implements NDframeInterface {
         }
 
         if (data === undefined || (Array.isArray(data) && data.length === 0)) {
-            this.loadArray({ data: [], index: [], columnNames: [], dtypes: [] });
+            this.loadArrayIntoNdframe({ data: [], index: [], columnNames: [], dtypes: [] });
         } else if (utils.is1DArray(data)) {
-            this.loadArray({ data, index, columnNames, dtypes });
+            this.loadArrayIntoNdframe({ data, index, columnNames, dtypes });
         } else {
 
             if (utils.isObject((data)[0])) {
-                this.loadObject({ data, type: 1, index, columnNames, dtypes });
+                this.loadObjectIntoNdframe({ data, type: 1, index, columnNames, dtypes });
 
             } else if (utils.isObject(data)) {
-                this.loadObject({ data, type: 2, index, columnNames, dtypes });
+                this.loadObjectIntoNdframe({ data, type: 2, index, columnNames, dtypes });
 
             } else if (
                 Array.isArray((data)[0]) ||
                 utils.isNumber((data)[0]) ||
                 utils.isString((data)[0])
             ) {
-                this.loadArray({ data, index, columnNames, dtypes });
+                this.loadArrayIntoNdframe({ data, index, columnNames, dtypes });
             } else {
                 throw new Error("File format not supported!");
             }
@@ -170,7 +170,7 @@ export default class NDframe implements NDframeInterface {
      * @param data The array of data to load into NDFrame
      * 
     */
-    private loadArray({ data, index, columnNames, dtypes }: LoadArrayDataType): void {
+    private loadArrayIntoNdframe({ data, index, columnNames, dtypes }: LoadArrayDataType): void {
         this.$data = utils.replaceUndefinedWithNaN(data, this.$isSeries);
         if (!this.$config.isLowMemoryMode) {
             //In NOT low memory mode, we transpose the array and save in column format.
@@ -192,7 +192,7 @@ export default class NDframe implements NDframeInterface {
      * 
      * type 2 object are of the form {a: [1,2,3,4], b: [30,20, 30, 20}]}
     */
-    private loadObject({ data, type, index, columnNames, dtypes }: LoadObjectDataType): void {
+    private loadObjectIntoNdframe({ data, type, index, columnNames, dtypes }: LoadObjectDataType): void {
         if (type === 1 && Array.isArray(data)) {
             const _data = (data).map((item) => {
                 return Object.values(item);
@@ -206,7 +206,7 @@ export default class NDframe implements NDframeInterface {
                 _columnNames = Object.keys((data)[0]);
             }
 
-            this.loadArray({ data: _data, index, columnNames: _columnNames, dtypes });
+            this.loadArrayIntoNdframe({ data: _data, index, columnNames: _columnNames, dtypes });
 
         } else {
             const [_data, _colNames] = utils.getRowAndColValues(data);
@@ -217,7 +217,7 @@ export default class NDframe implements NDframeInterface {
             } else {
                 _columnNames = _colNames
             }
-            this.loadArray({ data: _data, index, columnNames: _columnNames, dtypes });
+            this.loadArrayIntoNdframe({ data: _data, index, columnNames: _columnNames, dtypes });
         }
     }
 
@@ -310,7 +310,7 @@ export default class NDframe implements NDframeInterface {
     }
 
     $resetIndex(): void {
-        this.$index = utils.range(0, this.shape[0])
+        this.$index = utils.range(0, this.shape[0] - 1)
     }
 
     get columnNames() {
@@ -358,9 +358,9 @@ export default class NDframe implements NDframeInterface {
         return this.$data;
     }
 
-    protected $setValues(values: ArrayType1D | ArrayType2D): void {
+    $setValues(values: ArrayType1D | ArrayType2D, checkLength: boolean = true): void {
         if (this.$isSeries) {
-            if (values.length != this.shape[0]) {
+            if (checkLength && values.length != this.shape[0]) {
                 ErrorThrower.throwRowLengthError(this, values.length)
             }
 
@@ -372,7 +372,7 @@ export default class NDframe implements NDframeInterface {
             }
 
         } else {
-            if (values.length != this.shape[0]) {
+            if (checkLength && values.length != this.shape[0]) {
                 ErrorThrower.throwRowLengthError(this, values.length)
             }
 
