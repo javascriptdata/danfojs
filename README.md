@@ -12,6 +12,7 @@
 ![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2FDanfoJs) 
 <span class="badge-patreon"><a href="https://www.patreon.com/bePatron?u=40496758" title="Donate to this project using Patreon"><img src="https://img.shields.io/badge/patreon-donate-yellow.svg" alt="Patreon donate button" /></a></span>
 
+> We are currently working on converting this code base to Typescript, as well as a bunch of internal optimizations. This will be released as the official stable version (v1.0), and will ship with lots of improvements. You can track the updates [here](https://github.com/opensource9ja/danfojs/pull/235)
 
 ## What is it?
 
