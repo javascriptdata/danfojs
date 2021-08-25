@@ -22,8 +22,8 @@ import Utils from "../../shared/utils"
 import ErrorThrower from "../../shared/errors"
 import { ArrayType1D, BaseDataOptionType, SeriesInterface } from "../../shared/types";
 import { DATA_TYPES } from '../../shared/defaults'
-import { performance } from 'perf_hooks';
 import { Str } from '../strings';
+import { TimeSeries } from '../datetime';
 
 const utils = new Utils();
 
@@ -44,7 +44,6 @@ const utils = new Utils();
  *  config: General configuration object for NDframe      
  *
  */
-/* @ts-ignore */ //COMMENT OUT WHEN METHODS HAVE BEEN IMPLEMENTED
 export default class Series extends NDframe implements SeriesInterface {
 
     constructor(data: any = [], options: BaseDataOptionType = {}) {
@@ -1178,18 +1177,18 @@ export default class Series extends NDframe implements SeriesInterface {
         } else {
             throw new Error("Cannot call accessor str on non-string type");
         }
-
     }
 
-    // /**
-    //   * Returns Danfo Time Object that exposes different time properties
-    // */
-    // get dt() {
-    //     const timeseries = new TimeSeries({ data: this }); // parsed to date-time
-    //     timeseries.preprocessed();
-    //     return timeseries;
-
-    // }
+    /**
+      * Returns time class that exposes different date time method
+    */
+    get dt() {
+        if (this.dtypes[0] == "string") {
+            return new TimeSeries(this);
+        } else {
+            throw new Error("Cannot call accessor dt on non-string type");
+        }
+    }
 
     /**
      * Prints NDframe to console as a grid of row and columns.

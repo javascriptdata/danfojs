@@ -33,7 +33,7 @@ export default class Configs {
         tableMaxColInConsole,
         dtypeTestLim,
         lowMemoryMode,
-        useTfjsMathFunctions
+        useTfjsMathFunctions,
     }: ConfigsType) {
         this.tableWidth = tableWidth || 17; //The width of each column printed in console
         this.tableTruncate = tableTruncate || 16; //The maximum number of string before text is truncated in console
