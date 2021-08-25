@@ -76,14 +76,14 @@ export default class NDframe implements NDframeInterface {
             this.loadArrayIntoNdframe({ data, index, columnNames, dtypes });
         } else {
 
-            if (utils.isObject((data)[0])) {
+            if (Array.isArray(data) && utils.isObject(data[0])) {
                 this.loadObjectIntoNdframe({ data, type: 1, index, columnNames, dtypes });
 
             } else if (utils.isObject(data)) {
                 this.loadObjectIntoNdframe({ data, type: 2, index, columnNames, dtypes });
 
             } else if (
-                Array.isArray((data)[0]) ||
+            Array.isArray((data)[0]) ||
                 utils.isNumber((data)[0]) ||
                 utils.isString((data)[0])
             ) {

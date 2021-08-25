@@ -35,7 +35,7 @@ describe("Series iloc", function () {
         let data = [1, 2, 34, 5, 6];
 
         let df = new Series(data);
-        assert.throws(function () { df.iloc([0, 8]); }, Error, "Invalid row parameter: row index 8 cannot be bigger than Series length 5");
+        assert.throws(function () { df.iloc([0, 8]); }, Error, "Invalid row parameter: Specified index 8 cannot be bigger than index length 5");
     });
 
     it("throw error for non-numeric row index", function () {
@@ -121,7 +121,7 @@ describe("Series iloc", function () {
         let data = [1, 2, 34, 5, 6];
         let df = new Series(data);
         /* @ts-ignore */
-        assert.throws(function () { df.iloc(["0:20"]); }, Error, `row slice [end] index cannot be less than 5`);
+        assert.throws(function () { df.iloc(["0:20"]); }, Error, `row slice [end] index cannot be bigger than 5`);
     });
 
     it(`throw error for wrong start index size ["-1:2"]`, function () {

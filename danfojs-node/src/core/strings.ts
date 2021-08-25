@@ -18,7 +18,7 @@ import Series from "./series";
 /**
  * Exposes numerous String methods. All methods are applied Element-wise
  */
-export class Str {
+export default class Str {
     private series: Series
     private values: ArrayType1D
 

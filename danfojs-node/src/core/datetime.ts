@@ -1,5 +1,5 @@
 import Series from "./series";
-import { ArrayType1D } from "@base/shared/types";
+import { ArrayType1D, DateTime } from "@base/shared/types";
 
 const MONTH_NAME = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const WEEK_NAME = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -8,7 +8,7 @@ const WEEK_NAME = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Frid
  * Format and handle all datetime operations on Series or Array of date strings
  * @param data Series or Array of date strings
  */
-export class TimeSeries {
+export default class TimeSeries implements DateTime{
     private $dateObjectArray: Array<Date>
 
     constructor(data: Series | ArrayType1D) {

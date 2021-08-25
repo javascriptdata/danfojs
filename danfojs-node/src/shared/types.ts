@@ -169,9 +169,9 @@ export interface DataFrameInterface extends NDframeInterface {
     loc(args:
         {
             rows?: Array<string | number>,
-            columns?: Array<string | number>
+            columns?: Array<string>
         }): DataFrame;
-    iloc(args:
+    iloc(options:
         {
             rows?: Array<string | number>,
             columns?: Array<string | number>
@@ -290,4 +290,15 @@ export interface DataFrameInterface extends NDframeInterface {
     ): DataFrame
     toString(): string;
 
+}
+
+export interface DateTime {
+    month(): Series
+    day(): Series
+    year(): Series
+    monthName(): Series
+    dayOfMonth(): Series
+    hours(): Series
+    seconds(): Series
+    minutes(): Series
 }

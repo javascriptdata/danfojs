@@ -15,7 +15,7 @@ describe("Series Functions", () => {
             const data = ["Boy", "Girl", "Man", "Woman", "Tall"];
             const cols = ["Items"];
             const sf = new Series(data, { columnNames: cols });
-            assert.throws(function () { assert.deepEqual(sf.head(10).values, data) }, Error, `row slice [end] index cannot be less than 5`);
+            assert.throws(function () { assert.deepEqual(sf.head(10).values, data) }, Error, `row slice [end] index cannot be bigger than 5`);
         });
 
         it("throw error when row specified is less than 0", function () {

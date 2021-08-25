@@ -18,7 +18,7 @@ import { table } from "table";
 import { _iloc } from "../iloc";
 import { _genericMathOp } from "../generic.math.ops";
 import Utils from "../../shared/utils"
-import { ArrayType1D, ArrayType2D, NdframeInputDataType, DataFrameInterface } from "../../shared/types";
+import { ArrayType1D, ArrayType2D, NdframeInputDataType, DataFrameInterface, BaseDataOptionType } from "../../shared/types";
 
 const utils = new Utils();
 
@@ -42,15 +42,16 @@ const utils = new Utils();
 /* @ts-ignore */ //COMMENT OUT WHEN METHODS HAVE BEEN IMPLEMENTED
 export default class DataFrame extends NDframe implements DataFrameInterface {
 
-    constructor(data: any, { index, columnNames, dtypes, config }: NdframeInputDataType) {
+    constructor(data: any, options: BaseDataOptionType = {}) {
+        const { index, columnNames, dtypes, config } = options;
         super({ data, index, columnNames, dtypes, config, isSeries: false });
     }
 
     /**
      * Purely integer-location based indexing for selection by position.
      * 
-     * @param rows An array of input. iloc is integer position based (from 0 to length-1 of the axis).
-     * 
+     * @param rows An array of input, or a string of slice. 
+     * @param columns An array of column names, or a string of slice range.
      * Allowed inputs are:
      * 
      *    An integer, e.g. 5.
@@ -60,9 +61,13 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      *    A slice object with ints, e.g. 1:7.
      * 
     */
-    // iloc({ rows }: { rows: Array<string | number> }) {
-    //     return _iloc({ ndFrame: this, rows })
-    // }
+    iloc({ rows, columns }: {
+        rows?: Array<string | number>,
+        columns?: Array<string | number>
+    }): DataFrame {
+        const result = _iloc({ ndFrame: this, rows, columns }) as DataFrame;
+        return result
+    }
 
     // /**
     //   * Returns the first n values in a DataFrame

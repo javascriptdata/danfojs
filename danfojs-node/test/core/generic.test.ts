@@ -98,6 +98,16 @@ describe("Generic (NDFrame)", function () {
             let ndframe = new NDframe({ data, isSeries: false });
             assert.deepEqual(ndframe.values, [["A", NaN], [NaN, 2]]);
         });
+        it("NDframe created from plain object works", function () {
+            const data = {
+                "Name": ["Apples", "Mango", "Banana", "Pear"],
+                "Count": [21, 5, 30, 10],
+                "Price": [200, 300, 40, 250]
+            };
+            const ndframe = new NDframe({data, isSeries: false});
+            assert.deepEqual(ndframe["Name"], ["Apples", "Mango", "Banana", "Pear"]);
+
+        });
     });
 
     describe("NDframe column data", function () {

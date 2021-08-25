@@ -22,8 +22,8 @@ import Utils from "../../shared/utils"
 import ErrorThrower from "../../shared/errors"
 import { ArrayType1D, BaseDataOptionType, SeriesInterface } from "../../shared/types";
 import { DATA_TYPES } from '../../shared/defaults'
-import { Str } from '../strings';
-import { TimeSeries } from '../datetime';
+import Str from '../strings';
+import Dt from '../datetime';
 
 const utils = new Utils();
 
@@ -85,7 +85,7 @@ export default class Series extends NDframe implements SeriesInterface {
      * 
     */
     iloc(rows: Array<string | number>) {
-        return _iloc({ ndFrame: this, rows })
+        return _iloc({ ndFrame: this, rows }) as Series
     }
 
     /**
@@ -1184,7 +1184,7 @@ export default class Series extends NDframe implements SeriesInterface {
     */
     get dt() {
         if (this.dtypes[0] == "string") {
-            return new TimeSeries(this);
+            return new Dt(this);
         } else {
             throw new Error("Cannot call accessor dt on non-string type");
         }
