@@ -1,6 +1,6 @@
 {
   "name": "danfojs",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
   "main": "lib/bundle.js",
   "types": "types/index.d.ts",

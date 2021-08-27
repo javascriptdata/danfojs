@@ -17,4 +17,4 @@ export { Str } from "./core/strings";
 export { Utils } from "./core/utils";
 export { tf };
 
-export const _version = "0.2.7";
+export const _version = "0.2.8";

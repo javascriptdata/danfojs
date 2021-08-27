@@ -1770,6 +1770,8 @@ class DataFrame extends _generic.default {
     });
     col_vals.forEach((col, i) => {
       Object.defineProperty(self, col_names[i], {
+        configurable: true,
+
         get() {
           return new _series.Series(col, {
             columns: col_names[i],
