@@ -25,7 +25,7 @@ import {
     LoadObjectDataType,
     AxisType,
     ArrayType1D,
-    ArrayType2D
+    ArrayType2D,
 } from '../shared/types'
 import ErrorThrower from '../shared/errors';
 
@@ -50,12 +50,12 @@ const utils = new Utils();
  * @returns NDframe
  */
 export default class NDframe implements NDframeInterface {
-    private $isSeries: boolean;
-    private $data: any
-    private $dataIncolumnFormat: ArrayType1D | ArrayType2D = []
-    private $index: Array<string | number> = []
-    private $columnNames: string[] = []
-    private $dtypes: Array<string> = []
+    protected $isSeries: boolean;
+    protected $data: any
+    protected $dataIncolumnFormat: ArrayType1D | ArrayType2D = []
+    protected $index: Array<string | number> = []
+    protected $columnNames: string[] = []
+    protected $dtypes: Array<string> = []
     protected $config: Configs
 
     constructor({ data, index, columnNames, dtypes, config, isSeries }: NdframeInputDataType) {
@@ -83,7 +83,7 @@ export default class NDframe implements NDframeInterface {
                 this.loadObjectIntoNdframe({ data, type: 2, index, columnNames, dtypes });
 
             } else if (
-            Array.isArray((data)[0]) ||
+                Array.isArray((data)[0]) ||
                 utils.isNumber((data)[0]) ||
                 utils.isString((data)[0])
             ) {
@@ -92,77 +92,6 @@ export default class NDframe implements NDframeInterface {
                 throw new Error("File format not supported!");
             }
         }
-    }
-
-    private $setInternalColumnDataProperty() {
-        const self = this;
-        const columnNames = this.$columnNames;
-        for (let i = 0; i < columnNames.length; i++) {
-            const columnName = columnNames[i];
-            Object.defineProperty(self, columnName, {
-                get() {
-                    return self.$getColumnData(columnName)
-
-                },
-                set(arr: ArrayType1D | ArrayType2D) {
-                    self.$setColumnData(columnName, arr);
-                }
-            })
-        }
-
-    }
-
-    private $getColumnData(columnName: string) {
-        const columnIndex = this.$columnNames.indexOf(columnName)
-
-        if (columnIndex == -1) {
-            ErrorThrower.throwColumnNotFoundError(this)
-        }
-
-        if (this.$config.isLowMemoryMode) {
-            //generate the data dynamically> Runs in O(n), where n is length of rows
-            const columnData = []
-            for (let i = 0; i < this.$data.length; i++) {
-                const row: any = this.$data[i];
-                columnData.push(row[columnIndex])
-            }
-            return columnData
-        } else {
-            //get data from saved column data. Runs in O(1)
-            return this.$dataIncolumnFormat[columnIndex]
-        }
-
-    }
-
-    private $setColumnData(columnName: string, arr: ArrayType1D | ArrayType2D): void {
-        const columnIndex = this.$columnNames.indexOf(columnName)
-        if (columnIndex == -1) {
-            ErrorThrower.throwColumnNotFoundError(this)
-        }
-
-        if (!(arr.length !== this.shape[1])) {
-            ErrorThrower.throwColumnLengthError(this, this.shape[1])
-        }
-
-        if (this.$config.isLowMemoryMode) {
-            //Update row ($data) array
-            for (let i = 0; i < this.$data.length; i++) {
-                (this.$data as any)[i][columnIndex] = arr[i]
-            }
-            //Update the dtypes
-            this.$dtypes[columnIndex] = utils.inferDtype(arr)[0]
-        } else {
-            //Update row ($data) array
-            for (let i = 0; i < this.$data.length; i++) {
-                (this.$data as any)[i][columnIndex] = arr[i]
-            }
-            //Update column ($dataIncolumnFormat) array since it's available in object
-            (this.$dataIncolumnFormat as any)[columnIndex] = arr
-
-            //Update the dtypes
-            this.$dtypes[columnIndex] = utils.inferDtype(arr)[0]
-        }
-
     }
 
     /**
@@ -178,9 +107,10 @@ export default class NDframe implements NDframeInterface {
             this.$dataIncolumnFormat = utils.transposeArray(data)
         }
         this.$setIndex(index);
-        this.$setColumnNames(columnNames);
         this.$setDtypes(dtypes);
-        this.$setInternalColumnDataProperty()
+        this.$setColumnNames(columnNames);
+
+        // this.$setInternalColumnDataProperty()
     }
 
     /**
@@ -313,7 +243,7 @@ export default class NDframe implements NDframeInterface {
         this.$index = utils.range(0, this.shape[0] - 1)
     }
 
-    get columnNames() {
+    get columnNames(): string[] {
         return this.$columnNames
     }
 

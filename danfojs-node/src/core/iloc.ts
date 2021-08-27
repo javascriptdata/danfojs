@@ -15,9 +15,8 @@
 
 import Series from "./series";
 import Utils from "../shared/utils"
-import NDframe from "./generic";
 import DataFrame from "./frame";
-import { ArrayType1D } from "@base/shared/types";
+import { NDframeInterface } from "@base/shared/types";
 
 const utils = new Utils();
 
@@ -26,8 +25,8 @@ const utils = new Utils();
    * @param Object 
 */
 export function _iloc({ ndFrame, rows, columns }: {
-    ndFrame: NDframe
-    rows?: Array<string | number>
+    ndFrame: NDframeInterface
+    rows?: Array<string | number> | Series
     columns?: Array<string | number>
 }): Series | DataFrame {
 
@@ -37,8 +36,9 @@ export function _iloc({ ndFrame, rows, columns }: {
     const _data = ndFrame.values;
     const _index = ndFrame.index;
 
-    console.log(rows);
-    console.log(columns);
+    if (rows instanceof Series) {
+        rows = rows.values as Array<string | number>
+    }
 
     if (rows !== undefined && !Array.isArray(rows)) {
         throw new Error(`rows parameter must be an Array. For example: rows: [1,2] or rows: ["0:10"]`)
@@ -77,20 +77,27 @@ export function _iloc({ ndFrame, rows, columns }: {
         }
         _rowIndexes = utils.range(start, end - 1)
     } else {
-
+        const _formatedRows = []
         for (let i = 0; i < rows.length; i++) {
-            const element = rows[i];
-            if (element > ndFrame.shape[0]) {
-                throw new Error(`Invalid row parameter: Specified index ${element} cannot be bigger than index length ${ndFrame.shape[0]}`);
+            let _indexToUse = rows[i];
+            if (_indexToUse > ndFrame.shape[0]) {
+                throw new Error(`Invalid row parameter: Specified index ${_indexToUse} cannot be bigger than index length ${ndFrame.shape[0]}`);
             }
 
-            if (typeof element != "number") {
-                throw new Error(`Invalid row parameter: row index ${element} must be a number`);
+            if (typeof _indexToUse !== "number" && typeof _indexToUse !== "boolean") {
+                throw new Error(`Invalid row parameter: row index ${_indexToUse} must be a number or boolean`);
             }
 
+            if (typeof _indexToUse === "boolean" && _indexToUse === true) {
+                _formatedRows.push(_index[i])
+            }
+
+            if (typeof _indexToUse === "number") {
+                _formatedRows.push(_indexToUse)
+            }
         }
 
-        _rowIndexes = rows as number[]
+        _rowIndexes = _formatedRows as number[]
     }
 
     if (!columns) {
@@ -124,13 +131,13 @@ export function _iloc({ ndFrame, rows, columns }: {
     } else {
 
         for (let i = 0; i < columns.length; i++) {
-            const element = columns[i];
-            if (element > ndFrame.shape[1]) {
-                throw new Error(`Invalid column parameter: Specified index ${element} cannot be bigger than index length ${ndFrame.shape[1]}`);
+            const _indexToUse = columns[i];
+            if (_indexToUse > ndFrame.shape[1]) {
+                throw new Error(`Invalid column parameter: Specified index ${_indexToUse} cannot be bigger than index length ${ndFrame.shape[1]}`);
             }
 
-            if (typeof element != "number") {
-                throw new Error(`Invalid column parameter: column index ${element} must be a number`);
+            if (typeof _indexToUse != "number") {
+                throw new Error(`Invalid column parameter: column index ${_indexToUse} must be a number`);
             }
 
         }
@@ -160,7 +167,7 @@ export function _iloc({ ndFrame, rows, columns }: {
     } else {
         const newData = []
         const newIndex = []
-        const newColumnNames = []
+        const newColumnNames: string[] = []
         const newDtypes = []
 
         for (let i = 0; i < _rowIndexes.length; i++) {

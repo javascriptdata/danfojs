@@ -19,6 +19,8 @@ import { _iloc } from "../iloc";
 import { _genericMathOp } from "../generic.math.ops";
 import Utils from "../../shared/utils"
 import { ArrayType1D, ArrayType2D, NdframeInputDataType, DataFrameInterface, BaseDataOptionType } from "../../shared/types";
+import Series from '../series';
+import ErrorThrower from '../../shared/errors';
 
 const utils = new Utils();
 
@@ -45,6 +47,92 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     constructor(data: any, options: BaseDataOptionType = {}) {
         const { index, columnNames, dtypes, config } = options;
         super({ data, index, columnNames, dtypes, config, isSeries: false });
+        this.$setInternalColumnDataProperty();
+    }
+
+    private $setInternalColumnDataProperty() {
+        const self = this;
+        const columnNames = this.columnNames;
+        for (let i = 0; i < columnNames.length; i++) {
+            const columnName = columnNames[i];
+            Object.defineProperty(this, columnName, {
+                get() {
+                    return self.$getColumnData(columnName)
+                },
+                set(arr: ArrayType1D | ArrayType2D) {
+                    self.$setColumnData(columnName, arr);
+                }
+            })
+        }
+
+    }
+
+    private $getColumnData(columnName: string) {
+        const columnIndex = this.columnNames.indexOf(columnName)
+
+        if (columnIndex == -1) {
+            ErrorThrower.throwColumnNotFoundError(this)
+        }
+
+        const dtypes = [this.$dtypes[columnIndex]]
+        const index = this.$index
+        const columnNames = [columnName]
+        const config = this.$config
+
+        if (this.$config.isLowMemoryMode) {
+            const data = []
+            for (let i = 0; i < this.values.length; i++) {
+                const row: any = this.values[i];
+                data.push(row[columnIndex])
+            }
+            return new Series(data, {
+                dtypes,
+                index,
+                columnNames,
+                config
+            })
+        } else {
+            const data = this.$dataIncolumnFormat[columnIndex]
+            return new Series(data, {
+                dtypes,
+                index,
+                columnNames,
+                config
+            })
+        }
+
+    }
+
+    private $setColumnData(columnName: string, arr: ArrayType1D | ArrayType2D): void {
+
+        const columnIndex = this.$columnNames.indexOf(columnName)
+        if (columnIndex == -1) {
+            ErrorThrower.throwColumnNotFoundError(this)
+        }
+
+        if (!(arr.length !== this.shape[1])) {
+            ErrorThrower.throwColumnLengthError(this, this.shape[1])
+        }
+
+        if (this.$config.isLowMemoryMode) {
+            //Update row ($data) array
+            for (let i = 0; i < this.$data.length; i++) {
+                (this.$data as any)[i][columnIndex] = arr[i]
+            }
+            //Update the dtypes
+            this.$dtypes[columnIndex] = utils.inferDtype(arr)[0]
+        } else {
+            //Update row ($data) array
+            for (let i = 0; i < this.values.length; i++) {
+                (this.$data as any)[i][columnIndex] = arr[i]
+            }
+            //Update column ($dataIncolumnFormat) array since it's available in object
+            (this.$dataIncolumnFormat as any)[columnIndex] = arr
+
+            //Update the dtypes
+            this.$dtypes[columnIndex] = utils.inferDtype(arr)[0]
+        }
+
     }
 
     /**
@@ -62,11 +150,11 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * 
     */
     iloc({ rows, columns }: {
-        rows?: Array<string | number>,
+        rows?: Array<string | number> | Series,
         columns?: Array<string | number>
     }): DataFrame {
-        const result = _iloc({ ndFrame: this, rows, columns }) as DataFrame;
-        return result
+        const df = _iloc({ ndFrame: this, rows, columns }) as DataFrame;
+        return df
     }
 
     // /**

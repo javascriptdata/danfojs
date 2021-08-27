@@ -29,7 +29,7 @@ export type ConfigsType = {
     tableMaxRow?: number;
     tableMaxColInConsole?: number;
     dtypeTestLim?: number;
-    lowMemoryMode: boolean
+    lowMemoryMode?: boolean
     useTfjsMathFunctions?: boolean
 }
 //End of Config class types
@@ -72,15 +72,17 @@ export type AxisType = {
 }
 
 export interface NDframeInterface {
+    config: ConfigsType;
     $setDtypes(dtypes: Array<string>, infer: boolean): void;
     $setIndex(index: Array<string | number>): void;
     $resetIndex(): void;
     $setColumnNames(columnNames: string[]): void
+
     get dtypes(): Array<string>;
     get ndim(): number;
     get axis(): AxisType;
     get index(): Array<string | number>;
-    get columnNames(): string[] | number[]
+    get columnNames(): string[]
     get shape(): Array<number>;
     get values(): ArrayType1D | ArrayType2D
     get tensor(): Tensor;

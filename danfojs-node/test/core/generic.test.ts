@@ -98,101 +98,14 @@ describe("Generic (NDFrame)", function () {
             let ndframe = new NDframe({ data, isSeries: false });
             assert.deepEqual(ndframe.values, [["A", NaN], [NaN, 2]]);
         });
-        it("NDframe created from plain object works", function () {
-            const data = {
-                "Name": ["Apples", "Mango", "Banana", "Pear"],
-                "Count": [21, 5, 30, 10],
-                "Price": [200, 300, 40, 250]
-            };
-            const ndframe = new NDframe({data, isSeries: false});
-            assert.deepEqual(ndframe["Name"], ["Apples", "Mango", "Banana", "Pear"]);
-
-        });
     });
-
-    describe("NDframe column data", function () {
-        it("retrieves the col data created from an Ndframe with two columns", function () {
-            let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4] };
-            let ndframe = new NDframe({ data, isSeries: false });
-            assert.deepEqual(ndframe["alpha"], ["A", "B", "C", "D"]);
-            assert.deepEqual(ndframe["count"], [1, 2, 3, 4]);
-        });
-        it("retrieves the column data from an ndframe with threee columns", function () {
-            let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
-            let ndframe = new NDframe({ data, isSeries: false });
-            assert.deepEqual(ndframe["alpha"], ["A", "B", "C", "D"]);
-            assert.deepEqual(ndframe["count"], [1, 2, 3, 4]);
-            assert.deepEqual(ndframe["sum"], [20.3, 30.456, 40.90, 90.1]);
-        });
-
-        it("Set column count by subseting", function () {
-            let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
-            let ndframe = new NDframe({ data, isSeries: false });
-            ndframe["alpha"] = ["E", "F", "G", "H"]
-            assert.deepEqual(ndframe["alpha"], ["E", "F", "G", "H"]);
-            assert.deepEqual(ndframe.values[0], ['E', 1, 20.3]);
-            assert.deepEqual(ndframe.dtypes, ["string", "int32", "float32",]);
-            assert.deepEqual(ndframe["count"], [1, 2, 3, 4]);
-            assert.deepEqual(ndframe["sum"], [20.3, 30.456, 40.90, 90.1]);
-        });
-
-        it("Correct dtype is set after setting a column by subseting", function () {
-            let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
-            let ndframe = new NDframe({ data, isSeries: false });
-            ndframe["alpha"] = [2.4, 5.6, 32.5, 1]
-            assert.deepEqual(ndframe["alpha"], [2.4, 5.6, 32.5, 1]);
-            assert.deepEqual(ndframe.values[0], [2.4, 1, 20.3]);
-            assert.deepEqual(ndframe.values[1], [5.6, 2, 30.456]);
-            assert.deepEqual(ndframe.values[2], [32.5, 3, 40.90]);
-            assert.deepEqual(ndframe.values[3], [1, 4, 90.1]);
-            assert.deepEqual(ndframe.dtypes, ["float32", "int32", "float32",]);
-        });
-
-        it("retrieves the col data created from an Ndframe with two columns in low memory mode", function () {
-            let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4] };
-            let ndframe = new NDframe({ data, config: { lowMemoryMode: true }, isSeries: false });
-            assert.deepEqual(ndframe["alpha"], ["A", "B", "C", "D"]);
-            assert.deepEqual(ndframe["count"], [1, 2, 3, 4]);
-        });
-        it("retrieves the column data from an ndframe with threee columns in low memory mode", function () {
-            let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
-            let ndframe = new NDframe({ data, config: { lowMemoryMode: true }, isSeries: false });
-            assert.deepEqual(ndframe["alpha"], ["A", "B", "C", "D"]);
-            assert.deepEqual(ndframe["count"], [1, 2, 3, 4]);
-            assert.deepEqual(ndframe["sum"], [20.3, 30.456, 40.90, 90.1]);
-        });
-
-        it("Set column count by subseting (low memory mode) ", function () {
-            let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
-            let ndframe = new NDframe({ data, config: { lowMemoryMode: true }, isSeries: false });
-            ndframe["alpha"] = ["E", "F", "G", "H"]
-            assert.deepEqual(ndframe["alpha"], ["E", "F", "G", "H"]);
-            assert.deepEqual(ndframe.values[0], ['E', 1, 20.3]);
-            assert.deepEqual(ndframe.dtypes, ["string", "int32", "float32",]);
-            assert.deepEqual(ndframe["count"], [1, 2, 3, 4]);
-            assert.deepEqual(ndframe["sum"], [20.3, 30.456, 40.90, 90.1]);
-        });
-
-        it("Correct dtype is set after setting a column by subseting (low memory mode) ", function () {
-            let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
-            let ndframe = new NDframe({ data, config: { lowMemoryMode: true }, isSeries: false });
-            ndframe["alpha"] = [2.4, 5.6, 32.5, 1]
-            assert.deepEqual(ndframe["alpha"], [2.4, 5.6, 32.5, 1]);
-            assert.deepEqual(ndframe.values[0], [2.4, 1, 20.3]);
-            assert.deepEqual(ndframe.values[1], [5.6, 2, 30.456]);
-            assert.deepEqual(ndframe.values[2], [32.5, 3, 40.90]);
-            assert.deepEqual(ndframe.values[3], [1, 4, 90.1]);
-            assert.deepEqual(ndframe.dtypes, ["float32", "int32", "float32",]);
-        });
-    })
 
     describe("Replacing row data", function () {
         it("retrieves the col data after row data is replaced in a DataFrame", function () {
             let data = { alpha: ["A", "B"], count: [1, 2] };
             let ndframe = new NDframe({ data, isSeries: false });
             ndframe.$setValues([["A", 20], ["D", 211]])
-            assert.deepEqual(ndframe["alpha"], ["A", "D"]);
-            assert.deepEqual(ndframe["count"], [20, 211]);
+            assert.deepEqual(ndframe.values, [["A", 20], ["D", 211]]);
 
         });
         it("Correct dtypes is inferred after row data is replaced in a DataFrame", function () {

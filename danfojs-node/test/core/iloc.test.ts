@@ -1,7 +1,7 @@
 import { assert } from "chai";
-import { Series } from "../../build";
+import { DataFrame, Series } from "../../build";
 
-describe("Series iloc", function () {
+describe("iloc", function () {
 
     it("throw error for wrong row index value", function () {
         let data = [1, 2, 34, 5, 6];
@@ -141,4 +141,72 @@ describe("Series iloc", function () {
 
     });
 
+    it("iloc works for boolean array", function () {
+        let data = [1, 2, 34, 5, 620];
+        let df = new Series(data);
+
+        let sf = df.iloc([true, true, false, true, false]);
+        let expected = [1, 2, 5];
+        assert.deepEqual(sf.values, expected);
+
+    });
+
+    it("iloc works for boolean array (all true)", function () {
+        let data = [1, 2, 34, 5, 620];
+        let df = new Series(data);
+
+        let sf = df.iloc([true, true, true, true, true]);
+        let expected = [1, 2, 34, 5, 620];
+        assert.deepEqual(sf.values, expected);
+
+    });
+    it("iloc works for boolean array (all false)", function () {
+        let data = [1, 2, 34, 5, 620];
+        let df = new Series(data);
+
+        let sf = df.iloc([false, false, false, false, false]);
+        let expected: any = [];
+        assert.deepEqual(sf.values, expected);
+
+    });
+
+    it("boolean iloc works for DataFrame", function () {
+        const data = {
+            "Name": ["Apples", "Mango", "Banana", "Pear"],
+            "Count": [21, 5, 30, 10],
+            "Price": [200, 300, 40, 250]
+        };
+        const df = new DataFrame(data);
+        const subDf = df.iloc({ rows: [false, false, false, true] });
+        const result = [['Pear', 10, 250]];
+        assert.deepEqual(subDf.values, result);
+
+    });
+
+
+    it("boolean iloc works for DataFrame with specified columns", function () {
+        const data = {
+            "Name": ["Apples", "Mango", "Banana", "Pear"],
+            "Count": [21, 5, 30, 10],
+            "Price": [200, 300, 40, 250]
+        };
+        const df = new DataFrame(data);
+        const subDf = df.iloc({ rows: [false, false, false, true], columns: [0, 2] });
+        const result = [['Pear', 250]];
+        assert.deepEqual(subDf.values, result);
+
+    });
+
+    it("boolean iloc works for DataFrame with Series bool selector", function () {
+        const data = {
+            "Name": ["Apples", "Mango", "Banana", "Pear"],
+            "Count": [21, 5, 30, 10],
+            "Price": [200, 300, 40, 250]
+        };
+        const df = new DataFrame(data);
+        const subDf = df.iloc({ rows: df["Count"].gt(10), columns: [0, 2] });
+        const result = [['Apples', 200], ['Banana', 40]]
+        assert.deepEqual(subDf.values, result);
+
+    });
 });

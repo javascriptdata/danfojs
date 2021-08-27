@@ -1,3 +1,4 @@
+import DataFrame from "@base/core/frame"
 import NDframe from "../core/generic"
 import { DATA_TYPES } from "./defaults"
 
@@ -26,7 +27,7 @@ class ErrorThrower {
         throw new Error(msg)
     }
 
-    throwColumnLengthError = (ndframe: NDframe, arrLen: number): void => {
+    throwColumnLengthError = (ndframe: NDframe | DataFrame, arrLen: number): void => {
         const msg = `Column data length mismatch. You provided data with length ${arrLen} but Ndframe has column of lenght ${ndframe.shape[1]}`
         throw new Error(msg)
     }
@@ -36,7 +37,7 @@ class ErrorThrower {
         throw new Error(msg)
     }
 
-    throwColumnNotFoundError = (ndframe: NDframe): void => {
+    throwColumnNotFoundError = (ndframe: DataFrame | NDframe): void => {
         const msg = `Column not found!. Column name must be one of ${ndframe.columnNames}`
         throw new Error(msg)
     }
