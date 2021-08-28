@@ -27,8 +27,8 @@
     "table": "6.7.1"
   },
   "scripts": {
-    "test": "nyc mocha --require ts-node/register test/**/**/*",
-    "test:clean": "yarn build:clean && nyc mocha --require ts-node/register test/**/**/*",
+    "test": "nyc mocha --require ts-node/register test/frame/frame.test.ts",
+    "test:clean": "yarn build:clean && nyc mocha --require ts-node/register test/frame/frame.test.ts",
     "dev": "nodemon",
     "build": "tsc",
     "build:clean": "rimraf ./build && tsc",

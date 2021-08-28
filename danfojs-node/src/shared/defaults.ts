@@ -17,13 +17,12 @@
  * Default config object
  */
 export const BASE_CONFIG = {
-    tableWidth: 17,
-    tableTruncate: 16,
     tableMaxRow: 10,
     tableMaxColInConsole: 21,
     dtypeTestLim: 7,
     lowMemoryMode: false,
     useTfjsMathFunctions: false
 }
+
 
 export const DATA_TYPES = ["float32", "int32", "string", "boolean", 'undefined'];

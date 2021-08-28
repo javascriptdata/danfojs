@@ -1,6 +1,7 @@
 import DataFrame from '@base/core/frame';
 import { Tensor } from '@tensorflow/tfjs-node';
 import Series from '../core/series';
+import { BaseUserConfig } from "table"
 
 export enum DTYPES {
     float32,
@@ -23,11 +24,11 @@ export type ArrayType1D = Array<
     | (number | string | boolean)>
 
 //Start of Config class types
+
 export type ConfigsType = {
-    tableWidth?: number;
-    tableTruncate?: number;
-    tableMaxRow?: number;
-    tableMaxColInConsole?: number;
+    tableDisplayConfig?: BaseUserConfig
+    tableMaxRow: number;
+    tableMaxColInConsole: number;
     dtypeTestLim?: number;
     lowMemoryMode?: boolean
     useTfjsMathFunctions?: boolean

@@ -1242,7 +1242,7 @@ export default class Series extends NDframe implements SeriesInterface {
     }
 
     /**
-     * Prints NDframe to console as a grid of row and columns.
+     * Prints Series to console as a grid of row and columns.
     */
     toString(): string {
         const maxRow = this.$config.getMaxRow;

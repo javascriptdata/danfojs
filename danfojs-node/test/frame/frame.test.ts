@@ -608,6 +608,78 @@ describe("DataFrame", function () {
 
     });
 
+    describe("toString", function () {
+        it("Prints a DataFrame to console", function () {
+            const data = {
+                "Name": ["Apples", "Mango", "Banana", "Pear"],
+                "Count": [21, 5, 30, 10],
+                "Price": [200, 300, 40, 250]
+            };
+            const df = new DataFrame(data);
+            df.print()
+        })
+        it("User config works when printing a DataFrame to console", function () {
+            const data = {
+                "Name": ["Apples", "Mango", "Banana", "Pear"],
+                "Count": [21, 5, 30, 10],
+                "Price": [200, 300, 40, 250]
+            };
+            const df = new DataFrame(data, {
+                config: {
+                    tableDisplayConfig: {
+                        header: {
+                            alignment: 'center',
+                            content: 'THE HEADER\nThis is the table about something',
+                        },
+                    },
+                }
+            });
+            df.print()
+        })
+        it("Long columns are properly truncated before printing", function () {
+            const data = {
+                "Name": ["Apples", "Mango", "Banana", "Pear"],
+                "Count": [21, 5, 30, 10],
+                "Price": [200, 300, 40, 250],
+                "Name2": ["Apples", "Mango", "Banana", "Pear"],
+                "Count2": [21, 5, 30, 10],
+                "Price2": [200, 300, 40, 250],
+                "Name3": ["Apples", "Mango", "Banana", "Pear"],
+                "Count3": [21, 5, 30, 10],
+                "Price3": [200, 300, 40, 250],
+                "Name4": ["Apples", "Mango", "Banana", "Pear"],
+                "Count4": [21, 5, 30, 10],
+                "Price4": [200, 300, 40, 250],
+                "Name5": ["Apples", "Mango", "Banana", "Pear"],
+                "Count5": [21, 5, 30, 10],
+                "Price6": [200, 300, 40, 250],
+                "Name7": ["Apples", "Mango", "Banana", "Pear"],
+                "Count7": [21, 5, 30, 10],
+                "Price7": [200, 300, 40, 250],
+                "Name8": ["Apples", "Mango", "Banana", "Pear"],
+                "Count8": [21, 5, 30, 10],
+                "Price8": [200, 300, 40, 250],
+                "Name9": ["Apples", "Mango", "Banana", "Pear"],
+                "Count9": [21, 5, 30, 10],
+                "Price9": [200, 300, 40, 250],
+                "Name10": ["Apples", "Mango", "Banana", "Pear"],
+                "Count10": [21, 5, 30, 10],
+                "Price10": [200, 300, 40, 250]
+            };
+            const df = new DataFrame(data);
+            df.print()
+        })
+
+        it("Long rows are automatically truncated", function () {
+            const data = {
+                "Name": ["Apples", "Mango", "Banana", "Pear", "Apples", "Mango", "Banana", "Pear", "Apples", "Mango", "Banana", "Pear"],
+                "Count": [21, 5, 30, 10, 21, 5, 30, 10, 21, 5, 30, 10],
+                "Price": [200, 300, 40, 250, 200, 300, 40, 250, 200, 300, 40, 250]
+            };
+            const df = new DataFrame(data);
+            df.print()
+        })
+    })
 
     //     describe("add", function () {
     //         it("Return Addition of DataFrame with a single Number", function () {

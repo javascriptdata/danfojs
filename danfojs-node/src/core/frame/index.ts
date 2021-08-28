@@ -187,6 +187,98 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         return _loc({ ndFrame: this, rows, columns }) as DataFrame
     }
 
+    /**
+     * Prints DataFrame to console as a grid of row and columns.
+    */
+    toString(): string {
+        const maxRow = this.config.getMaxRow;
+        const maxColToDisplayInConsole = this.config.getTableMaxColInConsole;
+
+        // let data;
+        const dataArr: ArrayType2D = [];
+        const colLen = this.columnNames.length;
+
+        let header = [];
+
+        if (colLen > maxColToDisplayInConsole) {
+            //truncate displayed columns to fit in the console
+            let firstFourcolNames = this.columnNames.slice(0, 4);
+            let lastThreecolNames = this.columnNames.slice(colLen - 4);
+            //join columns with truncate ellipse in the middle
+            header = ["", ...firstFourcolNames, "...", ...lastThreecolNames];
+
+            let subIdx: Array<number | string>
+            let firstHalfValues: ArrayType2D
+            let lastHalfValueS: ArrayType2D
+
+            if (this.values.length > maxRow) {
+                //slice Object to show [max_rows]
+                let dfSubset1 = this.iloc({
+                    rows: [`0:${maxRow}`],
+                    columns: ["0:4"]
+                });
+
+                let dfSubset2 = this.iloc({
+                    rows: [`0:${maxRow}`],
+                    columns: [`${colLen - 4}:`]
+                });
+
+                subIdx = this.index.slice(0, maxRow);
+                firstHalfValues = dfSubset1.values as ArrayType2D
+                lastHalfValueS = dfSubset2.values as ArrayType2D
+
+            } else {
+                let dfSubset1 = this.iloc({ columns: ["0:4"] });
+                let dfSubset2 = this.iloc({ columns: [`${colLen - 4}:`] });
+
+                subIdx = this.index.slice(0, maxRow);
+                firstHalfValues = dfSubset1.values as ArrayType2D
+                lastHalfValueS = dfSubset2.values as ArrayType2D
+            }
+
+            // merge subset 
+            for (let i = 0; i < subIdx.length; i++) {
+                const idx = subIdx[i];
+                const row = [idx, ...firstHalfValues[i], "...", ...lastHalfValueS[i]]
+                dataArr.push(row);
+            }
+
+        } else {
+            //display all columns
+            header = ["", ...this.columnNames]
+            let subIdx
+            let values: ArrayType2D
+            if (this.values.length > maxRow) {
+                //slice Object to show a max of [max_rows]
+                let data = this.iloc({ rows: [`0:${maxRow}`] });
+                subIdx = data.index;
+                values = data.values as ArrayType2D
+            } else {
+                values = this.values as ArrayType2D
+                subIdx = this.index;
+            }
+
+            // merge subset 
+            for (let i = 0; i < subIdx.length; i++) {
+                const idx = subIdx[i];
+                const row = [idx, ...values[i]];
+                dataArr.push(row);
+            }
+        }
+
+
+        const columnsConfig: any = {};
+        columnsConfig[0] = { width: 5 }; //set column width for index column
+
+        for (let index = 1; index < header.length; index++) {
+            columnsConfig[index] = { width: 17, truncate: 16 };
+        }
+
+        const tableData: any = [header, ...dataArr]; //Adds the column names to values before printing
+
+        return table(tableData, { columns: columnsConfig, ...this.config.getTableDisplayConfig });
+    }
+
     // /**
     //   * Returns the first n values in a DataFrame
     //   * @param rows The number of rows to return

@@ -12,14 +12,14 @@
 * limitations under the License.
 * ==========================================================================
 */
+import { BaseUserConfig } from 'table';
 import { ConfigsType } from './types'
 
 /**
  * Package wide configuration class
  */
 export default class Configs {
-    tableWidth: number;
-    tableTruncate: number;
+    tableDisplayConfig: BaseUserConfig
     tableMaxRow: number;
     tableMaxColInConsole: number;
     dtypeTestLim: number;
@@ -28,16 +28,14 @@ export default class Configs {
 
     constructor(options: ConfigsType) {
         const {
-            tableWidth,
-            tableTruncate,
+            tableDisplayConfig,
             tableMaxRow,
             tableMaxColInConsole,
             dtypeTestLim,
             lowMemoryMode,
             useTfjsMathFunctions,
         } = options
-        this.tableWidth = tableWidth || 17; //The width of each column printed in console
-        this.tableTruncate = tableTruncate || 16; //The maximum number of string before text is truncated in console
+        this.tableDisplayConfig = tableDisplayConfig || {}
         this.tableMaxRow = tableMaxRow || 10; // The maximum number of rows to display in console
         this.tableMaxColInConsole = tableMaxColInConsole || 21; // The maximum number of columns to display in console
         this.dtypeTestLim = dtypeTestLim || 10; // The number of rows to use when inferring data type
@@ -45,12 +43,12 @@ export default class Configs {
         this.useTfjsMathFunctions = useTfjsMathFunctions || false //whether to use tfjs lib for performing math operations
     }
 
-    setTableWidth(val: number) {
-        this.tableWidth = val;
+    setTableDisplayConfig(config: BaseUserConfig) {
+        this.tableDisplayConfig = config;
     }
 
-    get getTableWidth(): number {
-        return this.tableWidth;
+    get getTableDisplayConfig(): BaseUserConfig {
+        return this.tableDisplayConfig;
     }
 
     setTableMaxColInConsole(val: number) {
@@ -67,14 +65,6 @@ export default class Configs {
 
     get getMaxRow(): number {
         return this.tableMaxRow;
-    }
-
-    get getTableTruncate(): number {
-        return this.tableTruncate;
-    }
-
-    setTableTruncate(val: number) {
-        this.tableTruncate = val;
     }
 
     get getDtypeTestLim(): number {
