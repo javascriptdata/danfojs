@@ -153,7 +153,9 @@ export interface SeriesInterface extends NDframeInterface {
     asType(dtype: "float32" | "int32" | "string" | "boolean" | "undefined", options: { inplace: boolean }): Series | void
     get str(): any //Change to STR class type later
     get dt(): any //Change to DT class type later
-    append(newValues: Series | Array<number | string | boolean> | number | string | boolean, options: { inplace: boolean }): Series | void
+    append(newValues: Series | Array<number | string | boolean> | number | string | boolean,
+        index: Array<number | string> | number | string,
+        options: { inplace: boolean }): Series | void
     toString(): string;
 
 }

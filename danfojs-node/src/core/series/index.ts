@@ -16,7 +16,7 @@ import * as tf from '@tensorflow/tfjs-node';
 import NDframe from "../../core/generic";
 import { table } from "table";
 import { variance, std, median, mode } from 'mathjs';
-import { _iloc } from "../iloc";
+import { _iloc, _loc } from "../indexing";
 import { _genericMathOp } from "../generic.math.ops";
 import Utils from "../../shared/utils"
 import ErrorThrower from "../../shared/errors"
@@ -30,19 +30,12 @@ const utils = new Utils();
 /**
  * One-dimensional ndarray with axis labels.
  * The object supports both integer- and label-based indexing and provides a host of methods for performing operations involving the index.
- * Operations between Series (+, -, /, , *) align values based on their associated index values– they need not be the same length.
- * @param  Object   
- * 
- *  data:  1D Array, JSON, Tensor, Block of data.
- * 
- *  index: Array of numeric or string names for subseting array. If not specified, indexes are auto generated.
- * 
- *  columnNames: Array of column names. If not specified, column names are auto generated.
- * 
- *  dtypes: Array of data types for each the column. If not specified, dtypes inferred.
- * 
- *  config: General configuration object for NDframe      
- *
+ * Operations between DataFrame (+, -, /, , *) align values based on their associated index values– they need not be the same length.
+ * @param data 2D Array, JSON, Tensor, Block of data.
+ * @param options.index Array of numeric or string names for subseting array. If not specified, indexes are auto generated.
+ * @param options.columnNames Array of column names. If not specified, column names are auto generated.
+ * @param options.dtypes Array of data types for each the column. If not specified, dtypes are/is inferred.
+ * @param options.config General configuration object for extending or setting NDframe behavior.  
  */
 export default class Series extends NDframe implements SeriesInterface {
 
@@ -71,21 +64,53 @@ export default class Series extends NDframe implements SeriesInterface {
     }
 
     /**
-     * Purely integer-location based indexing for selection by position.
+    * Purely integer-location based indexing for selection by position.
+    * ``.iloc`` is primarily integer position based (from ``0`` to
+    * ``length-1`` of the axis), but may also be used with a boolean array.
+    * 
+    * @param rows Array of row indexes
+    *  
+    * Allowed inputs are in rows and columns params are:
+    * 
+    * - An array of single integer, e.g. ``[5]``.
+    * - A list or array of integers, e.g. ``[4, 3, 0]``.
+    * - A slice array string with ints, e.g. ``["1:7"]``.
+    * - A boolean array.
+    * - A ``callable`` function with one argument (the calling Series or
+    * DataFrame) and that returns valid output for indexing (one of the above).
+    * This is useful in method chains, when you don't have a reference to the
+    * calling object, but would like to base your selection on some value.
+    * 
+    * ``.iloc`` will raise ``IndexError`` if a requested indexer is
+    * out-of-bounds.
+    */
+    iloc(rows: Array<string | number | boolean>) {
+        return _iloc({ ndFrame: this, rows }) as Series
+    }
+
+    /**
+     * Access a group of rows by label(s) or a boolean array.
+     * ``loc`` is primarily label based, but may also be used with a boolean array.
      * 
-     * @param rows An array of input. iloc is integer position based (from 0 to length-1 of the axis).
+     * @param rows Array of row indexes
      * 
      * Allowed inputs are:
      * 
-     *    An integer, e.g. 5.
+     * - A single label, e.g. ``["5"]`` or ``['a']``, (note that ``5`` is interpreted as a 
+     *   *label* of the index, and **never** as an integer position along the index).
      * 
-     *    A list or array of integers, e.g. [4, 3, 0]
+     * - A list or array of labels, e.g. ``['a', 'b', 'c']``.
      * 
-     *    A slice object with ints, e.g. 1:7.
+     * - A slice object with labels, e.g. ``["a:f"]``. Note that start and the stop are included
      * 
+     * - A boolean array of the same length as the axis being sliced,
+     * e.g. ``[True, False, True]``.
+     * 
+     * - A ``callable`` function with one argument (the calling Series or
+     * DataFrame) and that returns valid output for indexing (one of the above)
     */
-    iloc(rows: Array<string | number>) {
-        return _iloc({ ndFrame: this, rows }) as Series
+    loc(rows: Array<string | number | boolean>) {
+        return _loc({ ndFrame: this, rows }) as Series
     }
 
     /**
@@ -1123,41 +1148,67 @@ export default class Series extends NDframe implements SeriesInterface {
      */
     append(
         newValue: Series | Array<number | string | boolean> | number | string | boolean,
-        options: { inplace: boolean, resetIndex?: boolean } = { inplace: false, resetIndex: false }
+        index: Array<number | string> | number | string,
+        options: { inplace: boolean } = { inplace: false }
     ): Series | void {
-        const { inplace = false, resetIndex = false } = options;
+        const { inplace = false } = options;
 
         if (!newValue && typeof newValue !== "boolean") {
-            throw Error("Param Error: Please specify newValues to append to Series");
+            throw Error("Param Error: newValues cannot be null or undefined");
         }
+
+        if (!index) {
+            throw Error("Param Error: index cannot be null or undefined");
+        }
+
         const newData = [...this.values]
         const newIndx = [...this.index]
 
-        if (Array.isArray(newValue)) {
+        if (Array.isArray(newValue) && Array.isArray(index)) {
+
+            if (newValue.length !== index.length) {
+                throw Error("Param Error: Length of new values and index must be the same");
+            }
+
             newValue.forEach((el, i) => {
                 newData.push(el);
-                newIndx.push(i);
+                newIndx.push(index[i]);
             });
+
         } else if (newValue instanceof Series) {
             const _value = newValue.values;
-            const _index = newValue.index;
+
+            if (!Array.isArray(index)) {
+                throw Error("Param Error: index must be an array");
+            }
+
+            if (index.length !== _value.length) {
+                throw Error("Param Error: Length of new values and index must be the same");
+            }
+
             _value.forEach((el, i) => {
                 newData.push(el);
-                newIndx.push(_index[i]);
+                newIndx.push(index[i]);
             });
         } else {
             newData.push(newValue);
-            newIndx.push(0);
+            newIndx.push(index as string | number);
         }
 
         if (inplace) {
             this.$setValues(newData as ArrayType1D, false)
-            resetIndex ? this.$resetIndex() : this.$setIndex(newIndx)
+            this.$setIndex(newIndx)
         } else {
-            const sf = this.copy();
-            sf.$setValues(newData as ArrayType1D, false)
-            resetIndex ? sf.$resetIndex() : sf.$setIndex(newIndx)
-            return sf;
+            const sf = new Series(
+                newData,
+                {
+                    index: newIndx,
+                    columnNames: this.columnNames,
+                    dtypes: this.dtypes,
+                    config: this.config
+                })
+
+            return sf
         }
     }
 

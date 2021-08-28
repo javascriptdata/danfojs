@@ -15,7 +15,7 @@
 import * as tf from '@tensorflow/tfjs-node';
 import NDframe from "../../core/generic";
 import { table } from "table";
-import { _iloc } from "../iloc";
+import { _iloc, _loc } from "../indexing";
 import { _genericMathOp } from "../generic.math.ops";
 import Utils from "../../shared/utils"
 import { ArrayType1D, ArrayType2D, NdframeInputDataType, DataFrameInterface, BaseDataOptionType } from "../../shared/types";
@@ -25,21 +25,14 @@ import ErrorThrower from '../../shared/errors';
 const utils = new Utils();
 
 /**
- * One-dimensional ndarray with axis labels.
+ * Two-dimensional ndarray with axis labels.
  * The object supports both integer- and label-based indexing and provides a host of methods for performing operations involving the index.
  * Operations between DataFrame (+, -, /, , *) align values based on their associated index values– they need not be the same length.
- * @param  Object   
- * 
- *  data:  1D Array, JSON, Tensor, Block of data.
- * 
- *  index: Array of numeric or string names for subseting array. If not specified, indexes are auto generated.
- * 
- *  columnNames: Array of column names. If not specified, column names are auto generated.
- * 
- *  dtypes: Array of data types for each the column. If not specified, dtypes inferred.
- * 
- *  config: General configuration object for NDframe      
- *
+ * @param data 2D Array, JSON, Tensor, Block of data.
+ * @param options.index Array of numeric or string names for subseting array. If not specified, indexes are auto generated.
+ * @param options.columnNames Array of column names. If not specified, column names are auto generated.
+ * @param options.dtypes Array of data types for each the column. If not specified, dtypes are/is inferred.
+ * @param options.config General configuration object for extending or setting NDframe behavior.      
  */
 /* @ts-ignore */ //COMMENT OUT WHEN METHODS HAVE BEEN IMPLEMENTED
 export default class DataFrame extends NDframe implements DataFrameInterface {
@@ -136,25 +129,62 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     }
 
     /**
-     * Purely integer-location based indexing for selection by position.
-     * 
-     * @param rows An array of input, or a string of slice. 
-     * @param columns An array of column names, or a string of slice range.
-     * Allowed inputs are:
-     * 
-     *    An integer, e.g. 5.
-     * 
-     *    A list or array of integers, e.g. [4, 3, 0]
-     * 
-     *    A slice object with ints, e.g. 1:7.
-     * 
+    * Purely integer-location based indexing for selection by position.
+    * ``.iloc`` is primarily integer position based (from ``0`` to
+    * ``length-1`` of the axis), but may also be used with a boolean array.
+    * 
+    * @param rows Array of row indexes
+    * @param columns Array of column indexes
+    *  
+    * Allowed inputs are in rows and columns params are:
+    * 
+    * - An array of single integer, e.g. ``[5]``.
+    * - A list or array of integers, e.g. ``[4, 3, 0]``.
+    * - A slice array string with ints, e.g. ``["1:7"]``.
+    * - A boolean array.
+    * - A ``callable`` function with one argument (the calling Series or
+    * DataFrame) and that returns valid output for indexing (one of the above).
+    * This is useful in method chains, when you don't have a reference to the
+    * calling object, but would like to base your selection on some value.
+    * 
+    * ``.iloc`` will raise ``IndexError`` if a requested indexer is
+    * out-of-bounds.
     */
     iloc({ rows, columns }: {
-        rows?: Array<string | number> | Series,
+        rows?: Array<string | number | boolean> | Series,
         columns?: Array<string | number>
     }): DataFrame {
-        const df = _iloc({ ndFrame: this, rows, columns }) as DataFrame;
-        return df
+        return _iloc({ ndFrame: this, rows, columns }) as DataFrame;
+    }
+
+
+    /**
+     * Access a group of rows and columns by label(s) or a boolean array.
+     * ``loc`` is primarily label based, but may also be used with a boolean array.
+     * 
+     * @param rows Array of row indexes
+     * @param columns Array of column indexes
+     * 
+     * Allowed inputs are:
+     * 
+     * - A single label, e.g. ``["5"]`` or ``['a']``, (note that ``5`` is interpreted as a 
+     *   *label* of the index, and **never** as an integer position along the index).
+     * 
+     * - A list or array of labels, e.g. ``['a', 'b', 'c']``.
+     * 
+     * - A slice object with labels, e.g. ``["a:f"]``. Note that start and the stop are included
+     * 
+     * - A boolean array of the same length as the axis being sliced,
+     * e.g. ``[True, False, True]``.
+     * 
+     * - A ``callable`` function with one argument (the calling Series or
+     * DataFrame) and that returns valid output for indexing (one of the above)
+    */
+    loc({ rows, columns }: {
+        rows?: Array<string | number | boolean> | Series,
+        columns?: Array<string>
+    }): DataFrame {
+        return _loc({ ndFrame: this, rows, columns }) as DataFrame
     }
 
     // /**

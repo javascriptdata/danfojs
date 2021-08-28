@@ -66,8 +66,7 @@ describe("Series Functions", () => {
             const sf = new Series(data);
             try {
                 await sf.sample(100);
-            } catch (e) {
-                expect(e).to.be.instanceOf(Error);
+            } catch (e: any) {
                 expect(e.message).to.eql('Sample size n cannot be bigger than size of dataset');
             }
         });
@@ -1334,62 +1333,62 @@ describe("Series Functions", () => {
             const data = [1, 2, 3, 4, "a", "b", "c"];
             const sf = new Series(data);
             const expected_val = [1, 2, 3, 4, "a", "b", "c", "d"];
-            sf.append("d", { inplace: true });
+            sf.append("d", 7, { inplace: true });
             assert.deepEqual(sf.values, expected_val);
         });
         it("Add a new array of values to the end of a Series inplace", function () {
             const data = [1, 2, 3, 4];
             const to_add = ["a", "b", "c"];
+            const index = [4, 5, 6];
             const sf = new Series(data);
             const expected_val = [1, 2, 3, 4, "a", "b", "c"];
-            sf.append(to_add, { inplace: true });
+            sf.append(to_add, index, { inplace: true });
             assert.deepEqual(sf.values, expected_val);
         });
         it("Add a Series to the end of another Series inplace", function () {
             const sf1 = new Series([1, 2, 3, 4]);
             const sf2 = new Series(["a", "b", "c"]);
+            const index = [4, 5, 6];
             const expected_val = [1, 2, 3, 4, "a", "b", "c"];
-            sf1.append(sf2, { inplace: true });
+            sf1.append(sf2, index, { inplace: true });
             assert.deepEqual(sf1.values, expected_val);
         });
         it("Add a new single value to the end of a Series", function () {
             const data = [1, 2, 3, 4, "a", "b", "c"];
             const sf = new Series(data);
             const expected_val = [1, 2, 3, 4, "a", "b", "c", "d"];
-            const sf2 = sf.append("d");
+            const sf2 = sf.append("d", 7);
             assert.deepEqual(sf2.values, expected_val);
         });
         it("Add a new array of values to the end of a Series", function () {
             const data = [1, 2, 3, 4];
             const to_add = ["a", "b", "c"];
+            const index = [4, 5, 6];
             const sf = new Series(data);
             const expected_val = [1, 2, 3, 4, "a", "b", "c"];
-            const sf2 = sf.append(to_add);
+            const sf2 = sf.append(to_add, index);
             assert.deepEqual(sf2.values, expected_val);
         });
         it("Add a Series to the end of another Series", function () {
             const sf1 = new Series([1, 2, 3, 4]);
             const sf2 = new Series(["a", "b", "c"]);
+            const index = [4, 5, 6];
             const expected_val = [1, 2, 3, 4, "a", "b", "c"];
-            const sf3 = sf1.append(sf2);
+            const sf3 = sf1.append(sf2, index);
             assert.deepEqual(sf3.values, expected_val);
         });
         it("Confirm index Change after append", function () {
             const sf1 = new Series([1, 2, 3, 4]);
             const sf2 = new Series(["a", "b", "c"]);
-            const sf3 = sf1.append(sf2);
-            assert.deepEqual(sf3.index, [0, 1, 2, 3, 0, 1, 2]);
+            const index = [4, 5, 6];
+            const sf3 = sf1.append(sf2, index);
+            assert.deepEqual(sf3.index, [0, 1, 2, 3, 4, 5, 6]);
         });
         it("Confirm index Change after append inplace", function () {
             const sf1 = new Series([1, 2, 3, 4]);
             const sf2 = new Series(["a", "b", "c"]);
-            sf1.append(sf2, { inplace: true });
-            assert.deepEqual(sf1.index, [0, 1, 2, 3, 0, 1, 2]);
-        });
-        it("Confirm index Change after append and resetIndex set to true", function () {
-            const sf1 = new Series([1, 2, 3, 4]);
-            const sf2 = new Series(["a", "b", "c"]);
-            sf1.append(sf2, { inplace: true, resetIndex: true });
+            const index = [4, 5, 6];
+            sf1.append(sf2, index, { inplace: true });
             assert.deepEqual(sf1.index, [0, 1, 2, 3, 4, 5, 6]);
         });
     });

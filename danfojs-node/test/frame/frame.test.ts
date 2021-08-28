@@ -1,6 +1,7 @@
 import { assert } from "chai";
 import { DataFrame } from '../../build';
 import fs from "fs";
+import { index } from "mathjs";
 
 // const testCSVPath = "./tester.csv";
 
@@ -36,15 +37,15 @@ describe("DataFrame", function () {
             let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
             let df = new DataFrame(data);
             df["alpha"] = [2.4, 5.6, 32.5, 1]
-            
+
             assert.deepEqual(df["alpha"].values, [2.4, 5.6, 32.5, 1]);
             assert.deepEqual(df.values[0], [2.4, 1, 20.3]);
             assert.deepEqual(df.values[1], [5.6, 2, 30.456]);
             assert.deepEqual(df.values[2], [32.5, 3, 40.90]);
             assert.deepEqual(df.values[3], [1, 4, 90.1]);
-            
-            df["count"] = ["A", "B", "C", "D"]            
-            assert.deepEqual(df["count"].values, ["A", "B", "C", "D"] );
+
+            df["count"] = ["A", "B", "C", "D"]
+            assert.deepEqual(df["count"].values, ["A", "B", "C", "D"]);
             assert.deepEqual(df.dtypes, ["float32", "string", "float32",]);
         });
 
@@ -294,113 +295,135 @@ describe("DataFrame", function () {
     //         });
     //     });
 
-    //     describe("loc", function () {
+    describe("loc", function () {
 
-    //         it("throw error for wrong column name", function () {
-    //             const data = [[1, 2, 3], [4, 5, 6]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
-    //             assert.throws(function () { df.loc({ "rows": [0, 1], "columns": ["A", "D"] }); }, Error, "Column D does not exist");
-    //         });
-    //         it("check data after selecting column", function () {
-    //             const data = [[1, 2, 3], [4, 5, 6]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
+        it("throw error for wrong column name", function () {
+            const data = [[1, 2, 3], [4, 5, 6]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols });
+            assert.throws(function () {
+                df.loc({ "rows": [0, 1], "columns": ["A", "D"] });
+            },
+                Error,
+                "IndexError: Specified column (D) not found");
+        });
 
-    //             const colDf = df.loc({ "rows": [0, 1], "columns": ["B", "C"] });
-    //             const expected = [[2, 3], [5, 6]];
+        it(`check data after selecting { "rows": ["0", "1"], "columns": ["B", "C"] }`, function () {
+            const data = [[1, 2, 3], [4, 5, 6]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols, index: ["0", "1"] });
 
-    //             assert.deepEqual(colDf.values, expected);
+            const colDf = df.loc({ "rows": ["0", "1"], "columns": ["B", "C"] });
+            const expected = [[2, 3], [5, 6]];
 
-    //         });
-    //         it("check data after selecting row index", function () {
-    //             const data = [[1, 2, 3], [4, 5, 6]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
+            assert.deepEqual(colDf.values, expected);
 
-    //             const colDf = df.loc({ "rows": [1], "columns": ["B", "C"] });
-    //             const expected = [[5, 6]];
+        });
+        it("check data after selecting row index", function () {
+            const data = [[1, 2, 3], [4, 5, 6]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols, index: [0, 1] });
 
-    //             assert.deepEqual(colDf.values, expected);
+            const colDf = df.loc({ "rows": ["1"], "columns": ["B"] });
+            const expected = [[5]];
 
-    //         });
-    //         it("check data after row and column slice", function () {
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
+            assert.deepEqual(colDf.values, expected);
 
-    //             const colDf = df.loc({ "rows": ["0:2"], "columns": ["B:C"] });
-    //             const expected = [[2], [5]];
+        });
+        it("check data after selecting with single row index", function () {
+            const data = [[1, 2, 3], [4, 5, 6]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols, index: ["0", "1"] });
 
-    //             assert.deepEqual(colDf.values, expected);
+            const colDf = df.loc({ "rows": [`"1"`], "columns": ["B", "C"] });
+            const expected = [[5, 6]];
 
-    //         });
-    //         it("check data after row slice", function () {
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
+            assert.deepEqual(colDf.values, expected);
 
-    //             const colDf = df.loc({ "rows": ["0:2"], "columns": ["B", "C"] });
-    //             const expected = [[2, 3], [5, 6]];
+        });
+        it("check data after selecting with single column index", function () {
+            const data = [[1, 2, 3], [4, 5, 6]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols, index: ["0", "1"] });
 
-    //             assert.deepEqual(colDf.values, expected);
+            const colDf = df.loc({ "rows": [`"0"`], "columns": ["A"] });
+            const expected = [[1]];
 
-    //         });
-    //         it("check data after column slice", function () {
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
+            assert.deepEqual(colDf.values, expected);
 
-    //             const colDf = df.loc({ "rows": [0, 1], "columns": ["A:C"] });
-    //             const expected = [[1, 2], [4, 5]];
-    //             assert.deepEqual(colDf.values, expected);
+        });
+        it("check data after row and column slice", function () {
+            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols, index: ["0", "1", "2", "3"] });
 
-    //         });
-    //         it("loc by single string index", function () {
-    //             const data = {
-    //                 "Name": ["Apples", "Mango", "Banana", "Pear"],
-    //                 "Count": [21, 5, 30, 10],
-    //                 "Price": [200, 300, 40, 250]
-    //             };
+            const colDf = df.loc({ "rows": [`'0':'2'`], "columns": ["B:C"] });
+            const expected = [[2], [5]];
 
-    //             const df = new DataFrame(data);
-    //             df.set_index({ key: ["a", "b", "c", "a"], inplace: true });
-    //             const subDf = df.loc({ rows: ["a"], columnNames: ["Name", "Count"] });
-    //             const expected = [["Apples", 21], ["Pear", 10]];
-    //             assert.deepEqual(subDf.values, expected);
+            assert.deepEqual(colDf.values, expected);
 
-    //         });
-    //         it("loc by multiple string index", function () {
-    //             const data = {
-    //                 "Name": ["Apples", "Mango", "Banana", "Pear"],
-    //                 "Count": [21, 5, 30, 10],
-    //                 "Price": [200, 300, 40, 250]
-    //             };
+        });
+        it("check data after row slice", function () {
+            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols });
 
-    //             const df = new DataFrame(data);
-    //             df.set_index({ key: ["a", "b", "c", "a"], inplace: true });
-    //             const subDf = df.loc({ rows: ["a", "b"], columnNames: ["Name", "Count"] });
-    //             const expected = [["Apples", 21], ["Mango", 5], ["Pear", 10]];
-    //             assert.deepEqual(subDf.values, expected);
+            const colDf = df.loc({ "rows": [`0:2`], "columns": ["B", "C"] });
+            const expected = [[2, 3], [5, 6]];
 
-    //         });
-    //         it("loc by slice string index", function () {
-    //             const data = {
-    //                 "Name": ["Apples", "Mango", "Banana", "Pear"],
-    //                 "Count": [21, 5, 30, 10],
-    //                 "Price": [200, 300, 40, 250]
-    //             };
+            assert.deepEqual(colDf.values, expected);
 
-    //             const df = new DataFrame(data);
-    //             df.set_index({ key: ["a", "b", "c", "d"], inplace: true });
-    //             const subDf = df.loc({ rows: ["a:c"], columnNames: ["Name", "Count"] });
-    //             const expected = [["Apples", 21], ["Mango", 5]];
-    //             assert.deepEqual(subDf.values, expected);
+        });
+        it(`check data after column slice ["A:C"]`, function () {
+            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols, index: ["0", "1", "2", "3"] });
 
-    //         });
+            const colDf = df.loc({ "rows": ["0", "1"], "columns": ["A:C"] });
+            const expected = [[1, 2], [4, 5]];
+            assert.deepEqual(colDf.values, expected);
+
+        });
+        it("check data after numeric row slice", function () {
+            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols });
+
+            const colDf = df.loc({ "rows": [0, 1], "columns": ["A:C"] });
+            const expected = [[1, 2], [4, 5]];
+            assert.deepEqual(colDf.values, expected);
+
+        });
+        it("loc by single string index", function () {
+            const data = {
+                "Name": ["Apples", "Mango", "Banana", "Pear"],
+                "Count": [21, 5, 30, 10],
+                "Price": [200, 300, 40, 250]
+            };
+
+            const df = new DataFrame(data, { index: ["a", "b", "c", "d"] });
+            const subDf = df.loc({ rows: [`"a"`], columns: ["Name", "Count"] });
+            const expected = [['Apples', 21]];
+            assert.deepEqual(subDf.values, expected);
+
+        });
+
+        it("loc by slice string index", function () {
+            const data = {
+                "Name": ["Apples", "Mango", "Banana", "Pear"],
+                "Count": [21, 5, 30, 10],
+                "Price": [200, 300, 40, 250]
+            };
+
+            const df = new DataFrame(data, { index: ["a", "b", "c", "d"] });
+            const subDf = df.loc({ rows: [`"a":"c"`], columns: ["Name", "Count"] });
+            const expected = [["Apples", 21], ["Mango", 5]];
+            assert.deepEqual(subDf.values, expected);
+
+        });
 
 
-    //     });
+    });
 
     describe("DataFrame iloc", function () {
 

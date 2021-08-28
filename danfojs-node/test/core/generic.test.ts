@@ -58,7 +58,25 @@ describe("Generic (NDFrame)", function () {
             let ndframe = new NDframe({ data, isSeries: false });
             assert.deepEqual(ndframe.values, data);
         });
-    });
+
+        it("Throws error on duplicate column name", function () {
+            let data = [[21, 20, 1], [20, 25, 3]];
+            assert.throws(() => {
+                new NDframe({ data, isSeries: false, columnNames: ["A", "A", "C"] }),
+                    Error,
+                    "ColumnIndexError: Column index must contain unique values"
+            });
+        });
+
+        it("Throws error on duplicate index", function () {
+            let data = [[21, 20, 1], [20, 25, 3]];
+            assert.throws(() => {
+                new NDframe({ data, isSeries: false, index: [1, 1, 2] }),
+                    Error,
+                    "IndexError: Row index must contain unique values"
+            });
+        });
+    })
 
     describe("NDframe Created from JavaScript Object", function () {
 
@@ -98,6 +116,8 @@ describe("Generic (NDFrame)", function () {
             let ndframe = new NDframe({ data, isSeries: false });
             assert.deepEqual(ndframe.values, [["A", NaN], [NaN, 2]]);
         });
+
+
     });
 
     describe("Replacing row data", function () {

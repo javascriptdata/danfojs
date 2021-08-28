@@ -13,12 +13,22 @@ class ErrorThrower {
     }
 
     throwIndexLengthError = (ndframe: NDframe, index: Array<string | number>): void => {
-        const msg = `Index length mismatch. You provided an index of length ${index.length} but Ndframe rows has lenght of ${ndframe.shape[0]}`
+        const msg = `IndexError: You provided an index of length ${index.length} but Ndframe rows has lenght of ${ndframe.shape[0]}`
+        throw new Error(msg)
+    }
+
+    throwIndexDuplicateError = (): void => {
+        const msg = `IndexError: Row index must contain unique values`
+        throw new Error(msg)
+    }
+    
+    throwColumnDuplicateError = (): void => {
+        const msg = `ColumnIndexError: Column index must contain unique values`
         throw new Error(msg)
     }
 
     throwDtypesLengthError = (ndframe: NDframe, dtypes: Array<string>): void => {
-        const msg = `Dtypes length mismatch. You provided a dtype array of length ${dtypes.length} but Ndframe columns has lenght of ${ndframe.shape[1]}`
+        const msg = `DtypeError: You provided a dtype array of length ${dtypes.length} but Ndframe columns has lenght of ${ndframe.shape[1]}`
         throw new Error(msg)
     }
 

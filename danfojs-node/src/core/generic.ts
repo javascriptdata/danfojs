@@ -16,7 +16,7 @@
 import * as tf from '@tensorflow/tfjs-node';
 import Utils from "../shared/utils";
 import Configs from "../shared/config";
-import { _iloc } from "./iloc"
+import { _iloc } from "./indexing"
 import { BASE_CONFIG, DATA_TYPES } from '../shared/defaults';
 import {
     NDframeInterface,
@@ -222,6 +222,10 @@ export default class NDframe implements NDframeInterface {
 
     }
 
+    $setConfig(config: Configs): void {
+        this.$config = config
+    }
+
     get index(): Array<string | number> {
         return this.$index
 
@@ -233,6 +237,10 @@ export default class NDframe implements NDframeInterface {
             if (this.$data.length != 0 && index.length != this.shape[0]) {
                 ErrorThrower.throwIndexLengthError(this, index)
             }
+            if (Array.from(new Set(index)).length !== this.shape[0]) {
+                ErrorThrower.throwIndexDuplicateError()
+            }
+
             this.$index = index
         } else {
             this.$index = utils.range(0, this.shape[0] - 1) //generate index
@@ -264,6 +272,10 @@ export default class NDframe implements NDframeInterface {
                 if (this.$data.length != 0 && columnNames.length != this.shape[1]) {
                     ErrorThrower.throwColumnNamesLengthError(this, columnNames)
                 }
+                if (Array.from(new Set(columnNames)).length !== this.shape[1]) {
+                    ErrorThrower.throwColumnDuplicateError()
+                }
+
                 this.$columnNames = columnNames
             } else {
                 this.$columnNames = (utils.range(0, this.shape[1] - 1)).map((val) => `${val}`) //generate columns
