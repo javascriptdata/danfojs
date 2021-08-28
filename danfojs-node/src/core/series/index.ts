@@ -135,8 +135,7 @@ export default class Series extends NDframe implements SeriesInterface {
      * @param num The number of rows to return
      * @param options.seed An integer specifying the random seed that will be used to create the distribution.
     */
-    async sample(num = 5, options: { seed: number } = { seed: 1 }): Promise<Series> {
-        let { seed = 1 } = options;
+    async sample(num = 5, seed = 1): Promise<Series> {
 
         if (num > this.shape[0]) {
             throw new Error("Sample size n cannot be bigger than size of dataset");
