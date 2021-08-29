@@ -197,13 +197,13 @@ export interface DataFrameInterface extends NDframeInterface {
         }): DataFrame;
     head(rows?: number): DataFrame
     tail(rows?: number): DataFrame
-    sample(num: number, options: { seed: number }): Promise<DataFrame>;
-    add(args: { other: DataFrame | number, axis?: 0 | 1 }): DataFrame
-    sub(args: { other: DataFrame | number, axis?: 0 | 1 }): DataFrame
-    mul(args: { other: DataFrame | number, axis?: 0 | 1 }): DataFrame
-    div(args: { other: DataFrame | number, axis?: 0 | 1 }): DataFrame
-    pow(args: { other: DataFrame | number, axis?: 0 | 1 }): DataFrame
-    mod(args: { other: DataFrame | number, axis?: 0 | 1 }): DataFrame
+    sample(num: number, seed: number): Promise<DataFrame>;
+    add(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
+    sub(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
+    mul(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
+    div(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
+    pow(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
+    mod(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
     mean(axis?: 0 | 1): Series
     median(axis?: 0 | 1): Series
     mode(axis?: 0 | 1): Series
@@ -248,19 +248,19 @@ export interface DataFrameInterface extends NDframeInterface {
     ): DataFrame
     isNa(): DataFrame
     nanIndex(): Array<number>
-    dropNa(args: { axis?: 0 | 1, inplace?: boolean }): DataFrame
+    dropNa(axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
     apply(args:
         {
             axis?: 0 | 1,
             callable: (val: number | string | boolean) => number | string | boolean
         }
     ): DataFrame
-    lt(args: { other: DataFrame | number, axis?: 0 | 1 }): DataFrame
-    gt(args: { other: DataFrame | number, axis?: 0 | 1 }): DataFrame
-    le(args: { other: DataFrame | number, axis?: 0 | 1 }): DataFrame
-    ge(args: { other: DataFrame | number, axis?: 0 | 1 }): DataFrame
-    ne(args: { other: DataFrame | number, axis?: 0 | 1 }): DataFrame
-    eq(args: { other: DataFrame | number, axis?: 0 | 1 }): DataFrame
+    lt(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
+    gt(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
+    le(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
+    ge(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
+    ne(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
+    eq(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
     replace(args:
         {
             replace: number | string | boolean,

@@ -28,19 +28,19 @@ export default class Configs {
 
     constructor(options: ConfigsType) {
         const {
-            tableDisplayConfig,
-            tableMaxRow,
-            tableMaxColInConsole,
-            dtypeTestLim,
-            lowMemoryMode,
-            useTfjsMathFunctions,
+            tableDisplayConfig = {},
+            tableMaxRow = 10,
+            tableMaxColInConsole = 21,
+            dtypeTestLim = 10,
+            lowMemoryMode = false,
+            useTfjsMathFunctions = false,
         } = options
-        this.tableDisplayConfig = tableDisplayConfig || {}
-        this.tableMaxRow = tableMaxRow || 10; // The maximum number of rows to display in console
-        this.tableMaxColInConsole = tableMaxColInConsole || 21; // The maximum number of columns to display in console
-        this.dtypeTestLim = dtypeTestLim || 10; // The number of rows to use when inferring data type
-        this.lowMemoryMode = lowMemoryMode || false // Whether to use minimal memory or not.
-        this.useTfjsMathFunctions = useTfjsMathFunctions || false //whether to use tfjs lib for performing math operations
+        this.tableDisplayConfig = tableDisplayConfig
+        this.tableMaxRow = tableMaxRow  // The maximum number of rows to display in console
+        this.tableMaxColInConsole = tableMaxColInConsole  // The maximum number of columns to display in console
+        this.dtypeTestLim = dtypeTestLim  // The number of rows to use when inferring data type
+        this.lowMemoryMode = lowMemoryMode  // Whether to use minimal memory or not.
+        this.useTfjsMathFunctions = useTfjsMathFunctions //whether to use tfjs lib for performing math operations
     }
 
     setTableDisplayConfig(config: BaseUserConfig) {

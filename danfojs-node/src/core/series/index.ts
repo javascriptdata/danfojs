@@ -275,7 +275,7 @@ export default class Series extends NDframe implements SeriesInterface {
      * Checks if the array value passed has a compatible dtype, removes NaN values, and if 
      * boolean values are present, converts them to integer values.
      * */
-    private _checkAndCleanValues(values: ArrayType1D, operation: string): number[] {
+    private $checkAndCleanValues(values: ArrayType1D, operation: string): number[] {
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError(operation)
         values = utils.removeNansFromArray(values);
 
@@ -289,7 +289,7 @@ export default class Series extends NDframe implements SeriesInterface {
      * Returns the mean of elements in Series
     */
     mean(): number {
-        const values = this._checkAndCleanValues(this.values as ArrayType1D, "mean")
+        const values = this.$checkAndCleanValues(this.values as ArrayType1D, "mean")
         if (this.config.toUseTfjsMathFunctions) return tf.tensor(values).mean().arraySync() as number
         return (values.reduce((a, b) => a + b) / values.length) as number
     }
@@ -299,7 +299,7 @@ export default class Series extends NDframe implements SeriesInterface {
       * Returns the median of elements in Series
     */
     median(): number {
-        const values = this._checkAndCleanValues(this.values as ArrayType1D, "median")
+        const values = this.$checkAndCleanValues(this.values as ArrayType1D, "median")
         return median(values);
     }
 
@@ -307,7 +307,7 @@ export default class Series extends NDframe implements SeriesInterface {
       * Returns the modal value of elements in Series
     */
     mode(): number {
-        const values = this._checkAndCleanValues(this.values as ArrayType1D, "mode")
+        const values = this.$checkAndCleanValues(this.values as ArrayType1D, "mode")
         return mode(values);
     }
 
@@ -315,7 +315,7 @@ export default class Series extends NDframe implements SeriesInterface {
       * Returns the minimum value in a Series
     */
     min(): number {
-        const values = this._checkAndCleanValues(this.values as ArrayType1D, "min")
+        const values = this.$checkAndCleanValues(this.values as ArrayType1D, "min")
         let smallestValue = values[0]
         for (let i = 0; i < values.length; i++) {
             smallestValue = smallestValue < values[i] ? smallestValue : values[i]
@@ -328,7 +328,7 @@ export default class Series extends NDframe implements SeriesInterface {
       * @returns {Number}
     */
     max(): number {
-        const values = this._checkAndCleanValues(this.values as ArrayType1D, "max")
+        const values = this.$checkAndCleanValues(this.values as ArrayType1D, "max")
         let biggestValue = values[0]
         for (let i = 0; i < values.length; i++) {
             biggestValue = biggestValue > values[i] ? biggestValue : values[i]
@@ -340,7 +340,7 @@ export default class Series extends NDframe implements SeriesInterface {
       * Return the sum of the values in a series.
     */
     sum(): number {
-        const values = this._checkAndCleanValues(this.values as ArrayType1D, "sum")
+        const values = this.$checkAndCleanValues(this.values as ArrayType1D, "sum")
         if (this.config.toUseTfjsMathFunctions) return tf.tensor(values).sum().arraySync() as number
         return values.reduce((sum, value) => sum + value, 0)
     }
@@ -432,7 +432,7 @@ export default class Series extends NDframe implements SeriesInterface {
       * Return sample standard deviation of elements in Series
     */
     std(): number {
-        const values = this._checkAndCleanValues(this.values as ArrayType1D, "max")
+        const values = this.$checkAndCleanValues(this.values as ArrayType1D, "max")
         return std(values);
     }
 
@@ -440,7 +440,7 @@ export default class Series extends NDframe implements SeriesInterface {
       *  Return unbiased variance of elements in a Series.
     */
     var(): number {
-        const values = this._checkAndCleanValues(this.values as ArrayType1D, "max")
+        const values = this.$checkAndCleanValues(this.values as ArrayType1D, "max")
         return variance(values);
     }
 

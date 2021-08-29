@@ -154,7 +154,11 @@ export default class NDframe implements NDframeInterface {
 
 
     get tensor(): tf.Tensor {
-        return tf.tensor(this.$data as any)
+        if (this.$isSeries) {
+            return tf.tensor1d(this.$data)
+        } else {
+            return tf.tensor2d(this.$data)
+        }
     }
 
     get dtypes(): Array<string> {
@@ -300,7 +304,13 @@ export default class NDframe implements NDframeInterface {
         return this.$data;
     }
 
-    $setValues(values: ArrayType1D | ArrayType2D, checkLength: boolean = true): void {
+    /**
+     * Updates the internal $data property to the specified value
+     * @param values An array of values to set
+     * @param checkLength Whether to check the length of the new values and the existing row length
+     * @param checkColumnLength Whether to check the length of the new values and the existing column length
+     * */
+    $setValues(values: ArrayType1D | ArrayType2D, checkLength: boolean = true, checkColumnLength: boolean = true): void {
         if (this.$isSeries) {
             if (checkLength && values.length != this.shape[0]) {
                 ErrorThrower.throwRowLengthError(this, values.length)
@@ -318,11 +328,13 @@ export default class NDframe implements NDframeInterface {
                 ErrorThrower.throwRowLengthError(this, values.length)
             }
 
-            values.forEach(value => {
-                if ((value as ArrayType1D).length != this.shape[1]) {
-                    ErrorThrower.throwColumnLengthError(this, values.length)
-                }
-            })
+            if (checkColumnLength) {
+                values.forEach(value => {
+                    if ((value as ArrayType1D).length != this.shape[1]) {
+                        ErrorThrower.throwColumnLengthError(this, values.length)
+                    }
+                })
+            }
 
             this.$data = values
             this.$dtypes = utils.inferDtype(values)

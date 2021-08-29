@@ -691,7 +691,7 @@ export default class Utils {
             sortedIdx.sort(([arg1], [arg2]) => (arg2 as unknown as number) - (arg1 as unknown as number));
         }
 
-        return sortedIdx.map(([, item]) => item) as number[] 
+        return sortedIdx.map(([, item]) => item) as number[]
     }
 
     /**

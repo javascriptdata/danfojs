@@ -21,6 +21,7 @@ import Utils from "../../shared/utils"
 import { ArrayType1D, ArrayType2D, NdframeInputDataType, DataFrameInterface, BaseDataOptionType } from "../../shared/types";
 import Series from '../series';
 import ErrorThrower from '../../shared/errors';
+import { Tensor } from '@tensorflow/tfjs-node';
 
 const utils = new Utils();
 
@@ -279,40 +280,424 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         return table(tableData, { columns: columnsConfig, ...this.config.getTableDisplayConfig });
     }
 
-    // /**
-    //   * Returns the first n values in a DataFrame
-    //   * @param rows The number of rows to return
-    // */
-    // head(rows: number = 5): DataFrame {
-    //     return this.iloc({ rows: [`0:${rows}`] })
-    // }
+    /**
+      * Returns the first n values in a DataFrame
+      * @param rows The number of rows to return
+    */
+    head(rows: number = 5): DataFrame {
+        if (rows > this.shape[0]) {
+            throw new Error("ParamError: Number of rows cannot be greater than available rows in data")
+        }
+        if (rows <= 0) {
+            throw new Error("ParamError: Number of rows cannot be less than 1")
+        }
 
-    // /**
-    //   * Returns the last n values in a DataFrame
-    //   * @param rows The number of rows to return
-    // */
-    // tail(rows: number = 5): any {
-    //     const startIdx = this.shape[0] - rows
-    //     return this.iloc([`${startIdx}:`])
-    // }
+        return this.iloc({ rows: [`0:${rows}`] })
+    }
 
-    // /**
-    //  * Gets [num] number of random rows in a dataframe
-    //  * @param num The number of rows to return
-    //  * @param seed (Optional) An integer specifying the random seed that will be used to create the distribution.
-    //   */
-    // async sample(num = 5, seed = 1): Promise<DataFrame> {
-    //     if (num > this.shape[0]) {
-    //         throw new Error("Sample size n cannot be bigger than size of dataset");
-    //     }
-    //     if (num < -1 || num == 0) {
-    //         throw new Error("Sample size cannot be less than -1 or be equal to 0");
-    //     }
-    //     num = num === -1 ? this.shape[0] : num;
+    /**
+      * Returns the last n values in a DataFrame
+      * @param rows The number of rows to return
+    */
+    tail(rows: number = 5): any {
+        if (rows > this.shape[0]) {
+            throw new Error("ParamError: Number of rows cannot be greater than available rows in data")
+        }
+        if (rows <= 0) {
+            throw new Error("ParamError: Number of rows cannot be less than 1")
+        }
+        rows = this.shape[0] - rows
+        return this.iloc({ rows: [`${rows}:`] })
+    }
 
-    //     const shuffledIndex = await tf.data.array(this.index).shuffle(num, `${seed}`).take(num).toArray();
-    //     const sf = this.iloc({ rows: shuffledIndex });
-    //     return sf;
-    // }
+    /**
+     * Gets n number of random rows in a dataframe. Sample is reproducible if seed is provided.
+     * @param num The number of rows to return. Default to 5.
+     * @param seed An integer specifying the random seed that will be used to create the distribution.
+    */
+    async sample(num = 5, seed = 1): Promise<DataFrame> {
+        if (num > this.shape[0]) {
+            throw new Error("ParamError: Sample size cannot be bigger than number of rows");
+        }
+        if (num <= 0) {
+            throw new Error("ParamError: Sample size cannot be less than 1");
+        }
+
+        const shuffledIndex = await tf.data.array(this.index).shuffle(num, `${seed}`).take(num).toArray();
+        const sf = this.iloc({ rows: shuffledIndex });
+        return sf;
+    }
+
+    /* 
+    * checks if DataFrame is compactible for arithmetic operation
+    * compatible Dataframe must have only numerical dtypes
+    **/
+    private $frameIsNotCompactibleForArithmeticOperation() {
+        const dtypes = this.dtypes;
+        const str = (element: any) => element == "string";
+        return dtypes.some(str)
+    }
+
+    private $getTensorsForArithmeticOperation(
+        thisDataFrame: DataFrame,
+        other: DataFrame | Series | number | Array<number>,
+        axis: 0 | 1
+    ): [Tensor, Tensor] {
+        if (typeof other === "number") {
+            return [thisDataFrame.tensor, tf.scalar(other)];
+        } else if (other instanceof DataFrame) {
+            return [thisDataFrame.tensor, other.tensor];
+        } else if (other instanceof Series) {
+            if (axis === 0) {
+                return [thisDataFrame.tensor, tf.tensor2d(other.values as Array<number>, [other.shape[0], 1])];
+            } else {
+                return [thisDataFrame.tensor, tf.tensor2d(other.values as Array<number>, [other.shape[0], 1]).transpose()];
+            }
+        } else if (Array.isArray(other)) {
+            if (axis === 0) {
+                return [thisDataFrame.tensor, tf.tensor2d(other, [other.length, 1])];
+            } else {
+                return [thisDataFrame.tensor, tf.tensor2d(other, [other.length, 1]).transpose()];
+            }
+        } else {
+            throw new Error("ParamError: Invalid type for other parameter. other must be one of Series, DataFrame or number.")
+        }
+
+    }
+
+    /**
+     * Return Addition of DataFrame and other, element-wise (binary operator add).
+     * @param other DataFrame, Series, Array or Scalar number to add
+     * @param axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    add(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void {
+        const { inplace = false } = options || {};
+        axis = (!axis && axis !== 0) ? 1 : axis
+
+        if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+            throw Error("TypeError: Add operation is not supported for string dtypes");
+        }
+
+        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
+        const newData = (tensors[0].add(tensors[1])).arraySync()
+
+        if (inplace) {
+            this.$setValues(newData as ArrayType2D)
+        } else {
+            return new DataFrame(
+                newData,
+                {
+                    index: this.index,
+                    columnNames: this.columnNames,
+                    dtypes: this.dtypes,
+                    config: this.config
+                })
+
+        }
+
+    }
+    /**
+     * Return substraction between DataFrame and other.
+     * @param other DataFrame, Series, Array or Scalar number to substract from DataFrame
+     * @param axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    sub(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void {
+        const { inplace = false } = options || {};
+        axis = (!axis && axis !== 0) ? 1 : axis
+
+        if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+            throw Error("TypeError: Sub operation is not supported for string dtypes");
+        }
+
+        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
+        const newData = (tensors[0].sub(tensors[1])).arraySync()
+
+        if (inplace) {
+            this.$setValues(newData as ArrayType2D)
+        } else {
+            return new DataFrame(
+                newData,
+                {
+                    index: this.index,
+                    columnNames: this.columnNames,
+                    dtypes: this.dtypes,
+                    config: this.config
+                })
+
+        }
+
+    }
+    /**
+     * Return multiplciation between DataFrame and other.
+     * @param other DataFrame, Series, Array or Scalar number to multiply with.
+     * @param axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    mul(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void {
+        const { inplace = false } = options || {};
+        axis = (!axis && axis !== 0) ? 1 : axis
+
+        if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+            throw Error("TypeError: Mul operation is not supported for string dtypes");
+        }
+
+        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
+        const newData = (tensors[0].mul(tensors[1])).arraySync()
+
+        if (inplace) {
+            this.$setValues(newData as ArrayType2D)
+        } else {
+            return new DataFrame(
+                newData,
+                {
+                    index: this.index,
+                    columnNames: this.columnNames,
+                    dtypes: this.dtypes,
+                    config: this.config
+                })
+
+        }
+
+    }
+
+    /**
+     * Return division of DataFrame with other.
+     * @param other DataFrame, Series, Array or Scalar number to divide with.
+     * @param axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    div(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void {
+        const { inplace = false } = options || {};
+        axis = (!axis && axis !== 0) ? 1 : axis
+
+        if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+            throw Error("TypeError: Div operation is not supported for string dtypes");
+        }
+
+        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
+        const newData = (tensors[0].div(tensors[1])).arraySync()
+
+        if (inplace) {
+            this.$setValues(newData as ArrayType2D)
+        } else {
+            return new DataFrame(
+                newData,
+                {
+                    index: this.index,
+                    columnNames: this.columnNames,
+                    dtypes: this.dtypes,
+                    config: this.config
+                })
+
+        }
+
+    }
+
+    /**
+     * Return DataFrame raised to the power of other.
+     * @param other DataFrame, Series, Array or Scalar number to to raise to.
+     * @param axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    pow(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void {
+        const { inplace = false } = options || {};
+        axis = (!axis && axis !== 0) ? 1 : axis
+
+        if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+            throw Error("TypeError: Pow operation is not supported for string dtypes");
+        }
+
+        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
+        const newData = (tensors[0].pow(tensors[1])).arraySync()
+
+        if (inplace) {
+            this.$setValues(newData as ArrayType2D)
+        } else {
+            return new DataFrame(
+                newData,
+                {
+                    index: this.index,
+                    columnNames: this.columnNames,
+                    dtypes: this.dtypes,
+                    config: this.config
+                })
+
+        }
+
+    }
+
+    /**
+     * Return modulus between DataFrame and other.
+     * @param other DataFrame, Series, Array or Scalar number to modulus with.
+     * @param axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    mod(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void {
+        const { inplace = false } = options || {};
+        axis = (!axis && axis !== 0) ? 1 : axis
+
+        if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+            throw Error("TypeError: Mod operation is not supported for string dtypes");
+        }
+
+        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
+        const newData = (tensors[0].mod(tensors[1])).arraySync()
+
+        if (inplace) {
+            this.$setValues(newData as ArrayType2D)
+        } else {
+            return new DataFrame(
+                newData,
+                {
+                    index: this.index,
+                    columnNames: this.columnNames,
+                    dtypes: this.dtypes,
+                    config: this.config
+                })
+
+        }
+
+    }
+
+    /**
+     * Return mean of DataFrame across specified axis.
+     * @param axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+    */
+    mean(axis?: 0 | 1): Series {
+        axis = (!axis && axis !== 0) ? 1 : axis
+
+        if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+            throw Error("TypeError: Mean operation is not supported for string dtypes");
+        }
+
+        if (this.config.toUseTfjsMathFunctions) {
+            //Note: Tensorflow does not remove NaNs before performing math operations.
+            const newData = (tf.tensor2d(this.values as any).mean(axis)).arraySync()
+            return new Series(newData)
+
+        } else {
+
+            if (axis === 1) {
+                const cleanValues: Array<number[]> = [];
+                const dfValues = this.values
+
+                for (let i = 0; i < dfValues.length; i++) {
+                    const values = dfValues[i] as number[]
+                    if (values.includes(NaN)) {
+                        cleanValues.push(utils.removeNansFromArray(values) as number[]);
+                    } else {
+                        cleanValues.push(values);
+                    }
+                }
+
+                const newData = cleanValues.map(arr => arr.reduce((a, b) => a + b, 0) / arr.length)
+                return new Series(newData)
+            } else {
+                const cleanValues: Array<number[]> = [];
+                let dfValues;
+
+                if (this.config.isLowMemoryMode) {
+                    dfValues = utils.transposeArray(this.values) as ArrayType2D
+                } else {
+                    dfValues = this.$dataIncolumnFormat as ArrayType2D
+                }
+
+                for (let i = 0; i < dfValues.length; i++) {
+                    const values = dfValues[i] as number[]
+                    if (values.includes(NaN)) {
+                        cleanValues.push(utils.removeNansFromArray(values) as number[]);
+                    } else {
+                        cleanValues.push(values);
+                    }
+                }
+
+                const newData = cleanValues.map(arr => arr.reduce((a, b) => a + b, 0) / arr.length)
+                return new Series(newData)
+            }
+        }
+    }
+
+
+    /**
+     * Drops all rows or columns with missing values (NaN)
+     * @param axis 0 or 1. If 0, drop rows with NaNs, if 1, drop columns with NaNs
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    dropNa(axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void {
+        const { inplace = false } = options || {};
+        axis = (!axis && axis !== 0) ? 1 : axis
+
+        const newIndex: Array<number | string> = [];
+
+        if (axis == 0) {
+            const newData = [];
+
+            const dfValues = this.values as ArrayType2D;
+            for (let i = 0; i < dfValues.length; i++) {
+                const values: ArrayType1D = dfValues[i];
+                if (!values.includes(NaN)) {
+                    newData.push(values);
+                    newIndex.push(this.index[i])
+                }
+            }
+
+            if (inplace) {
+                this.$setValues(newData, false)
+                this.$setIndex(newIndex)
+            } else {
+                return new DataFrame(
+                    newData,
+                    {
+                        index: newIndex,
+                        columnNames: this.columnNames,
+                        dtypes: this.dtypes,
+                        config: this.config
+                    })
+            }
+
+        } else {
+            const newColumnNames = []
+            const newDtypes = []
+            let dfValues: ArrayType2D = []
+
+            if (this.config.isLowMemoryMode) {
+                dfValues = utils.transposeArray(this.values) as ArrayType2D
+            } else {
+                dfValues = this.$dataIncolumnFormat as ArrayType2D
+            }
+            const tempColArr = []
+
+            for (let i = 0; i < dfValues.length; i++) {
+                const values: ArrayType1D = dfValues[i];
+                if (!values.includes(NaN)) {
+                    tempColArr.push(values);
+                    newColumnNames.push(this.columnNames[i])
+                    newDtypes.push(this.dtypes[i])
+                }
+            }
+
+            const newData = utils.transposeArray(tempColArr) as ArrayType2D
+
+            if (inplace) {
+                this.$setValues(newData, false, false)
+                this.$setColumnNames(newColumnNames)
+                this.$setDtypes(newDtypes)
+            } else {
+                return new DataFrame(
+                    newData,
+                    {
+                        index: this.index,
+                        columnNames: newColumnNames,
+                        dtypes: newDtypes,
+                        config: this.config
+                    })
+            }
+        }
+
+    }
+
+
 
 }

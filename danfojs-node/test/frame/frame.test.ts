@@ -1,5 +1,5 @@
-import { assert } from "chai";
-import { DataFrame } from '../../build';
+import { assert, expect } from "chai";
+import { DataFrame, Series } from '../../build';
 import fs from "fs";
 import { index } from "mathjs";
 
@@ -191,109 +191,119 @@ describe("DataFrame", function () {
     //         });
     //     });
 
-    //     describe("head", function () {
-    //         it("Gets the first n rows in a DataFrame", function () {
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
-    //             assert.deepEqual(df.head(2).values, [[1, 2, 3], [4, 5, 6]]);
-    //         });
-    //         it("Return all rows in a DataFrame if row specified is greater than values", function () {
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
-    //             assert.deepEqual(df.head(10).values, data);
-    //         });
-    //         it("Return all rows in a DataFrame if row specified is less than 0", function () {
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
-    //             assert.deepEqual(df.head(-1).values, data);
-    //         });
+    describe("head", function () {
+        it("Gets the first n rows in a DataFrame", function () {
+            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols });
+            assert.deepEqual(df.head(2).values, [[1, 2, 3], [4, 5, 6]]);
+        });
+        it("Throws error if row specified is greater than values", function () {
+            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols });
+            assert.throws(() => df.head(10), Error,
+                "ParamError: Number of rows cannot be greater than available rows in data");
+        });
+        it("Throws error if row specified is less than 0", function () {
+            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols });
+            assert.throws(() => df.head(-1), Error,
+                "ParamError: Number of rows cannot be less than 1");
+        });
 
-    //     });
+    });
 
-    //     describe("tail", function () {
-    //         it("Prints the last n rows of a DataFrame", function () {
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
-    //             assert.deepEqual(df.tail(2).values, [[20, 30, 40], [39, 89, 78]]);
-    //         });
-    //         it("Return all rows in a DataFrame if row specified is greater than values", function () {
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
-    //             assert.deepEqual(df.tail(10).values, data);
-    //         });
-    //         it("Return all rows in a DataFrame if row specified is less than 0", function () {
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
-    //             assert.deepEqual(df.tail(-1).values, data);
-    //         });
-    //         it("Return last 3 row index in a DataFrame", function () {
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
-    //             assert.deepEqual(df.tail(2).index, [2, 3]);
-    //         });
-    //         it("Check print format on head call", function () {
-    //             const data = [[1, 2, 34, 5, 0, 6, 4, 5, 6, 7], [20, 30, 40, 39, 89, 78, 45, 56, 56, 45]];
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.tail(2).values, [[1, 2, 34, 5, 0, 6, 4, 5, 6, 7], [20, 30, 40, 39, 89, 78, 45, 56, 56, 45]]);
-    //         });
-    //     });
+    describe("tail", function () {
+        it("Prints the last n rows of a DataFrame", function () {
+            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols });
+            assert.deepEqual(df.tail(2).values, [[20, 30, 40], [39, 89, 78]]);
+        });
+        it("Throws error if row specified is greater than values", function () {
+            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols });
+            assert.throws(() => df.tail(10), Error,
+                "ParamError: Number of rows cannot be greater than available rows in data");
+        });
+        it("Throws error if row specified is less than 0", function () {
+            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols });
+            assert.throws(() => df.tail(-1), Error,
+                "ParamError: Number of rows cannot be less than 1");
+        });
+        it("Return last 3 row index in a DataFrame", function () {
+            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols });
+            assert.deepEqual(df.tail(2).index, [2, 3]);
+        });
+        it("Check print format on head call", function () {
+            const data = [[1, 2, 34, 5, 0, 6, 4, 5, 6, 7], [20, 30, 40, 39, 89, 78, 45, 56, 56, 45]];
+            const df = new DataFrame(data);
+            assert.deepEqual(df.tail(2).values, [[1, 2, 34, 5, 0, 6, 4, 5, 6, 7], [20, 30, 40, 39, 89, 78, 45, 56, 56, 45]]);
+        });
+    });
 
-    //     describe("sample", function () {
-    //         it("Samples n number of random elements from a DataFrame", async function () {
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78], [100, 200, 300]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
-    //             const expected = [[1, 2, 3], [20, 30, 40]];
-    //             const values = (await df.sample(2)).values;
-    //             assert.deepEqual(values, expected);
-    //         });
-    //         it("Throw error if n is greater than lenght of Dataframe", async function () {
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78], [100, 200, 300]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
-    //             try {
-    //                 await df.sample(100);
-    //             } catch (e) {
-    //                 expect(e).to.be.instanceOf(Error);
-    //                 expect(e.message).to.eql('Sample size n cannot be bigger than size of dataset');
-    //             }
-    //         });
-    //         it("Throw error if n is less than -1", async function () {
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78], [100, 200, 300]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
-    //             try {
-    //                 await df.sample(-2);
-    //             } catch (e) {
-    //                 expect(e).to.be.instanceOf(Error);
-    //                 expect(e.message).to.eql('Sample size cannot be less than -1 or 0');
-    //             }
-    //         });
-    //         it("Throw error if n is 0", async function () {
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78], [100, 200, 300]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
-    //             try {
-    //                 await df.sample(0);
-    //             } catch (e) {
-    //                 expect(e).to.be.instanceOf(Error);
-    //                 expect(e.message).to.eql('Sample size cannot be less than -1 or 0');
-    //             }
-    //         });
-    //         it("Return all values if n is -1", async function () {
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78], [100, 200, 300]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
-    //             assert.deepEqual((await df.sample(-1)).shape, [5, 3]);
-    //         });
-    //     });
+    describe("sample", function () {
+        it("Samples n number of random elements from a DataFrame", async function () {
+            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78], [100, 200, 300]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols });
+            const expected = [[1, 2, 3], [20, 30, 40]];
+            const values = (await df.sample(2)).values;
+            assert.deepEqual(values, expected);
+        });
+        it("Throw error if n is greater than lenght of Dataframe", async function () {
+            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78], [100, 200, 300]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols });
+            try {
+                await df.sample(100);
+            } catch (e: any) {
+                expect(e).to.be.instanceOf(Error);
+                expect(e.message).to.eql('ParamError: Sample size cannot be bigger than number of rows');
+            }
+        });
+        it("Throw error if n is less than 0", async function () {
+            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78], [100, 200, 300]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols });
+            try {
+                await df.sample(-2);
+            } catch (e: any) {
+                expect(e).to.be.instanceOf(Error);
+                expect(e.message).to.eql('ParamError: Sample size cannot be less than 1');
+            }
+        });
+        it("Throw error if n is 0", async function () {
+            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78], [100, 200, 300]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols });
+            try {
+                await df.sample(0);
+            } catch (e: any) {
+                expect(e).to.be.instanceOf(Error);
+                expect(e.message).to.eql('ParamError: Sample size cannot be less than 1');
+            }
+        });
+        it("Seed works and random number is reproducible", async function () {
+            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78], [100, 200, 300]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols });
+            const values1 = (await df.sample(2, 453)).values;
+            const values2 = (await df.sample(2, 453)).values;
+            const values3 = (await df.sample(2, 1)).values;
+
+            assert.deepEqual(values1, values2);
+            assert.notDeepEqual(values1, values3);
+
+        });
+    });
 
     describe("loc", function () {
 
@@ -681,213 +691,258 @@ describe("DataFrame", function () {
         })
     })
 
-    //     describe("add", function () {
-    //         it("Return Addition of DataFrame with a single Number", function () {
-    //             const data = [[0, 2, 4], [360, 180, 360]];
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.add(2).values, [[2, 4, 6], [362, 182, 362]]);
-    //         });
-    //         it("Return addition of a DataFrame with a Series along default axis 1", function () {
-    //             const data = [[0, 2, 4], [360, 180, 360]];
-    //             const sf = new Series([1, 2, 1]);
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.add(sf).values, [[1, 4, 5], [361, 182, 361]]);
-    //         });
-    //         it("Return addition of a DataFrame with a Series along axis 0", function () {
-    //             const data = [[0, 2, 4], [360, 180, 360]];
-    //             const sf = new Series([1, 2]);
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.add(sf, 0).values, [[1, 3, 5], [362, 182, 362]]);
-    //         });
-    //         it("Return addition of a DataFrame with a DataFrame along default axis 1", function () {
-    //             const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
-    //             const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
-    //             assert.deepEqual(df1.add(df2).values, [[1, 4, 8], [370, 185, 360]]);
-    //         });
-    //         it("Return addition of a DataFrame with a DataFrame along axis 0", function () {
-    //             const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
-    //             const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
-    //             assert.deepEqual(df1.add(df2).values, [[1, 4, 8], [370, 185, 360]]);
-    //         });
+    describe("add", function () {
+        it("Return Addition of DataFrame with a single Number", function () {
+            const data = [[0, 2, 4], [360, 180, 360]];
+            const df = new DataFrame(data);
+            assert.deepEqual(df.add(2).values, [[2, 4, 6], [362, 182, 362]]);
+        });
+        it("Return addition of a DataFrame with a Series along default axis 1", function () {
+            const data = [[0, 2, 4], [360, 180, 360]];
+            const sf = new Series([1, 2, 1]);
+            const df = new DataFrame(data);
+            assert.deepEqual(df.add(sf).values, [[1, 4, 5], [361, 182, 361]]);
+        });
+        it("Return addition of a DataFrame with a Series along default axis 1", function () {
+            const data = [[0, 2, 4], [360, 180, 360]];
+            const sf = [1, 2, 1]
+            const df = new DataFrame(data);
+            assert.deepEqual(df.add(sf).values, [[1, 4, 5], [361, 182, 361]]);
+        });
+        it("Return addition of a DataFrame with a Series along axis 0", function () {
+            const data = [[0, 2, 4],
+            [360, 180, 360]];
+            const sf = new Series([1, 2]);
+            const df = new DataFrame(data);
+            assert.deepEqual(df.add(sf, 0).values, [[1, 3, 5], [362, 182, 362]]);
+        });
+        it("Return addition of a DataFrame with a Array along axis 0", function () {
+            const data = [[0, 2, 4],
+            [360, 180, 360]];
+            const sf = [1, 2]
+            const df = new DataFrame(data);
+            assert.deepEqual(df.add(sf, 0).values, [[1, 3, 5], [362, 182, 362]]);
+        });
+        it("Return addition of a DataFrame with a DataFrame along default axis 1", function () {
+            const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
+            const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
+            assert.deepEqual(df1.add(df2).values, [[1, 4, 8], [370, 185, 360]]);
+        });
+        it("Return addition of a DataFrame with a DataFrame along axis 0", function () {
+            const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
+            const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
+            assert.deepEqual(df1.add(df2).values, [[1, 4, 8], [370, 185, 360]]);
+        });
+        it("Return addition of a DataFrame with a Series along default axis 1 (inplace)", function () {
+            const data = [[0, 2, 4], [360, 180, 360]];
+            const sf = new Series([1, 2, 1]);
+            const df = new DataFrame(data);
+            df.add(sf, 1, { inplace: true })
+            assert.deepEqual(df.values, [[1, 4, 5], [361, 182, 361]]);
+        });
 
-    //     });
+        it("Return addition of a DataFrame with a DataFrame along axis 0 (inplace)", function () {
+            const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
+            const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
+            df1.add(df2, 0, { inplace: true })
+            assert.deepEqual(df1.values, [[1, 4, 8], [370, 185, 360]]);
+        });
 
-    //     describe("sub", function () {
-    //         it("Return subtraction of DataFrame with a single Number", function () {
-    //             const data = [[0, 2, 4], [360, 180, 360]];
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.sub(2).values, [[-2, 0, 2], [358, 178, 358]]);
-    //         });
-    //         it("Return subtraction of a DataFrame with a Series along default axis 1", function () {
-    //             const data = [[0, 2, 4], [360, 180, 360]];
-    //             const sf = new Series([1, 2, 1]);
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.sub(sf).values, [[-1, 0, 3], [359, 178, 359]]);
-    //         });
-    //         it("Return subtraction of a DataFrame with a Series along axis 0", function () {
-    //             const data = [[0, 2, 4], [360, 180, 360]];
-    //             const sf = new Series([1, 2]);
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.sub(sf, 0).values, [[-1, 1, 3], [358, 178, 358]]);
-    //         });
-    //         it("Return subtraction of a DataFrame with a DataFrame along default axis 1", function () {
-    //             const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
-    //             const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
-    //             assert.deepEqual(df1.sub(df2).values, [[-1, 0, 0], [350, 175, 360]]);
-    //         });
-    //         it("Return subtraction of a DataFrame with a DataFrame along axis 0", function () {
-    //             const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
-    //             const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
-    //             assert.deepEqual(df1.sub(df2).values, [[-1, 0, 0], [350, 175, 360]]);
-    //         });
+    });
 
-    //     });
+    describe("sub", function () {
+        it("Return subtraction of DataFrame with a single Number", function () {
+            const data = [[0, 2, 4], [360, 180, 360]];
+            const df = new DataFrame(data);
+            assert.deepEqual(df.sub(2).values, [[-2, 0, 2], [358, 178, 358]]);
+        });
+        it("Return subtraction of a DataFrame with a Series along default axis 1", function () {
+            const data = [[0, 2, 4], [360, 180, 360]];
+            const sf = new Series([1, 2, 1]);
+            const df = new DataFrame(data);
+            assert.deepEqual(df.sub(sf).values, [[-1, 0, 3], [359, 178, 359]]);
+        });
+        it("Return subtraction of a DataFrame with a Series along axis 0", function () {
+            const data = [[0, 2, 4], [360, 180, 360]];
+            const sf = new Series([1, 2]);
+            const df = new DataFrame(data);
+            assert.deepEqual(df.sub(sf, 0).values, [[-1, 1, 3], [358, 178, 358]]);
+        });
+        it("Return subtraction of a DataFrame with a DataFrame along default axis 1", function () {
+            const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
+            const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
+            assert.deepEqual(df1.sub(df2).values, [[-1, 0, 0], [350, 175, 360]]);
+        });
+        it("Return subtraction of a DataFrame with a DataFrame along axis 0", function () {
+            const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
+            const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
+            assert.deepEqual(df1.sub(df2).values, [[-1, 0, 0], [350, 175, 360]]);
+        });
 
-    //     describe("mul", function () {
-    //         it("Return multiplication of DataFrame with a single Number", function () {
-    //             const data = [[0, 2, 4], [360, 180, 360]];
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.mul(2).values, [[0, 4, 8], [720, 360, 720]]);
-    //         });
-    //         it("Return multiplication of a DataFrame with a Series along default axis 1", function () {
-    //             const data = [[0, 2, 4], [360, 180, 360]];
-    //             const sf = new Series([1, 2, 1]);
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.mul(sf).values, [[0, 4, 4], [360, 360, 360]]);
-    //         });
-    //         it("Return multiplication of a DataFrame with a Series along axis 0", function () {
-    //             const data = [[0, 2, 4], [360, 180, 360]];
-    //             const sf = new Series([1, 2]);
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.mul(sf, 0).values, [[0, 2, 4], [720, 360, 720]]);
-    //         });
-    //         it("Return multiplication of a DataFrame with a DataFrame along default axis 1", function () {
-    //             const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
-    //             const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
-    //             assert.deepEqual(df1.mul(df2).values, [[0, 4, 16], [3600, 900, 0]]);
-    //         });
-    //         it("Return multiplication of a DataFrame with a DataFrame along axis 0", function () {
-    //             const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
-    //             const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
-    //             assert.deepEqual(df1.mul(df2, 0).values, [[0, 4, 16], [3600, 900, 0]]);
-    //         });
+    });
 
-    //     });
+    describe("mul", function () {
+        it("Return multiplication of DataFrame with a single Number", function () {
+            const data = [[0, 2, 4], [360, 180, 360]];
+            const df = new DataFrame(data);
+            assert.deepEqual(df.mul(2).values, [[0, 4, 8], [720, 360, 720]]);
+        });
+        it("Return multiplication of a DataFrame with a Series along default axis 1", function () {
+            const data = [[0, 2, 4], [360, 180, 360]];
+            const sf = new Series([1, 2, 1]);
+            const df = new DataFrame(data);
+            assert.deepEqual(df.mul(sf).values, [[0, 4, 4], [360, 360, 360]]);
+        });
+        it("Return multiplication of a DataFrame with a Series along axis 0", function () {
+            const data = [[0, 2, 4], [360, 180, 360]];
+            const sf = new Series([1, 2]);
+            const df = new DataFrame(data);
+            assert.deepEqual(df.mul(sf, 0).values, [[0, 2, 4], [720, 360, 720]]);
+        });
+        it("Return multiplication of a DataFrame with a DataFrame along default axis 1", function () {
+            const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
+            const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
+            assert.deepEqual(df1.mul(df2).values, [[0, 4, 16], [3600, 900, 0]]);
+        });
+        it("Return multiplication of a DataFrame with a DataFrame along axis 0", function () {
+            const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
+            const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
+            assert.deepEqual(df1.mul(df2, 0).values, [[0, 4, 16], [3600, 900, 0]]);
+        });
 
-    //     describe("div", function () {
-    //         it("Return division of DataFrame with a single Number", function () {
-    //             const data = [[0, 2, 4], [360, 180, 360]];
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.div(2).values, [[0, 1, 2], [180, 90, 180]]);
-    //         });
-    //         it("Return division of a DataFrame with a Series along default axis 1", function () {
-    //             const data = [[0, 2, 4], [360, 180, 360]];
-    //             const sf = new Series([1, 2, 1]);
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.div(sf).values, [[0, 1, 4], [360, 90, 360]]);
-    //         });
-    //         it("Return division of a DataFrame with a Series along axis 0", function () {
-    //             const data = [[0, 2, 4], [360, 180, 360]];
-    //             const sf = new Series([1, 2]);
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.div(sf, 0).values, [[0, 2, 4], [180, 90, 180]]);
-    //         });
-    //         it("Return division of a DataFrame with a DataFrame along default axis 1", function () {
-    //             const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
-    //             const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
-    //             assert.deepEqual(df1.div(df2).values, [[0, 1, 1], [36, 36, NaN]]);
-    //         });
-    //         it("Return division of a DataFrame with a DataFrame along axis 0", function () {
-    //             const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
-    //             assert.deepEqual(df1.div(df1).values, [[NaN, 1, 1], [1, 1, 1]]);
-    //         });
-    //         it("Return division of a DataFrame with a DataFrame along axis 0", function () {
-    //             const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
-    //             const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
-    //             assert.deepEqual(df1.div(df2).values, [[0, 1, 1], [36, 36, NaN]]);
-    //         });
+    });
 
-    //     });
+    describe("div", function () {
+        it("Return division of DataFrame with a single Number", function () {
+            const data = [[0, 2, 4], [360, 180, 360]];
+            const df = new DataFrame(data);
+            assert.deepEqual(df.div(2).values, [[0, 1, 2], [180, 90, 180]]);
+        });
+        it("Return division of a DataFrame with a Series along default axis 1", function () {
+            const data = [[0, 2, 4], [360, 180, 360]];
+            const sf = new Series([1, 2, 1]);
+            const df = new DataFrame(data);
+            assert.deepEqual(df.div(sf).values, [[0, 1, 4], [360, 90, 360]]);
+        });
+        it("Return division of a DataFrame with a Series along axis 0", function () {
+            const data = [[0, 2, 4], [360, 180, 360]];
+            const sf = new Series([1, 2]);
+            const df = new DataFrame(data);
+            assert.deepEqual(df.div(sf, 0).values, [[0, 2, 4], [180, 90, 180]]);
+        });
+        it("Return division of a DataFrame with a DataFrame along default axis 1", function () {
+            const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
+            const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
+            assert.deepEqual(df1.div(df2).values, [[0, 1, 1], [36, 36, NaN]]);
+        });
+        it("Return division of a DataFrame with a DataFrame along axis 0", function () {
+            const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
+            assert.deepEqual(df1.div(df1).values, [[NaN, 1, 1], [1, 1, 1]]);
+        });
+        it("Return division of a DataFrame with a DataFrame along axis 0", function () {
+            const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
+            const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
+            assert.deepEqual(df1.div(df2).values, [[0, 1, 1], [36, 36, NaN]]);
+        });
 
-    //     describe("pow", function () {
-    //         it("Return exponential of DataFrame with a single Number", function () {
-    //             const data = [[0, 2, 4], [360, 180, 360]];
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.pow(2).values, [[0, 4, 16], [129600, 32400, 129600]]);
-    //         });
-    //         it("Return exponential of a DataFrame with a Series along default axis 1", function () {
-    //             const data = [[0, 2, 4], [360, 180, 360]];
-    //             const sf = new Series([1, 2, 1]);
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.pow(sf).values, [[0, 4, 4], [360, 32400, 360]]);
-    //         });
-    //         it("Return exponential of a DataFrame with a Series along axis 0", function () {
-    //             const data = [[0, 2, 4], [360, 180, 360]];
-    //             const sf = new Series([1, 2]);
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.pow(sf, 0).values, [[0, 2, 4], [129600, 32400, 129600]]);
-    //         });
-    //         it("Return exponential of a DataFrame with another DataFrame along default axis 1", function () {
-    //             const df1 = new DataFrame([[0, 2, 4], [3, 10, 4]]);
-    //             const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
-    //             assert.deepEqual(df1.pow(df2).values, [[0, 4, 256], [59049, 100000, 1]]);
-    //         });
-    //         it("Return exponential of a DataFrame with another DataFrame along axis 0", function () {
-    //             const df1 = new DataFrame([[0, 2, 4], [3, 10, 4]]);
-    //             const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
-    //             assert.deepEqual(df1.pow(df2, 0).values, [[0, 4, 256], [59049, 100000, 1]]);
-    //         });
+    });
 
-    //     });
+    describe("pow", function () {
+        it("Return exponential of DataFrame with a single Number", function () {
+            const data = [[0, 2, 4], [360, 180, 360]];
+            const df = new DataFrame(data);
+            assert.deepEqual(df.pow(2).values, [[0, 4, 16], [129600, 32400, 129600]]);
+        });
+        it("Return exponential of a DataFrame with a Series along default axis 1", function () {
+            const data = [[0, 2, 4], [360, 180, 360]];
+            const sf = new Series([1, 2, 1]);
+            const df = new DataFrame(data);
+            assert.deepEqual(df.pow(sf).values, [[0, 4, 4], [360, 32400, 360]]);
+        });
+        it("Return exponential of a DataFrame with a Series along axis 0", function () {
+            const data = [[0, 2, 4], [360, 180, 360]];
+            const sf = new Series([1, 2]);
+            const df = new DataFrame(data);
+            assert.deepEqual(df.pow(sf, 0).values, [[0, 2, 4], [129600, 32400, 129600]]);
+        });
+        it("Return exponential of a DataFrame with another DataFrame along default axis 1", function () {
+            const df1 = new DataFrame([[0, 2, 4], [3, 10, 4]]);
+            const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
+            assert.deepEqual(df1.pow(df2).values, [[0, 4, 256], [59049, 100000, 1]]);
+        });
+        it("Return exponential of a DataFrame with another DataFrame along axis 0", function () {
+            const df1 = new DataFrame([[0, 2, 4], [3, 10, 4]]);
+            const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
+            assert.deepEqual(df1.pow(df2, 0).values, [[0, 4, 256], [59049, 100000, 1]]);
+        });
 
-    //     describe("mod", function () {
-    //         it("Return modulus of DataFrame with a single Number", function () {
-    //             const data = [[0, 2, 4], [360, 180, 360]];
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.mod(2).values, [[0, 0, 0], [0, 0, 0]]);
-    //         });
-    //         it("Return modulus of a DataFrame with a Series along default axis 1", function () {
-    //             const data = [[0, 2, 4], [31, 15, 360]];
-    //             const sf = new Series([1, 2, 1]);
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.mod(sf).values, [[0, 0, 0], [0, 1, 0]]);
-    //         });
-    //         it("Return modulus of a DataFrame with a Series along axis 0", function () {
-    //             const data = [[0, 2, 4], [31, 15, 360]];
-    //             const sf = new Series([1, 2]);
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.mod(sf, 0).values, [[0, 0, 0], [1, 1, 0]]);
-    //         });
-    //         it("Return modulus of a DataFrame with a DataFrame along default axis 1", function () {
-    //             const df1 = new DataFrame([[0, 2, 4], [31, 15, 360]]);
-    //             const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
-    //             assert.deepEqual(df1.mod(df2).values, [[0, 0, 0], [1, 0, NaN]]);
-    //         });
-    //         it("Return modulus of a DataFrame with a DataFrame along axis 0", function () {
-    //             const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
-    //             const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
-    //             assert.deepEqual(df1.mod(df2).values, [[0, 0, 0], [0, 0, NaN]]);
-    //         });
+    });
 
-    //     });
+    describe("mod", function () {
+        it("Return modulus of DataFrame with a single Number", function () {
+            const data = [[0, 2, 4], [360, 180, 360]];
+            const df = new DataFrame(data);
+            assert.deepEqual(df.mod(2).values, [[0, 0, 0], [0, 0, 0]]);
+        });
+        it("Return modulus of a DataFrame with a Series along default axis 1", function () {
+            const data = [[0, 2, 4], [31, 15, 360]];
+            const sf = new Series([1, 2, 1]);
+            const df = new DataFrame(data);
+            assert.deepEqual(df.mod(sf).values, [[0, 0, 0], [0, 1, 0]]);
+        });
+        it("Return modulus of a DataFrame with a Series along axis 0", function () {
+            const data = [[0, 2, 4], [31, 15, 360]];
+            const sf = new Series([1, 2]);
+            const df = new DataFrame(data);
+            assert.deepEqual(df.mod(sf, 0).values, [[0, 0, 0], [1, 1, 0]]);
+        });
+        it("Return modulus of a DataFrame with a DataFrame along default axis 1", function () {
+            const df1 = new DataFrame([[0, 2, 4], [31, 15, 360]]);
+            const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
+            assert.deepEqual(df1.mod(df2).values, [[0, 0, 0], [1, 0, NaN]]);
+        });
+        it("Return modulus of a DataFrame with a DataFrame along axis 0", function () {
+            const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
+            const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
+            assert.deepEqual(df1.mod(df2).values, [[0, 0, 0], [0, 0, NaN]]);
+        });
 
-    //     describe("mean", function () {
-    //         it("Returns the mean of a DataFrame (Default axis is [1:column])", function () {
-    //             const data = [[0, 2, 4], [360, 180, 360]];
-    //             const df = new DataFrame(data, { columnNames: ["col1", "col2", "col3"] });
-    //             assert.deepEqual(df.mean().values, [180, 91, 182]);
-    //         });
-    //         it("Return mean of a DataFrame along axis 0 (row)", function () {
-    //             const data = [[0, 2, 4], [360, 180, 360]];
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.mean(0).values, [2, 300]);
-    //         });
-    //         it("Removes NaN before calculating mean of a DataFrame", function () {
-    //             const data = [[11, 20, 3], [NaN, 15, 6], [2, 30, 40], [2, 89, 78]];
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.mean().values, [5, 38.5, 31.75]);
-    //         });
-    //     });
+    });
+
+    describe("mean", function () {
+        it("Returns the mean of a DataFrame (Default axis is [1:column])", function () {
+            const data = [[0, 2, 4],
+            [360, 180, 360]];
+            const df = new DataFrame(data, { columnNames: ["col1", "col2", "col3"] });
+            assert.deepEqual(df.mean().values, [2, 300]);
+        });
+        it("Return mean of a DataFrame along axis 1 (column)", function () {
+            const data = [[0, 2, 4], [360, 180, 360]];
+            const df = new DataFrame(data);
+            assert.deepEqual(df.mean(1).values, [2, 300]);
+        });
+        it("Removes NaN before calculating mean of a DataFrame", function () {
+            const data = [[11, 20, 3],
+                         [NaN, 15, 6], 
+                         [2, 30, 40],
+                         [2, 89, 78]];
+            const df = new DataFrame(data);
+            assert.deepEqual(df.mean(1).values, [11.333333333333334, 10.5, 24, 56.333333333333336]);
+        });
+        it("Return mean of a DataFrame along axis 0 (column)", function () {
+            const data = [[0, 2, 4], [360, 180, 360]];
+            const df = new DataFrame(data);
+            assert.deepEqual(df.mean(0).values, [180, 91, 182]);
+        });
+        it("Removes NaN before calculating mean of a DataFrame along axis 0 (column)", function () {
+            const data = [[11, 20, 3],
+                         [NaN, 15, 6], 
+                         [2, 30, 40],
+                         [2, 89, 78]];
+            const df = new DataFrame(data);
+            assert.deepEqual(df.mean(0).values, [5, 38.5, 31.75]);
+        });
+    });
 
     //     describe("median", function () {
     //         it("Returns the median of a DataFrame (Default axis is [1:column])", function () {
@@ -1680,51 +1735,70 @@ describe("DataFrame", function () {
     //         });
     //     });
 
-    //     describe("dropna", function () {
-    //         it("drop inplace at axis 0 at inplace false", function () {
-    //             const data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]];
-    //             const column = ["A", "B", "C", "D"];
-    //             const df = new DataFrame(data, { columnNames: column });
+    describe("dropNa", function () {
+        it("drop NaNs along axis 1", function () {
+            const data = [[0, 2, 4],
+            [360, 180, 360],
+            [NaN, 180, 360]]
+            const column = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: column });
+            const df_val = [[2, 4],
+            [180, 360],
+            [180, 360]]
+            assert.deepEqual(df.dropNa(1).values, df_val);
 
-    //             const df_val = [[5, 6, 7, 8]];
+        });
+        it("drop NaNs along axis 0", function () {
+            const data = [[0, 2, 4],
+            [360, 180, 360],
+            [NaN, 180, 360]]
+            const column = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: column });
+            const df_val = [[0, 2, 4],
+            [360, 180, 360]]
+            assert.deepEqual(df.dropNa(0).values, df_val);
 
-    //             assert.deepEqual(df.dropna().values, df_val);
+        });
+        it("drop NaNs along axis 0", function () {
+            const data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columnNames: column });
+            const df_val = [[5, 6, 7, 8]];
+            assert.deepEqual(df.dropNa(0).values, df_val);
 
-    //         });
-    //         it("drop inplace at axis 1, inplace false ", function () {
-    //             const data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]];
-    //             const column = ["A", "B", "C", "D"];
-    //             const df = new DataFrame(data, { columnNames: column });
+        });
+        it("drop inplace at axis 1, inplace false ", function () {
+            const data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columnNames: column });
 
-    //             const df_val = [[1, 3], [4, 9], [6, 8]];
+            const df_val = [[1, 3], [4, 9], [6, 8]];
 
-    //             assert.deepEqual(df.dropna({ axis: 1 }).values, df_val);
+            assert.deepEqual(df.dropNa(1).values, df_val);
 
-    //         });
-    //         it("drop inplace at axis 1, inplace true ", function () {
-    //             const data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]];
-    //             const column = ["A", "B", "C", "D"];
-    //             const df = new DataFrame(data, { columnNames: column });
+        });
+        it("drop inplace at axis 1, inplace true ", function () {
+            const data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columnNames: column });
 
-    //             const df_val = [[1, 3], [4, 9], [6, 8]];
-    //             df.dropna({ axis: 1, inplace: true });
+            const df_val = [[1, 3], [4, 9], [6, 8]];
+            df.dropNa(1, { inplace: true });
+            assert.deepEqual(df.values, df_val);
 
+        });
+        it("drop inplace at axis 0 at inplace true", function () {
+            const data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columnNames: column });
 
-    //             assert.deepEqual(df.values, df_val);
+            const df_val = [[5, 6, 7, 8]];
 
-    //         });
-    //         it("drop inplace at axis 0 at inplace true", function () {
-    //             const data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]];
-    //             const column = ["A", "B", "C", "D"];
-    //             const df = new DataFrame(data, { columnNames: column });
+            df.dropNa(0, { inplace: true });
+            assert.deepEqual(df.values, df_val);
 
-    //             const df_val = [[5, 6, 7, 8]];
-
-    //             df.dropna({ inplace: true });
-    //             assert.deepEqual(df.values, df_val);
-
-    //         });
-    //     });
+        });
+    });
 
     //     describe("isna", function () {
 
