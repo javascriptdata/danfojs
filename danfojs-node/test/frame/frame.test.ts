@@ -747,6 +747,12 @@ describe("DataFrame", function () {
             df1.add(df2, 0, { inplace: true })
             assert.deepEqual(df1.values, [[1, 4, 8], [370, 185, 360]]);
         });
+        it("Adds work for DataFrame with undefined and null values", function () {
+            const df1 = new DataFrame([[undefined, 2, 4], [360, NaN, 360]]);
+            const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
+            df1.add(df2, 0, { inplace: true })
+            assert.deepEqual(df1.values, [[NaN, 4, 8], [370, NaN, 360]]);
+        });
 
     });
 
@@ -833,16 +839,16 @@ describe("DataFrame", function () {
         it("Return division of a DataFrame with a DataFrame along default axis 1", function () {
             const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
             const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
-            assert.deepEqual(df1.div(df2).values, [[0, 1, 1], [36, 36, NaN]]);
+            assert.deepEqual(df1.div(df2).values, [[0, 1, 1], [36, 36, Infinity]]);
         });
-        it("Return division of a DataFrame with a DataFrame along axis 0", function () {
+        it("Return division of same DataFrame along axis 0", function () {
             const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
             assert.deepEqual(df1.div(df1).values, [[NaN, 1, 1], [1, 1, 1]]);
         });
         it("Return division of a DataFrame with a DataFrame along axis 0", function () {
             const df1 = new DataFrame([[0, 2, 4], [360, 180, 360]]);
             const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
-            assert.deepEqual(df1.div(df2).values, [[0, 1, 1], [36, 36, NaN]]);
+            assert.deepEqual(df1.div(df2).values, [[0, 1, 1], [36, 36, Infinity]]);
         });
 
     });

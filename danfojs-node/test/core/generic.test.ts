@@ -111,8 +111,14 @@ describe("Generic (NDFrame)", function () {
             let ndframe = new NDframe({ data, isSeries: false });
             assert.deepEqual(ndframe.values, [["A", 1], ["B", 2]]);
         });
-        it("prints the values of a frame created from an Object with null values", function () {
-            let data = [{ alpha: "A", count: null }, { alpha: null, count: 2 }];
+        it("prints the values of a frame created from an Object with undefined values", function () {
+            let data = [{ alpha: "A", count: undefined }, { alpha: undefined, count: 2 }];
+            let ndframe = new NDframe({ data, isSeries: false });
+            assert.deepEqual(ndframe.values, [["A", undefined], [undefined, 2]]);
+        });
+
+        it("prints the values of a frame created from an Object with NaN values", function () {
+            let data = [{ alpha: "A", count: NaN }, { alpha: NaN, count: 2 }];
             let ndframe = new NDframe({ data, isSeries: false });
             assert.deepEqual(ndframe.values, [["A", NaN], [NaN, 2]]);
         });

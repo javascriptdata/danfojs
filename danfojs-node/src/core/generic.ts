@@ -100,7 +100,8 @@ export default class NDframe implements NDframeInterface {
      * 
     */
     private loadArrayIntoNdframe({ data, index, columnNames, dtypes }: LoadArrayDataType): void {
-        this.$data = utils.replaceUndefinedWithNaN(data, this.$isSeries);
+        // this.$data = utils.replaceUndefinedWithNaN(data, this.$isSeries);
+        this.$data = data
         if (!this.$config.isLowMemoryMode) {
             //In NOT low memory mode, we transpose the array and save in column format.
             //This makes column data retrieval run in constant time
@@ -109,8 +110,6 @@ export default class NDframe implements NDframeInterface {
         this.$setIndex(index);
         this.$setDtypes(dtypes);
         this.$setColumnNames(columnNames);
-
-        // this.$setInternalColumnDataProperty()
     }
 
     /**

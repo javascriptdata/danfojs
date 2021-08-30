@@ -623,7 +623,9 @@ export default class Utils {
      * @param arr
      */
     removeNansFromArray(arr: ArrayType1D): ArrayType1D {
-        const values = arr.filter((val) => !(isNaN(val as unknown as number) && typeof val != "string"));
+        const values = arr.filter((val) => {
+            return !(isNaN(val as unknown as number) && typeof val != "string") && val !== undefined && val !== null
+        })
         return values;
     }
 
