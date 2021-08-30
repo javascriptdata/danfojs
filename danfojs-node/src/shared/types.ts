@@ -16,6 +16,8 @@ import DataFrame from '@base/core/frame';
 import { Tensor } from '@tensorflow/tfjs-node';
 import Series from '../core/series';
 import { BaseUserConfig } from "table"
+import Str from '@base/core/strings';
+import { Dt } from '..';
 
 export enum DTYPES {
     float32,
@@ -111,15 +113,15 @@ export interface NDframeInterface {
 //Start of Series class types
 export interface SeriesInterface extends NDframeInterface {
     iloc(rows: Array<string | number>): Series;
-    head(rows?: number): Series
-    tail(rows?: number): Series
-    sample(num?: number, seed?: number): Promise<Series>;
-    add(other: Series | number, options: { inplace: boolean }): Series | void;
-    sub(other: Series | number, options: { inplace: boolean }): Series | void;
-    mul(other: Series | number, options: { inplace: boolean }): Series | void;
-    div(other: Series | number, options: { inplace: boolean }): Series | void;
-    pow(other: Series | number, options: { inplace: boolean }): Series | void;
-    mod(other: Series | number, options: { inplace: boolean }): Series | void;
+    head(rows: number): Series
+    tail(rows: number): Series
+    sample(num: number, options?: { seed?: number }): Promise<Series>;
+    add(other: Series | number, options?: { inplace?: boolean }): Series | void;
+    sub(other: Series | number, options?: { inplace?: boolean }): Series | void;
+    mul(other: Series | number, options?: { inplace?: boolean }): Series | void;
+    div(other: Series | number, options?: { inplace?: boolean }): Series | void;
+    pow(other: Series | number, options?: { inplace?: boolean }): Series | void;
+    mod(other: Series | number, options?: { inplace?: boolean }): Series | void;
     mean(): number
     median(): number
     mode(): number
@@ -129,55 +131,57 @@ export interface SeriesInterface extends NDframeInterface {
     count(): number
     maximum(other: Series | number): Series
     minimum(other: Series | number): Series
-    round(dp: number, options: { inplace: boolean }): Series | void
+    round(dp: number, options?: { inplace?: boolean }): Series | void
     std(): number
     var(): number
     isNa(): Series
-    fillNa(value: number | string | boolean, options: { inplace: boolean }): Series | void
-    sortValues(ascending: boolean, options: { inplace: boolean }): Series | void
+    fillNa(value: number | string | boolean, options?: { inplace?: boolean }): Series | void
+    sortValues(ascending: boolean, options?: { inplace?: boolean }): Series | void
     copy(): Series
     describe(): Series
-    resetIndex(options: { inplace: boolean }): Series | void
-    setIndex(index: Array<number | string | (number | string)>, options: { inplace: boolean }): Series | void
+    resetIndex(options?: { inplace?: boolean }): Series | void
+    setIndex(index: Array<number | string | (number | string)>, options?: { inplace?: boolean }): Series | void
     map(
         callable: any,
-        options: { inplace: boolean })
+        options?: { inplace?: boolean })
         : Series | void
-    apply(callable: any): Series | void
+    apply(
+        callable: any,
+        options?: { inplace?: boolean }): Series | void
     unique(): Series
     nUnique(): number
     valueCounts(): Series
-    abs(options: { inplace: boolean }): Series | void
-    cumSum(options: { inplace: boolean }): Series | void
-    cumMin(options: { inplace: boolean }): Series | void
-    cumMax(options: { inplace: boolean }): Series | void
-    cumProd(options: { inplace: boolean }): Series | void
+    abs(options?: { inplace?: boolean }): Series | void
+    cumSum(options?: { inplace?: boolean }): Series | void
+    cumMin(options?: { inplace?: boolean }): Series | void
+    cumMax(options?: { inplace?: boolean }): Series | void
+    cumProd(options?: { inplace?: boolean }): Series | void
     lt(other: Series | number): Series
     gt(other: Series | number): Series
     le(other: Series | number): Series
     ge(other: Series | number): Series
     ne(other: Series | number): Series
     eq(other: Series | number): Series
-    replace(oldValue: string | number | boolean, newValue: string | number | boolean, options: { inplace: boolean }): Series | void
-    dropNa(options: { inplace: boolean }): Series | void
+    replace(oldValue: string | number | boolean, newValue: string | number | boolean, options?: { inplace?: boolean }): Series | void
+    dropNa(options?: { inplace?: boolean }): Series | void
     argSort(): Series
     argMax(): number
     argMin(): number
     get dtype(): string
-    dropDuplicates(keep: "first" | "last", options: { inplace: boolean }): Series | void
-    asType(dtype: "float32" | "int32" | "string" | "boolean" | "undefined", options: { inplace: boolean }): Series | void
-    get str(): any //Change to STR class type later
-    get dt(): any //Change to DT class type later
-    append(newValues: Series | Array<number | string | boolean> | number | string | boolean,
+    dropDuplicates(keep: "first" | "last", options?: { inplace?: boolean }): Series | void
+    asType(dtype: "float32" | "int32" | "string" | "boolean", options?: { inplace?: boolean }): Series | void
+    get str(): Str
+    get dt(): Dt
+    append(values: Series | Array<number | string | boolean> | number | string | boolean,
         index: Array<number | string> | number | string,
-        options: { inplace: boolean }): Series | void
+        options?: { inplace?: boolean }): Series | void
     toString(): string;
 
 }
 
 //Start of Series class types
 export interface DataFrameInterface extends NDframeInterface {
-    drop(args:
+    drop(options:
         {
             columns: Array<string>,
             index?: Array<string | number>,
@@ -185,7 +189,7 @@ export interface DataFrameInterface extends NDframeInterface {
             axis?: 0 | 1,
         }
     ): DataFrame
-    loc(args:
+    loc(options:
         {
             rows?: Array<string | number>,
             columns?: Array<string>
@@ -197,40 +201,38 @@ export interface DataFrameInterface extends NDframeInterface {
         }): DataFrame;
     head(rows?: number): DataFrame
     tail(rows?: number): DataFrame
-    sample(num: number, seed: number): Promise<DataFrame>;
-    add(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
-    sub(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
-    mul(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
-    div(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
-    pow(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
-    mod(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
-    mean(axis?: 0 | 1): Series
-    median(axis?: 0 | 1): Series
-    mode(axis?: 0 | 1): Series
-    min(axis?: 0 | 1): Series
-    max(axis?: 0 | 1): Series
-    std(axis?: 0 | 1): Series
-    var(axis?: 0 | 1): Series
-    sum(axis?: 0 | 1): Series
-    count(axis?: 0 | 1): Series
+    sample(num: number, options?: { seed: number }): Promise<DataFrame>;
+    add(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
+    sub(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
+    mul(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
+    div(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
+    pow(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
+    mod(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
+    mean(options?: { axis?: 0 | 1 }): Series
+    median(options?: { axis?: 0 | 1 }): Series
+    mode(options?: { axis?: 0 | 1, keep?: number }): Series
+    min(options?: { axis?: 0 | 1 }): Series
+    max(options?: { axis?: 0 | 1 }): Series
+    std(options?: { axis?: 0 | 1 }): Series
+    var(options?: { axis?: 0 | 1 }): Series
+    sum(options?: { axis?: 0 | 1 }): Series
+    count(options?: { axis?: 0 | 1 }): Series
     round(dp: number): DataFrame
-    cumSum(axis?: 0 | 1): DataFrame
-    cumMin(axis?: 0 | 1): DataFrame
-    cumMax(axis?: 0 | 1): DataFrame
-    cumProd(axis?: 0 | 1): DataFrame
+    cumSum(options?: { axis?: 0 | 1 }): DataFrame
+    cumMin(options?: { axis?: 0 | 1 }): DataFrame
+    cumMax(options?: { axis?: 0 | 1 }): DataFrame
+    cumProd(options?: { axis?: 0 | 1 }): DataFrame
     copy(): DataFrame
-    resetIndex(args: { inplace?: boolean }): DataFrame
-    setIndex(args:
-        {
-            index: Array<number | string | (number | string)>,
-            inplace?: boolean
-        }
+    resetIndex(options: { inplace?: boolean }): DataFrame
+    setIndex(
+        index: Array<number | string | (number | string)>,
+        options?: { inplace?: boolean }
     ): DataFrame
     describe(): DataFrame
     selectDtypes(include: DTYPES): DataFrame
     abs(): DataFrame
-    query(args: { column: string, is: string, to: string, inplace?: boolean }): DataFrame
-    addColumn(args:
+    query(options: { column: string, is: string, to: string, inplace?: boolean }): DataFrame
+    addColumn(options:
         {
             column: string,
             value: Series | ArrayType1D,
@@ -239,7 +241,7 @@ export interface DataFrameInterface extends NDframeInterface {
     ): DataFrame
     groupby(column: [string, string]): any //Update to GroupBy class later
     column(columnName: string): Series
-    fillNa(args:
+    fillNa(options:
         {
             columns: Array<string>,
             values: ArrayType2D,
@@ -248,20 +250,20 @@ export interface DataFrameInterface extends NDframeInterface {
     ): DataFrame
     isNa(): DataFrame
     nanIndex(): Array<number>
-    dropNa(axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
-    apply(args:
+    dropNa(axis?: 0 | 1, options?: { inplace?: boolean }): DataFrame | void
+    apply(options:
         {
             axis?: 0 | 1,
             callable: (val: number | string | boolean) => number | string | boolean
         }
     ): DataFrame
-    lt(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
-    gt(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
-    le(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
-    ge(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
-    ne(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
-    eq(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void
-    replace(args:
+    lt(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace?: boolean }): DataFrame | void
+    gt(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace?: boolean }): DataFrame | void
+    le(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace?: boolean }): DataFrame | void
+    ge(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace?: boolean }): DataFrame | void
+    ne(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace?: boolean }): DataFrame | void
+    eq(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace?: boolean }): DataFrame | void
+    replace(options:
         {
             replace: number | string | boolean,
             with: number | string | boolean,
@@ -272,36 +274,36 @@ export interface DataFrameInterface extends NDframeInterface {
     transpose(): DataFrame
     get T(): DataFrame
     get ctypes(): Series
-    asType(args:
+    asType(options:
         {
             column: string
             dtype: string,
             inplace?: boolean
         }
     ): DataFrame
-    unique(axis: 0 | 1): Series
+    unique(axis: number): Series
     nUnique(): Series
-    rename(args:
+    rename(options:
         {
             mapper: number | string | boolean,
             inplace?: boolean
-            axis?: 0 | 1
+            axis?: number
         }
     ): DataFrame
-    sortIndex(args:
+    sortIndex(options:
         {
             inplace?: boolean
             ascending?: boolean
         }
     ): DataFrame
-    sortValues(args:
+    sortValues(options:
         {
             by: string,
             inplace?: boolean
             ascending?: boolean
         }
     ): DataFrame
-    append(args:
+    append(options:
         {
             value: ArrayType1D
             inplace?: boolean,

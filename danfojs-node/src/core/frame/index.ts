@@ -15,6 +15,7 @@
 import * as tf from '@tensorflow/tfjs-node';
 import NDframe from "../../core/generic";
 import { table } from "table";
+import { variance, std, median, mode } from 'mathjs';
 import { _iloc, _loc } from "../indexing";
 import { _genericMathOp } from "../generic.math.ops";
 import Utils from "../../shared/utils"
@@ -125,6 +126,75 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
             //Update the dtypes
             this.$dtypes[columnIndex] = utils.inferDtype(arr)[0]
+        }
+
+    }
+
+    /**
+     * Return data with missing values removed from a specified axis
+     * @param axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+    */
+    private $getDataByAxisWithMissingValuesRemoved(axis: number): Array<number[]> {
+        if (axis === 1) {
+            const cleanValues: Array<number[]> = [];
+            const dfValues = this.values
+
+            for (let i = 0; i < dfValues.length; i++) {
+                const values = dfValues[i] as number[]
+                cleanValues.push(utils.removeMissingValuesFromArray(values) as number[]);
+            }
+            return cleanValues
+        } else {
+            const cleanValues: Array<number[]> = [];
+            let dfValues;
+
+            if (this.config.isLowMemoryMode) {
+                dfValues = utils.transposeArray(this.values) as ArrayType2D
+            } else {
+                dfValues = this.$dataIncolumnFormat as ArrayType2D
+            }
+
+            for (let i = 0; i < dfValues.length; i++) {
+                const values = dfValues[i] as number[]
+                cleanValues.push(utils.removeMissingValuesFromArray(values) as number[]);
+            }
+            return cleanValues
+        }
+    }
+
+    /* 
+    * checks if DataFrame is compactible for arithmetic operation
+    * compatible Dataframe must have only numerical dtypes
+    **/
+    private $frameIsNotCompactibleForArithmeticOperation() {
+        const dtypes = this.dtypes;
+        const str = (element: any) => element == "string";
+        return dtypes.some(str)
+    }
+
+    private $getTensorsForArithmeticOperation(
+        thisDataFrame: DataFrame,
+        other: DataFrame | Series | number | Array<number>,
+        axis: number
+    ): [Tensor, Tensor] {
+        if (typeof other === "number") {
+            return [thisDataFrame.tensor, tf.scalar(other)];
+        } else if (other instanceof DataFrame) {
+            return [thisDataFrame.tensor, other.tensor];
+        } else if (other instanceof Series) {
+            if (axis === 0) {
+                return [thisDataFrame.tensor, tf.tensor2d(other.values as Array<number>, [other.shape[0], 1])];
+            } else {
+                return [thisDataFrame.tensor, tf.tensor2d(other.values as Array<number>, [other.shape[0], 1]).transpose()];
+            }
+        } else if (Array.isArray(other)) {
+            if (axis === 0) {
+                return [thisDataFrame.tensor, tf.tensor2d(other, [other.length, 1])];
+            } else {
+                return [thisDataFrame.tensor, tf.tensor2d(other, [other.length, 1]).transpose()];
+            }
+        } else {
+            throw new Error("ParamError: Invalid type for other parameter. other must be one of Series, DataFrame or number.")
         }
 
     }
@@ -313,9 +383,11 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Gets n number of random rows in a dataframe. Sample is reproducible if seed is provided.
      * @param num The number of rows to return. Default to 5.
-     * @param seed An integer specifying the random seed that will be used to create the distribution.
+     * @param options.seed An integer specifying the random seed that will be used to create the distribution.
     */
-    async sample(num = 5, seed = 1): Promise<DataFrame> {
+    async sample(num = 5, options?: { seed?: number }): Promise<DataFrame> {
+        const { seed } = { seed: 1, ...options }
+
         if (num > this.shape[0]) {
             throw new Error("ParamError: Sample size cannot be bigger than number of rows");
         }
@@ -328,55 +400,21 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         return sf;
     }
 
-    /* 
-    * checks if DataFrame is compactible for arithmetic operation
-    * compatible Dataframe must have only numerical dtypes
-    **/
-    private $frameIsNotCompactibleForArithmeticOperation() {
-        const dtypes = this.dtypes;
-        const str = (element: any) => element == "string";
-        return dtypes.some(str)
-    }
-
-    private $getTensorsForArithmeticOperation(
-        thisDataFrame: DataFrame,
-        other: DataFrame | Series | number | Array<number>,
-        axis: 0 | 1
-    ): [Tensor, Tensor] {
-        if (typeof other === "number") {
-            return [thisDataFrame.tensor, tf.scalar(other)];
-        } else if (other instanceof DataFrame) {
-            return [thisDataFrame.tensor, other.tensor];
-        } else if (other instanceof Series) {
-            if (axis === 0) {
-                return [thisDataFrame.tensor, tf.tensor2d(other.values as Array<number>, [other.shape[0], 1])];
-            } else {
-                return [thisDataFrame.tensor, tf.tensor2d(other.values as Array<number>, [other.shape[0], 1]).transpose()];
-            }
-        } else if (Array.isArray(other)) {
-            if (axis === 0) {
-                return [thisDataFrame.tensor, tf.tensor2d(other, [other.length, 1])];
-            } else {
-                return [thisDataFrame.tensor, tf.tensor2d(other, [other.length, 1]).transpose()];
-            }
-        } else {
-            throw new Error("ParamError: Invalid type for other parameter. other must be one of Series, DataFrame or number.")
-        }
-
-    }
-
     /**
      * Return Addition of DataFrame and other, element-wise (binary operator add).
      * @param other DataFrame, Series, Array or Scalar number to add
-     * @param axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    add(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void {
-        const { inplace = false } = options || {};
-        axis = (!axis && axis !== 0) ? 1 : axis
+    add(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
+        const { inplace, axis } = { inplace: false, axis: 1, ...options }
 
         if (this.$frameIsNotCompactibleForArithmeticOperation()) {
-            throw Error("TypeError: Add operation is not supported for string dtypes");
+            throw Error("TypeError: add operation is not supported for string dtypes");
+        }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
         }
 
         const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
@@ -400,15 +438,18 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Return substraction between DataFrame and other.
      * @param other DataFrame, Series, Array or Scalar number to substract from DataFrame
-     * @param axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    sub(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void {
-        const { inplace = false } = options || {};
-        axis = (!axis && axis !== 0) ? 1 : axis
+    sub(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
+        const { inplace, axis } = { inplace: false, axis: 1, ...options }
 
         if (this.$frameIsNotCompactibleForArithmeticOperation()) {
-            throw Error("TypeError: Sub operation is not supported for string dtypes");
+            throw Error("TypeError: sub operation is not supported for string dtypes");
+        }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
         }
 
         const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
@@ -432,17 +473,19 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Return multiplciation between DataFrame and other.
      * @param other DataFrame, Series, Array or Scalar number to multiply with.
-     * @param axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    mul(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void {
-        const { inplace = false } = options || {};
-        axis = (!axis && axis !== 0) ? 1 : axis
+    mul(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
+        const { inplace, axis } = { inplace: false, axis: 1, ...options }
 
         if (this.$frameIsNotCompactibleForArithmeticOperation()) {
-            throw Error("TypeError: Mul operation is not supported for string dtypes");
+            throw Error("TypeError: mul operation is not supported for string dtypes");
         }
 
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
+        }
         const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
         const newData = (tensors[0].mul(tensors[1])).arraySync()
 
@@ -465,15 +508,18 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Return division of DataFrame with other.
      * @param other DataFrame, Series, Array or Scalar number to divide with.
-     * @param axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    div(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void {
-        const { inplace = false } = options || {};
-        axis = (!axis && axis !== 0) ? 1 : axis
+    div(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
+        const { inplace, axis } = { inplace: false, axis: 1, ...options }
 
         if (this.$frameIsNotCompactibleForArithmeticOperation()) {
-            throw Error("TypeError: Div operation is not supported for string dtypes");
+            throw Error("TypeError: div operation is not supported for string dtypes");
+        }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
         }
 
         const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
@@ -498,15 +544,18 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Return DataFrame raised to the power of other.
      * @param other DataFrame, Series, Array or Scalar number to to raise to.
-     * @param axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    pow(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void {
-        const { inplace = false } = options || {};
-        axis = (!axis && axis !== 0) ? 1 : axis
+    pow(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
+        const { inplace, axis } = { inplace: false, axis: 1, ...options }
 
         if (this.$frameIsNotCompactibleForArithmeticOperation()) {
-            throw Error("TypeError: Pow operation is not supported for string dtypes");
+            throw Error("TypeError: pow operation is not supported for string dtypes");
+        }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
         }
 
         const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
@@ -531,15 +580,18 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Return modulus between DataFrame and other.
      * @param other DataFrame, Series, Array or Scalar number to modulus with.
-     * @param axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    mod(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void {
-        const { inplace = false } = options || {};
-        axis = (!axis && axis !== 0) ? 1 : axis
+    mod(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
+        const { inplace, axis } = { inplace: false, axis: 1, ...options }
 
         if (this.$frameIsNotCompactibleForArithmeticOperation()) {
-            throw Error("TypeError: Mod operation is not supported for string dtypes");
+            throw Error("TypeError: mod operation is not supported for string dtypes");
+        }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
         }
 
         const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
@@ -563,13 +615,17 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     /**
      * Return mean of DataFrame across specified axis.
-     * @param axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise. Defaults to 1
     */
-    mean(axis?: 0 | 1): Series {
-        axis = (!axis && axis !== 0) ? 1 : axis
+    mean(options?: { axis?: 0 | 1 }): Series {
+        const { axis } = { axis: 1, ...options }
 
         if (this.$frameIsNotCompactibleForArithmeticOperation()) {
-            throw Error("TypeError: Mean operation is not supported for string dtypes");
+            throw Error("TypeError: mean operation is not supported for string dtypes");
+        }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
         }
 
         if (this.config.toUseTfjsMathFunctions) {
@@ -578,45 +634,170 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             return new Series(newData)
 
         } else {
-
-            if (axis === 1) {
-                const cleanValues: Array<number[]> = [];
-                const dfValues = this.values
-
-                for (let i = 0; i < dfValues.length; i++) {
-                    const values = dfValues[i] as number[]
-                    if (values.includes(NaN)) {
-                        cleanValues.push(utils.removeNansFromArray(values) as number[]);
-                    } else {
-                        cleanValues.push(values);
-                    }
-                }
-
-                const newData = cleanValues.map(arr => arr.reduce((a, b) => a + b, 0) / arr.length)
-                return new Series(newData)
-            } else {
-                const cleanValues: Array<number[]> = [];
-                let dfValues;
-
-                if (this.config.isLowMemoryMode) {
-                    dfValues = utils.transposeArray(this.values) as ArrayType2D
-                } else {
-                    dfValues = this.$dataIncolumnFormat as ArrayType2D
-                }
-
-                for (let i = 0; i < dfValues.length; i++) {
-                    const values = dfValues[i] as number[]
-                    if (values.includes(NaN)) {
-                        cleanValues.push(utils.removeNansFromArray(values) as number[]);
-                    } else {
-                        cleanValues.push(values);
-                    }
-                }
-
-                const newData = cleanValues.map(arr => arr.reduce((a, b) => a + b, 0) / arr.length)
-                return new Series(newData)
-            }
+            const newData = this.$getDataByAxisWithMissingValuesRemoved(axis)
+            const meanArr = newData.map(arr => arr.reduce((a, b) => a + b, 0) / arr.length)
+            return new Series(meanArr)
         }
+    }
+
+    /**
+     * Return median of DataFrame across specified axis.
+     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise. Defaults to 1
+    */
+    median(options?: { axis?: 0 | 1 }): Series {
+        const { axis } = { axis: 1, ...options }
+
+        if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+            throw Error("TypeError: median operation is not supported for string dtypes");
+        }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
+        }
+
+        const newData = this.$getDataByAxisWithMissingValuesRemoved(axis)
+        const meanArr = newData.map(arr => median(arr))
+        return new Series(meanArr)
+
+    }
+
+    /**
+     * Return mode of DataFrame across specified axis.
+     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise. Defaults to 1
+     * @param options.keep If there are more than one modes, returns the mode at position [keep]. Defaults to 0
+    */
+    mode(options?: { axis?: 0 | 1, keep?: number }): Series {
+        const { axis, keep } = { axis: 1, keep: 0, ...options }
+
+        if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+            throw Error("TypeError: mode operation is not supported for string dtypes");
+        }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
+        }
+
+        const newData = this.$getDataByAxisWithMissingValuesRemoved(axis)
+        const meanArr = newData.map(arr => {
+            const tempMode = mode(arr)
+            if (tempMode.length === 1) {
+                return tempMode[0]
+            } else {
+                return tempMode[keep]
+            }
+        })
+        return new Series(meanArr)
+
+    }
+
+    /**
+     * Return minimum of values in a DataFrame across specified axis.
+     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise. Defaults to 1
+    */
+    min(options?: { axis?: 0 | 1 }): Series {
+        const { axis } = { axis: 1, ...options }
+
+        if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+            throw Error("TypeError: min operation is not supported for string dtypes");
+        }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
+        }
+
+        const newData = this.$getDataByAxisWithMissingValuesRemoved(axis)
+
+        if (this.config.toUseTfjsMathFunctions) {
+            const newData = (tf.tensor2d(this.values as any).min(axis)).arraySync()
+            return new Series(newData)
+
+        } else {
+            const minArr = newData.map(arr => {
+                let smallestValue = arr[0]
+                for (let i = 0; i < arr.length; i++) {
+                    smallestValue = smallestValue < arr[i] ? smallestValue : arr[i]
+                }
+                return smallestValue
+            })
+            return new Series(minArr)
+        }
+
+    }
+
+    /**
+     * Return maximum of values in a DataFrame across specified axis.
+     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise. Defaults to 1
+    */
+    max(options?: { axis?: 0 | 1 }): Series {
+        const { axis } = { axis: 1, ...options }
+
+        if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+            throw Error("TypeError: max operation is not supported for string dtypes");
+        }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
+        }
+
+        const newData = this.$getDataByAxisWithMissingValuesRemoved(axis)
+
+        if (this.config.toUseTfjsMathFunctions) {
+            const newData = (tf.tensor2d(this.values as any).max(axis)).arraySync()
+            return new Series(newData)
+
+        } else {
+            const maxArr = newData.map(arr => {
+                let biggestValue = arr[0]
+                for (let i = 0; i < arr.length; i++) {
+                    biggestValue = biggestValue > arr[i] ? biggestValue : arr[i]
+                }
+                return biggestValue
+            })
+            return new Series(maxArr)
+        }
+
+    }
+
+    /**
+     * Return standard deviation of values in a DataFrame across specified axis.
+     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise. Defaults to 1
+    */
+    std(options?: { axis?: 0 | 1 }): Series {
+        const { axis } = { axis: 1, ...options }
+
+        if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+            throw Error("TypeError: std operation is not supported for string dtypes");
+        }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
+        }
+
+        const newData = this.$getDataByAxisWithMissingValuesRemoved(axis)
+        const stdArr = newData.map(arr => std(arr))
+        return new Series(stdArr)
+
+    }
+
+    /**
+     * Return variance of values in a DataFrame across specified axis.
+     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise. Defaults to 1
+    */
+    var(options?: { axis?: 0 | 1 }): Series {
+        const { axis } = { axis: 1, ...options }
+
+        if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+            throw Error("TypeError: var operation is not supported for string dtypes");
+        }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
+        }
+
+        const newData = this.$getDataByAxisWithMissingValuesRemoved(axis)
+        const varArr = newData.map(arr => variance(arr))
+        return new Series(varArr)
+
     }
 
 
@@ -625,9 +806,13 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param axis 0 or 1. If 0, drop rows with NaNs, if 1, drop columns with NaNs
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    dropNa(axis?: 0 | 1, options?: { inplace: boolean }): DataFrame | void {
-        const { inplace = false } = options || {};
+    dropNa(axis?: 0 | 1, options?: { inplace?: boolean }): DataFrame | void {
+        const { inplace } = { inplace: false, ...options }
         axis = (!axis && axis !== 0) ? 1 : axis
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
+        }
 
         const newIndex: Array<number | string> = [];
 

@@ -135,7 +135,8 @@ export default class Series extends NDframe implements SeriesInterface {
      * @param num The number of rows to return
      * @param options.seed An integer specifying the random seed that will be used to create the distribution.
     */
-    async sample(num = 5, seed = 1): Promise<Series> {
+    async sample(num = 5, options?: { seed?: number }): Promise<Series> {
+        const { seed } = { seed: 1, ...options }
 
         if (num > this.shape[0]) {
             throw new Error("Sample size n cannot be bigger than size of dataset");
@@ -156,8 +157,8 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param other Series or Number to add
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
       */
-    add(other: Series | number, options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options
+    add(other: Series | number, options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("add")
 
@@ -176,8 +177,8 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param other Number to subtract
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
       */
-    sub(other: Series | number, options: { inplace?: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options
+    sub(other: Series | number, options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("sub")
 
@@ -197,8 +198,8 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param other Number to multiply with.
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    mul(other: Series | number, options: { inplace?: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options
+    mul(other: Series | number, options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("mul")
 
@@ -217,8 +218,8 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param other Series or number to divide with.
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
       */
-    div(other: Series | number, options: { inplace?: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options
+    div(other: Series | number, options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("div")
 
@@ -237,8 +238,8 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param other Number to multiply with.
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
       */
-    pow(other: Series | number, options: { inplace?: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options
+    pow(other: Series | number, options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("pow")
 
@@ -257,8 +258,8 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param other Number to modulo with
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    mod(other: Series | number, options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options
+    mod(other: Series | number, options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("mod")
 
@@ -277,7 +278,7 @@ export default class Series extends NDframe implements SeriesInterface {
      * */
     private $checkAndCleanValues(values: ArrayType1D, operation: string): number[] {
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError(operation)
-        values = utils.removeNansFromArray(values);
+        values = utils.removeMissingValuesFromArray(values);
 
         if (this.dtypes[0] == "boolean") {
             values = (utils.mapBooleansToIntegers(values as boolean[], 1) as ArrayType1D);
@@ -349,7 +350,7 @@ export default class Series extends NDframe implements SeriesInterface {
        * Return number of non-null elements in a Series
     */
     count(): number {
-        const values = utils.removeNansFromArray(this.values as ArrayType1D)
+        const values = utils.removeMissingValuesFromArray(this.values as ArrayType1D)
         return values.length
     }
 
@@ -410,10 +411,10 @@ export default class Series extends NDframe implements SeriesInterface {
      * @param dp Number of Decimal places to round to
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    round(dp = 1, options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace } = options
+    round(dp = 1, options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
 
-        const values = utils.removeNansFromArray(this.values as ArrayType1D)
+        const values = utils.removeMissingValuesFromArray(this.values as ArrayType1D)
         const newValues = utils.round(values as number[], dp, true);
 
         if (inplace) {
@@ -470,8 +471,8 @@ export default class Series extends NDframe implements SeriesInterface {
      * @param value The value to replace NaN with
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    fillNa(value: number | string | boolean, options = { inplace: false }): Series | void {
-        const { inplace } = options;
+    fillNa(value: number | string | boolean, options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
 
         if (!value && typeof value !== 'boolean') {
             throw Error('Value Error: Must specify value to replace with');
@@ -504,8 +505,8 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param ascending Whether to return sorted values in ascending order or not. Defaults to true
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    sortValues(ascending = true, options = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    sortValues(ascending = true, options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
 
         let sortedValues = [];
         const rangeIdx = utils.range(0, this.index.length - 1);
@@ -539,7 +540,6 @@ export default class Series extends NDframe implements SeriesInterface {
       * Makes a deep copy of a Series
     */
     copy(): Series {
-
         const sf = new Series([...this.values], {
             columnNames: [...this.columnNames],
             index: [...this.index],
@@ -581,8 +581,9 @@ export default class Series extends NDframe implements SeriesInterface {
       * Returns Series with the index reset.
       * This is useful when index is meaningless and needs to be reset to the default before another operation.
       */
-    resetIndex(options: { inplace?: boolean } = { inplace: false }): Series | void {
-        const { inplace } = options;
+    resetIndex(options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
+
         if (inplace) {
             this.$resetIndex();
         } else {
@@ -597,8 +598,8 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param index Array of new index values,
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    setIndex(index: Array<number | string | (number | string)>, options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    setIndex(index: Array<number | string | (number | string)>, options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
 
         if (!index) {
             throw Error('Param Error: Must specify index array');
@@ -619,8 +620,9 @@ export default class Series extends NDframe implements SeriesInterface {
        * @param callable callable can either be a funtion or an object
        * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    map(callable: any, options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    map(callable: any, options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
+
         const isCallable = utils.isFunction(callable);
 
         const data = this.values.map((val: any) => {
@@ -651,8 +653,9 @@ export default class Series extends NDframe implements SeriesInterface {
        * @param callable Function to apply to each element of the series
        * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    apply(callable: any, options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    apply(callable: any, options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
+
         const isCallable = utils.isFunction(callable);
         if (!isCallable) {
             throw new Error("Param Error: callable must be a function");
@@ -716,9 +719,10 @@ export default class Series extends NDframe implements SeriesInterface {
       * Returns the absolute values in Series
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    abs(options: { inplace: boolean } = { inplace: false }): Series | void {
+    abs(options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
+
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("abs")
-        const { inplace = false } = options;
         let newValues;
 
         if (this.config.toUseTfjsMathFunctions) {
@@ -739,31 +743,34 @@ export default class Series extends NDframe implements SeriesInterface {
     /**
       * Returns the cumulative sum over a Series
     */
-    cumSum(options: { inplace: boolean } = { inplace: false }): Series | void {
-        return this.cumOps("sum", options);
+    cumSum(options?: { inplace?: boolean }): Series | void {
+        const ops = { inplace: false, ...options }
+        return this.cumOps("sum", ops);
     }
 
     /**
        * Returns cumulative minimum over a Series
     */
-    cumMin(options: { inplace: boolean } = { inplace: false }): Series | void {
-        return this.cumOps("min", options);
+    cumMin(options?: { inplace?: boolean }): Series | void {
+        const ops = { inplace: false, ...options }
+        return this.cumOps("min", ops);
     }
 
 
     /**
        * Returns cumulative maximum over a Series
     */
-    cumMax(options: { inplace: boolean } = { inplace: false }): Series | void {
-        return this.cumOps("max", options);
-
+    cumMax(options?: { inplace?: boolean }): Series | void {
+        const ops = { inplace: false, ...options }
+        return this.cumOps("max", ops);
     }
 
     /**
        * Returns cumulative product over a Series
     */
-    cumProd(options: { inplace: boolean } = { inplace: false }): Series | void {
-        return this.cumOps("prod", options);
+    cumProd(options?: { inplace?: boolean }): Series | void {
+        const ops = { inplace: false, ...options }
+        return this.cumOps("prod", ops);
     }
 
     /**
@@ -939,9 +946,9 @@ export default class Series extends NDframe implements SeriesInterface {
     replace(
         oldValue: string | number | boolean,
         newValue: string | number | boolean,
-        options: { inplace: boolean } = { inplace: false }
+        options?: { inplace?: boolean }
     ): Series | void {
-        const { inplace = false } = options;
+        const { inplace } = { inplace: false, ...options }
 
         if (!oldValue && typeof oldValue !== 'boolean') {
             throw Error(`Params Error: Must specify param 'oldValue' to replace`);
@@ -976,8 +983,8 @@ export default class Series extends NDframe implements SeriesInterface {
      * Drops all missing values (NaN) from a Series.
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    dropNa(options: { inplace: boolean } = { inplace: false }) {
-        const { inplace = false } = options;
+    dropNa(options?: { inplace?: boolean }) {
+        const { inplace } = { inplace: false, ...options }
 
         const oldValues = this.values;
         const oldIndex = this.index;
@@ -1034,8 +1041,8 @@ export default class Series extends NDframe implements SeriesInterface {
      * @param keep "first" | "last", which dupliate value to keep
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    dropDuplicates(keep: "first" | "last" = "first", options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    dropDuplicates(keep: "first" | "last" = "first", options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
 
         if (!(["first", "last"].includes(keep))) {
             throw Error(`Params Error: Keep must be one of 'first' or 'last'`);
@@ -1084,8 +1091,8 @@ export default class Series extends NDframe implements SeriesInterface {
      * @param dtype Data type to cast to. One of [float32, int32, string, boolean, undefined]
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
      */
-    asType(dtype: "float32" | "int32" | "string" | "boolean" | "undefined", options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    asType(dtype: "float32" | "int32" | "string" | "boolean" | "undefined", options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
 
         if (!dtype) {
             throw Error("Param Error: Please specify dtype to cast to");
@@ -1148,9 +1155,9 @@ export default class Series extends NDframe implements SeriesInterface {
     append(
         newValue: Series | Array<number | string | boolean> | number | string | boolean,
         index: Array<number | string> | number | string,
-        options: { inplace: boolean } = { inplace: false }
+        options?: { inplace?: boolean }
     ): Series | void {
-        const { inplace = false } = options;
+        const { inplace } = { inplace: false, ...options }
 
         if (!newValue && typeof newValue !== "boolean") {
             throw Error("Param Error: newValues cannot be null or undefined");
