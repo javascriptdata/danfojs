@@ -13,17 +13,17 @@
 * ==========================================================================
 */
 import * as tf from '@tensorflow/tfjs';
-import NDframe from "../../core/generic";
+import NDframe from "./generic";
 import { table } from "table";
 import { variance, std, median, mode } from 'mathjs';
-import { _iloc, _loc } from "../indexing";
-import { _genericMathOp } from "../generic.math.ops";
-import Utils from "../../shared/utils"
-import ErrorThrower from "../../shared/errors"
-import { ArrayType1D, BaseDataOptionType, SeriesInterface } from "../../shared/types";
-import { DATA_TYPES } from '../../shared/defaults'
-import Str from '../strings';
-import Dt from '../datetime';
+import { _iloc, _loc } from "./indexing";
+import { _genericMathOp } from "./generic.math.ops";
+import Utils from "../shared/utils"
+import ErrorThrower from "../shared/errors"
+import { ArrayType1D, BaseDataOptionType, SeriesInterface } from "../shared/types";
+import { DATA_TYPES } from '../shared/defaults'
+import Str from './strings';
+import Dt from './datetime';
 
 const utils = new Utils();
 

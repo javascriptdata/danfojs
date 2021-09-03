@@ -13,15 +13,15 @@
 * ==========================================================================
 */
 import * as tf from '@tensorflow/tfjs';
-import NDframe from "../../core/generic";
+import NDframe from "./generic";
 import { table } from "table";
 import { variance, std, median, mode } from 'mathjs';
-import { _iloc, _loc } from "../indexing";
-import { _genericMathOp } from "../generic.math.ops";
-import Utils from "../../shared/utils"
-import { ArrayType1D, ArrayType2D, NdframeInputDataType, DataFrameInterface, BaseDataOptionType } from "../../shared/types";
-import Series from '../series';
-import ErrorThrower from '../../shared/errors';
+import { _iloc, _loc } from "./indexing";
+import { _genericMathOp } from "./generic.math.ops";
+import Utils from "../shared/utils"
+import { ArrayType1D, ArrayType2D, NdframeInputDataType, DataFrameInterface, BaseDataOptionType } from "../shared/types";
+import Series from './series';
+import ErrorThrower from '../shared/errors';
 import { Tensor } from '@tensorflow/tfjs-node';
 
 const utils = new Utils();
@@ -176,7 +176,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         thisDataFrame: DataFrame,
         other: DataFrame | Series | number | Array<number>,
         axis: number
-    ): [Tensor, Tensor] {
+    ){
         if (typeof other === "number") {
             return [thisDataFrame.tensor, tf.scalar(other)];
         } else if (other instanceof DataFrame) {
@@ -417,7 +417,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             throw Error("ParamError: Axis must be 0 or 1");
         }
 
-        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
+        const tensors = this.$getTensorsForArithmeticOperation(this, other, axis);
         const newData = (tensors[0].add(tensors[1])).arraySync()
 
         if (inplace) {
@@ -452,7 +452,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             throw Error("ParamError: Axis must be 0 or 1");
         }
 
-        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
+        const tensors = this.$getTensorsForArithmeticOperation(this, other, axis);
         const newData = (tensors[0].sub(tensors[1])).arraySync()
 
         if (inplace) {
@@ -486,7 +486,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         if ([0, 1].indexOf(axis) === -1) {
             throw Error("ParamError: Axis must be 0 or 1");
         }
-        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
+        const tensors = this.$getTensorsForArithmeticOperation(this, other, axis);
         const newData = (tensors[0].mul(tensors[1])).arraySync()
 
         if (inplace) {
@@ -522,7 +522,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             throw Error("ParamError: Axis must be 0 or 1");
         }
 
-        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
+        const tensors = this.$getTensorsForArithmeticOperation(this, other, axis);
         const newData = (tensors[0].div(tensors[1])).arraySync()
 
         if (inplace) {
@@ -558,7 +558,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             throw Error("ParamError: Axis must be 0 or 1");
         }
 
-        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
+        const tensors = this.$getTensorsForArithmeticOperation(this, other, axis);
         const newData = (tensors[0].pow(tensors[1])).arraySync()
 
         if (inplace) {
@@ -594,7 +594,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             throw Error("ParamError: Axis must be 0 or 1");
         }
 
-        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
+        const tensors = this.$getTensorsForArithmeticOperation(this, other, axis);
         const newData = (tensors[0].mod(tensors[1])).arraySync()
 
         if (inplace) {
