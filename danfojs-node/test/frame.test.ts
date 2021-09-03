@@ -1,7 +1,5 @@
 import { assert, expect } from "chai";
-import { DataFrame, Series } from '../../build';
-import fs from "fs";
-import { index } from "mathjs";
+import { DataFrame, Series } from '../build';
 
 // const testCSVPath = "./tester.csv";
 
