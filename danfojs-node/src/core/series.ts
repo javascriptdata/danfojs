@@ -12,10 +12,9 @@
 * limitations under the License.
 * ==========================================================================
 */
-import * as tf from '@tensorflow/tfjs-node';
 import NDframe from "./generic";
 import { table } from "table";
-import { variance, std, median, mode } from 'mathjs';
+import { variance, std, median, mode, max } from 'mathjs';
 import { _iloc, _loc } from "./indexing";
 import { _genericMathOp } from "./generic.math.ops";
 import Utils from "../shared/utils"
@@ -146,7 +145,7 @@ export default class Series extends NDframe implements SeriesInterface {
         }
         num = num === -1 ? this.shape[0] : num;
 
-        const shuffledIndex = await tf.data.array(this.index).shuffle(num, `${seed}`).take(num).toArray();
+        const shuffledIndex = await this.$tf.data.array(this.index).shuffle(num, `${seed}`).take(num).toArray();
         const sf = this.iloc(shuffledIndex);
         return sf;
     }
@@ -154,10 +153,10 @@ export default class Series extends NDframe implements SeriesInterface {
     /**
       * Return Addition of series and other, element-wise (binary operator add).
       * Equivalent to series + other
-      * @param other Series or Number to add
+      * @param other Series, Array of same length or scalar number to add
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
       */
-    add(other: Series | number, options?: { inplace?: boolean }): Series | void {
+    add(other: Series | Array<number> | number, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("add")
@@ -177,7 +176,7 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param other Number to subtract
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
       */
-    sub(other: Series | number, options?: { inplace?: boolean }): Series | void {
+    sub(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("sub")
@@ -198,7 +197,7 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param other Number to multiply with.
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    mul(other: Series | number, options?: { inplace?: boolean }): Series | void {
+    mul(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("mul")
@@ -218,7 +217,7 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param other Series or number to divide with.
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
       */
-    div(other: Series | number, options?: { inplace?: boolean }): Series | void {
+    div(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("div")
@@ -238,7 +237,7 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param other Number to multiply with.
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
       */
-    pow(other: Series | number, options?: { inplace?: boolean }): Series | void {
+    pow(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("pow")
@@ -258,7 +257,7 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param other Number to modulo with
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    mod(other: Series | number, options?: { inplace?: boolean }): Series | void {
+    mod(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("mod")
@@ -291,7 +290,6 @@ export default class Series extends NDframe implements SeriesInterface {
     */
     mean(): number {
         const values = this.$checkAndCleanValues(this.values as ArrayType1D, "mean")
-        if (this.config.toUseTfjsMathFunctions) return tf.tensor(values).mean().arraySync() as number
         return (values.reduce((a, b) => a + b) / values.length) as number
     }
 
@@ -342,7 +340,6 @@ export default class Series extends NDframe implements SeriesInterface {
     */
     sum(): number {
         const values = this.$checkAndCleanValues(this.values as ArrayType1D, "sum")
-        if (this.config.toUseTfjsMathFunctions) return tf.tensor(values).sum().arraySync() as number
         return values.reduce((sum, value) => sum + value, 0)
     }
 
@@ -358,52 +355,28 @@ export default class Series extends NDframe implements SeriesInterface {
       * Return maximum of series and other.
       * @param other Series or number to check against
     */
-    maximum(other: Series | number): Series {
-        if (typeof other === "number") {
-            const maxResult = this.tensor.maximum(other as number);
-            return new Series(maxResult.arraySync(), {
-                columnNames: this.columnNames,
-                dtypes: [maxResult.dtype],
-                index: this.index
-            });
-        } else {
-            utils.checkSeriesOpCompactibility({ firstSeries: this, secondSeries: other, operation: "maximum" })
-            const tensor1 = this.tensor.asType(this.dtypes[0] as any);
-            const tensor2 = other.tensor;
-            const result = tensor1.maximum(tensor2).arraySync();
-            return new Series(result,
-                {
-                    columnNames: this.columnNames,
-                    index: this.index
-                });
+    maximum(other: Series | number | Array<number>): Series {
+        if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("maximum")
 
-        }
+        const newData = _genericMathOp({ ndFrame: this, other, operation: "maximum" })
+        return new Series(newData, {
+            columnNames: this.columnNames,
+            index: this.index
+        });
     }
 
     /**
       * Return minimum of series and other.
       * @param other Series, Numbers to check against
     */
-    minimum(other: Series | number): Series {
-        if (typeof other === "number") {
-            const maxResult = this.tensor.minimum(other as number);
-            return new Series(maxResult.arraySync(), {
-                columnNames: this.columnNames,
-                dtypes: [maxResult.dtype],
-                index: this.index
-            });
-        } else {
-            utils.checkSeriesOpCompactibility({ firstSeries: this, secondSeries: other, operation: "maximum" })
+    minimum(other: Series | number | Array<number>): Series {
+        if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("maximum")
 
-            const tensor1 = this.tensor.asType(this.dtypes[0] as any);
-            const tensor2 = other.tensor;
-            const result = tensor1.minimum(tensor2).arraySync();
-            return new Series(result,
-                {
-                    columnNames: this.columnNames,
-                    index: this.index
-                });
-        }
+        const newData = _genericMathOp({ ndFrame: this, other, operation: "minimum" })
+        return new Series(newData, {
+            columnNames: this.columnNames,
+            index: this.index
+        });
     }
 
     /**
@@ -414,8 +387,7 @@ export default class Series extends NDframe implements SeriesInterface {
     round(dp = 1, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
-        const values = utils.removeMissingValuesFromArray(this.values as ArrayType1D)
-        const newValues = utils.round(values as number[], dp, true);
+        const newValues = utils.round(this.values as number[], dp, true);
 
         if (inplace) {
             this.$setValues(newValues)
@@ -725,11 +697,8 @@ export default class Series extends NDframe implements SeriesInterface {
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("abs")
         let newValues;
 
-        if (this.config.toUseTfjsMathFunctions) {
-            newValues = this.tensor.abs().arraySync()
-        } else {
-            newValues = this.values.map(val => Math.abs(val as number));
-        }
+
+        newValues = this.values.map(val => Math.abs(val as number));
 
         if (inplace) {
             this.$setValues(newValues as ArrayType1D)
@@ -838,7 +807,7 @@ export default class Series extends NDframe implements SeriesInterface {
        * @param {other} Series, Scalar
        * @return {Series}
        */
-    gt(other: Series | number): Series {
+    gt(other: Series | number | Array<number>): Series {
         return this.boolOps(other, "gt");
     }
 
@@ -847,7 +816,7 @@ export default class Series extends NDframe implements SeriesInterface {
        * @param {other} Series, Scalar
        * @return {Series}
        */
-    le(other: Series | number): Series {
+    le(other: Series | number | Array<number>): Series {
         return this.boolOps(other, "le");
     }
 
@@ -856,7 +825,7 @@ export default class Series extends NDframe implements SeriesInterface {
        * @param {other} Series, Scalar
        * @return {Series}
        */
-    ge(other: Series | number): Series {
+    ge(other: Series | number | Array<number>): Series {
         return this.boolOps(other, "ge");
     }
 
@@ -865,7 +834,7 @@ export default class Series extends NDframe implements SeriesInterface {
         * @param {other} Series, Scalar
         * @return {Series}
         */
-    ne(other: Series | number): Series {
+    ne(other: Series | number | Array<number>): Series {
         return this.boolOps(other, "ne");
     }
 
@@ -874,7 +843,7 @@ export default class Series extends NDframe implements SeriesInterface {
        * @param {other} Series, Scalar
        * @return {Series}
        */
-    eq(other: Series | number): Series {
+    eq(other: Series | number | Array<number>): Series {
         return this.boolOps(other, "eq");
     }
 
@@ -883,22 +852,23 @@ export default class Series extends NDframe implements SeriesInterface {
      * @param other Other Series or number to compare with
      * @param bOps Name of operation to perform [ne, ge, le, gt, lt, eq]
      */
-    private boolOps(other: Series | number, bOps: string) {
+    private boolOps(other: Series | number | Array<number>, bOps: string) {
         const data = [];
         const lSeries = this.values;
         let rSeries;
 
         if (typeof other == "number") {
             rSeries = Array(this.values.length).fill(other); //create array of repeated value for broadcasting
-        } else {
-            if (!(other instanceof Series)) {
-                throw new Error("Param Error: 'other' must be a Series");
-            }
+        } else if (other instanceof Series) {
             rSeries = other.values;
+        } else if (Array.isArray(other)) {
+            rSeries = other;
+        } else {
+            throw new Error("ParamError: value for other not supported. It must be either a scalar, Array or Series");
         }
 
         if (!(lSeries.length === rSeries.length)) {
-            throw new Error("Length Error: Both Series must be of the same length");
+            throw new Error("LengthError: Lenght of other must be equal to length of Series");
         }
 
 

@@ -47,7 +47,7 @@ export type ConfigsType = {
     tableMaxColInConsole: number;
     dtypeTestLim?: number;
     lowMemoryMode?: boolean
-    useTfjsMathFunctions?: boolean
+    tfInstance?: any
 }
 //End of Config class types
 
@@ -116,12 +116,12 @@ export interface SeriesInterface extends NDframeInterface {
     head(rows: number): Series
     tail(rows: number): Series
     sample(num: number, options?: { seed?: number }): Promise<Series>;
-    add(other: Series | number, options?: { inplace?: boolean }): Series | void;
-    sub(other: Series | number, options?: { inplace?: boolean }): Series | void;
-    mul(other: Series | number, options?: { inplace?: boolean }): Series | void;
-    div(other: Series | number, options?: { inplace?: boolean }): Series | void;
-    pow(other: Series | number, options?: { inplace?: boolean }): Series | void;
-    mod(other: Series | number, options?: { inplace?: boolean }): Series | void;
+    add(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void;
+    sub(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void;
+    mul(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void;
+    div(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void;
+    pow(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void;
+    mod(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void;
     mean(): number
     median(): number
     mode(): number
@@ -129,8 +129,8 @@ export interface SeriesInterface extends NDframeInterface {
     max(): number
     sum(): number
     count(): number
-    maximum(other: Series | number): Series
-    minimum(other: Series | number): Series
+    maximum(other: Series | number | Array<number>): Series
+    minimum(other: Series | number | Array<number>): Series
     round(dp: number, options?: { inplace?: boolean }): Series | void
     std(): number
     var(): number
@@ -156,12 +156,12 @@ export interface SeriesInterface extends NDframeInterface {
     cumMin(options?: { inplace?: boolean }): Series | void
     cumMax(options?: { inplace?: boolean }): Series | void
     cumProd(options?: { inplace?: boolean }): Series | void
-    lt(other: Series | number): Series
-    gt(other: Series | number): Series
-    le(other: Series | number): Series
-    ge(other: Series | number): Series
-    ne(other: Series | number): Series
-    eq(other: Series | number): Series
+    lt(other: Series | number | Array<number>): Series
+    gt(other: Series | number | Array<number>): Series
+    le(other: Series | number | Array<number>): Series
+    ge(other: Series | number | Array<number>): Series
+    ne(other: Series | number | Array<number>): Series
+    eq(other: Series | number | Array<number>): Series
     replace(oldValue: string | number | boolean, newValue: string | number | boolean, options?: { inplace?: boolean }): Series | void
     dropNa(options?: { inplace?: boolean }): Series | void
     argSort(): Series

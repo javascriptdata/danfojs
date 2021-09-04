@@ -13,7 +13,6 @@
 * ==========================================================================
 */
 
-import * as tf from '@tensorflow/tfjs-node';
 import { BASE_CONFIG } from './defaults'
 import Config from './config';
 import { ArrayType1D, ArrayType2D } from './types';
@@ -91,8 +90,19 @@ export default class Utils {
      * @param end The ending number.
      */
     range(start: number, end: number): Array<number> {
-        const value = tf.linspace(start, end, end - start + 1).arraySync();
-        return value;
+        if (end < start) {
+            throw new Error("ParamError: end must be greater than start")
+        }
+
+        if (start === end) {
+            return [start]
+        }
+
+        const arr = [];
+        for (let i = start; i <= end; i++) {
+            arr.push(i);
+        }
+        return arr;
     }
 
     /**
@@ -399,7 +409,7 @@ export default class Utils {
             const newArr = [];
             for (let i = 0; i < arr.length; i++) {
                 const ele = arr[i];
-                if (typeof ele == "number") {
+                if (typeof ele == "number" && !isNaN(ele) && ele !== undefined && ele !== null) {
                     newArr.push(Number((ele).toFixed(dp)));
                 } else {
                     newArr.push(ele)
@@ -414,7 +424,7 @@ export default class Utils {
                 if (Array.isArray(innerVal)) {
                     for (let i = 0; i < innerVal.length; i++) {
                         const ele = innerVal[i];
-                        if (typeof ele == "number") {
+                        if (typeof ele == "number" && !isNaN(ele) && ele !== undefined && ele !== null) {
                             newArr.push(Number((ele).toFixed(dp)));
                         } else {
                             newArr.push(ele)
@@ -422,7 +432,7 @@ export default class Utils {
                     }
                     resultArr.push(newArr);
                 } else {
-                    if (typeof innerVal == "number") {
+                    if (typeof innerVal == "number" && !isNaN(innerVal) && innerVal !== undefined && innerVal !== null) {
                         newArr.push(Number((innerVal).toFixed(dp)));
                     } else {
                         newArr.push(innerVal)

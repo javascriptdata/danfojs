@@ -21,7 +21,7 @@ describe("Series Functions", () => {
         it("throw error when row specified is less than 0", function () {
             const data = [1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78];
             const sf = new Series(data);
-            assert.throws(function () { assert.deepEqual(sf.head(-1).values, data) }, Error, `The number of values should be positive`);
+            assert.throws(function () { assert.deepEqual(sf.head(-1).values, data) }, Error, `ParamError: end must be greater than start`);
         });
     });
 
@@ -45,7 +45,7 @@ describe("Series Functions", () => {
             const data = ["Boy", "Girl", "Man", "Woman", "Tall"];
             const cols = ["Items"];
             const sf = new Series(data, { columnNames: cols });
-            assert.throws(function () { assert.deepEqual(sf.tail(-1).values, data) }, Error, `The number of values should be positive`);
+            assert.throws(function () { assert.deepEqual(sf.tail(-1).values, data) }, Error, `ParamError: end must be greater than start`);
         });
     });
 
@@ -108,17 +108,17 @@ describe("Series Functions", () => {
         });
         it("Add works properly when using tfjs add function", function () {
             const data = [1, 2, 3, 4, 5];
-            const sf = new Series(data, { config: { useTfjsMathFunctions: true } });
+            const sf = new Series(data);
             sf.add(1.23, { inplace: true })
             assert.deepEqual(sf.dtypes[0], "float32");
-            assert.deepEqual(sf.values, [2.2300000190734863, 3.2300000190734863, 4.230000019073486, 5.230000019073486, 6.230000019073486]);
+            assert.deepEqual(sf.values, [2.23, 3.23, 4.23, 5.23, 6.23]);
         });
         it("Add works properly when using tfjs add function on Series", function () {
             const data = [1, 2, 3, 4, 5];
-            const sf = new Series(data, { config: { useTfjsMathFunctions: true } });
+            const sf = new Series(data);
             const sf2 = new Series([1.23, 1.23, 1.23, 1.23, 1.23]);
             sf.add(sf2, { inplace: true })
-            assert.deepEqual(sf.values, [2.2300000190734863, 3.2300000190734863, 4.230000019073486, 5.230000019073486, 6.230000019073486]);
+            assert.deepEqual(sf.values, [2.23, 3.23, 4.23, 5.23, 6.23]);
         });
         it("Throws type error on addition of string type", function () {
             const data = [1, 2, 3, 4];
@@ -130,7 +130,7 @@ describe("Series Functions", () => {
                     sf.add(sf2);
                 },
                 Error,
-                "dtype error: String data type does not support add operation"
+                "DtypeError: String data type does not support add operation"
             );
         });
         it("Throws length error if series lenght mixmatch", function () {
@@ -165,7 +165,7 @@ describe("Series Functions", () => {
                     sf.sub(sf2);
                 },
                 Error,
-                "dtype error: String data type does not support sub operation"
+                "DtypeError: String data type does not support sub operation"
             );
         });
         it("Throws length error if series lenght mixmatch", function () {
@@ -195,14 +195,14 @@ describe("Series Functions", () => {
             const data2 = ["A", "B", "C", "d"]
             const sf = new Series(data)
             const sf2 = new Series(data2)
-            assert.throws(() => { sf.mul(sf2) }, Error, "dtype error: String data type does not support mul operation")
+            assert.throws(() => { sf.mul(sf2) }, Error, "DtypeError: String data type does not support mul operation")
         })
         it("Throws length error if series lenght mixmatch", function () {
             const data = [1, 2, 3, 4]
             const data2 = [1, 2, 3, 4, 5, 6]
             const sf = new Series(data)
             const sf2 = new Series(data2)
-            assert.throws(() => { sf.mul(sf2) }, Error, "Row length mismatch. Length of other (6), must be the same as Ndframe (4)")
+            assert.throws(() => { sf.mul(sf2) }, Error, "ParamError: Row length mismatch. Length of other (6), must be the same as Ndframe (4)")
         })
     });
 
@@ -232,14 +232,14 @@ describe("Series Functions", () => {
             const data2 = ["A", "B", "C", "d"]
             const sf = new Series(data)
             const sf2 = new Series(data2)
-            assert.throws(() => { sf.div(sf2) }, Error, `dtype error: String data type does not support div operation`)
+            assert.throws(() => { sf.div(sf2) }, Error, `DtypeError: String data type does not support div operation`)
         })
         it("Throws length error if series lenght mixmatch", function () {
             const data = [1, 2, 3, 4]
             const data2 = [1, 2, 3, 4, 5, 6]
             const sf = new Series(data)
             const sf2 = new Series(data2)
-            assert.throws(() => { sf.div(sf2) }, Error, "Row length mismatch. Length of other (6), must be the same as Ndframe (4)")
+            assert.throws(() => { sf.div(sf2) }, Error, "ParamError: Row length mismatch. Length of other (6), must be the same as Ndframe (4)")
         })
     });
 
@@ -353,7 +353,7 @@ describe("Series Functions", () => {
                     sf.mean();
                 },
                 Error,
-                "dtype error: String data type does not support mean operation"
+                "DtypeError: String data type does not support mean operation"
             );
         });
     });
@@ -439,7 +439,7 @@ describe("Series Functions", () => {
                     sf.max();
                 },
                 Error,
-                "dtype error: String data type does not support max operation"
+                "DtypeError: String data type does not support max operation"
             );
         });
     });
@@ -527,6 +527,13 @@ describe("Series Functions", () => {
             assert.deepEqual(sf.values, [30.22, 40.19, 3.56, 5.02]);
         });
 
+        it("Rounds elements in a Series with missing values to 2dp", function () {
+            const data1 = [30.2191, undefined, 3.564, NaN];
+            const sf = new Series(data1);
+            sf.round(2, { inplace: true })
+            assert.deepEqual(sf.values, [30.22, undefined, 3.56, NaN]);
+        });
+
     });
 
     describe("maximum", function () {
@@ -536,6 +543,17 @@ describe("Series Functions", () => {
             const sf1 = new Series(data1);
             const sf2 = new Series(data2);
             assert.deepEqual(sf1.maximum(sf2).values, [30, 41, 3, 5]);
+        });
+        it("Returns the maximum of series and Array", function () {
+            const data1 = [30, 40, 3, 5];
+            const data2 = [10, 41, 2, 0];
+            const sf1 = new Series(data1);
+            assert.deepEqual(sf1.maximum([10, 41, 2, 0]).values, [30, 41, 3, 5]);
+        });
+        it("Returns the maximum of series and scalar", function () {
+            const data1 = [30, 40, 3, 5];
+            const sf1 = new Series(data1);
+            assert.deepEqual(sf1.maximum(10).values, [30, 40, 10, 10]);
         });
         it("Throws error on checking maximum of incompatible Series", function () {
             const data1 = [30, 40, 3, 5];
@@ -547,7 +565,7 @@ describe("Series Functions", () => {
                     sf1.maximum(sf2);
                 },
                 Error,
-                "Row length mismatch. Length of other (3), must be the same as Ndframe (4)"
+                "ParamError: Row length mismatch. Length of other (3), must be the same as Ndframe (4)"
             );
         });
     });
@@ -559,6 +577,17 @@ describe("Series Functions", () => {
             const sf1 = new Series(data1);
             const sf2 = new Series(data2);
             assert.deepEqual(sf1.minimum(sf2).values, [10, 40, 2, 0]);
+        });
+        it("Returns the minimum of series and array", function () {
+            const data1 = [30, 40, 3, 5];
+            const data2 = [10, 41, 2, 0];
+            const sf1 = new Series(data1);
+            assert.deepEqual(sf1.minimum(data2).values, [10, 40, 2, 0]);
+        });
+        it("Returns the minimum of two series", function () {
+            const data1 = [30, 40, 3, 5];
+            const sf1 = new Series(data1);
+            assert.deepEqual(sf1.minimum(10).values, [10, 10, 3, 5]);
         });
     });
 

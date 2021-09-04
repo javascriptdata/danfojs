@@ -13,7 +13,6 @@
 * ==========================================================================
 */
 
-import * as tf from '@tensorflow/tfjs-node';
 import Utils from "../shared/utils";
 import Configs from "../shared/config";
 import { _iloc } from "./indexing"
@@ -57,16 +56,19 @@ export default class NDframe implements NDframeInterface {
     protected $columnNames: string[] = []
     protected $dtypes: Array<string> = []
     protected $config: Configs
+    $tf: any
 
     constructor({ data, index, columnNames, dtypes, config, isSeries }: NdframeInputDataType) {
         this.$isSeries = isSeries
         if (config) {
-            this.$config = new Configs(config);
+            this.$config = new Configs({ ...BASE_CONFIG, ...config });
         } else {
             this.$config = new Configs(BASE_CONFIG);
         }
 
-        if (data instanceof tf.Tensor) {
+        this.$tf = this.$config.getTfInstance;
+
+        if (data instanceof this.$tf.Tensor) {
             data = data.arraySync();
         }
 
@@ -152,11 +154,11 @@ export default class NDframe implements NDframeInterface {
 
 
 
-    get tensor(): tf.Tensor {
+    get tensor() {
         if (this.$isSeries) {
-            return tf.tensor1d(this.$data)
+            return this.$tf.tensor1d(this.$data)
         } else {
-            return tf.tensor2d(this.$data)
+            return this.$tf.tensor2d(this.$data)
         }
     }
 
@@ -209,7 +211,7 @@ export default class NDframe implements NDframeInterface {
         if (this.$isSeries) {
             return 1;
         } else {
-            return this.tensor.shape.length;
+            return 2
         }
     }
 
@@ -347,7 +349,7 @@ export default class NDframe implements NDframeInterface {
     }
 
     get size(): number {
-        return this.tensor.size
+        return this.shape[0] * this.shape[1]
     }
 
     async toCsv(): Promise<String> {

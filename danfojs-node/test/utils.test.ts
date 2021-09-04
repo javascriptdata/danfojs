@@ -31,7 +31,7 @@ describe("Utils", function () {
         assert.isTrue(utils.isUndefined(arr));
     });
 
-    it("Generate number betwee two set of values", function () {
+    it("Generate numbers between two set of values [both inclusive]", function () {
         let start = 0;
         let end = 5;
         let data = [0, 1, 2, 3, 4, 5];
