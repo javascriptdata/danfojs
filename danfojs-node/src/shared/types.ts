@@ -234,11 +234,11 @@ export interface DataFrameInterface extends NDframeInterface {
     query(options: { column: string, is: string, to: string, inplace?: boolean }): DataFrame
     addColumn(options:
         {
-            column: string,
-            value: Series | ArrayType1D,
+            columnName: string,
+            values: Series | ArrayType1D,
             inplace?: boolean
         }
-    ): DataFrame
+    ): DataFrame | void
     groupby(column: [string, string]): any //Update to GroupBy class later
     column(columnName: string): Series
     fillNa(options:

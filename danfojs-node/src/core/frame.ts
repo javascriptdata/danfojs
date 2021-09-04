@@ -45,19 +45,30 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         this.$setInternalColumnDataProperty();
     }
 
-    private $setInternalColumnDataProperty() {
+    private $setInternalColumnDataProperty(columnName?: string) {
         const self = this;
-        const columnNames = this.columnNames;
-        for (let i = 0; i < columnNames.length; i++) {
-            const columnName = columnNames[i];
-            Object.defineProperty(this, columnName, {
+        if (columnName && typeof columnName === "string") {
+            Object.defineProperty(self, columnName, {
                 get() {
                     return self.$getColumnData(columnName)
                 },
-                set(arr: ArrayType1D | ArrayType2D) {
+                set(arr: ArrayType1D | Series) {
                     self.$setColumnData(columnName, arr);
                 }
             })
+        } else {
+            const columnNames = this.columnNames;
+            for (let i = 0; i < columnNames.length; i++) {
+                const columnName = columnNames[i];
+                Object.defineProperty(this, columnName, {
+                    get() {
+                        return self.$getColumnData(columnName)
+                    },
+                    set(arr: ArrayType1D | Series) {
+                        self.$setColumnData(columnName, arr);
+                    }
+                })
+            }
         }
 
     }
@@ -98,34 +109,46 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     }
 
-    private $setColumnData(columnName: string, arr: ArrayType1D | ArrayType2D): void {
+
+    private $setColumnData(columnName: string, arr: ArrayType1D | Series): void {
 
         const columnIndex = this.$columnNames.indexOf(columnName)
+
         if (columnIndex == -1) {
-            ErrorThrower.throwColumnNotFoundError(this)
+            throw new Error(`ParamError: column ${columnName} not found in ${this.$columnNames}. If you need to add a new column, use the df.addColumn method. `)
         }
 
-        if (!(arr.length !== this.shape[1])) {
-            ErrorThrower.throwColumnLengthError(this, this.shape[1])
+        let colunmValuesToAdd: ArrayType1D
+
+        if (arr instanceof Series) {
+            colunmValuesToAdd = arr.values as ArrayType1D
+        } else if (Array.isArray(arr)) {
+            colunmValuesToAdd = arr;
+        } else {
+            throw new Error("ParamError: specified value not supported. It must either be an Array or a Series of the same length")
+        }
+
+        if (colunmValuesToAdd.length !== this.shape[0]) {
+            ErrorThrower.throwColumnLengthError(this, colunmValuesToAdd.length)
         }
 
         if (this.$config.isLowMemoryMode) {
             //Update row ($data) array
             for (let i = 0; i < this.$data.length; i++) {
-                (this.$data as any)[i][columnIndex] = arr[i]
+                (this.$data as any)[i][columnIndex] = colunmValuesToAdd[i]
             }
             //Update the dtypes
-            this.$dtypes[columnIndex] = utils.inferDtype(arr)[0]
+            this.$dtypes[columnIndex] = utils.inferDtype(colunmValuesToAdd)[0]
         } else {
             //Update row ($data) array
             for (let i = 0; i < this.values.length; i++) {
-                (this.$data as any)[i][columnIndex] = arr[i]
+                (this.$data as any)[i][columnIndex] = colunmValuesToAdd[i]
             }
             //Update column ($dataIncolumnFormat) array since it's available in object
             (this.$dataIncolumnFormat as any)[columnIndex] = arr
 
             //Update the dtypes
-            this.$dtypes[columnIndex] = utils.inferDtype(arr)[0]
+            this.$dtypes[columnIndex] = utils.inferDtype(colunmValuesToAdd)[0]
         }
 
     }
@@ -866,6 +889,63 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                         config: this.config
                     })
             }
+        }
+
+    }
+
+    addColumn(options:
+        {
+            columnName: string,
+            values: Series | ArrayType1D,
+            inplace?: boolean
+        }
+    ): DataFrame | void {
+        const { columnName, values, inplace } = { inplace: false, ...options };
+
+        const columnIndex = this.$columnNames.indexOf(columnName)
+
+        if (columnIndex === -1) {
+            let colunmValuesToAdd: ArrayType1D
+
+            if (values instanceof Series) {
+                colunmValuesToAdd = values.values as ArrayType1D
+            } else if (Array.isArray(values)) {
+                colunmValuesToAdd = values;
+            } else {
+                throw new Error("ParamError: specified value not supported. It must either be an Array or a Series of the same length")
+            }
+
+            if (colunmValuesToAdd.length !== this.shape[0]) {
+                ErrorThrower.throwColumnLengthError(this, colunmValuesToAdd.length)
+            }
+
+            const newData = []
+            for (let i = 0; i < this.values.length; i++) {
+                const innerArr = this.values[i] as ArrayType1D
+                innerArr.push(colunmValuesToAdd[i])
+                newData.push(innerArr)
+            }
+
+            if (inplace) {
+                this.$data = newData;
+                this.$setDtypes([...this.dtypes, ...utils.inferDtype(colunmValuesToAdd)]);
+                this.$setColumnNames([...this.columnNames, columnName]);
+
+                if (!this.$config.isLowMemoryMode) {
+                    this.$dataIncolumnFormat.push(colunmValuesToAdd as any)
+                }
+                this.$setInternalColumnDataProperty(columnName);
+
+            } else {
+                return new DataFrame(newData, {
+                    index: this.index,
+                    columnNames: [...this.columnNames, columnName],
+                    dtypes: [...this.dtypes, ...utils.inferDtype(colunmValuesToAdd)],
+                    config: this.$config
+                })
+            }
+        } else {
+            this.$setColumnData(columnName, values);
         }
 
     }

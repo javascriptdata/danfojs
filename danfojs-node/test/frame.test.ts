@@ -5,7 +5,7 @@ import { DataFrame, Series } from '../build';
 
 describe("DataFrame", function () {
 
-    describe("Access to column data via indexing name works", function () {
+    describe("Subsetting by column names", function () {
         it("retrieves the col data created from an df with two columns", function () {
             let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4] };
             let df = new DataFrame(data);
@@ -85,6 +85,55 @@ describe("DataFrame", function () {
         });
     })
 
+    describe("addColumn", function () {
+        it("Add new array values to DataFrame works", function () {
+            let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
+            let df = new DataFrame(data);
+            const newdf = df.addColumn({ columnName: "new_column", values: ["a", "b", "c", "d"] });
+            assert.deepEqual(newdf["new_column"].values, ["a", "b", "c", "d"]);
+            assert.deepEqual(newdf.columnNames, ["alpha", "count", "sum", "new_column"]);
+            assert.deepEqual(newdf.dtypes, ["string", "int32", "float32", "string"]);
+            assert.deepEqual(newdf.index, [0, 1, 2, 3]);
+        });
+        it("Add new array values to DataFrame inplace works", function () {
+            let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
+            let df = new DataFrame(data);
+            df.addColumn({ columnName: "new_column", values: ["a", "b", "c", "d"], inplace: true });
+            assert.deepEqual(df["new_column"].values, ["a", "b", "c", "d"]);
+            assert.deepEqual(df.columnNames, ["alpha", "count", "sum", "new_column"]);
+            assert.deepEqual(df.dtypes, ["string", "int32", "float32", "string"]);
+            assert.deepEqual(df.index, [0, 1, 2, 3]);
+        });
+        it("Add new Series to DataFrame works", function () {
+            let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
+            let df = new DataFrame(data);
+            const newdf = df.addColumn({ columnName: "new_column", values: new Series(["a", "b", "c", "d"]) });
+            assert.deepEqual(newdf["new_column"].values, ["a", "b", "c", "d"]);
+            assert.deepEqual(newdf.columnNames, ["alpha", "count", "sum", "new_column"]);
+            assert.deepEqual(newdf.dtypes, ["string", "int32", "float32", "string"]);
+            assert.deepEqual(newdf.index, [0, 1, 2, 3]);
+        });
+        it("Correct column data is set", function () {
+            let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
+            let df = new DataFrame(data);
+            df.addColumn({ columnName: "new_column", values: ["a", "b", "c", "d"], inplace: true });
+            assert.deepEqual(df["new_column"].values, ["a", "b", "c", "d"]);
+            assert.deepEqual(df["alpha"].values, ["A", "B", "C", "D"]);
+            assert.deepEqual(df["count"].values, [1, 2, 3, 4]);
+            assert.deepEqual(df["sum"].values, [20.3, 30.456, 40.90, 90.1]);
+        });
+        it("throw error for wrong column lenght", function () {
+            const data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
+            const df = new DataFrame(data);
+
+            assert.throws(function () {
+                df.addColumn({ columnName: "new_column", values: new Series(["a", "b", "c"]) }),
+                    Error,
+                    'ParamError: Column data length mismatch. You provided data with length 3 but Ndframe has column of lenght 4'
+            })
+
+        });
+    })
 
     //     describe("to_csv", function () {
     //         afterEach(function () {
