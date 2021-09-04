@@ -12,7 +12,7 @@
 * limitations under the License.
 * ==========================================================================
 */
-import * as tf from '@tensorflow/tfjs-node';
+// import * asthis.$tf from '@tensorflow/tfjs-node';
 import NDframe from "./generic";
 import { table } from "table";
 import { variance, std, median, mode } from 'mathjs';
@@ -135,30 +135,30 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param axis 0 or 1. If 0, add row-wise, if 1, add column-wise
     */
     private $getDataByAxisWithMissingValuesRemoved(axis: number): Array<number[]> {
+        const oldValues = this.$getDataArraysByAxis(axis);
+        const cleanValues = [];
+        for (let i = 0; i < oldValues.length; i++) {
+            const values = oldValues[i] as number[]
+            cleanValues.push(utils.removeMissingValuesFromArray(values) as number[]);
+        }
+        return cleanValues;
+    }
+
+    /**
+     * Return data aligned to the specified axis. Transposes the array if needed.
+     * @param axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+    */
+    private $getDataArraysByAxis(axis: number): ArrayType2D {
         if (axis === 1) {
-            const cleanValues: Array<number[]> = [];
-            const dfValues = this.values
-
-            for (let i = 0; i < dfValues.length; i++) {
-                const values = dfValues[i] as number[]
-                cleanValues.push(utils.removeMissingValuesFromArray(values) as number[]);
-            }
-            return cleanValues
+            return this.values as ArrayType2D
         } else {
-            const cleanValues: Array<number[]> = [];
             let dfValues;
-
             if (this.config.isLowMemoryMode) {
                 dfValues = utils.transposeArray(this.values) as ArrayType2D
             } else {
                 dfValues = this.$dataIncolumnFormat as ArrayType2D
             }
-
-            for (let i = 0; i < dfValues.length; i++) {
-                const values = dfValues[i] as number[]
-                cleanValues.push(utils.removeMissingValuesFromArray(values) as number[]);
-            }
-            return cleanValues
+            return dfValues
         }
     }
 
@@ -172,26 +172,30 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         return dtypes.some(str)
     }
 
-    private $getTensorsForArithmeticOperation(
-        thisDataFrame: DataFrame,
+    /**
+     * Return Tensors in the right axis for math operations.
+     * @param other DataFrame or Series or number or array
+     * @param axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * */
+    private $getTensorsForArithmeticOperationByAxis(
         other: DataFrame | Series | number | Array<number>,
         axis: number
     ): [Tensor, Tensor] {
         if (typeof other === "number") {
-            return [thisDataFrame.tensor, tf.scalar(other)];
+            return [this.tensor, this.$tf.scalar(other)];
         } else if (other instanceof DataFrame) {
-            return [thisDataFrame.tensor, other.tensor];
+            return [this.tensor, other.tensor];
         } else if (other instanceof Series) {
             if (axis === 0) {
-                return [thisDataFrame.tensor, tf.tensor2d(other.values as Array<number>, [other.shape[0], 1])];
+                return [this.tensor, this.$tf.tensor2d(other.values as Array<number>, [other.shape[0], 1])];
             } else {
-                return [thisDataFrame.tensor, tf.tensor2d(other.values as Array<number>, [other.shape[0], 1]).transpose()];
+                return [this.tensor, this.$tf.tensor2d(other.values as Array<number>, [other.shape[0], 1]).transpose()];
             }
         } else if (Array.isArray(other)) {
             if (axis === 0) {
-                return [thisDataFrame.tensor, tf.tensor2d(other, [other.length, 1])];
+                return [this.tensor, this.$tf.tensor2d(other, [other.length, 1])];
             } else {
-                return [thisDataFrame.tensor, tf.tensor2d(other, [other.length, 1]).transpose()];
+                return [this.tensor, this.$tf.tensor2d(other, [other.length, 1]).transpose()];
             }
         } else {
             throw new Error("ParamError: Invalid type for other parameter. other must be one of Series, DataFrame or number.")
@@ -395,7 +399,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             throw new Error("ParamError: Sample size cannot be less than 1");
         }
 
-        const shuffledIndex = await tf.data.array(this.index).shuffle(num, `${seed}`).take(num).toArray();
+        const shuffledIndex = await this.$tf.data.array(this.index).shuffle(num, `${seed}`).take(num).toArray();
         const sf = this.iloc({ rows: shuffledIndex });
         return sf;
     }
@@ -416,9 +420,10 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         if ([0, 1].indexOf(axis) === -1) {
             throw Error("ParamError: Axis must be 0 or 1");
         }
+        let newData;
 
-        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
-        const newData = (tensors[0].add(tensors[1])).arraySync()
+        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperationByAxis(other, axis);
+        newData = (tensors[0].add(tensors[1])).arraySync() as ArrayType2D
 
         if (inplace) {
             this.$setValues(newData as ArrayType2D)
@@ -435,6 +440,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         }
 
     }
+
     /**
      * Return substraction between DataFrame and other.
      * @param other DataFrame, Series, Array or Scalar number to substract from DataFrame
@@ -452,7 +458,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             throw Error("ParamError: Axis must be 0 or 1");
         }
 
-        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
+        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperationByAxis(other, axis);
         const newData = (tensors[0].sub(tensors[1])).arraySync()
 
         if (inplace) {
@@ -486,7 +492,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         if ([0, 1].indexOf(axis) === -1) {
             throw Error("ParamError: Axis must be 0 or 1");
         }
-        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
+        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperationByAxis(other, axis);
         const newData = (tensors[0].mul(tensors[1])).arraySync()
 
         if (inplace) {
@@ -522,7 +528,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             throw Error("ParamError: Axis must be 0 or 1");
         }
 
-        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
+        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperationByAxis(other, axis);
         const newData = (tensors[0].div(tensors[1])).arraySync()
 
         if (inplace) {
@@ -558,7 +564,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             throw Error("ParamError: Axis must be 0 or 1");
         }
 
-        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
+        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperationByAxis(other, axis);
         const newData = (tensors[0].pow(tensors[1])).arraySync()
 
         if (inplace) {
@@ -594,7 +600,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             throw Error("ParamError: Axis must be 0 or 1");
         }
 
-        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperation(this, other, axis);
+        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperationByAxis(other, axis);
         const newData = (tensors[0].mod(tensors[1])).arraySync()
 
         if (inplace) {
@@ -628,16 +634,9 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             throw Error("ParamError: Axis must be 0 or 1");
         }
 
-        if (this.config.toUseTfjsMathFunctions) {
-            //Note: Tensorflow does not remove NaNs before performing math operations.
-            const newData = (tf.tensor2d(this.values as any).mean(axis)).arraySync()
-            return new Series(newData)
-
-        } else {
-            const newData = this.$getDataByAxisWithMissingValuesRemoved(axis)
-            const meanArr = newData.map(arr => arr.reduce((a, b) => a + b, 0) / arr.length)
-            return new Series(meanArr)
-        }
+        const newData = this.$getDataByAxisWithMissingValuesRemoved(axis)
+        const meanArr = newData.map(arr => arr.reduce((a, b) => a + b, 0) / arr.length)
+        return new Series(meanArr)
     }
 
     /**
@@ -707,20 +706,14 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
         const newData = this.$getDataByAxisWithMissingValuesRemoved(axis)
 
-        if (this.config.toUseTfjsMathFunctions) {
-            const newData = (tf.tensor2d(this.values as any).min(axis)).arraySync()
-            return new Series(newData)
-
-        } else {
-            const minArr = newData.map(arr => {
-                let smallestValue = arr[0]
-                for (let i = 0; i < arr.length; i++) {
-                    smallestValue = smallestValue < arr[i] ? smallestValue : arr[i]
-                }
-                return smallestValue
-            })
-            return new Series(minArr)
-        }
+        const minArr = newData.map(arr => {
+            let smallestValue = arr[0]
+            for (let i = 0; i < arr.length; i++) {
+                smallestValue = smallestValue < arr[i] ? smallestValue : arr[i]
+            }
+            return smallestValue
+        })
+        return new Series(minArr)
 
     }
 
@@ -741,20 +734,14 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
         const newData = this.$getDataByAxisWithMissingValuesRemoved(axis)
 
-        if (this.config.toUseTfjsMathFunctions) {
-            const newData = (tf.tensor2d(this.values as any).max(axis)).arraySync()
-            return new Series(newData)
-
-        } else {
-            const maxArr = newData.map(arr => {
-                let biggestValue = arr[0]
-                for (let i = 0; i < arr.length; i++) {
-                    biggestValue = biggestValue > arr[i] ? biggestValue : arr[i]
-                }
-                return biggestValue
-            })
-            return new Series(maxArr)
-        }
+        const maxArr = newData.map(arr => {
+            let biggestValue = arr[0]
+            for (let i = 0; i < arr.length; i++) {
+                biggestValue = biggestValue > arr[i] ? biggestValue : arr[i]
+            }
+            return biggestValue
+        })
+        return new Series(maxArr)
 
     }
 
