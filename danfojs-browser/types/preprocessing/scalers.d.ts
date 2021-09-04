@@ -13,6 +13,7 @@ export class MinMaxScaler {
        * @returns array
        */
     transform(data?: any): Series | DataFrame;
+    inverse_transform(data?: any): Series | DataFrame;
 }
 export class StandardScaler {
     /**
@@ -24,6 +25,7 @@ export class StandardScaler {
     std?: any;
     mean?: any;
     transform(data?: any): Series | DataFrame;
+    inverse_transform(data?: any): Series | DataFrame;
 }
 import { Series } from "../core/series";
 import { DataFrame } from "../core/frame";

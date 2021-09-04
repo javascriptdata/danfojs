@@ -8,7 +8,7 @@ const utils = new Utils();
 export class MinMaxScaler {
   /**
    * Fit minmax scaler on data, to obtain their min and max value
-   * @param {data} data [DataRame | Series | Array]
+   * @param {data} data [DataFrame | Series | Array]
    * @returns Array
    */
   fit(data) {
@@ -77,7 +77,50 @@ export class MinMaxScaler {
         .arraySync();
       return new DataFrame(output_data);
     } else {
-      throw Error("Value Error: Data type not supoorted");
+      throw Error("Value Error: Data type not supported");
+    }
+  }
+
+  /**
+   * Restore a transformed array to their original values,
+   * using the min and max generated from the fitting on data
+   * @param {Series|Array|DataFrame} data
+   * @returns Series|DataFrame
+   */
+   inverse_transform(data) {
+    if (data instanceof Series) {
+      if (data.dtypes.includes("string")) {
+        throw Error("Dtype Error: Cannot perform operation on string dtypes");
+      }
+      let tensor_data = tensor(data.values);
+      let output_data = tensor_data
+        .mul(this.max.sub(this.min))
+        .add(this.min)
+        .arraySync();
+      return new Series(output_data);
+    } else if (Array.isArray(data)) {
+      let tensor_data = tensor(data);
+      let output_data = tensor_data
+        .mul(this.max.sub(this.min))
+        .add(this.min)
+        .arraySync();
+      if (utils.__is_1D_array(data)) {
+        return new Series(output_data);
+      } else {
+        return new DataFrame(output_data);
+      }
+    } else if (data instanceof DataFrame) {
+      if (data.dtypes.includes("string")) {
+        throw Error("Dtype Error: Cannot perform operation on string dtypes");
+      }
+      let tensor_data = tensor(data.values);
+      let output_data = tensor_data
+        .mul(this.max.sub(this.min))
+        .add(this.min)
+        .arraySync();
+      return new DataFrame(output_data);
+    } else {
+      throw Error("Value Error: Data type not supported");
     }
   }
 }
@@ -85,7 +128,7 @@ export class MinMaxScaler {
 export class StandardScaler {
   /**
    *
-   * @param {data} data [DataRame | Series | Array]
+   * @param {data} data [DataFame | Series | Array]
    * @returns Array
    */
   fit(data) {
@@ -140,7 +183,41 @@ export class StandardScaler {
       let output_data = tensor_data.sub(this.mean).div(this.std).arraySync();
       return new DataFrame(output_data);
     } else {
-      throw Error("Value Error: Data type not supoorted");
+      throw Error("Value Error: Data type not supported");
+    }
+  }
+
+  /**
+   * Restore a transformed array to their original values,
+   * using the mean and std generated from the fitting on data
+   * @param {Series|Array|DataFrame} data
+   * @returns Series|DataFrame
+   */
+  inverse_transform(data) {
+    if (data instanceof Series) {
+      if (data.dtypes.includes("string")) {
+        throw Error("Dtype Error: Cannot perform operation on string dtypes");
+      }
+      let tensor_data = tensor(data.values);
+      let output_data = tensor_data.mul(this.std).add(this.mean).arraySync();
+      return new Series(output_data);
+    } else if (Array.isArray(data)) {
+      let tensor_data = tensor(data);
+      let output_data = tensor_data.mul(this.std).add(this.mean).arraySync();
+      if (utils.__is_1D_array(data)) {
+        return new Series(output_data);
+      } else {
+        return new DataFrame(output_data);
+      }
+    } else if (data instanceof DataFrame) {
+      if (data.dtypes.includes("string")) {
+        throw Error("Dtype Error: Cannot perform operation on string dtypes");
+      }
+      let tensor_data = tensor(data.values);
+      let output_data = tensor_data.mul(this.std).add(this.mean).arraySync();
+      return new DataFrame(output_data);
+    } else {
+      throw Error("Value Error: Data type not supported");
     }
   }
 }
@@ -237,7 +314,7 @@ export class StandardScaler {
 
 //     /**
 //      * Fit robust scalar on data to obtain the first quantile and third quantile
-//      * @param {data} data [DataRame | Series | Array]
+//      * @param {data} data [DataFrame | Series | Array]
 //      * @returns Array
 //      */
 //     fit(data){
