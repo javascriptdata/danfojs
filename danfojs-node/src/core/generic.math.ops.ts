@@ -30,109 +30,139 @@ const utils = new Utils();
 */
 export function _genericMathOp({ ndFrame, other, operation }: {
     ndFrame: Series
-    other: Series | number
+    other: Series | number | Array<number>
     operation: string
-}): ArrayType1D {
+}) {
     if (typeof other === 'number') {
         //broadcast operation
         let newData;
         switch (operation) {
             case 'add':
-                if (ndFrame.config.toUseTfjsMathFunctions) {
-                    return ndFrame.tensor.add(other).arraySync() as ArrayType1D
-                } else {
-                    newData = (ndFrame.values as number[]).map((ele => ele + other))
-                    return newData
-                }
+                newData = (ndFrame.values as number[]).map((ele => ele + other))
+                return newData
+
             case 'sub':
-                if (ndFrame.config.toUseTfjsMathFunctions) {
-                    return ndFrame.tensor.sub(other).arraySync() as ArrayType1D
-                } else {
-                    newData = (ndFrame.values as number[]).map((ele => ele - other))
-                    return newData
-                }
+                newData = (ndFrame.values as number[]).map((ele => ele - other))
+                return newData
+
             case 'mul':
-                if (ndFrame.config.toUseTfjsMathFunctions) {
-                    return ndFrame.tensor.mul(other).arraySync() as ArrayType1D
-                } else {
-                    newData = (ndFrame.values as number[]).map((ele => ele * other))
-                    return newData
-                }
+                newData = (ndFrame.values as number[]).map((ele => ele * other))
+                return newData
+
             case 'div':
-                if (ndFrame.config.toUseTfjsMathFunctions) {
-                    return ndFrame.tensor.div(other).arraySync() as ArrayType1D
-                } else {
-                    newData = (ndFrame.values as number[]).map((ele => ele / other))
-                    return newData
-                }
+                newData = (ndFrame.values as number[]).map((ele => ele / other))
+                return newData
+
             case 'mod':
-                if (ndFrame.config.toUseTfjsMathFunctions) {
-                    return ndFrame.tensor.mod(other).arraySync() as ArrayType1D
-                } else {
-                    newData = (ndFrame.values as number[]).map((ele => ele % other))
-                    return newData
-                }
+                newData = (ndFrame.values as number[]).map((ele => ele % other))
+                return newData
+
             case 'pow':
-                if (ndFrame.config.toUseTfjsMathFunctions) {
-                    return ndFrame.tensor.pow(other).arraySync() as ArrayType1D
-                } else {
-                    newData = (ndFrame.values as number[]).map((ele => ele ** other))
-                    return newData
-                }
+                newData = (ndFrame.values as number[]).map((ele => ele ** other))
+                return newData
+
+            case 'minimum':
+                newData = (ndFrame.values as number[]).map((ele => Math.min(ele, other)))
+                return newData
+
+            case 'maximum':
+                newData = (ndFrame.values as number[]).map((ele => Math.max(ele, other)))
+                return newData
+
             default:
                 throw new Error(`${operation} is not implemented`);
 
         }
-    } else {
+    } else if (other instanceof Series) {
         utils.checkSeriesOpCompactibility({ firstSeries: ndFrame, secondSeries: other, operation })
 
         let newData;
         switch (operation) {
             case 'add':
-                if (ndFrame.config.toUseTfjsMathFunctions) {
-                    return ndFrame.tensor.add(other.tensor).arraySync() as ArrayType1D
-                } else {
-                    newData = (ndFrame.values as number[]).map((ele, index) => { return ele + (other.values as number[])[index] })
-                    return newData
-                }
+
+                newData = (ndFrame.values as number[]).map((ele, index) => { return ele + (other.values as number[])[index] })
+                return newData
+
             case 'sub':
-                if (ndFrame.config.toUseTfjsMathFunctions) {
-                    return ndFrame.tensor.sub(other.tensor).arraySync() as ArrayType1D
-                } else {
-                    newData = (ndFrame.values as number[]).map((ele, index) => { return ele - (other.values as number[])[index] })
-                    return newData
-                }
+
+                newData = (ndFrame.values as number[]).map((ele, index) => { return ele - (other.values as number[])[index] })
+                return newData
+
             case 'mul':
-                if (ndFrame.config.toUseTfjsMathFunctions) {
-                    return ndFrame.tensor.mul(other.tensor).arraySync() as ArrayType1D
-                } else {
-                    newData = (ndFrame.values as number[]).map((ele, index) => { return ele * (other.values as number[])[index] })
-                    return newData
-                }
+
+                newData = (ndFrame.values as number[]).map((ele, index) => { return ele * (other.values as number[])[index] })
+                return newData
+
             case 'div':
-                if (ndFrame.config.toUseTfjsMathFunctions) {
-                    return ndFrame.tensor.div(other.tensor).arraySync() as ArrayType1D
-                } else {
-                    newData = (ndFrame.values as number[]).map((ele, index) => { return ele / (other.values as number[])[index] })
-                    return newData
-                }
+
+                newData = (ndFrame.values as number[]).map((ele, index) => { return ele / (other.values as number[])[index] })
+                return newData
+
             case 'mod':
-                if (ndFrame.config.toUseTfjsMathFunctions) {
-                    return ndFrame.tensor.mod(other.tensor).arraySync() as ArrayType1D
-                } else {
-                    newData = (ndFrame.values as number[]).map((ele, index) => { return ele % (other.values as number[])[index] })
-                    return newData
-                }
+
+                newData = (ndFrame.values as number[]).map((ele, index) => { return ele % (other.values as number[])[index] })
+                return newData
+
             case 'pow':
-                if (ndFrame.config.toUseTfjsMathFunctions) {
-                    return ndFrame.tensor.pow(other.tensor).arraySync() as ArrayType1D
-                } else {
-                    newData = (ndFrame.values as number[]).map((ele, index) => { return ele ** (other.values as number[])[index] })
-                    return newData
-                }
+                newData = (ndFrame.values as number[]).map((ele, index) => { return ele ** (other.values as number[])[index] })
+                return newData
+
+            case 'minimum':
+                newData = (ndFrame.values as number[]).map((ele, index) => { return Math.min(ele, (other.values as number[])[index]) })
+                return newData
+
+            case 'maximum':
+                newData = (ndFrame.values as number[]).map((ele, index) => { return Math.max(ele, (other.values as number[])[index]) })
+                return newData
+
             default:
                 throw new Error(`${operation} is not implemented`);
         }
-    }
+    } else if (Array.isArray(other)) {
+        if(other.length !== ndFrame.values.length){
+            throw new Error(`ParamError: Length of array must be equal to length of Series`)
+        }
+        let newData;
+        switch (operation) {
+            case 'add':
 
+                newData = (ndFrame.values as number[]).map((ele, index) => { return ele + (other as number[])[index] })
+                return newData
+
+            case 'sub':
+
+                newData = (ndFrame.values as number[]).map((ele, index) => { return ele - (other as number[])[index] })
+                return newData
+
+            case 'mul':
+
+                newData = (ndFrame.values as number[]).map((ele, index) => { return ele * (other as number[])[index] })
+                return newData
+
+            case 'div':
+
+                newData = (ndFrame.values as number[]).map((ele, index) => { return ele / (other as number[])[index] })
+                return newData
+
+            case 'mod':
+
+                newData = (ndFrame.values as number[]).map((ele, index) => { return ele % (other as number[])[index] })
+                return newData
+
+            case 'pow':
+                newData = (ndFrame.values as number[]).map((ele, index) => { return ele ** (other as number[])[index] })
+                return newData
+
+            case 'minimum':
+                newData = (ndFrame.values as number[]).map((ele, index) => { return Math.min(ele, (other as number[])[index]) })
+                return newData
+
+            case 'maximum':
+                newData = (ndFrame.values as number[]).map((ele, index) => { return Math.max(ele, (other as number[])[index]) })
+                return newData
+
+        }
+    } else {
+        throw new Error("ParamError: value for other not supported. It must be either a scalar, Array or Series");
+    }
 }
