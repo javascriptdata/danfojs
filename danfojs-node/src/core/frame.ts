@@ -45,6 +45,11 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         this.$setInternalColumnDataProperty();
     }
 
+    /**
+     * Maps all column names to their corresponding data, and return them as Series objects.
+     * This makes column subsetting works. E.g this can work ==> `df["col1"]`
+     * @param columnName Optional, a single column name to map
+     */
     private $setInternalColumnDataProperty(columnName?: string) {
         const self = this;
         if (columnName && typeof columnName === "string") {
@@ -73,6 +78,10 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     }
 
+    /**
+     * Returns the column data from the DataFrame by column name. 
+     * @param columnName column name to get the column data
+     */
     private $getColumnData(columnName: string) {
         const columnIndex = this.columnNames.indexOf(columnName)
 
@@ -81,9 +90,9 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         }
 
         const dtypes = [this.$dtypes[columnIndex]]
-        const index = this.$index
+        const index = [...this.$index]
         const columnNames = [columnName]
-        const config = this.$config
+        const config = { ...this.$config }
 
         if (this.$config.isLowMemoryMode) {
             const data = []
@@ -110,6 +119,11 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     }
 
 
+    /**
+     * Updates the internal column data via column name.
+     * @param columnName The name of the column to update.
+     * @param arr The new column data
+     */
     private $setColumnData(columnName: string, arr: ArrayType1D | Series): void {
 
         const columnIndex = this.$columnNames.indexOf(columnName)
@@ -225,6 +239,18 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         }
 
     }
+    
+    /**
+     * Returns the dtype for a given column name
+     * @param columnName 
+     */
+    private $getColumnDtype(columnName: string): string {
+        const columnIndex = this.columnNames.indexOf(columnName)
+        if (columnIndex === -1) {
+            throw Error(`ColumnNameError: Column "${columnName}" does not exist`)
+        }
+        return this.dtypes[columnIndex]
+    }
 
     /**
     * Purely integer-location based indexing for selection by position.
@@ -286,7 +312,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     }
 
     /**
-     * Prints DataFrame to console as a grid of row and columns.
+     * Prints DataFrame to console as a formatted grid of row and columns.
     */
     toString(): string {
         const maxRow = this.config.getMaxRow;
@@ -366,7 +392,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
 
         const columnsConfig: any = {};
-        columnsConfig[0] = { width: 5 }; //set column width for index column
+        columnsConfig[0] = { width: 10 }; //set column width for index column
 
         for (let index = 1; index < header.length; index++) {
             columnsConfig[index] = { width: 17, truncate: 16 };
@@ -423,8 +449,8 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         }
 
         const shuffledIndex = await this.$tf.data.array(this.index).shuffle(num, `${seed}`).take(num).toArray();
-        const sf = this.iloc({ rows: shuffledIndex });
-        return sf;
+        const df = this.iloc({ rows: shuffledIndex });
+        return df;
     }
 
     /**
@@ -454,10 +480,10 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             return new DataFrame(
                 newData,
                 {
-                    index: this.index,
-                    columnNames: this.columnNames,
-                    dtypes: this.dtypes,
-                    config: this.config
+                    index: [...this.index],
+                    columnNames: [...this.columnNames],
+                    dtypes: [...this.dtypes],
+                    config: { ...this.config }
                 })
 
         }
@@ -490,10 +516,10 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             return new DataFrame(
                 newData,
                 {
-                    index: this.index,
-                    columnNames: this.columnNames,
-                    dtypes: this.dtypes,
-                    config: this.config
+                    index: [...this.index],
+                    columnNames: [...this.columnNames],
+                    dtypes: [...this.dtypes],
+                    config: { ...this.config }
                 })
 
         }
@@ -524,10 +550,10 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             return new DataFrame(
                 newData,
                 {
-                    index: this.index,
-                    columnNames: this.columnNames,
-                    dtypes: this.dtypes,
-                    config: this.config
+                    index: [...this.index],
+                    columnNames: [...this.columnNames],
+                    dtypes: [...this.dtypes],
+                    config: { ...this.config }
                 })
 
         }
@@ -560,10 +586,10 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             return new DataFrame(
                 newData,
                 {
-                    index: this.index,
-                    columnNames: this.columnNames,
-                    dtypes: this.dtypes,
-                    config: this.config
+                    index: [...this.index],
+                    columnNames: [...this.columnNames],
+                    dtypes: [...this.dtypes],
+                    config: { ...this.config }
                 })
 
         }
@@ -596,10 +622,10 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             return new DataFrame(
                 newData,
                 {
-                    index: this.index,
-                    columnNames: this.columnNames,
-                    dtypes: this.dtypes,
-                    config: this.config
+                    index: [...this.index],
+                    columnNames: [...this.columnNames],
+                    dtypes: [...this.dtypes],
+                    config: { ...this.config }
                 })
 
         }
@@ -632,10 +658,10 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             return new DataFrame(
                 newData,
                 {
-                    index: this.index,
-                    columnNames: this.columnNames,
-                    dtypes: this.dtypes,
-                    config: this.config
+                    index: [...this.index],
+                    columnNames: [...this.columnNames],
+                    dtypes: [...this.dtypes],
+                    config: { ...this.config }
                 })
 
         }
@@ -810,6 +836,89 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     }
 
+    /**
+     * Return number of non-null elements in a Series
+     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise. Defaults to 1
+    */
+    count(options?: { axis?: 0 | 1 }): Series {
+        const { axis } = { axis: 1, ...options }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
+        }
+
+        const newData = this.$getDataByAxisWithMissingValuesRemoved(axis)
+        const countArr = newData.map(arr => arr.length)
+        return new Series(countArr)
+
+    }
+
+    /**
+     * Rounds all element in the DataFrame to specified number of decimal places.
+     * @param dp Number of decimal places to round to. Defaults to 1
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    round(dp: number = 1, options?: { inplace: boolean }): DataFrame | void {
+        const { inplace } = { inplace: false, ...options }
+
+        if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+            throw Error("TypeError: round operation is not supported for string dtypes");
+        }
+
+        if (typeof dp !== "number") {
+            throw Error("ParamError: dp must be a number");
+        }
+
+        const newData = utils.round(this.values as number[], dp, false);
+
+        if (inplace) {
+            this.$setValues(newData)
+        } else {
+            return new DataFrame(
+                newData,
+                {
+                    index: [...this.index],
+                    columnNames: [...this.columnNames],
+                    config: { ...this.config }
+                })
+        }
+    }
+
+    /**
+     * Generate descriptive statistics for all numeric columns
+     * Descriptive statistics include those that summarize the central tendency,
+     * dispersion and shape of a dataset’s distribution, excluding NaN values.
+     * @returns {Series}
+     */
+    describe(): DataFrame {
+        const numericColumnNames = this.columnNames.filter(name => this.$getColumnDtype(name) !== "string")
+        const index = ["count", "mean", "std", "min", "median", "max", "variance"];
+        const statsObject: any = {};
+        for (let i = 0; i < numericColumnNames.length; i++) {
+            const colName = numericColumnNames[i];
+            // @ts-ignore
+            const count = this[colName].count();
+            // @ts-ignore
+            const mean = this[colName].mean();
+            // @ts-ignore
+            const std = this[colName].std();
+            // @ts-ignore
+            const min = this[colName].min();
+            // @ts-ignore
+            const median = this[colName].median();
+            // @ts-ignore
+            const max = this[colName].max();
+            // @ts-ignore
+            const variance = this[colName].var();
+
+            const stats = [count, mean, std, min, median, max, variance];
+            statsObject[colName] = stats;
+
+        }
+
+        const df = new DataFrame(statsObject, { index });
+        return df
+    }
 
     /**
      * Drops all rows or columns with missing values (NaN)
@@ -846,9 +955,9 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                     newData,
                     {
                         index: newIndex,
-                        columnNames: this.columnNames,
-                        dtypes: this.dtypes,
-                        config: this.config
+                        columnNames: [...this.columnNames],
+                        dtypes: [...this.dtypes],
+                        config: { ...this.config }
                     })
             }
 
@@ -883,10 +992,10 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                 return new DataFrame(
                     newData,
                     {
-                        index: this.index,
+                        index: [...this.index],
                         columnNames: newColumnNames,
                         dtypes: newDtypes,
-                        config: this.config
+                        config: { ...this.config }
                     })
             }
         }
@@ -920,15 +1029,15 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             }
 
             const newData = []
-            for (let i = 0; i < this.values.length; i++) {
-                const innerArr = this.values[i] as ArrayType1D
+            const oldValues = [...this.$data]
+            for (let i = 0; i < oldValues.length; i++) {
+                const innerArr = [...oldValues[i]] as ArrayType1D
                 innerArr.push(colunmValuesToAdd[i])
                 newData.push(innerArr)
             }
 
             if (inplace) {
-                this.$data = newData;
-                this.$setDtypes([...this.dtypes, ...utils.inferDtype(colunmValuesToAdd)]);
+                this.$setValues(newData, true, false)
                 this.$setColumnNames([...this.columnNames, columnName]);
 
                 if (!this.$config.isLowMemoryMode) {
@@ -937,12 +1046,13 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                 this.$setInternalColumnDataProperty(columnName);
 
             } else {
-                return new DataFrame(newData, {
-                    index: this.index,
+                const df = new DataFrame(newData, {
+                    index: [...this.index],
                     columnNames: [...this.columnNames, columnName],
-                    dtypes: [...this.dtypes, ...utils.inferDtype(colunmValuesToAdd)],
-                    config: this.$config
+                    dtypes: [...this.dtypes, utils.inferDtype(colunmValuesToAdd)[0]],
+                    config: { ...this.$config }
                 })
+                return df
             }
         } else {
             this.$setColumnData(columnName, values);
@@ -950,6 +1060,124 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     }
 
+    /**
+     * Makes a new copy of a DataFrame
+     */
+    copy(): DataFrame {
+        let df = new DataFrame([...this.$data], {
+            columnNames: [...this.columnNames],
+            index: [...this.index],
+            dtypes: [...this.dtypes],
+            config: { ...this.$config }
+        });
+        return df;
+    }
 
+    /**
+     * Return a boolean same-sized object indicating where elements are empty (NaN, undefined, null).
+     * NaN, undefined and null values gets mapped to true, and everything else gets mapped to false.
+    */
+    isNa(): DataFrame {
+        const newData = []
+        for (let i = 0; i < this.values.length; i++) {
+            const valueArr = this.values[i] as ArrayType1D
+            const tempData = valueArr.map((value) => {
+                if (utils.isEmpty(value)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            })
+            newData.push(tempData)
+        }
 
+        const df = new DataFrame(newData,
+            {
+                index: [...this.index],
+                columnNames: [...this.columnNames],
+                config: { ...this.config }
+            });
+        return df;
+    }
+
+    /**
+    * Replace all empty elements with a specified value. Replace params expect columnNames array to map to values array.
+    * @param columnNames The list of column names to be replaced
+    * @param options.values The list of values to use for replacement.
+    * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+   */
+    fillNa(options:
+        {
+            columnNames: Array<string>,
+            values: ArrayType1D,
+            inplace?: boolean
+        }): DataFrame | void {
+        let { columnNames, values, inplace } = { inplace: false, ...options }
+
+        if (!values && typeof values !== "boolean") {
+            throw Error('ParamError: values must be specified');
+        }
+
+        if (Array.isArray(values) && Array.isArray(columnNames)) {
+            if (values.length !== columnNames.length) {
+                throw Error('ParamError: columnNames and values must have the same length');
+            }
+
+            columnNames.forEach((col) => {
+                if (!this.columnNames.includes(col)) {
+                    throw Error(
+                        `ValueError: Specified column "${col}" must be one of ${this.columnNames}`
+                    );
+                }
+            });
+        }
+
+        const newData = []
+        const oldValues = [...this.values]
+
+        if (!columnNames) {
+            //Fill all columns
+            for (let i = 0; i < oldValues.length; i++) {
+                const valueArr = [...oldValues[i] as ArrayType1D]
+
+                const tempArr = valueArr.map((value) => {
+                    if (utils.isEmpty(value)) {
+                        const replaceWith = Array.isArray(values) ? values[i] : values
+                        return replaceWith
+                    } else {
+                        return value
+                    }
+                })
+                newData.push(tempArr)
+            }
+
+        } else {
+            //Fill specific columns
+            const tempData = [...this.values]
+
+            for (let i = 0; i < tempData.length; i++) {
+                const valueArr = tempData[i] as ArrayType1D
+
+                for (let i = 0; i < columnNames.length; i++) { //B
+                    const columnIndex = this.columnNames.indexOf(columnNames[i])
+                    const replaceWith = Array.isArray(values) ? values[i] : values
+                    valueArr[columnIndex] = utils.isEmpty(valueArr[columnIndex]) ? replaceWith : valueArr[columnIndex]
+                }
+                newData.push(valueArr)
+            }
+        }
+
+        if (inplace) {
+            this.$setValues(newData as ArrayType2D)
+        } else {
+            const df = new DataFrame(newData,
+                {
+                    index: [...this.index],
+                    columnNames: [...this.columnNames],
+                    dtypes: [...this.dtypes],
+                    config: { ...this.config }
+                });
+            return df;
+        }
+    }
 }
