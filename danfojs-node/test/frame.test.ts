@@ -133,6 +133,16 @@ describe("DataFrame", function () {
             })
 
         });
+        it("Ensure add column does not mutate parent when not in place", function () {
+            const data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
+            const df = new DataFrame(data);
+            const dfNew = df.addColumn({ columnName: "new_column", values: ["a", "b", "c", "d"] });
+            assert.notDeepEqual(df, dfNew)
+            // assert.deepEqual(df["new_column"].values, ["a", "b", "c", "d"]);
+            // assert.deepEqual(df["alpha"].values, ["A", "B", "C", "D"]);
+            // assert.deepEqual(df["count"].values, [1, 2, 3, 4]);
+            // assert.deepEqual(df["sum"].values, [20.3, 30.456, 40.90, 90.1]);
+        });
     })
 
     //     describe("to_csv", function () {
@@ -1110,71 +1120,80 @@ describe("DataFrame", function () {
 
     });
 
-    //     describe("describe", function () {
-    //         it("Returns descriptive statistics of columns in a DataFrame created from an array", function () {
-    //             const data = [[0, 2, 4, "a"],
-    //             [360, 180, 360, "b"],
-    //             [2, 4, 6, "c"]];
+    describe("describe", function () {
+        it("Returns descriptive statistics of columns in a DataFrame created from an array", function () {
+            const data = [[0, 2, 4, "a"],
+            [360, 180, 360, "b"],
+            [2, 4, 6, "c"]];
 
-    //             const df = new DataFrame(data);
-    //             const res = [[3, 3, 3], [120.666664, 62, 123.333336],
-    //             [207.271159, 102.19589, 204.961785],
-    //             [0, 2, 4], [2, 4, 6],
-    //             [360, 180, 360],
-    //             [42961.333333, 10444, 42009.333333]];
+            const df = new DataFrame(data);
+            const res = [[3, 3, 3], [120.66666666666667, 62, 123.33333333333333],
+            [207.27115895206774, 102.19589032832974, 204.961785055979],
+            [0, 2, 4], [2, 4, 6],
+            [360, 180, 360],
+            [42961.33333333333, 10444, 42009.333333333336]];
+            assert.deepEqual(df.describe().values, res);
+        });
+        it("Returns descriptive statistics of columns in a DataFrame created from an Object", function () {
+            const data = {
+                "col1": [0, 2, 4],
+                "col2": [360, 180, 360],
+                "col3": [2, 4, 6],
+                "col4": ["boy", "girl", "man"],
+                "col5": ["apple", "car", "bee"]
+            };
+            const df = new DataFrame(data);
 
-    //             assert.deepEqual(df.describe().values, res);
-    //         });
-    //         it("Returns descriptive statistics of columns in a DataFrame created from an Object", function () {
-    //             const data = {
-    //                 "col1": [0, 2, 4],
-    //                 "col2": [360, 180, 360],
-    //                 "col3": [2, 4, 6],
-    //                 "col4": ["boy", "girl", "man"],
-    //                 "col5": ["apple", "car", "bee"]
-    //             };
-    //             const df = new DataFrame(data);
+            const res = [[3, 3, 3], [2, 300, 4],
+            [2, 103.92304845413264, 2],
+            [0, 180, 2], [2, 360, 4],
+            [4, 360, 6],
+            [4, 10800, 4]];
+            assert.deepEqual(df.describe().values, res);
+        });
 
-    //             const res = [[3, 3, 3], [2, 300, 4],
-    //             [2, 103.923048, 2],
-    //             [0, 180, 2], [2, 360, 4],
-    //             [4, 360, 6],
-    //             [4, 10800, 4]];
+    });
 
-    //             assert.deepEqual(df.describe().values, res);
-    //         });
+    describe("count", function () {
+        it("Returns the count of non-nan values in a DataFrame (Default axis is [1:column])", function () {
+            const data = [[0, 2, 4],
+            [360, 180.1, 360.11],
+            [NaN, 2, 4],
+            [360, undefined, 360]];
+            const df = new DataFrame(data);
+            assert.deepEqual(df.count().values, [3, 3, 2, 2]);
+        });
+        it("Return the count of non NaN values of a DataFrame along axis 0", function () {
+            const data = [[0, 2, 4, NaN],
+            [360, undefined, 360, 70]];
+            const df = new DataFrame(data);
+            assert.deepEqual(df.count({ axis: 0 }).values, [2, 1, 2, 1]);
+        });
 
-    //     });
+    });
 
-    //     describe("count", function () {
-    //         it("Returns the count of non-nan values in a DataFrame (Default axis is [1:column])", function () {
-    //             const data = [[0, 2, 4], [360, 180.1, 360.11], [NaN, 2, 4], [360, undefined, 360]];
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.count().values, [3, 3, 4]);
-    //         });
-    //         it("Return the count of non NaN values of a DataFrame along axis 0", function () {
-    //             const data = [[0, 2, 4, NaN], [360, undefined, 360, 70]];
-    //             const df = new DataFrame(data);
-    //             assert.deepEqual(df.count(0).values, [3, 3]);
-    //         });
+    describe("round", function () {
+        it("Rounds values in a DataFrame to 3dp", function () {
+            const data = [[10.1, 2.092, 4.23], [360.232244, 180.0190290, 36.902612]];
+            const df = new DataFrame(data);
+            const expected = [[10.1, 2.092, 4.23], [360.232, 180.0190, 36.903]];
+            assert.deepEqual(df.round(3).values, expected);
+        });
+        it("Rounds values in a DataFrame to 1dp, inplace", function () {
+            const data = [[10.1, 2.092, 4.23], [360.232244, 180.0190290, 36.902612]];
+            const df = new DataFrame(data);
+            const expected = [[10.1, 2.1, 4.2], [360.2, 180.0, 36.9]];
+            df.round(1, { inplace: true })
+            assert.deepEqual(df.values, expected);
+        });
+        it("Rounds values in a DataFrame to 3dp with missing values", function () {
+            const data = [[10.1, 2.092, NaN], [360.232244, undefined, 36.902612]];
+            const df = new DataFrame(data);
+            const expected = [[10.1, 2.092, NaN], [360.232, undefined, 36.903]];
+            assert.deepEqual(df.round(3, { axis: 0 }).values, expected);
+        });
 
-    //     });
-
-    //     describe("round", function () {
-    //         it("Rounds values in a DataFrame to 3dp", function () {
-    //             const data = [[10.1, 2.092, 4.23], [360.232244, 180.0190290, 36.902612]];
-    //             const df = new DataFrame(data);
-    //             const expected = [[10.1, 2.092, 4.23], [360.232, 180.0190, 36.903]];
-    //             assert.deepEqual(df.round(3).values, expected);
-    //         });
-    //         it("Rounds values in a DataFrame to 1dp", function () {
-    //             const data = [[10.1, 2.092, 4.23], [360.232244, 180.0190290, 36.902612]];
-    //             const df = new DataFrame(data);
-    //             const expected = [[10.1, 2.1, 4.2], [360.2, 180.0, 36.9]];
-    //             assert.deepEqual(df.round(1).values, expected);
-    //         });
-
-    //     });
+    });
 
     //     describe("sort_values", function () {
     //         it("Sort values in DataFrame by specified column in ascending order (Default)", function () {
@@ -1256,22 +1275,23 @@ describe("DataFrame", function () {
 
     //     });
 
-    //     describe("copy", function () {
-    //         it("Makes a deep copy of DataFrame", function () {
-    //             const data = [[0, 2, 4], [360, 180, 360]];
-    //             const df = new DataFrame(data);
-    //             const df_copy = df.copy();
-    //             assert.deepEqual(df_copy.values, [[0, 2, 4], [360, 180, 360]]);
-    //         });
-    //         it("Confirms child copy modification does not affect parent DataFrame", function () {
-    //             const data = [[0, 2, 4], [360, 180, 360]];
-    //             const df = new DataFrame(data);
-    //             const df_copy = df.copy();
-    //             df_copy.addColumn({ column: "col_new", value: ["boy", "girl"] });
-    //             assert.notDeepEqual(df_copy.values, df.values);
-    //         });
+    describe("copy", function () {
+        it("Makes a deep copy of DataFrame", function () {
+            const data = [[0, 2, 4], [360, 180, 360]];
+            const df = new DataFrame(data);
+            const df_copy = df.copy();
+            assert.deepEqual(df_copy.values, [[0, 2, 4], [360, 180, 360]]);
+        });
+        it("Confirms child copy modification does not affect parent DataFrame", function () {
+            const data = [[0, 2, 4], [360, 180, 360]];
+            const df = new DataFrame(data);
+            const df_copy = df.copy();
+            df_copy.addColumn({ columnName: "col_new", values: ["boy", "girl"], inplace: true });
+            assert.notDeepEqual(df_copy.values, df.values);
+            assert.notDeepEqual(df_copy, df);
+        });
 
-    //     });
+    });
 
 
     //     describe("set_index", function () {
@@ -1875,84 +1895,86 @@ describe("DataFrame", function () {
         });
     });
 
-    //     describe("isna", function () {
+    describe("isNa", function () {
 
-    //         it("check if each value are nan", function () {
-    //             const data = [[NaN, 1, 2, 3], [3, 4, undefined, 9], [5, 6, 7, 8]];
-    //             const column = ["A", "B", "C", "D"];
-    //             const df = new DataFrame(data, { columnNames: column });
+        it("check if values are empty (element-wise", function () {
+            const data = [[NaN, 1, 2, 3], [3, 4, undefined, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columnNames: column });
 
-    //             const df_val = [
-    //                 [true, false, false, false],
-    //                 [false, false, true, false],
-    //                 [false, false, false, false]
-    //             ];
+            const df_val = [
+                [true, false, false, false],
+                [false, false, true, false],
+                [false, false, false, false]
+            ];
+            const dfNew = df.isNa()
+            assert.deepEqual(dfNew.values, df_val);
+            assert.deepEqual(dfNew.dtypes, ["boolean", "boolean", "boolean", "boolean"]);
+            assert.deepEqual(dfNew.columnNames, column);
+        });
+    });
 
-    //             assert.deepEqual(df.isna().values, df_val);
-    //         });
-    //     });
+    describe("fillNa", function () {
 
-    //     describe("fillna", function () {
+        it("replace all NaN value inplace", function () {
+            const data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]];
+            const columns = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columnNames: columns });
 
-    //         it("replace all NaN value", function () {
-    //             const data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]];
-    //             const column = ["A", "B", "C", "D"];
-    //             const df = new DataFrame(data, { columnNames: column });
+            const expected = [[-999, 1, 2, 3], [3, 4, -999, 9], [5, 6, 7, 8]];
+            df.fillNa({ values: -999, inplace: true });
+            assert.deepEqual(df.values, expected);
+        });
+        it("replace all undefined value", function () {
+            const data = [[undefined, 1, 2, 3], [3, 4, undefined, 9], [5, 6, 7, 8]];
+            const columns = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columnNames: columns });
 
-    //             const df_val = [[-999, 1, 2, 3], [3, 4, -999, 9], [5, 6, 7, 8]];
-    //             df.fillna({ values: -999, inplace: true });
-    //             assert.deepEqual(df.values, df_val);
-    //         });
-    //         it("replace all NaN value", function () {
-    //             const data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]];
-    //             const column = ["A", "B", "C", "D"];
-    //             const df = new DataFrame(data, { columnNames: column });
+            const expected = [[-999, 1, 2, 3], [3, 4, -999, 9], [5, 6, 7, 8]];
 
-    //             const df_val = [[-999, 1, 2, 3], [3, 4, -999, 9], [5, 6, 7, 8]];
+            const df_filled = df.fillNa({ values: -999 });
+            assert.deepEqual(df_filled.values, expected);
+        });
 
-    //             const df_filled = df.fillna({ values: [-999] });
-    //             assert.deepEqual(df_filled.values, df_val);
-    //         });
+        it("Fills only a specified column", function () {
+            const data = [[1, 2, 3],
+            [4, 5, 6],
+            [20, NaN, 40],
+            [39, NaN, NaN]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols });
+            const expected = [[1, 2, 3], [4, 5, 6], [20, 2, 40], [39, 2, NaN]];
+            const df_filled = df.fillNa({ columnNames: ["B"], values: [2] });
 
-    //         it("Fills only a specified column", function () {
-    //             const data = [[1, 2, 3],
-    //             [4, 5, 6],
-    //             [20, NaN, 40],
-    //             [39, NaN, 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
-    //             const new_vals = [[1, 2, 3], [4, 5, 6], [20, 2, 40], [39, 2, 78]];
-    //             const df_filled = df.fillna({ columnNames: ["B"], values: [2] });
+            assert.deepEqual(df_filled.values, expected);
+        });
+        it("Fills column with specified values not in place", function () {
+            const data = [[1, 2, 3], [4, 5, 6], [NaN, 20, 40], [NaN, -1, 78]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols });
+            const new_vals = [[1, 2, 3], [4, 5, 6], [-2, 20, 40], [-2, -1, 78]];
+            const df_filled = df.fillNa({ columnNames: ["A"], values: [-2] });
 
-    //             assert.deepEqual(df_filled.values, new_vals);
-    //         });
-    //         it("Fills column with specified values not in place", function () {
-    //             const data = [[1, 2, 3], [4, 5, 6], [NaN, 20, 40], [NaN, -1, 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
-    //             const new_vals = [[1, 2, 3], [4, 5, 6], [-2, 20, 40], [-2, -1, 78]];
-    //             const df_filled = df.fillna({ columnNames: ["A"], values: [-2] });
+            assert.deepEqual(df_filled.values, new_vals);
+        });
 
-    //             assert.deepEqual(df_filled.values, new_vals);
-    //         });
-
-    //         it("Fills a list of columns with specified values", function () {
-    //             const data = [[1, undefined, 3], [4, undefined, 6], [NaN, "boy", 40], [NaN, "girl", 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
-    //             const new_vals = [[1, "girl", 3], [4, "girl", 6], [200, "boy", 40], [200, "girl", 78]];
-    //             const df_filled = df.fillna({ columnNames: ["A", "B"], values: [200, "girl"] });
-    //             assert.deepEqual(df_filled.values, new_vals);
-    //         });
-    //         it("Fills a list of columns with specified values inplace", function () {
-    //             const data = [[1, undefined, 3], [4, undefined, 6], [NaN, "boy", 40], [NaN, "girl", 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columnNames: cols });
-    //             const new_vals = [[1, "girl", 3], [4, "girl", 6], [200, "boy", 40], [200, "girl", 78]];
-    //             df.fillna({ columnNames: ["A", "B"], values: [200, "girl"], inplace: true });
-    //             assert.deepEqual(df.values, new_vals);
-    //         });
-    //     });
+        it("Fills a list of columns with specified values", function () {
+            const data = [[1, undefined, 3], [4, undefined, 6], [NaN, "boy", 40], [NaN, "girl", NaN]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols });
+            const new_vals = [[1, "girl", 3], [4, "girl", 6], [200, "boy", 40], [200, "girl", NaN]];
+            const df_filled = df.fillNa({ columnNames: ["A", "B"], values: [200, "girl"] });
+            assert.deepEqual(df_filled.values, new_vals);
+        });
+        it("Fills a list of columns with specified values inplace", function () {
+            const data = [[1, undefined, 3], [4, undefined, 6], [NaN, "boy", 40], [NaN, "girl", 78]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columnNames: cols });
+            const new_vals = [[1, "girl", 3], [4, "girl", 6], [200, "boy", 40], [200, "girl", 78]];
+            df.fillNa({ columnNames: ["A", "B"], values: [200, "girl"], inplace: true });
+            assert.deepEqual(df.values, new_vals);
+        });
+    });
 
 
     //     describe("nanindex", function () {
