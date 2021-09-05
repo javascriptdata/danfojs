@@ -217,21 +217,21 @@ export interface DataFrameInterface extends NDframeInterface {
     var(options?: { axis?: 0 | 1 }): Series
     sum(options?: { axis?: 0 | 1 }): Series
     count(options?: { axis?: 0 | 1 }): Series
-    round(dp: number): DataFrame
-    cumSum(options?: { axis?: 0 | 1 }): DataFrame
-    cumMin(options?: { axis?: 0 | 1 }): DataFrame
-    cumMax(options?: { axis?: 0 | 1 }): DataFrame
-    cumProd(options?: { axis?: 0 | 1 }): DataFrame
+    round(dp: number, options?: { inplace: boolean }): DataFrame | void
+    cumSum(options?: { axis?: 0 | 1 }): Series
+    cumMin(options?: { axis?: 0 | 1 }): Series
+    cumMax(options?: { axis?: 0 | 1 }): Series
+    cumProd(options?: { axis?: 0 | 1 }): Series
     copy(): DataFrame
-    resetIndex(options: { inplace?: boolean }): DataFrame
+    resetIndex(options: { inplace?: boolean }): DataFrame | void
     setIndex(
         index: Array<number | string | (number | string)>,
         options?: { inplace?: boolean }
-    ): DataFrame
+    ): DataFrame | void
     describe(): DataFrame
     selectDtypes(include: DTYPES): DataFrame
-    abs(): DataFrame
-    query(options: { column: string, is: string, to: string, inplace?: boolean }): DataFrame
+    abs(options?: { axis?: 0 | 1 }): DataFrame | void
+    query(options: { columnName: string, is: string, to: string, inplace?: boolean }): DataFrame
     addColumn(options:
         {
             columnName: string,
@@ -243,11 +243,11 @@ export interface DataFrameInterface extends NDframeInterface {
     column(columnName: string): Series
     fillNa(options:
         {
-            columns: Array<string>,
-            values: ArrayType2D,
+            columnNames: Array<string>,
+            values: ArrayType1D,
             inplace?: boolean
         }
-    ): DataFrame
+    ): DataFrame | void
     isNa(): DataFrame
     nanIndex(): Array<number>
     dropNa(axis?: 0 | 1, options?: { inplace?: boolean }): DataFrame | void
@@ -255,14 +255,15 @@ export interface DataFrameInterface extends NDframeInterface {
         {
             axis?: 0 | 1,
             callable: (val: number | string | boolean) => number | string | boolean
+            inplace?: boolean
         }
-    ): DataFrame
-    lt(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace?: boolean }): DataFrame | void
-    gt(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace?: boolean }): DataFrame | void
-    le(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace?: boolean }): DataFrame | void
-    ge(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace?: boolean }): DataFrame | void
-    ne(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace?: boolean }): DataFrame | void
-    eq(other: DataFrame | Series | number, axis?: 0 | 1, options?: { inplace?: boolean }): DataFrame | void
+    ): DataFrame | void
+    lt(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
+    gt(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
+    le(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
+    ge(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
+    ne(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
+    eq(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
     replace(options:
         {
             replace: number | string | boolean,
@@ -271,44 +272,44 @@ export interface DataFrameInterface extends NDframeInterface {
             inplace?: boolean
         }
     ): DataFrame
-    transpose(): DataFrame
+    transpose(): DataFrame | void
     get T(): DataFrame
     get ctypes(): Series
     asType(options:
         {
-            column: string
+            columnName: string
             dtype: string,
             inplace?: boolean
         }
-    ): DataFrame
-    unique(axis: number): Series
-    nUnique(): Series
+    ): DataFrame | void
+    unique(axis?: 0 | 1): Series
+    nUnique(axis?: 0 | 1): Series
     rename(options:
         {
             mapper: number | string | boolean,
             inplace?: boolean
-            axis?: number
+            axis?: 0 | 1
         }
-    ): DataFrame
+    ): DataFrame | void
     sortIndex(options:
         {
             inplace?: boolean
             ascending?: boolean
         }
-    ): DataFrame
+    ): DataFrame | void
     sortValues(options:
         {
             by: string,
             inplace?: boolean
             ascending?: boolean
         }
-    ): DataFrame
+    ): DataFrame | void
     append(options:
         {
             value: ArrayType1D
             inplace?: boolean,
         }
-    ): DataFrame
+    ): DataFrame | void
     toString(): string;
 
 }

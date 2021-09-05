@@ -166,7 +166,7 @@ export default class Series extends NDframe implements SeriesInterface {
         if (inplace) {
             this.$setValues(newData as ArrayType1D)
         } else {
-            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
+            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true }) as Series
         }
     }
 
@@ -186,7 +186,7 @@ export default class Series extends NDframe implements SeriesInterface {
         if (inplace) {
             this.$setValues(newData as ArrayType1D)
         } else {
-            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
+            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true }) as Series
         }
 
     }
@@ -207,7 +207,7 @@ export default class Series extends NDframe implements SeriesInterface {
         if (inplace) {
             this.$setValues(newData as ArrayType1D)
         } else {
-            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
+            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true }) as Series
         }
     }
 
@@ -227,7 +227,7 @@ export default class Series extends NDframe implements SeriesInterface {
         if (inplace) {
             this.$setValues(newData as ArrayType1D)
         } else {
-            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
+            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true }) as Series
         }
     }
 
@@ -247,7 +247,7 @@ export default class Series extends NDframe implements SeriesInterface {
         if (inplace) {
             this.$setValues(newData as ArrayType1D)
         } else {
-            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
+            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true }) as Series
         }
     }
 
@@ -267,7 +267,7 @@ export default class Series extends NDframe implements SeriesInterface {
         if (inplace) {
             this.$setValues(newData as ArrayType1D)
         } else {
-            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
+            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true }) as Series
         }
     }
 
@@ -396,7 +396,7 @@ export default class Series extends NDframe implements SeriesInterface {
                 ndFrame: this,
                 newData: newValues,
                 isSeries: true
-            })
+            }) as Series
         }
 
     }
@@ -466,7 +466,7 @@ export default class Series extends NDframe implements SeriesInterface {
                 ndFrame: this,
                 newData: newValues,
                 isSeries: true
-            })
+            }) as Series
         }
     }
 

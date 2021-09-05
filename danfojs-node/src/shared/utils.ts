@@ -17,6 +17,7 @@ import { BASE_CONFIG } from './defaults'
 import Config from './config';
 import { ArrayType1D, ArrayType2D } from './types';
 import { Series } from '../';
+import { DataFrame } from '../';
 import ErrorThrower from '../shared/errors'
 
 const config = new Config(BASE_CONFIG);
@@ -82,6 +83,15 @@ export default class Utils {
      */
     isUndefined<T>(value: T): boolean {
         return typeof value === "undefined";
+    }
+
+    /**
+     * Checks if a value is empty. Empty means it's either null, undefined or NaN
+     * @param value The value to check.
+     * @returns 
+     */
+    isEmpty<T>(value: T): boolean {
+        return value === undefined || value === null || (isNaN(value as any) && typeof value !== "string");
     }
 
     /**
@@ -634,7 +644,7 @@ export default class Utils {
      */
     removeMissingValuesFromArray(arr: Array<number> | ArrayType1D) {
         const values = arr.filter((val) => {
-            return !(isNaN(val as unknown as number) && typeof val != "string") && val !== undefined && val !== null
+            return !(this.isEmpty(val))
         })
         return values;
     }
@@ -712,25 +722,24 @@ export default class Utils {
      * 
      * @param series The series to copy
     */
-    createNdframeFromNewDataWithOldProps({ ndFrame, newData, isSeries }: { ndFrame: Series, newData: any, isSeries: boolean }): Series {
+    createNdframeFromNewDataWithOldProps({ ndFrame, newData, isSeries }: { ndFrame: Series, newData: any, isSeries: boolean }) {
         if (isSeries) {
             return new Series(
                 newData,
                 {
-                    index: ndFrame.index,
-                    columnNames: ndFrame.columnNames,
-                    dtypes: ndFrame.dtypes,
-                    config: ndFrame.config
+                    index: [...ndFrame.index],
+                    columnNames: [...ndFrame.columnNames],
+                    dtypes: [...ndFrame.dtypes],
+                    config: { ...ndFrame.config }
                 })
         } else {
-            return ndFrame
-            // return new Frame({
-            //     data: newData,
-            //     index: ndframe.index,
-            //     columnNames: ndframe.columnNames,
-            //     dtypes: ndframe.dtypes,
-            //     config: ndframe.config
-            // })
+            return new DataFrame(newData,
+                {
+                    index: [...ndFrame.index],
+                    columnNames: [...ndFrame.columnNames],
+                    dtypes: [...ndFrame.dtypes],
+                    config: { ...ndFrame.config }
+                })
         }
     }
 
