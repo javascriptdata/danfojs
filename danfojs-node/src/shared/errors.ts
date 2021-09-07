@@ -21,8 +21,8 @@ import { DATA_TYPES } from "./defaults"
  */
 class ErrorThrower {
 
-    throwColumnNamesLengthError = (ndframe: NDframe, columnNames: Array<string>): void => {
-        const msg = `ParamError: Column names length mismatch. You provided a column of length ${columnNames.length} but Ndframe columns has lenght of ${ndframe.shape[1]}`
+    throwColumnNamesLengthError = (ndframe: NDframe, columns: Array<string>): void => {
+        const msg = `ParamError: Column names length mismatch. You provided a column of length ${columns.length} but Ndframe columns has lenght of ${ndframe.shape[1]}`
         throw new Error(msg)
     }
 
@@ -62,7 +62,7 @@ class ErrorThrower {
     }
 
     throwColumnNotFoundError = (ndframe: DataFrame | NDframe): void => {
-        const msg = `ParamError: Column not found!. Column name must be one of ${ndframe.columnNames}`
+        const msg = `ParamError: Column not found!. Column name must be one of ${ndframe.columns}`
         throw new Error(msg)
     }
 

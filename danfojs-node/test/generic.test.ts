@@ -13,12 +13,12 @@ describe("Generic (NDFrame)", function () {
         it("prints the default assigned column name in a series", function () {
             let data = ["Boy", 20, 25];
             let ndframe = new NDframe({ data, isSeries: true });
-            assert.deepEqual(ndframe.columnNames, ["0"]);
+            assert.deepEqual(ndframe.columns, ["0"]);
         });
         it("prints the assigned column name in a series", function () {
             let data = ["Boy", 20, 25];
-            let ndframe = new NDframe({ data, columnNames: ["Records"], isSeries: true });
-            assert.deepEqual(ndframe.columnNames, ["Records"]);
+            let ndframe = new NDframe({ data, columns: ["Records"], isSeries: true });
+            assert.deepEqual(ndframe.columns, ["Records"]);
         });
         it("prints the shape of a 2D array", function () {
             let data = [["Boy", 20], ["Girl", 25]];
@@ -28,23 +28,23 @@ describe("Generic (NDFrame)", function () {
         it("prints the default assigned column names in 2D frame", function () {
             let data = [["Boy", 20], ["Girl", 25]];
             let ndframe = new NDframe({ data, isSeries: false });
-            assert.deepEqual(ndframe.columnNames, ["0", "1"]);
+            assert.deepEqual(ndframe.columns, ["0", "1"]);
         });
         it("prints the assigned column names", function () {
             let data = [["Boy", 20], ["Girl", 25]];
-            let options = { "columnNames": ["Gender", "Age"], "isSeries": false };
+            let options = { "columns": ["Gender", "Age"], "isSeries": false };
             let ndframe = new NDframe({ data, ...options });
-            assert.deepEqual(ndframe.columnNames, ["Gender", "Age"]);
+            assert.deepEqual(ndframe.columns, ["Gender", "Age"]);
         });
         it("prints the size of a frame", function () {
             let data = [["Boy", 20, 1], ["Girl", 25, 3]];
-            let options = { "columnNames": ["Gender", "Age", "count"], "isSeries": false };
+            let options = { "columns": ["Gender", "Age", "count"], "isSeries": false };
             let ndframe = new NDframe({ data, ...options });
             assert.deepEqual(ndframe.size, 6);
         });
         it("prints the dimension of a frame", function () {
             let data = [["Boy", 20, 1], ["Girl", 25, 3]];
-            let options = { "columnNames": ["Gender", "Age", "count"], "isSeries": false };
+            let options = { "columns": ["Gender", "Age", "count"], "isSeries": false };
             let ndframe = new NDframe({ data, ...options });
             assert.deepEqual(ndframe.ndim, 2);
         });
@@ -62,7 +62,7 @@ describe("Generic (NDFrame)", function () {
         it("Throws error on duplicate column name", function () {
             let data = [[21, 20, 1], [20, 25, 3]];
             assert.throws(() => {
-                new NDframe({ data, isSeries: false, columnNames: ["A", "A", "C"] }),
+                new NDframe({ data, isSeries: false, columns: ["A", "A", "C"] }),
                     Error,
                     "ColumnIndexError: Column index must contain unique values"
             });
@@ -88,7 +88,7 @@ describe("Generic (NDFrame)", function () {
         it("prints the column names of frame created from an Object", function () {
             let data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }];
             let ndframe = new NDframe({ data, isSeries: false });
-            assert.deepEqual(ndframe.columnNames, ["alpha", "count"]);
+            assert.deepEqual(ndframe.columns, ["alpha", "count"]);
         });
         it("prints the shape of a 1D frame created from an Object", function () {
             let data = [{ alpha: "A", count: 1 }];
@@ -210,8 +210,8 @@ describe("Generic (NDFrame)", function () {
         });
         it("prints the shape of a 2D frame created from a 1D tensor", function () {
             let data = tf.tensor([[2, 3, 4], [4, 5, 6]]);
-            let ndframe = new NDframe({ data, columnNames: ["alpha", "count", "sum"], isSeries: false });
-            assert.deepEqual(ndframe.columnNames, ["alpha", "count", "sum"]);
+            let ndframe = new NDframe({ data, columns: ["alpha", "count", "sum"], isSeries: false });
+            assert.deepEqual(ndframe.columns, ["alpha", "count", "sum"]);
         });
 
     });
@@ -287,20 +287,20 @@ describe("Generic (NDFrame)", function () {
 
         it("Returns string dtype automatically inferred from 1DFrame (Series)", function () {
             let data = ["Alice", "Yemi", "Rising", "Mark"];
-            let options = { columnNames: 'Names', isSeries: true };
+            let options = { columns: 'Names', isSeries: true };
             let ndframe = new NDframe({ data, ...options });
             assert.deepEqual(ndframe.dtypes, ["string"]);
         });
 
         it("Returns int dtype automatically inferred from 1DFrame (Series)", function () {
             let data = [20, 30, 20, 20];
-            let options = { columnNames: 'Size', isSeries: true };
+            let options = { columns: 'Size', isSeries: true };
             let ndframe = new NDframe({ data, ...options });
             assert.deepEqual(ndframe.dtypes, ["int32"]);
         });
         it("Returns float dtype automatically inferred from 1DFrame (Series)", function () {
             let data = [20.1, 30.4, 20.2, 4.23, 20.1];
-            let options = { columnNames: 'Size', isSeries: true };
+            let options = { columns: 'Size', isSeries: true };
             let ndframe = new NDframe({ data, ...options });
             assert.deepEqual(ndframe.dtypes, ["float32"]);
         });
@@ -315,7 +315,7 @@ describe("Generic (NDFrame)", function () {
         it("Returns dtype set during creation of 2DFrame from an Array", function () {
             let data = [["Alice", 2, 3.0], ["Boy", 5, 6.1], ["Girl", 30, 40], [39, 89, 78.2]];
             let cols = ["Name", "Count", "Score"];
-            let options = { columnNames: cols, dtypes: ['string', 'int32', 'float32'] };
+            let options = { columns: cols, dtypes: ['string', 'int32', 'float32'] };
             let ndframe = new NDframe({ data, ...options });
             assert.deepEqual(ndframe.dtypes, ["string", "int32", "float32"]);
         });
@@ -323,7 +323,7 @@ describe("Generic (NDFrame)", function () {
         it("Returns dtype automatically inferred from 2DFrame", function () {
             let data = [["Alice", 2, 3.1], ["Boy", 5, 6.1], ["Girl", 30, 40.2], [39, 89, 78.2]];
             let cols = ["Name", "Count", "Score"];
-            let options = { columnNames: cols };
+            let options = { columns: cols };
             let ndframe = new NDframe({ data, ...options });
             assert.deepEqual(ndframe.dtypes, ["string", "int32", "float32"]);
         });
@@ -335,7 +335,7 @@ describe("Generic (NDFrame)", function () {
             let data: any = [];
             let sf = new NDframe({ data, isSeries: false });
             assert.deepEqual(sf.shape, [0, 0]);
-            assert.deepEqual(sf.columnNames, []);
+            assert.deepEqual(sf.columns, []);
             assert.deepEqual(sf.dtypes, []);
             assert.deepEqual(sf.values, []);
         });
@@ -343,7 +343,7 @@ describe("Generic (NDFrame)", function () {
             let data = undefined;
             let sf = new NDframe({ data, isSeries: true });
             assert.deepEqual(sf.shape, [0, 0]);
-            assert.deepEqual(sf.columnNames, []);
+            assert.deepEqual(sf.columns, []);
             assert.deepEqual(sf.dtypes, []);
             assert.deepEqual(sf.values, []);
         });
@@ -351,7 +351,7 @@ describe("Generic (NDFrame)", function () {
         it("Can successfully create an empty NDframe", function () {
             let sf = new NDframe({ isSeries: true });
             assert.deepEqual(sf.shape, [0, 0]);
-            assert.deepEqual(sf.columnNames, []);
+            assert.deepEqual(sf.columns, []);
             assert.deepEqual(sf.dtypes, []);
             assert.deepEqual(sf.values, []);
         });

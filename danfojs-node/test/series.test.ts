@@ -7,14 +7,14 @@ describe("Series Functions", () => {
         it("Gets the first 2 rows in a Series", function () {
             const data = [1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78];
             const cols = ["A"];
-            const sf = new Series(data, { columnNames: cols });
+            const sf = new Series(data, { columns: cols });
             assert.deepEqual(sf.head(2).values, [1, 2]);
             assert.deepEqual(sf.head(5).values, [1, 2, 3, 4, 5]);
         });
         it("throw error when row specified is greater than values", function () {
             const data = ["Boy", "Girl", "Man", "Woman", "Tall"];
             const cols = ["Items"];
-            const sf = new Series(data, { columnNames: cols });
+            const sf = new Series(data, { columns: cols });
             assert.throws(function () { assert.deepEqual(sf.head(10).values, data) }, Error, `row slice [end] index cannot be bigger than 5`);
         });
 
@@ -37,14 +37,14 @@ describe("Series Functions", () => {
         it("throw error when row specified is greater than values", function () {
             const data = ["Boy", "Girl", "Man", "Woman", "Tall"];
             const cols = ["Items"];
-            const sf = new Series(data, { columnNames: cols });
+            const sf = new Series(data, { columns: cols });
             assert.throws(function () { assert.deepEqual(sf.tail(15).values, data) }, Error, `row slice [start] index cannot be less than 0`);
         });
 
         it("throw error when row specified is less than 0", function () {
             const data = ["Boy", "Girl", "Man", "Woman", "Tall"];
             const cols = ["Items"];
-            const sf = new Series(data, { columnNames: cols });
+            const sf = new Series(data, { columns: cols });
             assert.throws(function () { assert.deepEqual(sf.tail(-1).values, data) }, Error, `ParamError: end must be greater than start`);
         });
     });
@@ -305,7 +305,7 @@ describe("Series Functions", () => {
             const data: any = [];
             const sf = new Series(data);
             assert.deepEqual(sf.shape, [0, 0]);
-            assert.deepEqual(sf.columnNames, []);
+            assert.deepEqual(sf.columns, []);
             assert.deepEqual(sf.dtypes, []);
             assert.deepEqual(sf.values, []);
         });
@@ -313,7 +313,7 @@ describe("Series Functions", () => {
         it("Can successfully create an empty Series", function () {
             const sf = new Series();
             assert.deepEqual(sf.shape, [0, 0]);
-            assert.deepEqual(sf.columnNames, []);
+            assert.deepEqual(sf.columns, []);
             assert.deepEqual(sf.dtypes, []);
             assert.deepEqual(sf.values, []);
         });

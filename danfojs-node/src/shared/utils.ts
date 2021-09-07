@@ -728,7 +728,7 @@ export default class Utils {
                 newData,
                 {
                     index: [...ndFrame.index],
-                    columnNames: [...ndFrame.columnNames],
+                    columns: [...ndFrame.columns],
                     dtypes: [...ndFrame.dtypes],
                     config: { ...ndFrame.config }
                 })
@@ -736,7 +736,7 @@ export default class Utils {
             return new DataFrame(newData,
                 {
                     index: [...ndFrame.index],
-                    columnNames: [...ndFrame.columnNames],
+                    columns: [...ndFrame.columns],
                     dtypes: [...ndFrame.dtypes],
                     config: { ...ndFrame.config }
                 })

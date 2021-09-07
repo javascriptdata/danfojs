@@ -55,7 +55,7 @@ export type ConfigsType = {
 export interface BaseDataOptionType {
     type?: number;
     index?: Array<string | number>
-    columnNames?: string[]
+    columns?: string[]
     dtypes?: Array<string>
     config?: ConfigsType;
 }
@@ -63,7 +63,7 @@ export interface NdframeInputDataType {
     data: any
     type?: number;
     index?: Array<string | number>
-    columnNames?: string[]
+    columns?: string[]
     dtypes?: Array<string>
     config?: ConfigsType;
     isSeries: boolean;
@@ -71,7 +71,7 @@ export interface NdframeInputDataType {
 export interface LoadArrayDataType {
     data: ArrayType1D | ArrayType2D
     index?: Array<string | number>
-    columnNames?: string[]
+    columns?: string[]
     dtypes?: Array<string>
 }
 
@@ -79,7 +79,7 @@ export interface LoadObjectDataType {
     data: object | Array<object>
     type?: number;
     index?: Array<string | number>
-    columnNames?: string[]
+    columns?: string[]
     dtypes?: Array<string>
 }
 
@@ -93,13 +93,13 @@ export interface NDframeInterface {
     $setDtypes(dtypes: Array<string>, infer: boolean): void;
     $setIndex(index: Array<string | number>): void;
     $resetIndex(): void;
-    $setColumnNames(columnNames: string[]): void
+    $setColumnNames(columns: string[]): void
 
     get dtypes(): Array<string>;
     get ndim(): number;
     get axis(): AxisType;
     get index(): Array<string | number>;
-    get columnNames(): string[]
+    get columns(): string[]
     get shape(): Array<number>;
     get values(): ArrayType1D | ArrayType2D
     get tensor(): Tensor;
@@ -183,12 +183,11 @@ export interface SeriesInterface extends NDframeInterface {
 export interface DataFrameInterface extends NDframeInterface {
     drop(options:
         {
-            columns: Array<string>,
+            columns?: Array<string>,
             index?: Array<string | number>,
-            inplace?: boolean,
-            axis?: 0 | 1,
+            inplace?: boolean
         }
-    ): DataFrame
+    ): DataFrame | void
     loc(options:
         {
             rows?: Array<string | number>,
@@ -231,19 +230,19 @@ export interface DataFrameInterface extends NDframeInterface {
     describe(): DataFrame
     selectDtypes(include: DTYPES): DataFrame
     abs(options?: { axis?: 0 | 1 }): DataFrame | void
-    query(options: { columnName: string, is: string, to: string, inplace?: boolean }): DataFrame
+    query(options: { column: string, is: string, to: string, inplace?: boolean }): DataFrame
     addColumn(options:
         {
-            columnName: string,
+            column: string,
             values: Series | ArrayType1D,
             inplace?: boolean
         }
     ): DataFrame | void
     groupby(column: [string, string]): any //Update to GroupBy class later
-    column(columnName: string): Series
+    column(column: string): Series
     fillNa(options:
         {
-            columnNames: Array<string>,
+            columns: Array<string>,
             values: ArrayType1D,
             inplace?: boolean
         }
@@ -277,7 +276,7 @@ export interface DataFrameInterface extends NDframeInterface {
     get ctypes(): Series
     asType(options:
         {
-            columnName: string
+            column: string
             dtype: string,
             inplace?: boolean
         }

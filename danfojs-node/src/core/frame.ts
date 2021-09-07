@@ -32,7 +32,7 @@ const utils = new Utils();
  * Operations between DataFrame (+, -, /, , *) align values based on their associated index values– they need not be the same length.
  * @param data 2D Array, JSON, Tensor, Block of data.
  * @param options.index Array of numeric or string names for subseting array. If not specified, indexes are auto generated.
- * @param options.columnNames Array of column names. If not specified, column names are auto generated.
+ * @param options.columns Array of column names. If not specified, column names are auto generated.
  * @param options.dtypes Array of data types for each the column. If not specified, dtypes are/is inferred.
  * @param options.config General configuration object for extending or setting NDframe behavior.      
  */
@@ -40,37 +40,37 @@ const utils = new Utils();
 export default class DataFrame extends NDframe implements DataFrameInterface {
 
     constructor(data: any, options: BaseDataOptionType = {}) {
-        const { index, columnNames, dtypes, config } = options;
-        super({ data, index, columnNames, dtypes, config, isSeries: false });
+        const { index, columns, dtypes, config } = options;
+        super({ data, index, columns, dtypes, config, isSeries: false });
         this.$setInternalColumnDataProperty();
     }
 
     /**
      * Maps all column names to their corresponding data, and return them as Series objects.
      * This makes column subsetting works. E.g this can work ==> `df["col1"]`
-     * @param columnName Optional, a single column name to map
+     * @param column Optional, a single column name to map
      */
-    private $setInternalColumnDataProperty(columnName?: string) {
+    private $setInternalColumnDataProperty(column?: string) {
         const self = this;
-        if (columnName && typeof columnName === "string") {
-            Object.defineProperty(self, columnName, {
+        if (column && typeof column === "string") {
+            Object.defineProperty(self, column, {
                 get() {
-                    return self.$getColumnData(columnName)
+                    return self.$getColumnData(column)
                 },
                 set(arr: ArrayType1D | Series) {
-                    self.$setColumnData(columnName, arr);
+                    self.$setColumnData(column, arr);
                 }
             })
         } else {
-            const columnNames = this.columnNames;
-            for (let i = 0; i < columnNames.length; i++) {
-                const columnName = columnNames[i];
-                Object.defineProperty(this, columnName, {
+            const columns = this.columns;
+            for (let i = 0; i < columns.length; i++) {
+                const column = columns[i];
+                Object.defineProperty(this, column, {
                     get() {
-                        return self.$getColumnData(columnName)
+                        return self.$getColumnData(column)
                     },
                     set(arr: ArrayType1D | Series) {
-                        self.$setColumnData(columnName, arr);
+                        self.$setColumnData(column, arr);
                     }
                 })
             }
@@ -80,10 +80,10 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     /**
      * Returns the column data from the DataFrame by column name. 
-     * @param columnName column name to get the column data
+     * @param column column name to get the column data
      */
-    private $getColumnData(columnName: string) {
-        const columnIndex = this.columnNames.indexOf(columnName)
+    private $getColumnData(column: string) {
+        const columnIndex = this.columns.indexOf(column)
 
         if (columnIndex == -1) {
             ErrorThrower.throwColumnNotFoundError(this)
@@ -91,7 +91,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
         const dtypes = [this.$dtypes[columnIndex]]
         const index = [...this.$index]
-        const columnNames = [columnName]
+        const columns = [column]
         const config = { ...this.$config }
 
         if (this.$config.isLowMemoryMode) {
@@ -103,7 +103,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             return new Series(data, {
                 dtypes,
                 index,
-                columnNames,
+                columns,
                 config
             })
         } else {
@@ -111,7 +111,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             return new Series(data, {
                 dtypes,
                 index,
-                columnNames,
+                columns,
                 config
             })
         }
@@ -121,15 +121,15 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     /**
      * Updates the internal column data via column name.
-     * @param columnName The name of the column to update.
+     * @param column The name of the column to update.
      * @param arr The new column data
      */
-    private $setColumnData(columnName: string, arr: ArrayType1D | Series): void {
+    private $setColumnData(column: string, arr: ArrayType1D | Series): void {
 
-        const columnIndex = this.$columnNames.indexOf(columnName)
+        const columnIndex = this.$columns.indexOf(column)
 
         if (columnIndex == -1) {
-            throw new Error(`ParamError: column ${columnName} not found in ${this.$columnNames}. If you need to add a new column, use the df.addColumn method. `)
+            throw new Error(`ParamError: column ${column} not found in ${this.$columns}. If you need to add a new column, use the df.addColumn method. `)
         }
 
         let colunmValuesToAdd: ArrayType1D
@@ -239,15 +239,15 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         }
 
     }
-    
+
     /**
      * Returns the dtype for a given column name
-     * @param columnName 
+     * @param column 
      */
-    private $getColumnDtype(columnName: string): string {
-        const columnIndex = this.columnNames.indexOf(columnName)
+    private $getColumnDtype(column: string): string {
+        const columnIndex = this.columns.indexOf(column)
         if (columnIndex === -1) {
-            throw Error(`ColumnNameError: Column "${columnName}" does not exist`)
+            throw Error(`ColumnNameError: Column "${column}" does not exist`)
         }
         return this.dtypes[columnIndex]
     }
@@ -320,14 +320,14 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
         // let data;
         const dataArr: ArrayType2D = [];
-        const colLen = this.columnNames.length;
+        const colLen = this.columns.length;
 
         let header = [];
 
         if (colLen > maxColToDisplayInConsole) {
             //truncate displayed columns to fit in the console
-            let firstFourcolNames = this.columnNames.slice(0, 4);
-            let lastThreecolNames = this.columnNames.slice(colLen - 4);
+            let firstFourcolNames = this.columns.slice(0, 4);
+            let lastThreecolNames = this.columns.slice(colLen - 4);
             //join columns with truncate ellipse in the middle
             header = ["", ...firstFourcolNames, "...", ...lastThreecolNames];
 
@@ -369,7 +369,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
         } else {
             //display all columns
-            header = ["", ...this.columnNames]
+            header = ["", ...this.columns]
             let subIdx
             let values: ArrayType2D
             if (this.values.length > maxRow) {
@@ -481,7 +481,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                 newData,
                 {
                     index: [...this.index],
-                    columnNames: [...this.columnNames],
+                    columns: [...this.columns],
                     dtypes: [...this.dtypes],
                     config: { ...this.config }
                 })
@@ -517,7 +517,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                 newData,
                 {
                     index: [...this.index],
-                    columnNames: [...this.columnNames],
+                    columns: [...this.columns],
                     dtypes: [...this.dtypes],
                     config: { ...this.config }
                 })
@@ -551,7 +551,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                 newData,
                 {
                     index: [...this.index],
-                    columnNames: [...this.columnNames],
+                    columns: [...this.columns],
                     dtypes: [...this.dtypes],
                     config: { ...this.config }
                 })
@@ -587,7 +587,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                 newData,
                 {
                     index: [...this.index],
-                    columnNames: [...this.columnNames],
+                    columns: [...this.columns],
                     dtypes: [...this.dtypes],
                     config: { ...this.config }
                 })
@@ -623,7 +623,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                 newData,
                 {
                     index: [...this.index],
-                    columnNames: [...this.columnNames],
+                    columns: [...this.columns],
                     dtypes: [...this.dtypes],
                     config: { ...this.config }
                 })
@@ -659,7 +659,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                 newData,
                 {
                     index: [...this.index],
-                    columnNames: [...this.columnNames],
+                    columns: [...this.columns],
                     dtypes: [...this.dtypes],
                     config: { ...this.config }
                 })
@@ -878,7 +878,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                 newData,
                 {
                     index: [...this.index],
-                    columnNames: [...this.columnNames],
+                    columns: [...this.columns],
                     config: { ...this.config }
                 })
         }
@@ -891,7 +891,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @returns {Series}
      */
     describe(): DataFrame {
-        const numericColumnNames = this.columnNames.filter(name => this.$getColumnDtype(name) !== "string")
+        const numericColumnNames = this.columns.filter(name => this.$getColumnDtype(name) !== "string")
         const index = ["count", "mean", "std", "min", "median", "max", "variance"];
         const statsObject: any = {};
         for (let i = 0; i < numericColumnNames.length; i++) {
@@ -955,7 +955,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                     newData,
                     {
                         index: newIndex,
-                        columnNames: [...this.columnNames],
+                        columns: [...this.columns],
                         dtypes: [...this.dtypes],
                         config: { ...this.config }
                     })
@@ -977,7 +977,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                 const values: ArrayType1D = dfValues[i];
                 if (!values.includes(NaN)) {
                     tempColArr.push(values);
-                    newColumnNames.push(this.columnNames[i])
+                    newColumnNames.push(this.columns[i])
                     newDtypes.push(this.dtypes[i])
                 }
             }
@@ -993,7 +993,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                     newData,
                     {
                         index: [...this.index],
-                        columnNames: newColumnNames,
+                        columns: newColumnNames,
                         dtypes: newDtypes,
                         config: { ...this.config }
                     })
@@ -1004,14 +1004,14 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     addColumn(options:
         {
-            columnName: string,
+            column: string,
             values: Series | ArrayType1D,
             inplace?: boolean
         }
     ): DataFrame | void {
-        const { columnName, values, inplace } = { inplace: false, ...options };
+        const { column, values, inplace } = { inplace: false, ...options };
 
-        const columnIndex = this.$columnNames.indexOf(columnName)
+        const columnIndex = this.$columns.indexOf(column)
 
         if (columnIndex === -1) {
             let colunmValuesToAdd: ArrayType1D
@@ -1038,24 +1038,24 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
             if (inplace) {
                 this.$setValues(newData, true, false)
-                this.$setColumnNames([...this.columnNames, columnName]);
+                this.$setColumnNames([...this.columns, column]);
 
-                if (!this.$config.isLowMemoryMode) {
-                    this.$dataIncolumnFormat.push(colunmValuesToAdd as any)
-                }
-                this.$setInternalColumnDataProperty(columnName);
+                // if (!this.$config.isLowMemoryMode) {
+                //     this.$dataIncolumnFormat.push(colunmValuesToAdd as any)
+                // }
+                this.$setInternalColumnDataProperty(column);
 
             } else {
                 const df = new DataFrame(newData, {
                     index: [...this.index],
-                    columnNames: [...this.columnNames, columnName],
+                    columns: [...this.columns, column],
                     dtypes: [...this.dtypes, utils.inferDtype(colunmValuesToAdd)[0]],
                     config: { ...this.$config }
                 })
                 return df
             }
         } else {
-            this.$setColumnData(columnName, values);
+            this.$setColumnData(column, values);
         }
 
     }
@@ -1065,7 +1065,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      */
     copy(): DataFrame {
         let df = new DataFrame([...this.$data], {
-            columnNames: [...this.columnNames],
+            columns: [...this.columns],
             index: [...this.index],
             dtypes: [...this.dtypes],
             config: { ...this.$config }
@@ -1094,39 +1094,39 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         const df = new DataFrame(newData,
             {
                 index: [...this.index],
-                columnNames: [...this.columnNames],
+                columns: [...this.columns],
                 config: { ...this.config }
             });
         return df;
     }
 
     /**
-    * Replace all empty elements with a specified value. Replace params expect columnNames array to map to values array.
-    * @param columnNames The list of column names to be replaced
+    * Replace all empty elements with a specified value. Replace params expect columns array to map to values array.
+    * @param columns The list of column names to be replaced
     * @param options.values The list of values to use for replacement.
     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
    */
     fillNa(options:
         {
-            columnNames: Array<string>,
+            columns: Array<string>,
             values: ArrayType1D,
             inplace?: boolean
         }): DataFrame | void {
-        let { columnNames, values, inplace } = { inplace: false, ...options }
+        let { columns, values, inplace } = { inplace: false, ...options }
 
         if (!values && typeof values !== "boolean") {
             throw Error('ParamError: values must be specified');
         }
 
-        if (Array.isArray(values) && Array.isArray(columnNames)) {
-            if (values.length !== columnNames.length) {
-                throw Error('ParamError: columnNames and values must have the same length');
+        if (Array.isArray(values) && Array.isArray(columns)) {
+            if (values.length !== columns.length) {
+                throw Error('ParamError: columns and values must have the same length');
             }
 
-            columnNames.forEach((col) => {
-                if (!this.columnNames.includes(col)) {
+            columns.forEach((col) => {
+                if (!this.columns.includes(col)) {
                     throw Error(
-                        `ValueError: Specified column "${col}" must be one of ${this.columnNames}`
+                        `ValueError: Specified column "${col}" must be one of ${this.columns}`
                     );
                 }
             });
@@ -1135,7 +1135,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         const newData = []
         const oldValues = [...this.values]
 
-        if (!columnNames) {
+        if (!columns) {
             //Fill all columns
             for (let i = 0; i < oldValues.length; i++) {
                 const valueArr = [...oldValues[i] as ArrayType1D]
@@ -1158,8 +1158,8 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             for (let i = 0; i < tempData.length; i++) {
                 const valueArr = tempData[i] as ArrayType1D
 
-                for (let i = 0; i < columnNames.length; i++) { //B
-                    const columnIndex = this.columnNames.indexOf(columnNames[i])
+                for (let i = 0; i < columns.length; i++) { //B
+                    const columnIndex = this.columns.indexOf(columns[i])
                     const replaceWith = Array.isArray(values) ? values[i] : values
                     valueArr[columnIndex] = utils.isEmpty(valueArr[columnIndex]) ? replaceWith : valueArr[columnIndex]
                 }
@@ -1173,11 +1173,139 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             const df = new DataFrame(newData,
                 {
                     index: [...this.index],
-                    columnNames: [...this.columnNames],
+                    columns: [...this.columns],
                     dtypes: [...this.dtypes],
                     config: { ...this.config }
                 });
             return df;
         }
+    }
+
+    /**
+    * Replace all empty elements with a specified value. Replace params expect columns array to map to values array.
+    * @param columns The list of column names to be replaced
+    * @param options.values The list of values to use for replacement.
+    * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+   */
+    drop(options:
+        {
+            columns?: Array<string>,
+            index?: Array<string | number>,
+            inplace?: boolean
+        }): DataFrame | void {
+        let { columns, index, inplace } = { inplace: false, ...options }
+
+        if (!columns && !index) {
+            throw Error('ParamError: Must specify one of columns or index');
+        }
+
+        if (columns && index) {
+            throw Error('ParamError: Can only specify one of columns or index');
+        }
+
+        if (columns) {
+            const columnIndices: Array<number> = []
+
+            if (typeof columns === "string") {
+                columnIndices.push(this.columns.indexOf(columns))
+            } else if (Array.isArray(columns)) {
+                for (let column of columns) {
+                    if (this.columns.indexOf(column) === -1) {
+                        throw Error(`ParamError: specified column "${column}" not found in columns`);
+                    }
+                    columnIndices.push(this.columns.indexOf(column))
+                }
+
+            } else {
+                throw Error('ParamError: columns must be an array of column names or a string of column name');
+            }
+
+            let newRowData: ArrayType2D = []
+            let newColumnNames = []
+            let newDtypes = []
+
+            for (let i = 0; i < this.values.length; i++) {
+                const tempInnerArr = []
+                const innerArr = this.values[i] as ArrayType1D
+                for (let j = 0; j < innerArr.length; j++) {
+                    if (!(columnIndices.includes(j))) {
+                        tempInnerArr.push(innerArr[j])
+                    }
+                }
+                newRowData.push(tempInnerArr)
+            }
+
+            for (let i = 0; i < this.columns.length; i++) {
+                const element = this.columns[i]
+                if (!(columns.includes(element))) {
+                    newColumnNames.push(element)
+                    newDtypes.push(this.dtypes[i])
+                }
+            }
+
+            if (inplace) {
+                this.$setValues(newRowData, true, false)
+                this.$setColumnNames(newColumnNames)
+            } else {
+                const df = new DataFrame(newRowData,
+                    {
+                        index: [...this.index],
+                        columns: newColumnNames,
+                        dtypes: newDtypes,
+                        config: { ...this.config }
+                    });
+                return df;
+            }
+
+        }
+
+        if (index) {
+            const rowIndices: Array<number> = []
+
+            if (typeof index === "string" || typeof index === "number" || typeof index === "boolean") {
+                rowIndices.push(this.index.indexOf(index))
+            } else if (Array.isArray(index)) {
+                for (let indx of index) {
+                    if (this.index.indexOf(indx) === -1) {
+                        throw Error(`ParamError: specified index "${indx}" not found in indices`);
+                    }
+                    rowIndices.push(this.index.indexOf(indx));
+                }
+            } else {
+                throw Error('ParamError: index must be an array of indices or a scalar index');
+            }
+
+            let newRowData: ArrayType2D = []
+            let newIndex = []
+
+            for (let i = 0; i < this.values.length; i++) {
+                const innerArr = this.values[i] as ArrayType1D
+                if (!(rowIndices.includes(i))) {
+                    newRowData.push(innerArr)
+                }
+            }
+
+            for (let i = 0; i < this.index.length; i++) {
+                const indx = this.index[i]
+                if (!(index.includes(indx))) {
+                    newIndex.push(indx)
+                }
+            }
+
+            if (inplace) {
+                this.$setValues(newRowData, false)
+                this.$setIndex(newIndex)
+            } else {
+                const df = new DataFrame(newRowData,
+                    {
+                        index: newIndex,
+                        columns: [...this.columns],
+                        dtypes: [...this.dtypes],
+                        config: { ...this.config }
+                    });
+                return df;
+            }
+        }
+
     }
 }

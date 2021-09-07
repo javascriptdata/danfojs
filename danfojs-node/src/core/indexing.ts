@@ -158,7 +158,7 @@ export function _iloc({ ndFrame, rows, columns }: {
             newData,
             {
                 index: newIndex,
-                columnNames: ndFrame.columnNames,
+                columns: ndFrame.columns,
                 dtypes: ndFrame.dtypes,
                 config: ndFrame.config
             })
@@ -185,7 +185,7 @@ export function _iloc({ ndFrame, rows, columns }: {
 
         for (let i = 0; i < _columnIndexes.length; i++) {
             const colIndx = _columnIndexes[i]
-            newColumnNames.push(ndFrame.columnNames[colIndx])
+            newColumnNames.push(ndFrame.columns[colIndx])
             newDtypes.push(ndFrame.dtypes[colIndx])
 
         }
@@ -194,7 +194,7 @@ export function _iloc({ ndFrame, rows, columns }: {
             newData,
             {
                 index: newIndex,
-                columnNames: newColumnNames,
+                columns: newColumnNames,
                 dtypes: newDtypes,
                 config: ndFrame.config
             })
@@ -317,7 +317,7 @@ export function _loc({ ndFrame, rows, columns }: {
         _rowIndexes = rowsIndexToUse
     }
 
-    const _columnNames = ndFrame.columnNames
+    const _columnNames = ndFrame.columns
 
     if (!columns) {
         _columnIndexes = _columnNames.map(columnName => _columnNames.indexOf(columnName))// Return all column index
@@ -373,7 +373,7 @@ export function _loc({ ndFrame, rows, columns }: {
             newData,
             {
                 index: newIndex,
-                columnNames: ndFrame.columnNames,
+                columns: ndFrame.columns,
                 dtypes: ndFrame.dtypes,
                 config: ndFrame.config
             })
@@ -400,7 +400,7 @@ export function _loc({ ndFrame, rows, columns }: {
 
         for (let i = 0; i < _columnIndexes.length; i++) {
             const colIndx = _columnIndexes[i]
-            newColumnNames.push(ndFrame.columnNames[colIndx])
+            newColumnNames.push(ndFrame.columns[colIndx])
             newDtypes.push(ndFrame.dtypes[colIndx])
 
         }
@@ -409,7 +409,7 @@ export function _loc({ ndFrame, rows, columns }: {
             newData,
             {
                 index: newIndex,
-                columnNames: newColumnNames,
+                columns: newColumnNames,
                 dtypes: newDtypes,
                 config: ndFrame.config
             })

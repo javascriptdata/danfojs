@@ -32,20 +32,20 @@ const utils = new Utils();
  * Operations between DataFrame (+, -, /, , *) align values based on their associated index values– they need not be the same length.
  * @param data 2D Array, JSON, Tensor, Block of data.
  * @param options.index Array of numeric or string names for subseting array. If not specified, indexes are auto generated.
- * @param options.columnNames Array of column names. If not specified, column names are auto generated.
+ * @param options.columns Array of column names. If not specified, column names are auto generated.
  * @param options.dtypes Array of data types for each the column. If not specified, dtypes are/is inferred.
  * @param options.config General configuration object for extending or setting NDframe behavior.  
  */
 export default class Series extends NDframe implements SeriesInterface {
 
     constructor(data: any = [], options: BaseDataOptionType = {}) {
-        const { index, columnNames, dtypes, config } = options;
+        const { index, columns, dtypes, config } = options;
         if (Array.isArray(data[0]) || utils.isObject(data[0])) {
             data = utils.convert2DArrayToSeriesArray(data);
             super({
                 data,
                 index,
-                columnNames,
+                columns,
                 dtypes,
                 config,
                 isSeries: true
@@ -54,7 +54,7 @@ export default class Series extends NDframe implements SeriesInterface {
             super({
                 data,
                 index,
-                columnNames,
+                columns,
                 dtypes,
                 config,
                 isSeries: true
@@ -360,7 +360,7 @@ export default class Series extends NDframe implements SeriesInterface {
 
         const newData = _genericMathOp({ ndFrame: this, other, operation: "maximum" })
         return new Series(newData, {
-            columnNames: this.columnNames,
+            columns: this.columns,
             index: this.index
         });
     }
@@ -374,7 +374,7 @@ export default class Series extends NDframe implements SeriesInterface {
 
         const newData = _genericMathOp({ ndFrame: this, other, operation: "minimum" })
         return new Series(newData, {
-            columnNames: this.columnNames,
+            columns: this.columns,
             index: this.index
         });
     }
@@ -513,7 +513,7 @@ export default class Series extends NDframe implements SeriesInterface {
     */
     copy(): Series {
         const sf = new Series([...this.values], {
-            columnNames: [...this.columnNames],
+            columns: [...this.columns],
             index: [...this.index],
             dtypes: [...this.dtypes],
             config: { ...this.config }
@@ -1179,7 +1179,7 @@ export default class Series extends NDframe implements SeriesInterface {
                 newData,
                 {
                     index: newIndx,
-                    columnNames: this.columnNames,
+                    columns: this.columns,
                     dtypes: this.dtypes,
                     config: this.config
                 })

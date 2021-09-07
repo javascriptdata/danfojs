@@ -40,7 +40,7 @@ const utils = new Utils();
  * 
  *  index: Array of numeric or string names for subseting array. If not specified, indexes are auto generated.
  * 
- *  columnNames: Array of column names. If not specified, column names are auto generated.
+ *  columns: Array of column names. If not specified, column names are auto generated.
  * 
  *  dtypes: Array of data types for each the column. If not specified, dtypes inferred.
  * 
@@ -53,12 +53,12 @@ export default class NDframe implements NDframeInterface {
     protected $data: any
     protected $dataIncolumnFormat: ArrayType1D | ArrayType2D = []
     protected $index: Array<string | number> = []
-    protected $columnNames: string[] = []
+    protected $columns: string[] = []
     protected $dtypes: Array<string> = []
     protected $config: Configs
     $tf: any
 
-    constructor({ data, index, columnNames, dtypes, config, isSeries }: NdframeInputDataType) {
+    constructor({ data, index, columns, dtypes, config, isSeries }: NdframeInputDataType) {
         this.$isSeries = isSeries
         if (config) {
             this.$config = new Configs({ ...BASE_CONFIG, ...config });
@@ -73,23 +73,23 @@ export default class NDframe implements NDframeInterface {
         }
 
         if (data === undefined || (Array.isArray(data) && data.length === 0)) {
-            this.loadArrayIntoNdframe({ data: [], index: [], columnNames: [], dtypes: [] });
+            this.loadArrayIntoNdframe({ data: [], index: [], columns: [], dtypes: [] });
         } else if (utils.is1DArray(data)) {
-            this.loadArrayIntoNdframe({ data, index, columnNames, dtypes });
+            this.loadArrayIntoNdframe({ data, index, columns, dtypes });
         } else {
 
             if (Array.isArray(data) && utils.isObject(data[0])) {
-                this.loadObjectIntoNdframe({ data, type: 1, index, columnNames, dtypes });
+                this.loadObjectIntoNdframe({ data, type: 1, index, columns, dtypes });
 
             } else if (utils.isObject(data)) {
-                this.loadObjectIntoNdframe({ data, type: 2, index, columnNames, dtypes });
+                this.loadObjectIntoNdframe({ data, type: 2, index, columns, dtypes });
 
             } else if (
                 Array.isArray((data)[0]) ||
                 utils.isNumber((data)[0]) ||
                 utils.isString((data)[0])
             ) {
-                this.loadArrayIntoNdframe({ data, index, columnNames, dtypes });
+                this.loadArrayIntoNdframe({ data, index, columns, dtypes });
             } else {
                 throw new Error("File format not supported!");
             }
@@ -101,7 +101,7 @@ export default class NDframe implements NDframeInterface {
      * @param data The array of data to load into NDFrame
      * 
     */
-    private loadArrayIntoNdframe({ data, index, columnNames, dtypes }: LoadArrayDataType): void {
+    private loadArrayIntoNdframe({ data, index, columns, dtypes }: LoadArrayDataType): void {
         // this.$data = utils.replaceUndefinedWithNaN(data, this.$isSeries);
         this.$data = data
         if (!this.$config.isLowMemoryMode) {
@@ -111,7 +111,7 @@ export default class NDframe implements NDframeInterface {
         }
         this.$setIndex(index);
         this.$setDtypes(dtypes);
-        this.$setColumnNames(columnNames);
+        this.$setColumnNames(columns);
     }
 
     /**
@@ -123,7 +123,7 @@ export default class NDframe implements NDframeInterface {
      * 
      * type 2 object are of the form {a: [1,2,3,4], b: [30,20, 30, 20}]}
     */
-    private loadObjectIntoNdframe({ data, type, index, columnNames, dtypes }: LoadObjectDataType): void {
+    private loadObjectIntoNdframe({ data, type, index, columns, dtypes }: LoadObjectDataType): void {
         if (type === 1 && Array.isArray(data)) {
             const _data = (data).map((item) => {
                 return Object.values(item);
@@ -131,24 +131,24 @@ export default class NDframe implements NDframeInterface {
 
             let _columnNames;
 
-            if (columnNames) {
-                _columnNames = columnNames
+            if (columns) {
+                _columnNames = columns
             } else {
                 _columnNames = Object.keys((data)[0]);
             }
 
-            this.loadArrayIntoNdframe({ data: _data, index, columnNames: _columnNames, dtypes });
+            this.loadArrayIntoNdframe({ data: _data, index, columns: _columnNames, dtypes });
 
         } else {
             const [_data, _colNames] = utils.getRowAndColValues(data);
             let _columnNames;
 
-            if (columnNames) {
-                _columnNames = columnNames
+            if (columns) {
+                _columnNames = columns
             } else {
                 _columnNames = _colNames
             }
-            this.loadArrayIntoNdframe({ data: _data, index, columnNames: _columnNames, dtypes });
+            this.loadArrayIntoNdframe({ data: _data, index, columns: _columnNames, dtypes });
         }
     }
 
@@ -218,7 +218,7 @@ export default class NDframe implements NDframeInterface {
     get axis(): AxisType {
         return {
             index: this.$index,
-            columns: this.$columnNames
+            columns: this.$columns
         };
     }
 
@@ -256,34 +256,34 @@ export default class NDframe implements NDframeInterface {
         this.$index = utils.range(0, this.shape[0] - 1)
     }
 
-    get columnNames(): string[] {
-        return this.$columnNames
+    get columns(): string[] {
+        return this.$columns
     }
 
-    $setColumnNames(columnNames?: string[]) {
+    $setColumnNames(columns?: string[]) {
 
         if (this.$isSeries) {
-            if (columnNames) {
-                if (this.$data.length != 0 && columnNames.length != 1 && typeof columnNames != 'string') {
-                    ErrorThrower.throwColumnNamesLengthError(this, columnNames)
+            if (columns) {
+                if (this.$data.length != 0 && columns.length != 1 && typeof columns != 'string') {
+                    ErrorThrower.throwColumnNamesLengthError(this, columns)
                 }
-                this.$columnNames = columnNames
+                this.$columns = columns
             } else {
-                this.$columnNames = ["0"]
+                this.$columns = ["0"]
             }
         } else {
-            if (columnNames) {
+            if (columns) {
 
-                if (this.$data.length != 0 && columnNames.length != this.shape[1]) {
-                    ErrorThrower.throwColumnNamesLengthError(this, columnNames)
+                if (this.$data.length != 0 && columns.length != this.shape[1]) {
+                    ErrorThrower.throwColumnNamesLengthError(this, columns)
                 }
-                if (Array.from(new Set(columnNames)).length !== this.shape[1]) {
+                if (Array.from(new Set(columns)).length !== this.shape[1]) {
                     ErrorThrower.throwColumnDuplicateError()
                 }
 
-                this.$columnNames = columnNames
+                this.$columns = columns
             } else {
-                this.$columnNames = (utils.range(0, this.shape[1] - 1)).map((val) => `${val}`) //generate columns
+                this.$columns = (utils.range(0, this.shape[1] - 1)).map((val) => `${val}`) //generate columns
             }
         }
     }
