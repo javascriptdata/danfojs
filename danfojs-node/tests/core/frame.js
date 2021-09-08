@@ -29,6 +29,14 @@ describe("DataFrame", function () {
       assert.deepEqual(csvContent, "A,B,C\n1,2,3\n4,5,6\n");
     });
 
+    it("return dataframe csv string with specified separator", async function () {
+      let data = [[1, 2, 3], [4, 5, 6]];
+      let cols = ["A", "B", "C"];
+      let df = new DataFrame(data, { columns: cols });
+      const csvContent = await df.to_csv(testCSVPath, { sep: "|" });
+      assert.deepEqual(csvContent, "A|B|C\n1|2|3\n4|5|6\n");
+    });
+
   });
 
   describe("drop", function () {

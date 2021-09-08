@@ -360,19 +360,21 @@ export default class NDframe {
 
   /**
    * Return object data as comma-separated values (csv).
+   * @param {Object} kwargs Configuration object
+   *                { sep: [String] Field delimiter for the output file }
    * @returns {Promise<String>} CSV representation of Object data
    */
-  async to_csv() {
+  async to_csv(kwargs = { sep: "," }) {
     if (this.series) {
-      let csv = this.values.join(",");
+      let csv = this.values.join(kwargs.sep);
       return csv;
     } else {
       let records = this.values;
-      let header = this.column_names.join(",");
+      let header = this.column_names.join(kwargs.sep);
 
       let csv_str = `${header}\n`;
       records.forEach((val) => {
-        let row = `${val.join(",")}\n`;
+        let row = `${val.join(kwargs.sep)}\n`;
         csv_str += row;
       });
       return csv_str;

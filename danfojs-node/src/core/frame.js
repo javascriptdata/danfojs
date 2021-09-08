@@ -60,11 +60,13 @@ export class DataFrame extends Ndframe {
   /**
    * Write a CSV file of the DataFrame contents
    * @param {string} csvFilePath Path to save CSV when in Node.js form
+   * @param {Object} kwargs Configuration object
+   *                { sep: [String] Field delimiter for the output file }
    * @returns {Promise<String>} CSV representation of Object data
    *
    */
-  async to_csv(csvFilePath = "") {
-    const csvContent = await super.to_csv();
+  async to_csv(csvFilePath = "", kwargs = { sep: "," }) {
+    const csvContent = await super.to_csv(kwargs);
     // behave differently for Node vs Web
     if (typeof window === "undefined") {
       // Write CSV on Node.js

@@ -247,6 +247,14 @@ describe("Generic (NDFrame)", function () {
       let result = `A,B,C\n12,2,20\n90,5,23\n45,56,70\n9,10,19\n`;
       assert.deepEqual(await df.to_csv(), result);
     });
+    it("Converts DataFrame to csv with specified separator format and return string", async function () {
+      let data = [ { alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 } ];
+      let df = new NDframe(data);
+      let result = `alpha|count\nA|1\nB|2\nC|3\n`;
+      df.to_csv({ sep: '|' }).then((csv) => {
+        assert.deepEqual(csv, result);
+      });
+    });
   });
 
   describe("to_json", async function () {
