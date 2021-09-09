@@ -80,6 +80,50 @@ export class MinMaxScaler {
       throw Error("Value Error: Data type not supoorted");
     }
   }
+
+
+  /**
+   * Restore a transformed array to their original values,
+   * using the min and max generated from the fitting on data
+   * @param {Series|Array|DataFrame} data
+   * @returns Series|DataFrame
+   */
+  inverse_transform(data) {
+    if (data instanceof Series) {
+      if (data.dtypes.includes("string")) {
+        throw Error("Dtype Error: Cannot perform operation on string dtypes");
+      }
+      let tensor_data = tf.tensor(data.values);
+      let output_data = tensor_data
+        .mul(this.max.sub(this.min))
+        .add(this.min)
+        .arraySync();
+      return new Series(output_data);
+    } else if (Array.isArray(data)) {
+      let tensor_data = tf.tensor(data);
+      let output_data = tensor_data
+        .mul(this.max.sub(this.min))
+        .add(this.min)
+        .arraySync();
+      if (utils.__is_1D_array(data)) {
+        return new Series(output_data);
+      } else {
+        return new DataFrame(output_data);
+      }
+    } else if (data instanceof DataFrame) {
+      if (data.dtypes.includes("string")) {
+        throw Error("Dtype Error: Cannot perform operation on string dtypes");
+      }
+      let tensor_data = tf.tensor(data.values);
+      let output_data = tensor_data
+        .mul(this.max.sub(this.min))
+        .add(this.min)
+        .arraySync();
+      return new DataFrame(output_data);
+    } else {
+      throw Error("Value Error: Data type not supoorted");
+    }
+  }
 }
 
 export class StandardScaler {
@@ -138,6 +182,40 @@ export class StandardScaler {
       }
       let tensor_data = tf.tensor(data.values);
       let output_data = tensor_data.sub(this.mean).div(this.std).arraySync();
+      return new DataFrame(output_data);
+    } else {
+      throw Error("Value Error: Data type not supoorted");
+    }
+  }
+
+  /**
+   * Restore a transformed array to their original values,
+   * using the mean and std generated from the fitting on data
+   * @param {Series|Array|DataFrame} data
+   * @returns Series|DataFrame
+   */
+  inverse_transform(data) {
+    if (data instanceof Series) {
+      if (data.dtypes.includes("string")) {
+        throw Error("Dtype Error: Cannot perform operation on string dtypes");
+      }
+      let tensor_data = tf.tensor(data.values);
+      let output_data = tensor_data.mul(this.std).add(this.mean).arraySync();
+      return new Series(output_data);
+    } else if (Array.isArray(data)) {
+      let tensor_data = tf.tensor(data);
+      let output_data = tensor_data.mul(this.std).add(this.mean).arraySync();
+      if (utils.__is_1D_array(data)) {
+        return new Series(output_data);
+      } else {
+        return new DataFrame(output_data);
+      }
+    } else if (data instanceof DataFrame) {
+      if (data.dtypes.includes("string")) {
+        throw Error("Dtype Error: Cannot perform operation on string dtypes");
+      }
+      let tensor_data = tf.tensor(data.values);
+      let output_data = tensor_data.mul(this.std).add(this.mean).arraySync();
       return new DataFrame(output_data);
     } else {
       throw Error("Value Error: Data type not supoorted");
