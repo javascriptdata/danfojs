@@ -19,13 +19,7 @@ import { BaseUserConfig } from "table"
 import Str from '@base/core/strings';
 import { Dt } from '..';
 
-export enum DTYPES {
-    float32,
-    int32,
-    string,
-    boolean,
-    undefined
-}
+export type DTYPES = "float32" | "int32" | "string" | "boolean" | "undefined"
 
 export type ArrayType2D = Array<
     number[]
@@ -223,12 +217,16 @@ export interface DataFrameInterface extends NDframeInterface {
     cumProd(options?: { axis?: 0 | 1 }): Series
     copy(): DataFrame
     resetIndex(options: { inplace?: boolean }): DataFrame | void
-    setIndex(
-        index: Array<number | string | (number | string)>,
-        options?: { inplace?: boolean }
+    setIndex(options:
+        {
+            index?: Array<number | string | (number | string)>,
+            column?: string,
+            drop?: boolean,
+            inplace?: boolean
+        }
     ): DataFrame | void
     describe(): DataFrame
-    selectDtypes(include: DTYPES): DataFrame
+    selectDtypes(include: Array<string>): DataFrame
     abs(options?: { axis?: 0 | 1 }): DataFrame | void
     query(options: { column: string, is: string, to: string, inplace?: boolean }): DataFrame
     addColumn(options:
@@ -250,13 +248,8 @@ export interface DataFrameInterface extends NDframeInterface {
     isNa(): DataFrame
     nanIndex(): Array<number>
     dropNa(axis?: 0 | 1, options?: { inplace?: boolean }): DataFrame | void
-    apply(options:
-        {
-            axis?: 0 | 1,
-            callable: (val: number | string | boolean) => number | string | boolean
-            inplace?: boolean
-        }
-    ): DataFrame | void
+    apply(callable: any, options?: { axis?: 0 | 1 }): DataFrame | Series
+    applyMap(callable: any, options?: { inplace?: boolean }): DataFrame | void
     lt(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
     gt(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
     le(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
@@ -298,7 +291,7 @@ export interface DataFrameInterface extends NDframeInterface {
     ): DataFrame | void
     sortValues(options:
         {
-            by: string,
+            column: string,
             inplace?: boolean
             ascending?: boolean
         }

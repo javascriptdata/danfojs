@@ -19,10 +19,11 @@ import { variance, std, median, mode } from 'mathjs';
 import { _iloc, _loc } from "./indexing";
 import { _genericMathOp } from "./generic.math.ops";
 import Utils from "../shared/utils"
-import { ArrayType1D, ArrayType2D, NdframeInputDataType, DataFrameInterface, BaseDataOptionType } from "../shared/types";
+import { ArrayType1D, ArrayType2D, NdframeInputDataType, DataFrameInterface, BaseDataOptionType, DTYPES } from "../shared/types";
 import Series from './series';
 import ErrorThrower from '../shared/errors';
 import { Tensor } from '@tensorflow/tfjs-node';
+import { DATA_TYPES } from '../shared/defaults'
 
 const utils = new Utils();
 
@@ -169,7 +170,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     /**
      * Return data with missing values removed from a specified axis
-     * @param axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param axis 0 or 1. If 0, column-wise, if 1, row-wise
     */
     private $getDataByAxisWithMissingValuesRemoved(axis: number): Array<number[]> {
         const oldValues = this.$getDataArraysByAxis(axis);
@@ -183,7 +184,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     /**
      * Return data aligned to the specified axis. Transposes the array if needed.
-     * @param axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param axis 0 or 1. If 0, column-wise, if 1, row-wise
     */
     private $getDataArraysByAxis(axis: number): ArrayType2D {
         if (axis === 1) {
@@ -212,7 +213,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Return Tensors in the right axis for math operations.
      * @param other DataFrame or Series or number or array
-     * @param axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param axis 0 or 1. If 0, column-wise, if 1, row-wise
      * */
     private $getTensorsForArithmeticOperationByAxis(
         other: DataFrame | Series | number | Array<number>,
@@ -456,7 +457,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Return Addition of DataFrame and other, element-wise (binary operator add).
      * @param other DataFrame, Series, Array or Scalar number to add
-     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
     add(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
@@ -493,7 +494,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Return substraction between DataFrame and other.
      * @param other DataFrame, Series, Array or Scalar number to substract from DataFrame
-     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param options.axis 0 or 1. If 0, compute the subtraction column-wise, if 1, row-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
     sub(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
@@ -528,7 +529,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Return multiplciation between DataFrame and other.
      * @param other DataFrame, Series, Array or Scalar number to multiply with.
-     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param options.axis 0 or 1. If 0, compute the multiplication column-wise, if 1, row-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
     mul(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
@@ -563,7 +564,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Return division of DataFrame with other.
      * @param other DataFrame, Series, Array or Scalar number to divide with.
-     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param options.axis 0 or 1. If 0, compute the division column-wise, if 1, row-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
     div(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
@@ -599,7 +600,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Return DataFrame raised to the power of other.
      * @param other DataFrame, Series, Array or Scalar number to to raise to.
-     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param options.axis 0 or 1. If 0, compute the power column-wise, if 1, row-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
     pow(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
@@ -635,7 +636,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Return modulus between DataFrame and other.
      * @param other DataFrame, Series, Array or Scalar number to modulus with.
-     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise
+     * @param options.axis 0 or 1. If 0, compute the mod column-wise, if 1, row-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
     mod(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
@@ -670,7 +671,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     /**
      * Return mean of DataFrame across specified axis.
-     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise. Defaults to 1
+     * @param options.axis 0 or 1. If 0, compute the mean column-wise, if 1, row-wise. Defaults to 1
     */
     mean(options?: { axis?: 0 | 1 }): Series {
         const { axis } = { axis: 1, ...options }
@@ -690,7 +691,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     /**
      * Return median of DataFrame across specified axis.
-     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise. Defaults to 1
+     * @param options.axis 0 or 1. If 0, compute the median column-wise, if 1, row-wise. Defaults to 1
     */
     median(options?: { axis?: 0 | 1 }): Series {
         const { axis } = { axis: 1, ...options }
@@ -711,7 +712,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     /**
      * Return mode of DataFrame across specified axis.
-     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise. Defaults to 1
+     * @param options.axis 0 or 1. If 0, compute the mode column-wise, if 1, row-wise. Defaults to 1
      * @param options.keep If there are more than one modes, returns the mode at position [keep]. Defaults to 0
     */
     mode(options?: { axis?: 0 | 1, keep?: number }): Series {
@@ -740,7 +741,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     /**
      * Return minimum of values in a DataFrame across specified axis.
-     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise. Defaults to 1
+     * @param options.axis 0 or 1. If 0, compute the minimum value column-wise, if 1, row-wise. Defaults to 1
     */
     min(options?: { axis?: 0 | 1 }): Series {
         const { axis } = { axis: 1, ...options }
@@ -768,7 +769,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     /**
      * Return maximum of values in a DataFrame across specified axis.
-     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise. Defaults to 1
+     * @param options.axis 0 or 1. If 0, compute the maximum column-wise, if 1, row-wise. Defaults to 1
     */
     max(options?: { axis?: 0 | 1 }): Series {
         const { axis } = { axis: 1, ...options }
@@ -796,7 +797,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     /**
      * Return standard deviation of values in a DataFrame across specified axis.
-     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise. Defaults to 1
+     * @param options.axis 0 or 1. If 0, compute the standard deviation column-wise, if 1, row-wise. Defaults to 1
     */
     std(options?: { axis?: 0 | 1 }): Series {
         const { axis } = { axis: 1, ...options }
@@ -817,7 +818,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     /**
      * Return variance of values in a DataFrame across specified axis.
-     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise. Defaults to 1
+     * @param options.axis 0 or 1. If 0, compute the variance column-wise, if 1, add row-wise. Defaults to 1
     */
     var(options?: { axis?: 0 | 1 }): Series {
         const { axis } = { axis: 1, ...options }
@@ -838,7 +839,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     /**
      * Return number of non-null elements in a Series
-     * @param options.axis 0 or 1. If 0, add row-wise, if 1, add column-wise. Defaults to 1
+     * @param options.axis 0 or 1. If 0, count column-wise, if 1, add row-wise. Defaults to 1
     */
     count(options?: { axis?: 0 | 1 }): Series {
         const { axis } = { axis: 1, ...options }
@@ -896,20 +897,13 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         const statsObject: any = {};
         for (let i = 0; i < numericColumnNames.length; i++) {
             const colName = numericColumnNames[i];
-            // @ts-ignore
-            const count = this[colName].count();
-            // @ts-ignore
-            const mean = this[colName].mean();
-            // @ts-ignore
-            const std = this[colName].std();
-            // @ts-ignore
-            const min = this[colName].min();
-            // @ts-ignore
-            const median = this[colName].median();
-            // @ts-ignore
-            const max = this[colName].max();
-            // @ts-ignore
-            const variance = this[colName].var();
+            const count = this.$getColumnData(colName).count();
+            const mean = this.$getColumnData(colName).mean();
+            const std = this.$getColumnData(colName).std();
+            const min = this.$getColumnData(colName).min();
+            const median = this.$getColumnData(colName).median();
+            const max = this.$getColumnData(colName).max();
+            const variance = this.$getColumnData(colName).var();
 
             const stats = [count, mean, std, min, median, max, variance];
             statsObject[colName] = stats;
@@ -922,7 +916,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     /**
      * Drops all rows or columns with missing values (NaN)
-     * @param axis 0 or 1. If 0, drop rows with NaNs, if 1, drop columns with NaNs
+     * @param axis 0 or 1. If 0, drop columns with NaNs, if 1, drop rows with NaNs
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
     dropNa(axis?: 0 | 1, options?: { inplace?: boolean }): DataFrame | void {
@@ -1182,9 +1176,9 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     }
 
     /**
-    * Replace all empty elements with a specified value. Replace params expect columns array to map to values array.
-    * @param columns The list of column names to be replaced
-    * @param options.values The list of values to use for replacement.
+    * Drop columns or rows with missing values. Missing values are NaN, undefined or null.
+    * @param options.columns Array of column names to drop
+    * @param options.index Array of index to drop
     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
    */
     drop(options:
@@ -1306,6 +1300,267 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                 return df;
             }
         }
+
+    }
+
+    /**
+    * Sorts a Dataframe by a specified column values
+    * @param options.column Column name to sort by
+    * @param options.ascending Whether to sort values in ascending order or not. Defaults to true
+    * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+   */
+    sortValues(options:
+        {
+            column: string,
+            ascending?: boolean
+            inplace?: boolean
+        }
+    ): DataFrame | void {
+        const { column, ascending, inplace } = { ascending: true, inplace: false, ...options }
+
+        if (!column) {
+            throw Error(`ParamError: must specify a column`);
+        }
+
+        if (this.columns.indexOf(column) === -1) {
+            throw Error(`ParamError: specified column "${column}" not found in columns`);
+        }
+
+        const columnValues = this.$getColumnData(column).values as ArrayType1D
+        const index = [...this.index]
+
+        const objToSort = columnValues.map((value, i) => {
+            return { index: index[i], value }
+        })
+
+        const sortedObjectArr = utils.sortObj(objToSort, ascending)
+        const sortedIndex = sortedObjectArr.map(obj => obj.index)
+
+        const newDf = _loc({ ndFrame: this, rows: sortedIndex }) as DataFrame
+
+        if (inplace) {
+            this.$setValues(newDf.values)
+            this.$setIndex(newDf.index)
+        } else {
+            return newDf
+        }
+
+    }
+
+    /**
+       * Sets the index of the DataFrame to the specified index.
+       * @param options.index An array of index values to set
+       * @param options.column A column name to set the index to
+       * @param options.drop Whether to drop the column whose index was set. Defaults to false
+       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+   */
+    setIndex(options:
+        {
+            index?: Array<number | string | (number | string)>,
+            column?: string,
+            drop?: boolean,
+            inplace?: boolean
+        }
+    ): DataFrame | void {
+        const { index, column, drop, inplace } = { drop: false, inplace: false, ...options }
+
+        if (index === undefined && column === undefined) {
+            throw Error(`ParamError: must specify either index or column`);
+        }
+
+        let newIndex: Array<string | number> = [];
+
+        if (index) {
+            if (!Array.isArray(index)) {
+                throw Error(`ParamError: index must be an array`);
+            }
+
+            if (index.length !== this.values.length) {
+                throw Error(`ParamError: index must be the same length as the number of rows`);
+            }
+            newIndex = index;
+        }
+
+        if (column) {
+            if (this.columns.indexOf(column) === -1) {
+                throw Error(`ParamError: column not found in column names`);
+            }
+
+            newIndex = this.$getColumnData(column).values as Array<string | number>
+        }
+
+        if (drop) {
+            const dfDropped = this.drop({ columns: [column as string] })
+
+            const newData = dfDropped?.values as ArrayType2D
+            const newColumns = dfDropped?.columns
+            const newDtypes = dfDropped?.dtypes
+
+            if (inplace) {
+                this.$setValues(newData, true, false)
+                this.$setIndex(newIndex)
+                this.$setColumnNames(newColumns)
+            } else {
+                const df = new DataFrame(newData,
+                    {
+                        index: newIndex,
+                        columns: newColumns,
+                        dtypes: newDtypes,
+                        config: { ...this.config }
+                    });
+                return df;
+            }
+        } else {
+            if (inplace) {
+                this.$setIndex(newIndex)
+            } else {
+                const df = new DataFrame(this.values,
+                    {
+                        index: newIndex,
+                        columns: [...this.columns],
+                        dtypes: [...this.dtypes],
+                        config: { ...this.config }
+                    });
+                return df;
+            }
+        }
+
+    }
+
+    /**
+       * Resets the index of the DataFrame to the default index.
+       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+   */
+    resetIndex(options?: { inplace?: boolean }): DataFrame | void {
+        const { inplace } = { inplace: false, ...options }
+
+        if (inplace) {
+            this.$resetIndex()
+        } else {
+            const df = new DataFrame(this.values,
+                {
+                    index: this.index.map((_, i) => i),
+                    columns: [...this.columns],
+                    dtypes: [...this.dtypes],
+                    config: { ...this.config }
+                });
+            return df;
+        }
+
+    }
+
+    /**
+     * Apply a function along an axis of the DataFrame. To apply a function element-wise, use `applyMap`.
+     * Objects passed to the function are Series values whose 
+     * index is either the DataFrame’s index (axis=0) or the DataFrame’s columns (axis=1)
+     * @param callable Function to apply to each column or row
+     * @param options.axis 0 or 1. If 0, compute the power column-wise, if 1, row-wise
+    */
+    apply(callable: any, options?: { axis?: 0 | 1 }): DataFrame | Series {
+        const { axis } = { axis: 1, ...options }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error(`ParamError: axis must be 0 or 1`);
+        }
+
+        const valuesForFunc = this.$getDataByAxisWithMissingValuesRemoved(axis)
+
+        const result = valuesForFunc.map(row => {
+            return callable(row)
+        })
+
+        if (axis === 0) {
+            if (utils.is1DArray(result)) {
+                return new Series(result, {
+                    index: [...this.columns]
+                })
+            } else {
+                return new DataFrame(result, {
+                    index: [...this.columns],
+                    columns: [...this.columns],
+                    dtypes: [...this.dtypes],
+                    config: { ...this.config }
+                })
+            }
+        } else {
+            if (utils.is1DArray(result)) {
+                return new Series(result, {
+                    index: [...this.index]
+                })
+            } else {
+                return new DataFrame(result, {
+                    index: [...this.index],
+                    columns: [...this.columns],
+                    dtypes: [...this.dtypes],
+                    config: { ...this.config }
+                })
+            }
+        }
+
+    }
+
+    /**
+     * Apply a function to a Dataframe elementwise.
+     * Objects passed to the function are Series values whose 
+     * index is either the DataFrame’s index (axis=0) or the DataFrame’s columns (axis=1)
+     * @param callable Function to apply to each column or row
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    applyMap(callable: any, options?: { inplace?: boolean }): DataFrame | void {
+        const { inplace } = { inplace: false, ...options }
+
+        const newData = this.values.map(row => {
+            return callable(row)
+        })
+
+        if (inplace) {
+            this.$setValues(newData)
+        } else {
+            return new DataFrame(newData,
+                {
+                    index: [...this.index],
+                    columns: [...this.columns],
+                    dtypes: [...this.dtypes],
+                    config: { ...this.config }
+                })
+        }
+    }
+
+    /**
+     * Apply a function to a Dataframe elementwise.
+     * Objects passed to the function are Series values whose 
+     * index is either the DataFrame’s index (axis=0) or the DataFrame’s columns (axis=1)
+     * @param callable Function to apply to each column or row
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    column(column: string): Series {
+        return this.$getColumnData(column)
+    }
+
+    /**
+    * Return a subset of the DataFrame’s columns based on the column dtypes.
+    * @param include An array of dtypes or strings to be included.
+   */
+    selectDtypes(include: Array<string>): DataFrame {
+        const supportedDtypes = ["float32", "int32", "string", "boolean", 'undefined']
+
+        if (Array.isArray(include) === false) {
+            throw Error(`ParamError: include must be an array`);
+        }
+
+        include.forEach(dtype => {
+            if (supportedDtypes.indexOf(dtype) === -1) {
+                throw Error(`ParamError: include must be an array of valid dtypes`);
+            }
+        })
+        const newColumnNames = []
+
+        for (let i = 0; i < this.dtypes.length; i++) {
+            if (include.includes(this.dtypes[i])) {
+                newColumnNames.push(this.columns[i])
+            }
+        }
+        return this.loc({ columns: newColumnNames })
 
     }
 }

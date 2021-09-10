@@ -764,4 +764,37 @@ export default class Utils {
             ErrorThrower.throwStringDtypeOperationError(operation)
         }
     }
+
+    /**
+    * Custom sort for an array of index and values
+    * @param arr The array of objects to sort
+    * @param ascending Whether to sort in ascending order or not
+    */
+    sortObj(
+        arr: Array<{ index: number | string, value: number | string | boolean }>,
+        ascending: boolean
+    ) {
+        return arr.sort((obj1, obj2) => {
+            const a = obj2.value;
+            const b = obj1.value;
+
+            if (!ascending) {
+                if (typeof a === "string" && typeof b === "string") {
+                    return a.charCodeAt(0) - b.charCodeAt(0);
+                } else if ((typeof a === "number" && typeof b === "number") || (typeof a === "boolean" && typeof b === "boolean")) {
+                    return Number(a) - Number(b);
+                } else {
+                    throw Error('ParamError: column values must be either numbers or strings');
+                }
+            } else {
+                if (typeof a === "string" && typeof b === "string") {
+                    return b.charCodeAt(0) - a.charCodeAt(0);
+                } else if ((typeof a === "number" && typeof b === "number") || (typeof a === "boolean" && typeof b === "boolean")) {
+                    return Number(b) - Number(a);
+                } else {
+                    throw Error('ParamError: column values must be either numbers or strings');
+                }
+            }
+        });
+    }
 }
