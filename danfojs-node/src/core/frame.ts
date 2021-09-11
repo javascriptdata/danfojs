@@ -15,14 +15,14 @@
 // import * asthis.$tf from '@tensorflow/tfjs-node';
 import NDframe from "./generic";
 import { table } from "table";
-import { variance, std, median, mode } from 'mathjs';
+import { variance, std, median, mode, mean } from 'mathjs';
 import { _iloc, _loc } from "./indexing";
 import { _genericMathOp } from "./generic.math.ops";
 import Utils from "../shared/utils"
 import { ArrayType1D, ArrayType2D, NdframeInputDataType, DataFrameInterface, BaseDataOptionType, DTYPES } from "../shared/types";
 import Series from './series';
 import ErrorThrower from '../shared/errors';
-import { Tensor } from '@tensorflow/tfjs-node';
+import { Tensor, Tensor2D } from '@tensorflow/tfjs-node';
 import { DATA_TYPES } from '../shared/defaults'
 
 const utils = new Utils();
@@ -82,8 +82,9 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Returns the column data from the DataFrame by column name. 
      * @param column column name to get the column data
+     * @param returnSeries Whether to return the data in series format or not. Defaults to true
      */
-    private $getColumnData(column: string) {
+    private $getColumnData(column: string, returnSeries: boolean = true) {
         const columnIndex = this.columns.indexOf(column)
 
         if (columnIndex == -1) {
@@ -96,25 +97,34 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         const config = { ...this.$config }
 
         if (this.$config.isLowMemoryMode) {
-            const data = []
+            const data: ArrayType1D = []
             for (let i = 0; i < this.values.length; i++) {
                 const row: any = this.values[i];
                 data.push(row[columnIndex])
             }
-            return new Series(data, {
-                dtypes,
-                index,
-                columns,
-                config
-            })
+            if (returnSeries) {
+                return new Series(data, {
+                    dtypes,
+                    index,
+                    columns,
+                    config
+                })
+            } else {
+                return data
+            }
+
         } else {
             const data = this.$dataIncolumnFormat[columnIndex]
-            return new Series(data, {
-                dtypes,
-                index,
-                columns,
-                config
-            })
+            if (returnSeries) {
+                return new Series(data, {
+                    dtypes,
+                    index,
+                    columns,
+                    config
+                })
+            } else {
+                return data
+            }
         }
 
     }
@@ -251,6 +261,82 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             throw Error(`ColumnNameError: Column "${column}" does not exist`)
         }
         return this.dtypes[columnIndex]
+    }
+
+    private $logicalOps(tensors: [Tensor, Tensor], operation: string) {
+        let newValues: number[] = []
+
+        switch (operation) {
+            case 'gt':
+                newValues = tensors[0].greater(tensors[1]).arraySync() as number[]
+                break;
+            case 'lt':
+                newValues = tensors[0].less(tensors[1]).arraySync() as number[]
+                break;
+            case 'ge':
+                newValues = tensors[0].greaterEqual(tensors[1]).arraySync() as number[]
+                break;
+            case 'le':
+                newValues = tensors[0].lessEqual(tensors[1]).arraySync() as number[]
+                break;
+            case 'eq':
+                newValues = tensors[0].equal(tensors[1]).arraySync() as number[]
+                break;
+            case 'ne':
+                newValues = tensors[0].notEqual(tensors[1]).arraySync() as number[]
+                break;
+
+        }
+
+        const newData = utils.mapIntegersToBooleans(newValues, 2)
+        return new DataFrame(
+            newData,
+            {
+                index: [...this.index],
+                columns: [...this.columns],
+                dtypes: [...this.dtypes],
+                config: { ...this.config }
+            })
+    }
+
+    private $MathOps(tensors: [Tensor, Tensor], operation: string, inplace: boolean) {
+        let tensorResult
+
+        switch (operation) {
+            case 'add':
+                tensorResult = tensors[0].add(tensors[1])
+                break;
+            case 'sub':
+                tensorResult = tensors[0].sub(tensors[1])
+                break;
+            case 'pow':
+                tensorResult = tensors[0].pow(tensors[1])
+                break;
+            case 'div':
+                tensorResult = tensors[0].div(tensors[1])
+                break;
+            case 'mul':
+                tensorResult = tensors[0].mul(tensors[1])
+                break;
+            case 'mod':
+                tensorResult = tensors[0].mod(tensors[1])
+                break;
+        }
+
+        if (inplace) {
+            const newData = tensorResult?.arraySync() as ArrayType2D
+            this.$setValues(newData)
+        } else {
+            return new DataFrame(
+                tensorResult,
+                {
+                    index: [...this.index],
+                    columns: [...this.columns],
+                    dtypes: [...this.dtypes],
+                    config: { ...this.config }
+                })
+
+        }
     }
 
     /**
@@ -470,25 +556,9 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         if ([0, 1].indexOf(axis) === -1) {
             throw Error("ParamError: Axis must be 0 or 1");
         }
-        let newData;
 
         const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperationByAxis(other, axis);
-        newData = (tensors[0].add(tensors[1])).arraySync() as ArrayType2D
-
-        if (inplace) {
-            this.$setValues(newData as ArrayType2D)
-        } else {
-            return new DataFrame(
-                newData,
-                {
-                    index: [...this.index],
-                    columns: [...this.columns],
-                    dtypes: [...this.dtypes],
-                    config: { ...this.config }
-                })
-
-        }
-
+        return this.$MathOps(tensors, "add", inplace)
     }
 
     /**
@@ -509,21 +579,8 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         }
 
         const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperationByAxis(other, axis);
-        const newData = (tensors[0].sub(tensors[1])).arraySync()
+        return this.$MathOps(tensors, "sub", inplace)
 
-        if (inplace) {
-            this.$setValues(newData as ArrayType2D)
-        } else {
-            return new DataFrame(
-                newData,
-                {
-                    index: [...this.index],
-                    columns: [...this.columns],
-                    dtypes: [...this.dtypes],
-                    config: { ...this.config }
-                })
-
-        }
 
     }
     /**
@@ -543,21 +600,8 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             throw Error("ParamError: Axis must be 0 or 1");
         }
         const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperationByAxis(other, axis);
-        const newData = (tensors[0].mul(tensors[1])).arraySync()
+        return this.$MathOps(tensors, "mul", inplace)
 
-        if (inplace) {
-            this.$setValues(newData as ArrayType2D)
-        } else {
-            return new DataFrame(
-                newData,
-                {
-                    index: [...this.index],
-                    columns: [...this.columns],
-                    dtypes: [...this.dtypes],
-                    config: { ...this.config }
-                })
-
-        }
 
     }
 
@@ -579,21 +623,8 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         }
 
         const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperationByAxis(other, axis);
-        const newData = (tensors[0].div(tensors[1])).arraySync()
+        return this.$MathOps(tensors, "div", inplace)
 
-        if (inplace) {
-            this.$setValues(newData as ArrayType2D)
-        } else {
-            return new DataFrame(
-                newData,
-                {
-                    index: [...this.index],
-                    columns: [...this.columns],
-                    dtypes: [...this.dtypes],
-                    config: { ...this.config }
-                })
-
-        }
 
     }
 
@@ -615,21 +646,8 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         }
 
         const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperationByAxis(other, axis);
-        const newData = (tensors[0].pow(tensors[1])).arraySync()
+        return this.$MathOps(tensors, "pow", inplace)
 
-        if (inplace) {
-            this.$setValues(newData as ArrayType2D)
-        } else {
-            return new DataFrame(
-                newData,
-                {
-                    index: [...this.index],
-                    columns: [...this.columns],
-                    dtypes: [...this.dtypes],
-                    config: { ...this.config }
-                })
-
-        }
 
     }
 
@@ -651,21 +669,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         }
 
         const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperationByAxis(other, axis);
-        const newData = (tensors[0].mod(tensors[1])).arraySync()
-
-        if (inplace) {
-            this.$setValues(newData as ArrayType2D)
-        } else {
-            return new DataFrame(
-                newData,
-                {
-                    index: [...this.index],
-                    columns: [...this.columns],
-                    dtypes: [...this.dtypes],
-                    config: { ...this.config }
-                })
-
-        }
+        return this.$MathOps(tensors, "mod", inplace)
 
     }
 
@@ -838,6 +842,126 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     }
 
     /**
+     * Get Less than of dataframe and other, element-wise (binary operator lt).
+     * @param other DataFrame, Series, Array or Scalar number to compare with
+     * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
+    */
+    lt(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame {
+        const { axis } = { axis: 1, ...options }
+
+        if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+            throw Error("TypeError: lt operation is not supported for string dtypes");
+        }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
+        }
+
+        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperationByAxis(other, axis);
+        return this.$logicalOps(tensors, "lt")
+    }
+
+    /**
+     * Returns "greater than" of dataframe and other.
+     * @param other DataFrame, Series, Array or Scalar number to compare with
+     * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
+    */
+    gt(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame {
+        const { axis } = { axis: 1, ...options }
+
+        if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+            throw Error("TypeError: gt operation is not supported for string dtypes");
+        }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
+        }
+
+        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperationByAxis(other, axis);
+        return this.$logicalOps(tensors, "gt")
+    }
+
+    /**
+     * Returns "equals to" of dataframe and other.
+     * @param other DataFrame, Series, Array or Scalar number to compare with
+     * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
+    */
+    eq(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame {
+        const { axis } = { axis: 1, ...options }
+
+        if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+            throw Error("TypeError: eq operation is not supported for string dtypes");
+        }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
+        }
+
+        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperationByAxis(other, axis);
+        return this.$logicalOps(tensors, "eq")
+    }
+
+    /**
+     * Returns "not equal to" of dataframe and other.
+     * @param other DataFrame, Series, Array or Scalar number to compare with
+     * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
+    */
+    ne(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame {
+        const { axis } = { axis: 1, ...options }
+
+        if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+            throw Error("TypeError: ne operation is not supported for string dtypes");
+        }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
+        }
+
+        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperationByAxis(other, axis);
+        return this.$logicalOps(tensors, "ne")
+    }
+
+    /**
+    * Returns "less than or equal to" of dataframe and other.
+    * @param other DataFrame, Series, Array or Scalar number to compare with
+    * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
+    */
+    le(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame {
+        const { axis } = { axis: 1, ...options }
+
+        if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+            throw Error("TypeError: le operation is not supported for string dtypes");
+        }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
+        }
+
+        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperationByAxis(other, axis);
+        return this.$logicalOps(tensors, "le")
+    }
+
+    /**
+    * Returns "greater than or equal to" between dataframe and other.
+    * @param other DataFrame, Series, Array or Scalar number to compare with
+    * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
+    */
+    ge(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame {
+        const { axis } = { axis: 1, ...options }
+
+        if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+            throw Error("TypeError: ge operation is not supported for string dtypes");
+        }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
+        }
+
+        const tensors: [Tensor, Tensor] = this.$getTensorsForArithmeticOperationByAxis(other, axis);
+        return this.$logicalOps(tensors, "ge")
+    }
+
+    /**
      * Return number of non-null elements in a Series
      * @param options.axis 0 or 1. If 0, count column-wise, if 1, add row-wise. Defaults to 1
     */
@@ -852,6 +976,53 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         const countArr = newData.map(arr => arr.length)
         return new Series(countArr)
 
+    }
+
+    /**
+     * Return the sum of values across an axis. 
+     * @param options.axis 0 or 1. If 0, count column-wise, if 1, add row-wise. Defaults to 1
+    */
+    sum(options?: { axis?: 0 | 1 }): Series {
+        const { axis } = { axis: 1, ...options }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
+        }
+
+        const result = this.$getDataByAxisWithMissingValuesRemoved(axis)
+        const sumArr = result.map((innerArr) => {
+            return innerArr.reduce((a, b) => Number(a) + Number(b), 0)
+        })
+        if (axis === 0) {
+            return new Series(sumArr, {
+                index: [...this.columns]
+            })
+        } else {
+            return new Series(sumArr, {
+                index: [...this.index]
+            })
+        }
+
+    }
+
+    /**
+     * Return the absolute value of elements in a DataFrame. 
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    abs(options?: { inplace?: boolean }): DataFrame | void {
+        const { inplace } = { inplace: false, ...options }
+
+        const newData = (this.values as number[][]).map(arr => arr.map(val => Math.abs(val)))
+        if (inplace) {
+            this.$setValues(newData)
+        } else {
+            return new DataFrame(newData, {
+                index: [...this.index],
+                columns: [...this.columns],
+                dtypes: [...this.dtypes],
+                config: { ...this.config }
+            })
+        }
     }
 
     /**
@@ -897,15 +1068,15 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         const statsObject: any = {};
         for (let i = 0; i < numericColumnNames.length; i++) {
             const colName = numericColumnNames[i];
-            const count = this.$getColumnData(colName).count();
-            const mean = this.$getColumnData(colName).mean();
-            const std = this.$getColumnData(colName).std();
-            const min = this.$getColumnData(colName).min();
-            const median = this.$getColumnData(colName).median();
-            const max = this.$getColumnData(colName).max();
-            const variance = this.$getColumnData(colName).var();
+            const $count = (this.$getColumnData(colName) as Series).count();
+            const $mean = mean(this.$getColumnData(colName, false) as number[]);
+            const $std = std(this.$getColumnData(colName, false) as number[]);
+            const $min = (this.$getColumnData(colName) as Series).min();
+            const $median = median(this.$getColumnData(colName, false) as number[]);
+            const $max = (this.$getColumnData(colName) as Series).max();
+            const $variance = variance(this.$getColumnData(colName, false) as number[]);
 
-            const stats = [count, mean, std, min, median, max, variance];
+            const stats = [$count, $mean, $std, $min, $median, $max, $variance];
             statsObject[colName] = stats;
 
         }
@@ -1326,7 +1497,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             throw Error(`ParamError: specified column "${column}" not found in columns`);
         }
 
-        const columnValues = this.$getColumnData(column).values as ArrayType1D
+        const columnValues = this.$getColumnData(column, false) as ArrayType1D
         const index = [...this.index]
 
         const objToSort = columnValues.map((value, i) => {
@@ -1386,7 +1557,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                 throw Error(`ParamError: column not found in column names`);
             }
 
-            newIndex = this.$getColumnData(column).values as Array<string | number>
+            newIndex = this.$getColumnData(column, false) as Array<string | number>
         }
 
         if (drop) {
@@ -1500,9 +1671,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     }
 
     /**
-     * Apply a function to a Dataframe elementwise.
-     * Objects passed to the function are Series values whose 
-     * index is either the DataFrame’s index (axis=0) or the DataFrame’s columns (axis=1)
+     * Apply a function to a Dataframe values element-wise.
      * @param callable Function to apply to each column or row
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
@@ -1527,20 +1696,17 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     }
 
     /**
-     * Apply a function to a Dataframe elementwise.
-     * Objects passed to the function are Series values whose 
-     * index is either the DataFrame’s index (axis=0) or the DataFrame’s columns (axis=1)
-     * @param callable Function to apply to each column or row
-     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     * Returns the specified column data as a Series object.
+     * @param column The name of the column to return
     */
     column(column: string): Series {
-        return this.$getColumnData(column)
+        return this.$getColumnData(column) as Series
     }
 
     /**
-    * Return a subset of the DataFrame’s columns based on the column dtypes.
-    * @param include An array of dtypes or strings to be included.
-   */
+     * Return a subset of the DataFrame’s columns based on the column dtypes.
+     * @param include An array of dtypes or strings to be included.
+    */
     selectDtypes(include: Array<string>): DataFrame {
         const supportedDtypes = ["float32", "int32", "string", "boolean", 'undefined']
 
@@ -1562,5 +1728,84 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         }
         return this.loc({ columns: newColumnNames })
 
+    }
+
+    /**
+     * Returns the transposes the DataFrame.
+     **/
+    transpose(options?: { inplace?: boolean }): DataFrame | void {
+        const { inplace } = { inplace: false, ...options }
+        const newData = utils.transposeArray(this.values)
+        const newColNames = [...this.index.map(i => i.toString())]
+
+        if (inplace) {
+            this.$setValues(newData, false, false)
+            this.$setIndex([...this.columns])
+            this.$setColumnNames(newColNames)
+        } else {
+            return new DataFrame(newData, {
+                index: [...this.columns],
+                columns: newColNames,
+                config: { ...this.config }
+            })
+        }
+    }
+
+    /**
+     * Returns the Transpose of the DataFrame. Similar to `transpose`, but does not change the original DataFrame.
+    **/
+    get T(): DataFrame {
+        const newData = utils.transposeArray(this.values)
+        return new DataFrame(newData, {
+            index: [...this.columns],
+            columns: [...this.index.map(i => i.toString())],
+            config: { ...this.config }
+        })
+    }
+
+    /**
+     * @param options.replace Function to apply to each column or row
+     * @param options.with Function to apply to each column or row
+     * @param options.columns Function to apply to each column or row
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     */
+    replace(options:
+        {
+            replace: number | string | boolean,
+            with: number | string | boolean,
+            columns?: Array<string>
+            inplace?: boolean
+        }
+    ): DataFrame | void {
+        //     const { replace, with: withWhat, columns, inplace } = options
+
+        //     if (typeof replace !== typeof withWhat) {
+        //         throw Error(`ParamError: replace and with must be of the same type`);
+        //     }
+
+        //     const newData = this.values.map(row => {
+        //         return row.map(cell => {
+        //             if (typeof cell === typeof replace) {
+        //                 if (cell === replace) {
+        //                     return withWhat
+        //                 } else {
+        //                     return cell
+        //                 }
+        //             } else {
+        //                 throw Error(`ParamError: replace and with must be of the same type`);
+        //             }
+        //         })
+        //     })
+
+        //     if (inplace) {
+        //         this.$setValues(newData)
+        //     } else {
+        //         return new DataFrame(newData, {
+        //             index: [...this.index],
+        //             columns: [...this.columns],
+        //             dtypes: [...this.dtypes],
+        //             config: { ...this.config }
+        //         })
+        //     }
     }
 }

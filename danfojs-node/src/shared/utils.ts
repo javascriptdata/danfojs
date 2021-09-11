@@ -238,11 +238,11 @@ export default class Utils {
     inferDtype(arr: ArrayType1D | ArrayType2D) {
         const self = this;
         if (this.is1DArray(arr)) {
-            return [this._typeChecker(arr)];
+            return [this.$typeChecker(arr)];
         } else {
             const arrSlice = this.transposeArray(arr.slice(0, config.getDtypeTestLim))
             const dtypes = arrSlice.map((innerArr) => {
-                return self._typeChecker(innerArr as any);
+                return self.$typeChecker(innerArr as any);
             });
             return dtypes;
         }
@@ -252,7 +252,7 @@ export default class Utils {
      * Private type checker used by inferDtype function
      * @param arr The array
      */
-    private _typeChecker(arr: ArrayType1D | ArrayType2D) {
+    private $typeChecker(arr: ArrayType1D | ArrayType2D) {
         let dtypes: string;
         let lim: number;
         let intTracker: Array<boolean> = [];
@@ -275,7 +275,7 @@ export default class Utils {
                 intTracker.push(false);
                 stringTracker.push(false);
                 boolTracker.push(true);
-            } else if (isNaN(ele as unknown as number) && typeof ele != "string") {
+            } else if (this.isEmpty(ele)) {
                 floatTracker.push(true);
                 intTracker.push(false);
                 stringTracker.push(false);

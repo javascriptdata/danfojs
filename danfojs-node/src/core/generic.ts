@@ -273,8 +273,9 @@ export default class NDframe implements NDframeInterface {
             }
         } else {
             if (columns) {
-
+                
                 if (this.$data.length != 0 && columns.length != this.shape[1]) {
+
                     ErrorThrower.throwColumnNamesLengthError(this, columns)
                 }
                 if (Array.from(new Set(columns)).length !== this.shape[1]) {

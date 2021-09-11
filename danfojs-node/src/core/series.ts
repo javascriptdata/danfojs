@@ -1344,4 +1344,5 @@ export default class Series extends NDframe implements SeriesInterface {
             throw new Error("Param Error: other must be a Series, Scalar, or Array of Scalars");
         }
     }
+
 }

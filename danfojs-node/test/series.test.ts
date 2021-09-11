@@ -1422,4 +1422,81 @@ describe("Series Functions", () => {
         });
     });
 
+    describe("and", function () {
+        it("Return logical AND of series and other series (element-wise)", function () {
+            const data1 = [true, true, true, false, false];
+            const data2 = [true, false, true, true, false];
+            const sf = new Series(data1);
+            const sf2 = new Series(data2);
+
+            const expected = [true, false, true, false, false];
+            assert.deepEqual(sf.and(sf2).values, expected);
+        });
+
+        it("Return logical AND of series and other scalar", function () {
+            const data1 = [true, true, true, false, false];
+            const sf = new Series(data1);
+
+            const expected = [true, true, true, false, false];
+            assert.deepEqual(sf.and(true).values, expected);
+        });
+
+        it("Return logical AND of series and other array (element-wise)", function () {
+            const data1 = [true, true, true, false, false];
+            const data2 = [true, false, true, true, false];
+            const sf = new Series(data1);
+
+            const expected = [true, false, true, false, false];
+            assert.deepEqual(sf.and(data2).values, expected);
+        });
+
+        it("Chaining works for logical AND of series and other array (element-wise)", function () {
+            const data1 = [true, true, true, false, false];
+            const data2 = [true, false, true, true, false];
+            const data3 = [true, false, false, true, false];
+
+            const sf = new Series(data1);
+            const expected = [true, false, false, false, false];
+            assert.deepEqual(sf.and(data2).and(data3).values, expected);
+        });
+
+        it("Chaining works for logical AND and OR combined", function () {
+            const data1 = [true, true, true, false, false];
+            const data2 = [true, false, true, true, false];
+            const data3 = [true, false, false, true, false];
+
+            const sf = new Series(data1);
+            const expected = [true, false, true, true, false];
+            assert.deepEqual(sf.and(data2).or(data3).values, expected);
+        });
+    });
+
+    describe("or", function () {
+        it("Return logical OR of series and other series (element-wise)", function () {
+            const data1 = [true, true, true, false, false];
+            const data2 = [true, false, true, true, false];
+            const sf = new Series(data1);
+            const sf2 = new Series(data2);
+
+            const expected = [true, true, true, true, false];
+            assert.deepEqual(sf.or(sf2).values, expected);
+        });
+
+        it("Return logical OR of series and other scalar", function () {
+            const data1 = [true, true, true, false, false];
+            const sf = new Series(data1);
+
+            const expected = [true, true, true, true, true];
+            assert.deepEqual(sf.or(true).values, expected);
+        });
+
+        it("Return logical OR of series and other array (element-wise)", function () {
+            const data1 = [true, true, true, false, false];
+            const data2 = [true, false, true, true, false];
+            const sf = new Series(data1);
+
+            const expected = [true, true, true, true, false];
+            assert.deepEqual(sf.or(data2).values, expected);
+        });
+    });
 })

@@ -2035,226 +2035,255 @@ describe("DataFrame", function () {
     //         });
     //     });
 
-    //     describe("__set_column_property", async function () {
-    //         it("Access column object using list subset and name of column", async function () {
-    //             const data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }];
-    //             const df = new DataFrame(data);
-    //             const col1 = ["A", "B", "C"];
-    //             const col2 = [1, 2, 3];
-    //             assert.deepEqual(df['alpha'].values, col1);
-    //             assert.deepEqual(df['count'].values, col2);
-    //         });
-    //         it("Access column object using list subset and name of column after assigning", function () {
-    //             const data = [[1, 2, 3], [4, 5, 6]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columns: cols });
-    //             df["A"] = [30, 40];
-    //             const col1 = [30, 40];
-    //             assert.deepEqual(df["A"].values, col1);
-    //         });
+
+    describe("lt", function () {
+        it("Returns Less than of DataFrame and other DataFrame (element-wise)", function () {
+            const data1 = [[10, 45, 56, 10], [25, 23, 20, 10]];
+            const data2 = [[100, 450, 590, 5], [25, 2, 0, 10]];
+
+            const df = new DataFrame(data1);
+            const df2 = new DataFrame(data2);
+            const expected = [[true, true, true, false],
+            [false, false, false, false]];
+            assert.deepEqual(df.lt(df2).values, expected);
+        });
+
+        it("Return Less than of series and scalar (element-wise)", function () {
+            const data1 = [[10, 45, 56, 10], [25, 23, 20, 10]];
+            const sf = new DataFrame(data1);
+            const expected = [[true, false, false, true],
+            [true, true, true, true]];
+            assert.deepEqual(sf.lt(30).values, expected);
+        });
+        it("Return Less than of series and DataFrame along axis 1", function () {
+            const data1 = [[10, 45, 56, 10],
+            [23, 20, 10, 10]];
+            const sf = new Series([10, 23, 56, 100]);
+            const df = new DataFrame(data1);
+            const expected = [[false, false, false, true], [false, true, true, true]];
+            assert.deepEqual(df.lt(sf, { axis: 1 }).values, expected);
+        });
+
+        it("Return Less than of Array and DataFrame along axis 1", function () {
+            const data1 = [[10, 45, 56, 10], [23, 20, 10, 10]];
+            const sf = [10, 23, 56, 100];
+            const df = new DataFrame(data1);
+            const expected = [[false, false, false, true], [false, true, true, true]];
+            assert.deepEqual(df.lt(sf, { axis: 1 }).values, expected);
+        });
+        it("Return Less than of series and DataFrame along axis 0", function () {
+            const data1 = [[10, 45, 56, 10],
+            [23, 20, 10, 10]];
+            const sf = new Series([10, 23]);
+            const df = new DataFrame(data1);
+            const expected = [[false, false, false, false], [false, true, true, true]];
+            const result = df.lt(sf, { axis: 0 })
+            assert.deepEqual(result.values, expected);
+        });
+
+        it("Return Less than of Array and DataFrame along axis 0", function () {
+            const data1 = [[10, 45, 56, 10], [23, 20, 10, 10]];
+            const sf = [10, 23];
+            const df = new DataFrame(data1);
+            const expected = [[false, false, false, false], [false, true, true, true]];
+            const result = df.lt(sf, { axis: 0 })
+            assert.deepEqual(result.values, expected);
+        });
+
+    });
+
+    describe("gt", function () {
+        it("Return Greater than of series and other series (element-wise)", function () {
+            const data1 = [[10, 45, 56, 10], [25, 23, 20, 10]];
+            const data2 = [[100, 450, 590, 5], [25, 2, 0, 10]];
+
+            const df = new DataFrame(data1);
+            const df2 = new DataFrame(data2);
+            const expected = [[false, false, false, true], [false, true, true, false]];
+            assert.deepEqual(df.gt(df2).values, expected);
+        });
+
+        it("Return Greater than of series scalar (element-wise)", function () {
+            const data1 = [[10, 45, 56, 10], [25, 23, 20, 10]];
+            const sf = new DataFrame(data1);
+            const expected = [[false, true, true, false], [false, false, false, false]];
+            assert.deepEqual(sf.gt(30).values, expected);
+        });
+
+        it("Return Less than of Array and DataFrame scalar along axis 1", function () {
+            const data1 = [[10, 45, 56, 10], [23, 20, 10, 10]];
+            const sf = [10, 23, 56, 100];
+            const df = new DataFrame(data1);
+            const expected = [[false, true, false, false], [true, false, false, false]];
+            assert.deepEqual(df.gt(sf, { axis: 1 }).values, expected);
+        });
+        it("Return Less than of Array and DataFrame scalar along axis 0", function () {
+            const data1 = [[10, 45, 56, 10], [23, 20, 10, 10]];
+            const sf = [10, 23];
+            const df = new DataFrame(data1);
+            const expected = [[false, true, true, false], [false, false, false, false]];
+            assert.deepEqual(df.gt(sf, { axis: 0 }).values, expected);
+        });
+
+    });
+
+    describe("le", function () {
+        it("Return Less than or Equal to of series and other series (element-wise)", function () {
+            const data1 = [[10, 45, 56, 10], [25, 23, 20, 10]];
+            const data2 = [[100, 450, 590, 5], [25, 2, 0, 10]];
+
+            const df = new DataFrame(data1);
+            const df2 = new DataFrame(data2);
+            const expected = [[true, true, true, false], [true, false, false, true]];
+            assert.deepEqual(df.le(df2).values, expected);
+        });
+
+        it("Return Less than or Equal to of series scalar (element-wise)", function () {
+            const data1 = [[10, 45, 56, 10], [25, 23, 30, 10]];
+            const sf = new DataFrame(data1);
+            const expected = [[true, false, false, true], [true, true, true, true]];
+            assert.deepEqual(sf.le(30).values, expected);
+        });
+
+    });
+
+    describe("ge", function () {
+        it("Return Greater than or Equal to of series and other series (element-wise)", function () {
+            const data1 = [[10, 45, 56, 10], [25, 23, 20, 10]];
+            const data2 = [[100, 450, 590, 5], [25, 2, 0, 10]];
+
+            const df = new DataFrame(data1);
+            const df2 = new DataFrame(data2);
+            const expected = [[false, false, false, true], [true, true, true, true]];
+            assert.deepEqual(df.ge(df2).values, expected);
+        });
+
+        it("Return Greater than or Equal to of series scalar (element-wise)", function () {
+            const data1 = [[10, 45, 56, 10], [25, 23, 30, 10]];
+            const sf = new DataFrame(data1);
+            const expected = [[false, true, true, false], [false, false, true, false]];
+            assert.deepEqual(sf.ge(30).values, expected);
+        });
+
+    });
+
+    describe("ne", function () {
+        it("Return Not Equal to of series and other series (element-wise)", function () {
+            const data1 = [[10, 45, 56, 10], [25, 23, 20, 10]];
+            const data2 = [[100, 450, 590, 5], [25, 2, 0, 10]];
+
+            const df = new DataFrame(data1);
+            const df2 = new DataFrame(data2);
+            const expected = [[true, true, true, true], [false, true, true, false]];
+            assert.deepEqual(df.ne(df2).values, expected);
+        });
+
+        it("Return Not Equal to of series scalar (element-wise)", function () {
+            const data1 = [[10, 45, 56, 10], [25, 23, 30, 10]];
+            const sf = new DataFrame(data1);
+            const expected = [[true, true, true, true], [true, true, false, true]];
+            assert.deepEqual(sf.ne(30).values, expected);
+        });
+        it("Return Less than of Array and DataFrame along axis 1 (column)", function () {
+            const data = {
+                'cost': [250, 150, 100],
+                'revenue': [100, 250, 300]
+            }
+            const sf = [100, 300]
+            const df = new DataFrame(data, { index: ['A', 'B', 'C'] })
+            const expected = [[true, true], [true, true], [false, false]];
+            const result = df.ne(sf, { axis: 1 })
+            assert.deepEqual(result.values, expected);
+        });
+
+    });
+
+    describe("eq", function () {
+        it("Return Equal to of DataFrame and other DataFrame (element-wise)", function () {
+            const data1 = [[10, 45, 56, 10], [25, 23, 20, 10]];
+            const data2 = [[100, 450, 590, 5], [25, 2, 0, 10]];
+
+            const df = new DataFrame(data1);
+            const df2 = new DataFrame(data2);
+            const expected = [[false, false, false, false], [true, false, false, true]];
+            assert.deepEqual(df.eq(df2).values, expected);
+        });
+
+        it("Return Equal to of DataFrame with scalar (element-wise)", function () {
+            const data1 = [[10, 45, 56, 10], [25, 23, 30, 10]];
+            const sf = new DataFrame(data1);
+            const expected = [[false, false, false, false], [false, false, true, false]];
+            assert.deepEqual(sf.eq(30).values, expected);
+        });
+        it("Return Equal to of series and DataFrame scalar along axis 1", function () {
+            const data1 = { "Col1": [10, 45, 56, 10], "Col2": [23, 20, 10, 10] };
+            const sf = new Series([10, 23]);
+            const df = new DataFrame(data1);
+            const expected = [[true, true], [false, false], [false, false], [true, false]];
+            assert.deepEqual(df.eq(sf, { axis: 1 }).values, expected);
+        });
+        it("Return Less than of Array and DataFrame along axis 0", function () {
+            const data = {
+                'cost': [250, 150, 100],
+                'revenue': [100, 250, 300]
+            }
+            const sf = [250, 250, 100]
+            const df = new DataFrame(data, { index: ['A', 'B', 'C'] })
+            const expected = [[true, false], [false, true], [true, false]];
+            const result = df.eq(sf, { axis: 0 })
+            assert.deepEqual(result.values, expected);
+        });
+
+    });
+
+    // describe("replace", function () {
+    //     it("Replace values given in replace param", function () {
+    //         const data1 = [[10, 45, 56, 25], [23, 20, 10, 24]];
+    //         const sf = new DataFrame(data1);
+    //         const expected = [[-999, 45, 56, 25], [23, 20, -999, 24]];
+    //         const df_rep = sf.replace({ replace: 10, with: -999 });
+    //         assert.deepEqual(df_rep.values, expected);
     //     });
 
-    //     describe("lt", function () {
-    //         it("Returns Less than of DataFrame and other DataFrame (element-wise)", function () {
-    //             const data1 = [[10, 45, 56, 10], [25, 23, 20, 10]];
-    //             const data2 = [[100, 450, 590, 5], [25, 2, 0, 10]];
-
-    //             const df = new DataFrame(data1);
-    //             const df2 = new DataFrame(data2);
-    //             const expected = [[true, true, true, false],
-    //             [false, false, false, false]];
-    //             assert.deepEqual(df.lt(df2).values, expected);
-    //         });
-
-    //         it("Return Less than of series scalar (element-wise)", function () {
-    //             const data1 = [[10, 45, 56, 10], [25, 23, 20, 10]];
-    //             const sf = new DataFrame(data1);
-    //             const expected = [[true, false, false, true],
-    //             [true, true, true, true]];
-    //             assert.deepEqual(sf.lt(30).values, expected);
-    //         });
-    //         it("Return Less than of series and DataFrame scalar along axis 1 (column)", function () {
-    //             const data1 = [[10, 45, 56, 10],
-    //             [23, 20, 10, 10]];
-    //             const sf = new Series([10, 23, 56, 100]);
-    //             const df = new DataFrame(data1);
-    //             const expected = [[false, false, false, true], [false, true, true, true]];
-    //             assert.deepEqual(df.lt(sf, 1).values, expected);
-    //         });
-
-    //         it("Return Less than of Array and DataFrame scalar along axis 1 (column)", function () {
-    //             const data1 = [[10, 45, 56, 10], [23, 20, 10, 10]];
-    //             const sf = [10, 23, 56, 100];
-    //             const df = new DataFrame(data1);
-    //             const expected = [[false, false, false, true], [false, true, true, true]];
-    //             assert.deepEqual(df.lt(sf, 1).values, expected);
-    //         });
-
+    //     it("Replace values given in replace param with value (String type)", function () {
+    //         const data1 = [["A", "A", "A", "B"], ["B", "C", "C", "D"]];
+    //         const df = new DataFrame(data1);
+    //         const expected = [["boy", "boy", "boy", "B"], ["B", "C", "C", "D"]];
+    //         const df_rep = df.replace({ replace: "A", with: "boy" });
+    //         assert.deepEqual(df_rep.values, expected);
+    //     });
+    //     it("Throw error on wrong param passed", function () {
+    //         const data1 = [["A", "A", "A", "B"], ["B", "C", "C", "D"]];
+    //         const sf = new DataFrame(data1);
+    //         const expected = `Params Error: A specified parameter is not supported. Your params must be any of the following [replace,with,in]`;
+    //         assert.throws(() => { sf.replace({ replce: "A", with: "boy" }); }, Error, expected);
+    //     });
+    //     it("Replace values in specified two column(s)", function () {
+    //         const data1 = [["A", "A", 1, "girl"],
+    //         ["B", "A", 2, "woman"],
+    //         ["A", "B", 3, "man"]];
+    //         const df = new DataFrame(data1, { columns: ["col1", "col2", "col3", "col4"] });
+    //         const expected = [["boy", "boy", 1, "girl"],
+    //         ["B", "boy", 2, "woman"],
+    //         ["boy", "B", 3, "man"]];
+    //         const df_rep = df.replace({ replace: "A", with: "boy", in: ["col1", "col2"] });
+    //         assert.deepEqual(df_rep.values, expected);
     //     });
 
-    //     describe("gt", function () {
-    //         it("Return Greater than of series and other series (element-wise)", function () {
-    //             const data1 = [[10, 45, 56, 10], [25, 23, 20, 10]];
-    //             const data2 = [[100, 450, 590, 5], [25, 2, 0, 10]];
-
-    //             const df = new DataFrame(data1);
-    //             const df2 = new DataFrame(data2);
-    //             const expected = [[false, false, false, true], [false, true, true, false]];
-    //             assert.deepEqual(df.gt(df2).values, expected);
-    //         });
-
-    //         it("Return Greater than of series scalar (element-wise)", function () {
-    //             const data1 = [[10, 45, 56, 10], [25, 23, 20, 10]];
-    //             const sf = new DataFrame(data1);
-    //             const expected = [[false, true, true, false], [false, false, false, false]];
-    //             assert.deepEqual(sf.gt(30).values, expected);
-    //         });
-
-    //         it("Return Less than of Array and DataFrame scalar along axis 1 (column)", function () {
-    //             const data1 = [[10, 45, 56, 10], [23, 20, 10, 10]];
-    //             const sf = [10, 23, 56, 100];
-    //             const df = new DataFrame(data1);
-    //             const expected = [[false, true, false, false], [true, false, false, false]];
-    //             assert.deepEqual(df.gt(sf, 1).values, expected);
-    //         });
-
+    //     it("Replace values in specified single column(s)", function () {
+    //         const data1 = [[2, "A", 1, "girl"],
+    //         [3, "A", 2, "woman"],
+    //         [4, "B", 3, "man"]];
+    //         const df = new DataFrame(data1, { columns: ["col1", "col2", "col3", "col4"] });
+    //         const expected = [[2, "A", 1, "girl"],
+    //         [100, "A", 2, "woman"],
+    //         [4, "B", 3, "man"]];
+    //         const df_rep = df.replace({ replace: 3, with: 100, in: ["col1"] });
+    //         assert.deepEqual(df_rep.values, expected);
     //     });
 
-    //     describe("le", function () {
-    //         it("Return Less than or Equal to of series and other series (element-wise)", function () {
-    //             const data1 = [[10, 45, 56, 10], [25, 23, 20, 10]];
-    //             const data2 = [[100, 450, 590, 5], [25, 2, 0, 10]];
 
-    //             const df = new DataFrame(data1);
-    //             const df2 = new DataFrame(data2);
-    //             const expected = [[true, true, true, false], [true, false, false, true]];
-    //             assert.deepEqual(df.le(df2).values, expected);
-    //         });
-
-    //         it("Return Less than or Equal to of series scalar (element-wise)", function () {
-    //             const data1 = [[10, 45, 56, 10], [25, 23, 30, 10]];
-    //             const sf = new DataFrame(data1);
-    //             const expected = [[true, false, false, true], [true, true, true, true]];
-    //             assert.deepEqual(sf.le(30).values, expected);
-    //         });
-
-    //     });
-
-    //     describe("ge", function () {
-    //         it("Return Greater than or Equal to of series and other series (element-wise)", function () {
-    //             const data1 = [[10, 45, 56, 10], [25, 23, 20, 10]];
-    //             const data2 = [[100, 450, 590, 5], [25, 2, 0, 10]];
-
-    //             const df = new DataFrame(data1);
-    //             const df2 = new DataFrame(data2);
-    //             const expected = [[false, false, false, true], [true, true, true, true]];
-    //             assert.deepEqual(df.ge(df2).values, expected);
-    //         });
-
-    //         it("Return Greater than or Equal to of series scalar (element-wise)", function () {
-    //             const data1 = [[10, 45, 56, 10], [25, 23, 30, 10]];
-    //             const sf = new DataFrame(data1);
-    //             const expected = [[false, true, true, false], [false, false, true, false]];
-    //             assert.deepEqual(sf.ge(30).values, expected);
-    //         });
-
-    //     });
-
-    //     describe("ne", function () {
-    //         it("Return Not Equal to of series and other series (element-wise)", function () {
-    //             const data1 = [[10, 45, 56, 10], [25, 23, 20, 10]];
-    //             const data2 = [[100, 450, 590, 5], [25, 2, 0, 10]];
-
-    //             const df = new DataFrame(data1);
-    //             const df2 = new DataFrame(data2);
-    //             const expected = [[true, true, true, true], [false, true, true, false]];
-    //             assert.deepEqual(df.ne(df2).values, expected);
-    //         });
-
-    //         it("Return Not Equal to of series scalar (element-wise)", function () {
-    //             const data1 = [[10, 45, 56, 10], [25, 23, 30, 10]];
-    //             const sf = new DataFrame(data1);
-    //             const expected = [[true, true, true, true], [true, true, false, true]];
-    //             assert.deepEqual(sf.ne(30).values, expected);
-    //         });
-
-    //     });
-
-    //     describe("eq", function () {
-    //         it("Return Equal to of DataFrame and other DataFrame (element-wise)", function () {
-    //             const data1 = [[10, 45, 56, 10], [25, 23, 20, 10]];
-    //             const data2 = [[100, 450, 590, 5], [25, 2, 0, 10]];
-
-    //             const df = new DataFrame(data1);
-    //             const df2 = new DataFrame(data2);
-    //             const expected = [[false, false, false, false], [true, false, false, true]];
-    //             assert.deepEqual(df.eq(df2).values, expected);
-    //         });
-
-    //         it("Return Equal to of DataFrame with scalar (element-wise)", function () {
-    //             const data1 = [[10, 45, 56, 10], [25, 23, 30, 10]];
-    //             const sf = new DataFrame(data1);
-    //             const expected = [[false, false, false, false], [false, false, true, false]];
-    //             assert.deepEqual(sf.eq(30).values, expected);
-    //         });
-    //         it("Return Equal to of series and DataFrame scalar along axis 1 (column)", function () {
-    //             const data1 = { "Col1": [10, 45, 56, 10], "Col2": [23, 20, 10, 10] };
-    //             const sf = new Series([10, 23]);
-    //             const df = new DataFrame(data1);
-    //             const expected = [[true, false, false, true], [true, false, false, false]];
-    //             assert.deepEqual(df.eq(sf, 1).expected, expected);
-    //         });
-
-    //     });
-
-    //     describe("replace", function () {
-    //         it("Replace values given in replace param", function () {
-    //             const data1 = [[10, 45, 56, 25], [23, 20, 10, 24]];
-    //             const sf = new DataFrame(data1);
-    //             const expected = [[-999, 45, 56, 25], [23, 20, -999, 24]];
-    //             const df_rep = sf.replace({ replace: 10, with: -999 });
-    //             assert.deepEqual(df_rep.values, expected);
-    //         });
-
-    //         it("Replace values given in replace param with value (String type)", function () {
-    //             const data1 = [["A", "A", "A", "B"], ["B", "C", "C", "D"]];
-    //             const df = new DataFrame(data1);
-    //             const expected = [["boy", "boy", "boy", "B"], ["B", "C", "C", "D"]];
-    //             const df_rep = df.replace({ replace: "A", with: "boy" });
-    //             assert.deepEqual(df_rep.values, expected);
-    //         });
-    //         it("Throw error on wrong param passed", function () {
-    //             const data1 = [["A", "A", "A", "B"], ["B", "C", "C", "D"]];
-    //             const sf = new DataFrame(data1);
-    //             const expected = `Params Error: A specified parameter is not supported. Your params must be any of the following [replace,with,in]`;
-    //             assert.throws(() => { sf.replace({ replce: "A", with: "boy" }); }, Error, expected);
-    //         });
-    //         it("Replace values in specified two column(s)", function () {
-    //             const data1 = [["A", "A", 1, "girl"],
-    //             ["B", "A", 2, "woman"],
-    //             ["A", "B", 3, "man"]];
-    //             const df = new DataFrame(data1, { columns: ["col1", "col2", "col3", "col4"] });
-    //             const expected = [["boy", "boy", 1, "girl"],
-    //             ["B", "boy", 2, "woman"],
-    //             ["boy", "B", 3, "man"]];
-    //             const df_rep = df.replace({ replace: "A", with: "boy", in: ["col1", "col2"] });
-    //             assert.deepEqual(df_rep.values, expected);
-    //         });
-
-    //         it("Replace values in specified single column(s)", function () {
-    //             const data1 = [[2, "A", 1, "girl"],
-    //             [3, "A", 2, "woman"],
-    //             [4, "B", 3, "man"]];
-    //             const df = new DataFrame(data1, { columns: ["col1", "col2", "col3", "col4"] });
-    //             const expected = [[2, "A", 1, "girl"],
-    //             [100, "A", 2, "woman"],
-    //             [4, "B", 3, "man"]];
-    //             const df_rep = df.replace({ replace: 3, with: 100, in: ["col1"] });
-    //             assert.deepEqual(df_rep.values, expected);
-    //         });
-
-
-    //     });
+    // });
 
     //     describe("drop_duplicates", function () {
     //         it("Return Series with duplicate values removed (Default, first values kept)", function () {
@@ -2292,90 +2321,122 @@ describe("DataFrame", function () {
 
     //     });
 
-    //     describe("sum", function () {
-    //         it("Sum values of a DataFrame by Default axis column (axis=1)", function () {
-    //             const data1 = [[30, 40, 3.1],
-    //             [5, 5, 5.1],
-    //             [5, 5, 3.2]];
-    //             const sf = new DataFrame(data1);
-    //             const res = [40, 50, 11.4];
-    //             assert.deepEqual(sf.sum().values, res);
-    //         });
-    //         it("Sum values of a DataFrame along row axis (axis=0)", function () {
-    //             const data1 = [[30, 40, 3.1],
-    //             [5, 5, 5.1],
-    //             [5, 5, 3.2]];
-    //             const df = new DataFrame(data1);
-    //             const res = [73.1, 15.1, 13.2];
-    //             assert.deepEqual(df.sum({ axis: 0 }).values, res);
-    //         });
-    //         it("Sum values of a mixed DataFrame along row axis (axis=0)", function () {
-    //             const data1 = [[30, 40, 3.1, true],
-    //             [5, 5, 5.1, true],
-    //             [5, 5, 3.2, true]];
-    //             const df = new DataFrame(data1);
-    //             const res = [74.1, 16.1, 14.2];
-    //             assert.deepEqual(df.sum({ axis: 0 }).values, res);
-    //         });
-    //         it("Sum values of a boolean DataFrame along row axis (axis=0)", function () {
-    //             const data1 = [[true, true, false, true],
-    //             [false, false, false, false],
-    //             [false, true, true, false]];
-    //             const df = new DataFrame(data1);
-    //             const res = [3, 0, 2];
-    //             assert.deepEqual(df.sum({ axis: 0 }).values, res);
-    //         });
-    //         it("Sum values of a boolean DataFrame along default column axis (axis=1)", function () {
-    //             const data1 = [[true, true, false, true],
-    //             [false, false, false, false],
-    //             [false, true, true, false]];
-    //             const df = new DataFrame(data1);
-    //             const res = [1, 2, 1, 1];
-    //             assert.deepEqual(df.sum().values, res);
-    //         });
-    //         it("Sum values of a df with missing values", function () {
-    //             const data1 = [[11, 20, 3], [null, 15, 6], [2, 30, 40], [2, 89, 78]];
-    //             const df = new DataFrame(data1);
-    //             const res = [15, 154, 127];
-    //             assert.deepEqual(df.sum().values, res);
-    //         });
+    describe("sum", function () {
+        it("Sum values of a DataFrame by Default axis column (axis=1)", function () {
+            const data1 = [[30, 40, 3.1],
+            [5, 5, 5.1],
+            [5, 5, 3.2]];
+            const sf = new DataFrame(data1);
+            const res = [73.1, 15.1, 13.2];
+            assert.deepEqual(sf.sum().values, res);
+        });
+        it("Sum values of a DataFrame along row axis (axis=0)", function () {
+            const data1 = [[30, 40, 3.1],
+            [5, 5, 5.1],
+            [5, 5, 3.2]];
+            const df = new DataFrame(data1);
+            const res = [40, 50, 11.399999999999999];
+            assert.deepEqual(df.sum({ axis: 0 }).values, res);
+        });
+        it("Sum values of a mixed DataFrame along row axis (axis=0)", function () {
+            const data1 = [[30, 40, 3.1, true],
+            [5, 5, 5.1, true],
+            [5, 5, 3.2, true]];
+            const df = new DataFrame(data1);
+            const res = [40, 50, 11.399999999999999, 3];
+            assert.deepEqual(df.sum({ axis: 0 }).values, res);
+        });
+        it("Sum values of a boolean DataFrame along row axis (axis=0)", function () {
+            const data1 = [[true, true, false, true],
+            [false, false, false, false],
+            [false, true, true, false]];
+            const df = new DataFrame(data1);
+            const res = [1, 2, 1, 1];
+            assert.deepEqual(df.sum({ axis: 0 }).values, res);
+        });
+        it("Sum values of a boolean DataFrame along default column axis (axis=1)", function () {
+            const data1 = [[true, true, false, true],
+            [false, false, false, false],
+            [false, true, true, false]];
+            const df = new DataFrame(data1);
+            const res = [3, 0, 2];
+            assert.deepEqual(df.sum().values, res);
+        });
+        it("Sum values of a df with missing values", function () {
+            const data1 = [[11, 20, 3], [null, 15, 6], [2, 30, 40], [2, 89, 78]];
+            const df = new DataFrame(data1);
+            const res = [34, 21, 72, 169]
+            assert.deepEqual(df.sum({ axis: 1 }).values, res);
+        });
 
-    //     });
+    });
 
-    //     describe("abs", function () {
-    //         it("Returns the absolute values in DataFrame of ints", function () {
-    //             const data1 = [[-10, 45, 56, 10], [-25, 23, 20, -10]];
-    //             const df = new DataFrame(data1);
-    //             const expected = [[10, 45, 56, 10], [25, 23, 20, 10]];
-    //             assert.deepEqual(df.abs().values, expected);
-    //         });
+    describe("abs", function () {
+        it("Returns the absolute values in DataFrame of ints", function () {
+            const data1 = [[-10, 45, 56, 10], [-25, 23, 20, -10]];
+            const df = new DataFrame(data1);
+            const expected = [[10, 45, 56, 10], [25, 23, 20, 10]];
+            assert.deepEqual(df.abs().values, expected);
+        });
 
-    //         it("Returns the absolute values in mixed DataFrame", function () {
-    //             const data1 = [[-10, -45.1, 56, 10], [-25, -23.2, 20, -10]];
-    //             const df = new DataFrame(data1);
-    //             const expected = [[10, 45.1, 56, 10], [25, 23.2, 20, 10]];
-    //             assert.deepEqual(df.abs().values, expected);
-    //         });
-    //     });
+        it("Returns the absolute values in mixed DataFrame", function () {
+            const data1 = [[-10, -45.1, 56, 10], [-25, -23.2, 20, -10]];
+            const df = new DataFrame(data1);
+            const expected = [[10, 45.1, 56, 10], [25, 23.2, 20, 10]];
+            assert.deepEqual(df.abs().values, expected);
+        });
+    });
 
-    //     describe("T", function () {
-    //         it("Returns the Tranpose of a DataFrame", function () {
-    //             const data1 = [[10, 45, 56, 10],
-    //             [25, 23, 20, 10]];
+    describe("T", function () {
+        it("Return the Transpose of a DataFrame", function () {
+            const data1 = [[10, 45, 56, 10],
+            [25, 23, 20, 10]];
 
-    //             const cols = ["a", "b", "c", "d"];
-    //             const df = new DataFrame(data1, { columns: cols });
-    //             const df_trans = df.T;
-    //             const expected_vals = [[10, 25], [45, 23], [56, 20], [10, 10]];
-    //             const expected_index = cols;
-    //             const expected_col_names = [0, 1];
-    //             assert.deepEqual(df_trans.index, expected_index);
-    //             assert.deepEqual(df_trans.values, expected_vals);
-    //             assert.deepEqual(df_trans.column_names, expected_col_names);
+            const cols = ["a", "b", "c", "d"];
+            const df = new DataFrame(data1, { columns: cols });
+            const df_trans = df.T;
+            const expected_vals = [[10, 25], [45, 23], [56, 20], [10, 10]];
+            const expected_index = cols;
+            const expected_col_names = ["0", "1"];
+            assert.deepEqual(df_trans.index, expected_index);
+            assert.deepEqual(df_trans.values, expected_vals);
+            assert.deepEqual(df_trans.columns, expected_col_names);
 
-    //         });
+        });
+    });
 
-    //     });
+    describe("transpose", function () {
+        it("Return the Transpose of a DataFrame", function () {
+            const data1 = [[10, 45, 56, 10],
+            [25, 23, 20, 10]];
+
+            const cols = ["a", "b", "c", "d"];
+            const df = new DataFrame(data1, { columns: cols });
+            const df_trans = df.T;
+            const expected_vals = [[10, 25], [45, 23], [56, 20], [10, 10]];
+            const expected_index = cols;
+            const expected_col_names = ["0", "1"];
+            assert.deepEqual(df_trans.index, expected_index);
+            assert.deepEqual(df_trans.values, expected_vals);
+            assert.deepEqual(df_trans.columns, expected_col_names);
+
+        });
+        it("Transpose a DataFrame inplace", function () {
+            const data1 = [[10, 45, 56, 10],
+            [25, 23, 20, 10]];
+
+            const cols = ["a", "b", "c", "d"];
+            const df = new DataFrame(data1, { columns: cols });
+            df.transpose({ inplace: true });
+            const expected_vals = [[10, 25], [45, 23], [56, 20], [10, 10]];
+            const expected_index = cols;
+            const expected_col_names = ["0", "1"];
+            assert.deepEqual(df.index, expected_index);
+            assert.deepEqual(df.values, expected_vals);
+            assert.deepEqual(df.columns, expected_col_names);
+
+        });
+    });
 
 
     //     describe("astype", function () {
