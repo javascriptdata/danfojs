@@ -170,6 +170,8 @@ export interface SeriesInterface extends NDframeInterface {
         index: Array<number | string> | number | string,
         options?: { inplace?: boolean }): Series | void
     toString(): string;
+    and(other: any): Series
+    or(other: any): Series
 
 }
 
@@ -227,7 +229,7 @@ export interface DataFrameInterface extends NDframeInterface {
     ): DataFrame | void
     describe(): DataFrame
     selectDtypes(include: Array<string>): DataFrame
-    abs(options?: { axis?: 0 | 1 }): DataFrame | void
+    abs(options?: { inplace?: boolean }): DataFrame | void
     query(options: { column: string, is: string, to: string, inplace?: boolean }): DataFrame
     addColumn(options:
         {
@@ -250,12 +252,12 @@ export interface DataFrameInterface extends NDframeInterface {
     dropNa(axis?: 0 | 1, options?: { inplace?: boolean }): DataFrame | void
     apply(callable: any, options?: { axis?: 0 | 1 }): DataFrame | Series
     applyMap(callable: any, options?: { inplace?: boolean }): DataFrame | void
-    lt(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
-    gt(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
-    le(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
-    ge(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
-    ne(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
-    eq(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
+    lt(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame
+    gt(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame
+    le(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame
+    ge(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame
+    ne(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame
+    eq(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame
     replace(options:
         {
             replace: number | string | boolean,
@@ -263,9 +265,9 @@ export interface DataFrameInterface extends NDframeInterface {
             columns?: Array<string>
             inplace?: boolean
         }
-    ): DataFrame
-    transpose(): DataFrame | void
-    get T(): DataFrame
+    ): DataFrame | void 
+    transpose(options?: { inplace?: boolean }): DataFrame | void 
+    get T(): DataFrame 
     get ctypes(): Series
     asType(options:
         {

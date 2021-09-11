@@ -1241,5 +1241,107 @@ export default class Series extends NDframe implements SeriesInterface {
         return table(tabledata as any);
     }
 
+    /**
+     * Returns the logical AND between Series and other. Supports element wise operations and broadcasting. 
+     * @param other Series, Scalar, Array of Scalars
+    */
+    and(other: any): Series {
 
+        if (other === undefined) {
+            throw new Error("Param Error: other cannot be undefined");
+        }
+
+        if (other instanceof Series) {
+            if (this.dtypes[0] !== other.dtypes[0]) {
+                throw new Error("Param Error: Series must be of same dtype");
+            }
+
+            if (this.shape[0] !== other.shape[0]) {
+                throw new Error("Param Error: Series must be of same shape");
+            }
+
+            const newValues: ArrayType1D = [];
+
+            this.values.forEach((val, i) => {
+                newValues.push(Boolean(val) && Boolean(other.values[i]));
+            });
+
+            return new Series(newValues, {
+                config: { ...this.config }
+            })
+        } else if (Array.isArray(other)) {
+            const newValues: ArrayType1D = [];
+
+            this.values.forEach((val, i) => {
+                newValues.push(Boolean(val) && Boolean(other[i]));
+            });
+
+            return new Series(newValues, {
+                config: { ...this.config }
+            })
+        } else {
+            const newValues: ArrayType1D = [];
+
+            this.values.forEach((val) => {
+                newValues.push(Boolean(val) && Boolean(other));
+            });
+
+            return new Series(newValues, {
+                config: { ...this.config }
+            })
+        }
+    }
+
+    /**
+     * Returns the logical OR between Series and other. Supports element wise operations and broadcasting. 
+     * @param other Series, Scalar, Array of Scalars
+    */
+    or(other: any): Series {
+
+        if (other === undefined) {
+            throw new Error("Param Error: other cannot be undefined");
+        }
+
+        if (other instanceof Series) {
+            if (this.dtypes[0] !== other.dtypes[0]) {
+                throw new Error("Param Error: Series must be of same dtype");
+            }
+
+            if (this.shape[0] !== other.shape[0]) {
+                throw new Error("Param Error: Series must be of same shape");
+            }
+
+            const newValues: ArrayType1D = [];
+
+            this.values.forEach((val, i) => {
+                newValues.push(Boolean(val) || Boolean(other.values[i]));
+            });
+
+            return new Series(newValues, {
+                config: { ...this.config }
+            })
+        } else if (typeof other === "boolean") {
+            const newValues: ArrayType1D = [];
+
+            this.values.forEach((val) => {
+                newValues.push(Boolean(val) || Boolean(other));
+            });
+
+            return new Series(newValues, {
+                config: { ...this.config }
+            })
+        } else if (Array.isArray(other)) {
+            const newValues: ArrayType1D = [];
+
+            this.values.forEach((val, i) => {
+                newValues.push(Boolean(val) || Boolean(other[i]));
+            });
+
+            return new Series(newValues, {
+                config: { ...this.config }
+            })
+        } else {
+            throw new Error("Param Error: other must be a Series, Scalar, or Array of Scalars");
+        }
+    }
 }
