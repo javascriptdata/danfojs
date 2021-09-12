@@ -89,7 +89,7 @@ describe("DataFrame", function () {
         it("Add new array values to DataFrame works", function () {
             let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
             let df = new DataFrame(data);
-            const newdf = df.addColumn({ column: "new_column", values: ["a", "b", "c", "d"] });
+            const newdf = df.addColumn("new_column", ["a", "b", "c", "d"]);
             assert.deepEqual(newdf["new_column"].values, ["a", "b", "c", "d"]);
             assert.deepEqual(newdf.columns, ["alpha", "count", "sum", "new_column"]);
             assert.deepEqual(newdf.dtypes, ["string", "int32", "float32", "string"]);
@@ -98,7 +98,7 @@ describe("DataFrame", function () {
         it("Add new array values to DataFrame inplace works", function () {
             let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
             let df = new DataFrame(data);
-            df.addColumn({ column: "new_column", values: ["a", "b", "c", "d"], inplace: true });
+            df.addColumn("new_column", ["a", "b", "c", "d"], { inplace: true });
             assert.deepEqual(df["new_column"].values, ["a", "b", "c", "d"]);
             assert.deepEqual(df.columns, ["alpha", "count", "sum", "new_column"]);
             assert.deepEqual(df.dtypes, ["string", "int32", "float32", "string"]);
@@ -107,7 +107,7 @@ describe("DataFrame", function () {
         it("Add new Series to DataFrame works", function () {
             let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
             let df = new DataFrame(data);
-            const newdf = df.addColumn({ column: "new_column", values: new Series(["a", "b", "c", "d"]) });
+            const newdf = df.addColumn("new_column", new Series(["a", "b", "c", "d"]));
             assert.deepEqual(newdf["new_column"].values, ["a", "b", "c", "d"]);
             assert.deepEqual(newdf.columns, ["alpha", "count", "sum", "new_column"]);
             assert.deepEqual(newdf.dtypes, ["string", "int32", "float32", "string"]);
@@ -116,7 +116,7 @@ describe("DataFrame", function () {
         it("Correct column data is set", function () {
             let data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
             let df = new DataFrame(data);
-            df.addColumn({ column: "new_column", values: ["a", "b", "c", "d"], inplace: true });
+            df.addColumn("new_column", ["a", "b", "c", "d"], { inplace: true });
             assert.deepEqual(df["new_column"].values, ["a", "b", "c", "d"]);
             assert.deepEqual(df["alpha"].values, ["A", "B", "C", "D"]);
             assert.deepEqual(df["count"].values, [1, 2, 3, 4]);
@@ -127,7 +127,7 @@ describe("DataFrame", function () {
             const df = new DataFrame(data);
 
             assert.throws(function () {
-                df.addColumn({ column: "new_column", values: new Series(["a", "b", "c"]) }),
+                df.addColumn("new_column", new Series(["a", "b", "c"])),
                     Error,
                     'ParamError: Column data length mismatch. You provided data with length 3 but Ndframe has column of lenght 4'
             })
@@ -136,7 +136,7 @@ describe("DataFrame", function () {
         it("Ensure add column does not mutate parent when not in place", function () {
             const data = { alpha: ["A", "B", "C", "D"], count: [1, 2, 3, 4], sum: [20.3, 30.456, 40.90, 90.1] };
             const df = new DataFrame(data);
-            const dfNew = df.addColumn({ column: "new_column", values: ["a", "b", "c", "d"] });
+            const dfNew = df.addColumn("new_column", ["a", "b", "c", "d"]);
             assert.notDeepEqual(df, dfNew)
             assert.deepEqual(dfNew["new_column"].values, ["a", "b", "c", "d"]);
             assert.deepEqual(df["alpha"].values, ["A", "B", "C", "D"]);
@@ -1258,7 +1258,7 @@ describe("DataFrame", function () {
             [2, 4, 6, "c"]];
 
             const df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"], index: ["a", 1, "c"] });
-            df.sortValues({ column: "col1", inplace: true });
+            df.sortValues("col1", { inplace: true });
             const expected = [[0, 2, 4, "a"], [2, 4, 6, "c"], [360, 180, 360, "b"]];
             assert.deepEqual(df.values, expected);
             assert.deepEqual(df.index, ["a", "c", 1]);
@@ -1271,7 +1271,7 @@ describe("DataFrame", function () {
             [2, 4, 6, "c"]];
 
             const df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] });
-            const df_sort = df.sortValues({ column: "col3" });
+            const df_sort = df.sortValues("col3");
             const expected = [[360, 180, 1, "b"], [0, 2, 4, "a"], [2, 4, 6, "c"]];
             assert.deepEqual(df_sort.values, expected);
             assert.deepEqual(df_sort.index, [1, 0, 2]);
@@ -1284,7 +1284,7 @@ describe("DataFrame", function () {
 
             const df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] });
             const expected = [[360, 180, 360, "b"], [2, 4, 6, "c"], [0, 2, 4, "a"]];
-            assert.deepEqual(df.sortValues({ column: "col1", "ascending": false }).values, expected);
+            assert.deepEqual(df.sortValues("col1", { "ascending": false }).values, expected);
         });
 
         it("Sort values in DataFrame by specified column in descending order (second col)", function () {
@@ -1294,7 +1294,7 @@ describe("DataFrame", function () {
 
             const df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] });
             const expected = [[2, 4, 6, "c"], [0, 2, 4, "a"], [360, 180, 1, "b"]];
-            assert.deepEqual(df.sortValues({ column: "col3", "ascending": false }).values, expected);
+            assert.deepEqual(df.sortValues("col3", { "ascending": false }).values, expected);
         });
         it("Sort values in DataFrame by specified column containing alpha(numeric) values", function () {
             const data = [[0, 2, 4, "a"],
@@ -1303,7 +1303,7 @@ describe("DataFrame", function () {
 
             const df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] });
             const expected = [[2, 4, 6, 'c'], [360, 180, 1, 'b'], [0, 2, 4, 'a']];
-            assert.deepEqual(df.sortValues({ column: "col4", "ascending": false }).values, expected);
+            assert.deepEqual(df.sortValues("col4", { "ascending": false }).values, expected);
         });
         it("Sort duplicate DataFrame with duplicate columns", function () {
 
@@ -1325,7 +1325,7 @@ describe("DataFrame", function () {
             [5, 8],
             [5, 2],
             [6, 9]];
-            assert.deepEqual(df.sortValues({ column: "A", "ascending": true }).values, expected);
+            assert.deepEqual(df.sortValues("A", { "ascending": true }).values, expected);
         });
     });
 
@@ -1340,7 +1340,7 @@ describe("DataFrame", function () {
             const data = [[0, 2, 4], [360, 180, 360]];
             const df = new DataFrame(data);
             const df_copy = df.copy();
-            df_copy.addColumn({ column: "col_new", values: ["boy", "girl"], inplace: true });
+            df_copy.addColumn("col_new", ["boy", "girl"], { inplace: true });
             assert.notDeepEqual(df_copy.values, df.values);
             assert.notDeepEqual(df_copy, df);
         });
@@ -1910,7 +1910,7 @@ describe("DataFrame", function () {
             const df = new DataFrame(data, { columns: columns });
 
             const expected = [[-999, 1, 2, 3], [3, 4, -999, 9], [5, 6, 7, 8]];
-            df.fillNa({ values: -999, inplace: true });
+            df.fillNa(-999, { inplace: true });
             assert.deepEqual(df.values, expected);
         });
         it("replace all undefined value", function () {
@@ -1920,7 +1920,7 @@ describe("DataFrame", function () {
 
             const expected = [[-999, 1, 2, 3], [3, 4, -999, 9], [5, 6, 7, 8]];
 
-            const df_filled = df.fillNa({ values: -999 });
+            const df_filled = df.fillNa(-999);
             assert.deepEqual(df_filled.values, expected);
         });
 
@@ -1932,7 +1932,7 @@ describe("DataFrame", function () {
             const cols = ["A", "B", "C"];
             const df = new DataFrame(data, { columns: cols });
             const expected = [[1, 2, 3], [4, 5, 6], [20, 2, 40], [39, 2, NaN]];
-            const df_filled = df.fillNa({ columns: ["B"], values: [2] });
+            const df_filled = df.fillNa([2], { columns: ["B"] });
 
             assert.deepEqual(df_filled.values, expected);
         });
@@ -1941,7 +1941,7 @@ describe("DataFrame", function () {
             const cols = ["A", "B", "C"];
             const df = new DataFrame(data, { columns: cols });
             const new_vals = [[1, 2, 3], [4, 5, 6], [-2, 20, 40], [-2, -1, 78]];
-            const df_filled = df.fillNa({ columns: ["A"], values: [-2] });
+            const df_filled = df.fillNa([-2], { columns: ["A"] });
 
             assert.deepEqual(df_filled.values, new_vals);
         });
@@ -1951,7 +1951,7 @@ describe("DataFrame", function () {
             const cols = ["A", "B", "C"];
             const df = new DataFrame(data, { columns: cols });
             const new_vals = [[1, "girl", 3], [4, "girl", 6], [200, "boy", 40], [200, "girl", NaN]];
-            const df_filled = df.fillNa({ columns: ["A", "B"], values: [200, "girl"] });
+            const df_filled = df.fillNa([200, "girl"], { columns: ["A", "B"] });
             assert.deepEqual(df_filled.values, new_vals);
         });
         it("Fills a list of columns with specified values inplace", function () {
@@ -1959,7 +1959,7 @@ describe("DataFrame", function () {
             const cols = ["A", "B", "C"];
             const df = new DataFrame(data, { columns: cols });
             const new_vals = [[1, "girl", 3], [4, "girl", 6], [200, "boy", 40], [200, "girl", 78]];
-            df.fillNa({ columns: ["A", "B"], values: [200, "girl"], inplace: true });
+            df.fillNa([200, "girl"], { columns: ["A", "B"], inplace: true });
             assert.deepEqual(df.values, new_vals);
         });
     });
@@ -2236,90 +2236,97 @@ describe("DataFrame", function () {
 
     });
 
-    // describe("replace", function () {
-    //     it("Replace values given in replace param", function () {
-    //         const data1 = [[10, 45, 56, 25], [23, 20, 10, 24]];
-    //         const sf = new DataFrame(data1);
-    //         const expected = [[-999, 45, 56, 25], [23, 20, -999, 24]];
-    //         const df_rep = sf.replace({ replace: 10, with: -999 });
-    //         assert.deepEqual(df_rep.values, expected);
-    //     });
+    describe("replace", function () {
+        it("Replace across all columns", function () {
+            const data1 = [[10, 45, 56, 25], [23, 20, 10, 24]];
+            const df = new DataFrame(data1);
+            const expected = [[-999, 45, 56, 25], [23, 20, -999, 24]];
+            const df_rep = df.replace(10, -999);
+            assert.deepEqual(df_rep.values, expected);
+        });
 
-    //     it("Replace values given in replace param with value (String type)", function () {
-    //         const data1 = [["A", "A", "A", "B"], ["B", "C", "C", "D"]];
-    //         const df = new DataFrame(data1);
-    //         const expected = [["boy", "boy", "boy", "B"], ["B", "C", "C", "D"]];
-    //         const df_rep = df.replace({ replace: "A", with: "boy" });
-    //         assert.deepEqual(df_rep.values, expected);
-    //     });
-    //     it("Throw error on wrong param passed", function () {
-    //         const data1 = [["A", "A", "A", "B"], ["B", "C", "C", "D"]];
-    //         const sf = new DataFrame(data1);
-    //         const expected = `Params Error: A specified parameter is not supported. Your params must be any of the following [replace,with,in]`;
-    //         assert.throws(() => { sf.replace({ replce: "A", with: "boy" }); }, Error, expected);
-    //     });
-    //     it("Replace values in specified two column(s)", function () {
-    //         const data1 = [["A", "A", 1, "girl"],
-    //         ["B", "A", 2, "woman"],
-    //         ["A", "B", 3, "man"]];
-    //         const df = new DataFrame(data1, { columns: ["col1", "col2", "col3", "col4"] });
-    //         const expected = [["boy", "boy", 1, "girl"],
-    //         ["B", "boy", 2, "woman"],
-    //         ["boy", "B", 3, "man"]];
-    //         const df_rep = df.replace({ replace: "A", with: "boy", in: ["col1", "col2"] });
-    //         assert.deepEqual(df_rep.values, expected);
-    //     });
+        it("Replace accross all columns inplace", function () {
+            const data1 = [["A", "A", "A", "B"], ["B", "C", "C", "D"]];
+            const df = new DataFrame(data1);
+            const expected = [["boy", "boy", "boy", "B"], ["B", "C", "C", "D"]];
+            df.replace("A", "boy", { inplace: true });
+            assert.deepEqual(df.values, expected);
+        });
+        it("Replace values in specified two column(s)", function () {
+            const data1 = [["A", "A", 1, "girl"],
+            ["B", "A", 2, "woman"],
+            ["A", "B", 3, "man"]];
+            const df = new DataFrame(data1, { columns: ["col1", "col2", "col3", "col4"] });
+            const expected = [["boy", "boy", 1, "girl"],
+            ["B", "boy", 2, "woman"],
+            ["boy", "B", 3, "man"]];
+            const df_rep = df.replace("A", "boy", { columns: ["col1", "col2"] });
+            assert.deepEqual(df_rep.values, expected);
+        });
 
-    //     it("Replace values in specified single column(s)", function () {
-    //         const data1 = [[2, "A", 1, "girl"],
-    //         [3, "A", 2, "woman"],
-    //         [4, "B", 3, "man"]];
-    //         const df = new DataFrame(data1, { columns: ["col1", "col2", "col3", "col4"] });
-    //         const expected = [[2, "A", 1, "girl"],
-    //         [100, "A", 2, "woman"],
-    //         [4, "B", 3, "man"]];
-    //         const df_rep = df.replace({ replace: 3, with: 100, in: ["col1"] });
-    //         assert.deepEqual(df_rep.values, expected);
-    //     });
+        it("Replace values in specified single column(s)", function () {
+            const data1 = [[2, "A", 1, "girl"],
+            [3, "A", 2, "woman"],
+            [4, "B", 3, "man"]];
+            const df = new DataFrame(data1, { columns: ["col1", "col2", "col3", "col4"] });
+            const expected = [[2, "A", 1, "girl"],
+            [100, "A", 2, "woman"],
+            [4, "B", 3, "man"]];
+            const df_rep = df.replace(3, 100, { columns: ["col1"] });
+            assert.deepEqual(df_rep.values, expected);
+            assert.notDeepEqual(df_rep, df);
+            assert.notDeepEqual(df_rep.values, df.values);
+        });
 
+        it("Replace values in specified two column(s) inplace", function () {
+            const data1 = [["A", "A", 1, "girl"],
+            ["B", "A", 2, "woman"],
+            ["A", "B", 3, "man"]];
+            const df = new DataFrame(data1, { columns: ["col1", "col2", "col3", "col4"] });
+            const expected = [["boy", "boy", 1, "girl"],
+            ["B", "boy", 2, "woman"],
+            ["boy", "B", 3, "man"]];
+            df.replace("A", "boy", { columns: ["col1", "col2"], inplace: true });
+            assert.deepEqual(df.values, expected);
+        });
 
-    // });
+        it("Replace values in specified single column(s) inplace", function () {
+            const data1 = [[2, "A", 1, "girl"],
+            [3, "A", 2, "woman"],
+            [4, "B", 3, "man"]];
+            const df = new DataFrame(data1, { columns: ["col1", "col2", "col3", "col4"] });
+            const expected = [[2, "A", 1, "girl"],
+            [100, "A", 2, "woman"],
+            [4, "B", 3, "man"]];
+            df.replace(3, 100, { columns: ["col1"], inplace: true });
+            assert.deepEqual(df.values, expected);
+        });
 
-    //     describe("drop_duplicates", function () {
-    //         it("Return Series with duplicate values removed (Default, first values kept)", function () {
-    //             const data1 = [10, 45, 56, 10, 23, 20, 10, 10];
-    //             const sf = new Series(data1);
-    //             const expected = [10, 45, 56, 23, 20];
-    //             const expected_index = [0, 1, 2, 4, 5];
-    //             const df_drop = sf.drop_duplicates();
-    //             assert.deepEqual(df_drop.values, expected);
-    //             assert.deepEqual(df_drop.index, expected_index);
+        // it("throw error for wrong column lenght", function () {
+        //     const data1 = [[2, "A", 1, "girl"],
+        //     [3, "A", 2, "woman"],
+        //     [4, "B", 3, "man"]];
+        //     const df = new DataFrame(data1, { columns: ["col1", "col2", "col3", "col4"] });
+        //     assert.throws(function () {
+        //         df.replace(2, "git"),
+        //             Error,
+        //             'DtypeError: Dtype of old and new value must be the same. To ignore dtype check, the pass the {ignoreType : true} option'
+        //     })
 
-    //         });
+        // });
 
-    //         it("Return Series with duplicate values removed (last values kept)", function () {
-    //             const data1 = [10, 45, 56, 10, 23, 20, 10, 10];
-    //             const sf = new Series(data1);
-    //             const expected = [45, 56, 23, 20, 10];
-    //             const expected_index = [1, 2, 4, 5, 7];
-    //             const df_drop = sf.drop_duplicates({ keep: "last" });
-    //             assert.deepEqual(df_drop.values, expected);
-    //             assert.deepEqual(df_drop.index, expected_index);
+        // it("ignore type check during replace", function () {
+        //     const data1 = [[2, "A", 1, "girl"],
+        //     [3, "A", 2, "woman"],
+        //     [4, "B", 3, "man"]];
+        //     const df = new DataFrame(data1, { columns: ["col1", "col2", "col3", "col4"] });
+        //     const expected = ["git", 3, 4]
+        //     df.replace(3, "git", { columns: ["col1"], inplace: true, ignoreType: true })
+        //     assert.deepEqual(df["col1"], expected);
 
-    //         });
+        // });
 
-    //         it("Return Series with duplicate values removed (String)", function () {
-    //             const data1 = ["A", "A", "A", "B", "B", "C", "C", "D"];
-    //             const sf = new Series(data1);
-    //             const expected = ["A", "B", "C", "D"];
-    //             const expected_index = [0, 3, 5, 7];
-    //             sf.drop_duplicates({ inplace: true });
-    //             assert.deepEqual(sf.values, expected);
-    //             assert.deepEqual(sf.index, expected_index);
-
-    //         });
-
-    //     });
+    });
 
     describe("sum", function () {
         it("Sum values of a DataFrame by Default axis column (axis=1)", function () {

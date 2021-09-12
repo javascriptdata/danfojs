@@ -12,18 +12,16 @@
 * limitations under the License.
 * ==========================================================================
 */
-// import * asthis.$tf from '@tensorflow/tfjs-node';
+import { ArrayType1D, ArrayType2D, DataFrameInterface, BaseDataOptionType } from "../shared/types";
+import { variance, std, median, mode, mean } from 'mathjs';
+import { _genericMathOp } from "./generic.math.ops";
+import { Tensor } from '@tensorflow/tfjs-node';
+import ErrorThrower from "../shared/errors"
+import { _iloc, _loc } from "./indexing";
+import Utils from "../shared/utils"
 import NDframe from "./generic";
 import { table } from "table";
-import { variance, std, median, mode, mean } from 'mathjs';
-import { _iloc, _loc } from "./indexing";
-import { _genericMathOp } from "./generic.math.ops";
-import Utils from "../shared/utils"
-import { ArrayType1D, ArrayType2D, NdframeInputDataType, DataFrameInterface, BaseDataOptionType, DTYPES } from "../shared/types";
 import Series from './series';
-import ErrorThrower from '../shared/errors';
-import { Tensor, Tensor2D } from '@tensorflow/tfjs-node';
-import { DATA_TYPES } from '../shared/defaults'
 
 const utils = new Utils();
 
@@ -1090,9 +1088,8 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param axis 0 or 1. If 0, drop columns with NaNs, if 1, drop rows with NaNs
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    dropNa(axis?: 0 | 1, options?: { inplace?: boolean }): DataFrame | void {
+    dropNa(axis: 0 | 1 = 1, options?: { inplace?: boolean }): DataFrame | void {
         const { inplace } = { inplace: false, ...options }
-        axis = (!axis && axis !== 0) ? 1 : axis
 
         if ([0, 1].indexOf(axis) === -1) {
             throw Error("ParamError: Axis must be 0 or 1");
@@ -1167,14 +1164,26 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     }
 
-    addColumn(options:
-        {
-            column: string,
-            values: Series | ArrayType1D,
-            inplace?: boolean
-        }
+    /**
+     * Adds a new column to the DataFrame. If column exists, then the column values is replaced. 
+     * @param column The name of the column to add or replace. 
+     * @param values An array of values to be inserted into the DataFrame. Must be the same length as the columns
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    addColumn(
+        column: string,
+        values: Series | ArrayType1D,
+        options?: { inplace?: boolean }
     ): DataFrame | void {
-        const { column, values, inplace } = { inplace: false, ...options };
+        const { inplace } = { inplace: false, ...options };
+
+        if (!column) {
+            throw new Error("ParamError: column must be specified")
+        }
+
+        if (!values) {
+            throw new Error("ParamError: values must be specified")
+        }
 
         const columnIndex = this.$columns.indexOf(column)
 
@@ -1194,7 +1203,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             }
 
             const newData = []
-            const oldValues = [...this.$data]
+            const oldValues = this.$data
             for (let i = 0; i < oldValues.length; i++) {
                 const innerArr = [...oldValues[i]] as ArrayType1D
                 innerArr.push(colunmValuesToAdd[i])
@@ -1204,10 +1213,6 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             if (inplace) {
                 this.$setValues(newData, true, false)
                 this.$setColumnNames([...this.columns, column]);
-
-                // if (!this.$config.isLowMemoryMode) {
-                //     this.$dataIncolumnFormat.push(colunmValuesToAdd as any)
-                // }
                 this.$setInternalColumnDataProperty(column);
 
             } else {
@@ -1271,21 +1276,26 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     * @param options.values The list of values to use for replacement.
     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
    */
-    fillNa(options:
-        {
-            columns: Array<string>,
-            values: ArrayType1D,
-            inplace?: boolean
-        }): DataFrame | void {
-        let { columns, values, inplace } = { inplace: false, ...options }
+    fillNa(
+        values: number | string | boolean | ArrayType1D,
+        options:
+            {
+                columns?: Array<string>,
+                inplace?: boolean
+            }): DataFrame | void {
+        let { columns, inplace } = { inplace: false, ...options }
 
         if (!values && typeof values !== "boolean") {
-            throw Error('ParamError: values must be specified');
+            throw Error('ParamError: value must be specified');
         }
 
-        if (Array.isArray(values) && Array.isArray(columns)) {
+        if (Array.isArray(values)) {
+            if (!Array.isArray(columns)) {
+                throw Error('ParamError: value is an array, hence columns must also be an array of same length');
+            }
+
             if (values.length !== columns.length) {
-                throw Error('ParamError: columns and values must have the same length');
+                throw Error('ParamError: specified column and values must have the same length');
             }
 
             columns.forEach((col) => {
@@ -1301,16 +1311,18 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         const oldValues = [...this.values]
 
         if (!columns) {
+            console.log("Here", values);
+            
             //Fill all columns
             for (let i = 0; i < oldValues.length; i++) {
                 const valueArr = [...oldValues[i] as ArrayType1D]
 
-                const tempArr = valueArr.map((value) => {
-                    if (utils.isEmpty(value)) {
+                const tempArr = valueArr.map((innerVal) => {
+                    if (utils.isEmpty(innerVal)) {
                         const replaceWith = Array.isArray(values) ? values[i] : values
                         return replaceWith
                     } else {
-                        return value
+                        return innerVal
                     }
                 })
                 newData.push(tempArr)
@@ -1352,7 +1364,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     * @param options.index Array of index to drop
     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
    */
-    drop(options:
+    drop(options?:
         {
             columns?: Array<string>,
             index?: Array<string | number>,
@@ -1480,17 +1492,18 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     * @param options.ascending Whether to sort values in ascending order or not. Defaults to true
     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
    */
-    sortValues(options:
-        {
-            column: string,
-            ascending?: boolean
-            inplace?: boolean
-        }
+    sortValues(
+        column: string,
+        options:
+            {
+                ascending?: boolean
+                inplace?: boolean
+            }
     ): DataFrame | void {
-        const { column, ascending, inplace } = { ascending: true, inplace: false, ...options }
+        const { ascending, inplace } = { ascending: true, inplace: false, ...options }
 
         if (!column) {
-            throw Error(`ParamError: must specify a column`);
+            throw Error(`ParamError: must specify a column to sort by`);
         }
 
         if (this.columns.indexOf(column) === -1) {
@@ -1525,18 +1538,19 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
        * @param options.drop Whether to drop the column whose index was set. Defaults to false
        * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
    */
-    setIndex(options:
-        {
-            index?: Array<number | string | (number | string)>,
-            column?: string,
-            drop?: boolean,
-            inplace?: boolean
-        }
+    setIndex(
+        options:
+            {
+                index?: Array<number | string | (number | string)>,
+                column?: string,
+                drop?: boolean,
+                inplace?: boolean
+            }
     ): DataFrame | void {
         const { index, column, drop, inplace } = { drop: false, inplace: false, ...options }
 
-        if (index === undefined && column === undefined) {
-            throw Error(`ParamError: must specify either index or column`);
+        if(!index && !column){
+            throw new Error("ParamError: must specify either index or column")
         }
 
         let newIndex: Array<string | number> = [];
@@ -1764,48 +1778,76 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     }
 
     /**
-     * @param options.replace Function to apply to each column or row
-     * @param options.with Function to apply to each column or row
-     * @param options.columns Function to apply to each column or row
-     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
-     */
-    replace(options:
-        {
-            replace: number | string | boolean,
-            with: number | string | boolean,
+      * Replace all occurence of a value with a new value
+      * @param oldValue The value you want to replace
+      * @param newValue The new value you want to replace the old value with
+      * @param options.columns An array of column names you want to replace. If not provided replace accross all columns.
+      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    replace(
+        oldValue: number | string | boolean,
+        newValue: number | string | boolean,
+        options?: {
             columns?: Array<string>
             inplace?: boolean
         }
     ): DataFrame | void {
-        //     const { replace, with: withWhat, columns, inplace } = options
+        const { columns, inplace } = { inplace: false, ...options }
 
-        //     if (typeof replace !== typeof withWhat) {
-        //         throw Error(`ParamError: replace and with must be of the same type`);
-        //     }
+        if (!oldValue && typeof oldValue !== 'boolean') {
+            throw Error(`Params Error: Must specify param 'oldValue' to replace`);
+        }
 
-        //     const newData = this.values.map(row => {
-        //         return row.map(cell => {
-        //             if (typeof cell === typeof replace) {
-        //                 if (cell === replace) {
-        //                     return withWhat
-        //                 } else {
-        //                     return cell
-        //                 }
-        //             } else {
-        //                 throw Error(`ParamError: replace and with must be of the same type`);
-        //             }
-        //         })
-        //     })
+        if (!newValue && typeof newValue !== 'boolean') {
+            throw Error(`Params Error: Must specify param 'newValue' to replace with`);
+        }
 
-        //     if (inplace) {
-        //         this.$setValues(newData)
-        //     } else {
-        //         return new DataFrame(newData, {
-        //             index: [...this.index],
-        //             columns: [...this.columns],
-        //             dtypes: [...this.dtypes],
-        //             config: { ...this.config }
-        //         })
-        //     }
+        let newData: ArrayType2D = []
+
+        if (columns) {
+            if (!Array.isArray(columns)) {
+                throw Error(`Params Error: column must be an array of column(s)`);
+            }
+            const columnIndex: Array<number> = []
+
+            columns.forEach(column => {
+                const _indx = this.columns.indexOf(column)
+                if (_indx === -1) {
+                    throw Error(`Params Error: column not found in columns`);
+                }
+                columnIndex.push(_indx)
+            })
+
+            newData = (this.values as ArrayType2D).map(([...row]) => {
+                for (const colIndx of columnIndex) {
+                    if (row[colIndx] === oldValue) {
+                        row[colIndx] = newValue;
+                    }
+                }
+                return row;
+            })
+        } else {
+            newData = (this.values as ArrayType2D).map(([...row]) => {
+                return row.map((cell => {
+                    if (cell === oldValue) {
+                        return newValue
+                    } else {
+                        return cell
+                    }
+                }))
+                return row;
+            })
+        }
+
+        if (inplace) {
+            this.$setValues(newData)
+        } else {
+            return new DataFrame(newData, {
+                index: [...this.index],
+                columns: [...this.columns],
+                dtypes: [...this.dtypes],
+                config: { ...this.config }
+            })
+        }
     }
 }
