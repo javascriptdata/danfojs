@@ -1135,7 +1135,7 @@ describe("Series Functions", () => {
             const sf = new Series(data1);
             const expected = [45, 56, 23, 20, 10];
             const expectedIndex = [1, 2, 4, 5, 7];
-            const df_drop = sf.dropDuplicates("last");
+            const df_drop = sf.dropDuplicates({ keep: "last" });
             assert.deepEqual(df_drop.values, expected);
             assert.deepEqual(df_drop.index, expectedIndex);
         });
@@ -1145,7 +1145,7 @@ describe("Series Functions", () => {
             const sf = new Series(data1);
             const expected = ["A", "B", "C", "D"];
             const expectedIndex = [0, 3, 5, 7];
-            sf.dropDuplicates("first", { inplace: true });
+            sf.dropDuplicates({ keep: "first", inplace: true });
             assert.deepEqual(sf.values, expected);
             assert.deepEqual(sf.index, expectedIndex);
         });

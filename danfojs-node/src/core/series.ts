@@ -12,15 +12,15 @@
 * limitations under the License.
 * ==========================================================================
 */
+import { ArrayType1D, BaseDataOptionType, SeriesInterface } from "../shared/types";
+import { variance, std, median, mode } from 'mathjs';
+import { _genericMathOp } from "./generic.math.ops";
+import { DATA_TYPES } from '../shared/defaults'
+import ErrorThrower from "../shared/errors"
+import { _iloc, _loc } from "./indexing";
+import Utils from "../shared/utils"
 import NDframe from "./generic";
 import { table } from "table";
-import { variance, std, median, mode, max } from 'mathjs';
-import { _iloc, _loc } from "./indexing";
-import { _genericMathOp } from "./generic.math.ops";
-import Utils from "../shared/utils"
-import ErrorThrower from "../shared/errors"
-import { ArrayType1D, BaseDataOptionType, SeriesInterface } from "../shared/types";
-import { DATA_TYPES } from '../shared/defaults'
 import Str from './strings';
 import Dt from './datetime';
 
@@ -924,26 +924,23 @@ export default class Series extends NDframe implements SeriesInterface {
             throw Error(`Params Error: Must specify param 'oldValue' to replace`);
         }
 
-        if (!newValue && typeof oldValue !== 'boolean') {
+        if (!newValue && typeof newValue !== 'boolean') {
             throw Error(`Params Error: Must specify param 'newValue' to replace with`);
         }
 
-        const newArr: any = [];
-        const oldArr = [...this.values]
-
-        oldArr.forEach((val) => {
+        const newArr = [...this.values].map((val) => {
             if (val === oldValue) {
-                newArr.push(newValue);
+                return newValue
             } else {
-                newArr.push(val);
+                return val
             }
         });
 
         if (inplace) {
-            this.$setValues(newArr)
+            this.$setValues(newArr as ArrayType1D)
         } else {
             const sf = this.copy();
-            sf.$setValues(newArr)
+            sf.$setValues(newArr as ArrayType1D)
             return sf;
         }
 
@@ -1008,11 +1005,11 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
      * Remove duplicate values from a Series
-     * @param keep "first" | "last", which dupliate value to keep
+     * @param keep "first" | "last", which dupliate value to keep. Defaults to "first".
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    dropDuplicates(keep: "first" | "last" = "first", options?: { inplace?: boolean }): Series | void {
-        const { inplace } = { inplace: false, ...options }
+    dropDuplicates(options?: { keep?: "first" | "last", inplace?: boolean }): Series | void {
+        const { keep, inplace } = { keep: "first", inplace: false, ...options }
 
         if (!(["first", "last"].includes(keep))) {
             throw Error(`Params Error: Keep must be one of 'first' or 'last'`);

@@ -162,7 +162,7 @@ export interface SeriesInterface extends NDframeInterface {
     argMax(): number
     argMin(): number
     get dtype(): string
-    dropDuplicates(keep: "first" | "last", options?: { inplace?: boolean }): Series | void
+    dropDuplicates(options?: { keep?: "first" | "last", inplace?: boolean }): Series | void
     asType(dtype: "float32" | "int32" | "string" | "boolean", options?: { inplace?: boolean }): Series | void
     get str(): Str
     get dt(): Dt
@@ -177,12 +177,13 @@ export interface SeriesInterface extends NDframeInterface {
 
 //Start of Series class types
 export interface DataFrameInterface extends NDframeInterface {
-    drop(options:
-        {
-            columns?: Array<string>,
-            index?: Array<string | number>,
-            inplace?: boolean
-        }
+    drop(
+        options:
+            {
+                columns?: Array<string>,
+                index?: Array<string | number>,
+                inplace?: boolean
+            }
     ): DataFrame | void
     loc(options:
         {
@@ -196,7 +197,7 @@ export interface DataFrameInterface extends NDframeInterface {
         }): DataFrame;
     head(rows?: number): DataFrame
     tail(rows?: number): DataFrame
-    sample(num: number, options?: { seed: number }): Promise<DataFrame>;
+    sample(num: number, options?: { seed?: number }): Promise<DataFrame>;
     add(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
     sub(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
     mul(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
@@ -212,43 +213,42 @@ export interface DataFrameInterface extends NDframeInterface {
     var(options?: { axis?: 0 | 1 }): Series
     sum(options?: { axis?: 0 | 1 }): Series
     count(options?: { axis?: 0 | 1 }): Series
-    round(dp: number, options?: { inplace: boolean }): DataFrame | void
+    round(dp?: number, options?: { inplace: boolean }): DataFrame | void
     cumSum(options?: { axis?: 0 | 1 }): Series
     cumMin(options?: { axis?: 0 | 1 }): Series
     cumMax(options?: { axis?: 0 | 1 }): Series
     cumProd(options?: { axis?: 0 | 1 }): Series
     copy(): DataFrame
     resetIndex(options: { inplace?: boolean }): DataFrame | void
-    setIndex(options:
-        {
-            index?: Array<number | string | (number | string)>,
-            column?: string,
-            drop?: boolean,
-            inplace?: boolean
-        }
+    setIndex(
+        options:
+            {
+                index: Array<number | string | (number | string)>,
+                column?: string,
+                drop?: boolean,
+                inplace?: boolean
+            }
     ): DataFrame | void
     describe(): DataFrame
     selectDtypes(include: Array<string>): DataFrame
     abs(options?: { inplace?: boolean }): DataFrame | void
-    query(options: { column: string, is: string, to: string, inplace?: boolean }): DataFrame
-    addColumn(options:
-        {
-            column: string,
-            values: Series | ArrayType1D,
+    query(condition: Series | Array<boolean>, options?: { inplace?: boolean }): DataFrame
+    addColumn(
+        column: string,
+        values: Series | ArrayType1D,
+        options?: {
             inplace?: boolean
         }
     ): DataFrame | void
     groupby(column: [string, string]): any //Update to GroupBy class later
     column(column: string): Series
-    fillNa(options:
-        {
-            columns: Array<string>,
-            values: ArrayType1D,
-            inplace?: boolean
-        }
-    ): DataFrame | void
+    fillNa(value: ArrayType1D,
+        options:
+            {
+                columns?: Array<string>,
+                inplace?: boolean
+            }): DataFrame | void
     isNa(): DataFrame
-    nanIndex(): Array<number>
     dropNa(axis?: 0 | 1, options?: { inplace?: boolean }): DataFrame | void
     apply(callable: any, options?: { axis?: 0 | 1 }): DataFrame | Series
     applyMap(callable: any, options?: { inplace?: boolean }): DataFrame | void
@@ -258,49 +258,48 @@ export interface DataFrameInterface extends NDframeInterface {
     ge(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame
     ne(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame
     eq(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame
-    replace(options:
-        {
-            replace: number | string | boolean,
-            with: number | string | boolean,
+    replace(
+        oldValue: number | string | boolean,
+        newValue: number | string | boolean,
+        options?: {
             columns?: Array<string>
             inplace?: boolean
         }
-    ): DataFrame | void 
-    transpose(options?: { inplace?: boolean }): DataFrame | void 
-    get T(): DataFrame 
+    ): DataFrame | void
+    transpose(options?: { inplace?: boolean }): DataFrame | void
+    get T(): DataFrame
     get ctypes(): Series
-    asType(options:
-        {
-            column: string
-            dtype: string,
-            inplace?: boolean
-        }
+    asType(
+        column: string,
+        dtype: string,
+        options?: { inplace?: boolean }
     ): DataFrame | void
     unique(axis?: 0 | 1): Series
     nUnique(axis?: 0 | 1): Series
-    rename(options:
-        {
-            mapper: number | string | boolean,
-            inplace?: boolean
+    rename(
+        mapper: object,
+        options?: {
             axis?: 0 | 1
+            inplace?: boolean
         }
     ): DataFrame | void
-    sortIndex(options:
+    sortIndex(options?:
         {
             inplace?: boolean
             ascending?: boolean
         }
     ): DataFrame | void
-    sortValues(options:
-        {
-            column: string,
-            inplace?: boolean
-            ascending?: boolean
-        }
+    sortValues(
+        column: string,
+        options?:
+            {
+                inplace?: boolean
+                ascending?: boolean
+            }
     ): DataFrame | void
-    append(options:
-        {
-            value: ArrayType1D
+    append(
+        values: ArrayType1D,
+        options?: {
             inplace?: boolean,
         }
     ): DataFrame | void
