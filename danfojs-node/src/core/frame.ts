@@ -22,6 +22,7 @@ import Utils from "../shared/utils"
 import NDframe from "./generic";
 import { table } from "table";
 import Series from './series';
+import { DATA_TYPES } from '../shared/defaults'
 
 const utils = new Utils();
 
@@ -1311,8 +1312,6 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         const oldValues = [...this.values]
 
         if (!columns) {
-            console.log("Here", values);
-            
             //Fill all columns
             for (let i = 0; i < oldValues.length; i++) {
                 const valueArr = [...oldValues[i] as ArrayType1D]
@@ -1549,7 +1548,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     ): DataFrame | void {
         const { index, column, drop, inplace } = { drop: false, inplace: false, ...options }
 
-        if(!index && !column){
+        if (!index && !column) {
             throw new Error("ParamError: must specify either index or column")
         }
 
@@ -1835,7 +1834,6 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                         return cell
                     }
                 }))
-                return row;
             })
         }
 
@@ -1849,5 +1847,275 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                 config: { ...this.config }
             })
         }
+    }
+
+
+
+    /**
+     * Cast the values of a column to specified data type
+     * @param column The name of the column to cast
+     * @param dtype Data type to cast to. One of [float32, int32, string, boolean]
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     */
+    asType(
+        column: string,
+        dtype: "float32" | "int32" | "string" | "boolean",
+        options?: { inplace?: boolean }
+    ): DataFrame | void {
+        const { inplace } = { inplace: false, ...options }
+        const columnIndex = this.columns.indexOf(column)
+
+        if (columnIndex === -1) {
+            throw Error(`Params Error: column not found in columns`);
+        }
+
+        if (!(DATA_TYPES.includes(dtype))) {
+            throw Error(`dtype ${dtype} not supported. dtype must be one of ${DATA_TYPES}`);
+        }
+
+        const data = this.values as ArrayType2D
+
+        const newData = data.map((row) => {
+            if (dtype === "float32") {
+                row[columnIndex] = Number(row[columnIndex])
+                return row
+            } else if (dtype === "int32") {
+                row[columnIndex] = parseInt(row[columnIndex] as any)
+                return row
+            } else if (dtype === "string") {
+                row[columnIndex] = row[columnIndex].toString()
+                return row
+            } else if (dtype === "boolean") {
+                row[columnIndex] = Boolean(row[columnIndex])
+                return row
+            }
+        })
+
+        if (inplace) {
+            this.$setValues(newData as any)
+        } else {
+            const newDtypes = [...this.dtypes]
+            newDtypes[columnIndex] = dtype
+
+            return new DataFrame(newData, {
+                index: [...this.index],
+                columns: [...this.columns],
+                dtypes: newDtypes,
+                config: { ...this.config }
+            })
+        }
+    }
+
+    /**
+     * Return the number of unique elements in a across the specified axis.
+     * To get the values use `.unique()` instead. 
+     * @param axis The axis to count unique elements across. Defaults to 1
+    */
+    nUnique(axis: 0 | 1 = 1): Series {
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error(`ParamError: axis must be 0 or 1`);
+        }
+        const data = this.$getDataArraysByAxis(axis)
+        const newData = data.map(row => new Set(row).size)
+
+        if (axis === 0) {
+            return new Series(newData, {
+                index: [...this.columns],
+                dtypes: ["int32"]
+            })
+        } else {
+            return new Series(newData, {
+                index: [...this.index],
+                dtypes: ["int32"]
+            })
+        }
+    }
+
+    /**
+     * Renames a column or index. 
+     * @param mapper An object that maps each column or index in the DataFrame to a new value
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     * @param options.axis The axis to perform the operation on. Defaults to 1
+     */
+    rename(
+        mapper: any,
+        options?: {
+            axis?: 0 | 1
+            inplace?: boolean
+        }
+    ): DataFrame | void {
+        const { axis, inplace } = { axis: 1, inplace: false, ...options }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error(`ParamError: axis must be 0 or 1`);
+        }
+
+        if (axis === 1) {
+            const newColumns = this.columns.map(col => {
+                if (mapper[col] !== undefined) {
+                    return mapper[col]
+                } else {
+                    return col
+                }
+            })
+
+            if (inplace) {
+                this.$setColumnNames(newColumns)
+            } else {
+                return new DataFrame([...this.values], {
+                    index: [...this.index],
+                    columns: newColumns,
+                    dtypes: [...this.dtypes],
+                    config: { ...this.config }
+                })
+            }
+        } else {
+            const newIndex = this.index.map(col => {
+                if (mapper[col] !== undefined) {
+                    return mapper[col]
+                } else {
+                    return col
+                }
+            })
+
+            if (inplace) {
+                this.$setIndex(newIndex)
+            } else {
+                return new DataFrame([...this.values], {
+                    index: newIndex,
+                    columns: [...this.columns],
+                    dtypes: [...this.dtypes],
+                    config: { ...this.config }
+                })
+            }
+        }
+
+    }
+
+    /**
+    * Sorts the Dataframe by the index.
+    * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    * @param options.ascending Whether to sort values in ascending order or not. Defaults to true
+    */
+    sortIndex(options?:
+        {
+            inplace?: boolean
+            ascending?: boolean
+        }
+    ): DataFrame | void {
+        const { ascending, inplace } = { ascending: true, inplace: false, ...options }
+
+        const indexPosition = utils.range(0, this.index.length - 1)
+        const index = [...this.index]
+
+        const objToSort = index.map((idx, i) => {
+            return { index: indexPosition[i], value: idx }
+        })
+
+        const sortedObjectArr = utils.sortObj(objToSort, ascending)
+        const sortedIndex = sortedObjectArr.map(obj => obj.index)
+        const newData = sortedIndex.map(i => (this.values as ArrayType2D)[i as number])
+
+        if (inplace) {
+            this.$setValues(newData)
+            this.$setIndex(sortedIndex)
+        } else {
+            return new DataFrame(newData, {
+                index: sortedIndex,
+                columns: [...this.columns],
+                dtypes: [...this.dtypes],
+                config: { ...this.config }
+            })
+        }
+
+    }
+
+    /**
+     * Add new rows to the end of the DataFrame.
+     * @param newValues Array, Series or DataFrame to append to the DataFrame 
+     * @param index The new index value(s) to append to the Series. Must contain the same number of values as `newValues`
+     * as they map `1 - 1`. 
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     */
+    append(
+        newValues: ArrayType1D | Series | DataFrame,
+        index: Array<number | string> | number | string,
+        options?: {
+            inplace?: boolean,
+        }
+    ): DataFrame | void {
+        const { inplace } = { inplace: false, ...options }
+
+        if (!newValues) {
+            throw Error(`ParamError: newValues must be a Series, DataFrame or Array`);
+        }
+
+        if (!index) {
+            throw Error(`ParamError: index must be specified`);
+        }
+
+        let rowsToAdd = []
+        if (newValues instanceof Series) {
+
+            if (newValues.values.length !== this.shape[1]) {
+                throw Error(`ValueError: length of newValues must be the same as the number of columns.`);
+            }
+            rowsToAdd = [newValues.values]
+
+        } else if (newValues instanceof DataFrame) {
+
+            if (newValues.shape[1] !== this.shape[1]) {
+                throw Error(`ValueError: length of newValues must be the same as the number of columns.`);
+            }
+            rowsToAdd = newValues.values
+
+        } else if (Array.isArray(newValues)) {
+            
+            if (utils.is1DArray(newValues)) {
+                rowsToAdd = [newValues]
+            } else {
+                rowsToAdd = newValues
+            }
+
+            if ((rowsToAdd[0] as any).length !== this.shape[1]) {
+                throw Error(`ValueError: length of newValues must be the same as the number of columns.`);
+            }
+
+        } else {
+            throw Error(`ValueError: newValues must be a Series, DataFrame or Array`);
+        }
+        
+
+        let indexInArrFormat: Array<number | string> = []
+        if (!Array.isArray(index)) {
+            indexInArrFormat = [index]
+        }else{
+            indexInArrFormat = index
+        }
+
+        if (rowsToAdd.length !== indexInArrFormat.length) {
+            throw Error(`ParamError: index must contain the same number of values as newValues`);
+        }
+
+        const newData = [...this.values] as ArrayType2D
+        const newIndex = [...this.index]
+
+        rowsToAdd.forEach((row, i) => {
+            newData.push(row as ArrayType1D)
+            newIndex.push(indexInArrFormat[i])
+        })
+        
+        if (inplace) {
+            this.$setValues(newData)
+            this.$setIndex(newIndex)
+        } else {
+            return new DataFrame(newData, {
+                index: newIndex,
+                columns: [...this.columns],
+                dtypes: [...this.dtypes],
+                config: { ...this.config }
+            })
+        }
+
     }
 }

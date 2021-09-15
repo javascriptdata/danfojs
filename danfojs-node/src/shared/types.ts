@@ -271,11 +271,10 @@ export interface DataFrameInterface extends NDframeInterface {
     get ctypes(): Series
     asType(
         column: string,
-        dtype: string,
+        dtype: "float32" | "int32" | "string" | "boolean",
         options?: { inplace?: boolean }
     ): DataFrame | void
-    unique(axis?: 0 | 1): Series
-    nUnique(axis?: 0 | 1): Series
+    nUnique(axis: 0 | 1): Series
     rename(
         mapper: object,
         options?: {
@@ -298,7 +297,8 @@ export interface DataFrameInterface extends NDframeInterface {
             }
     ): DataFrame | void
     append(
-        values: ArrayType1D,
+        newValues: ArrayType1D | Series | DataFrame,
+        index: Array<number | string> | number | string,
         options?: {
             inplace?: boolean,
         }
