@@ -659,7 +659,7 @@ export default class Series extends NDframe implements SeriesInterface {
        * Return the number of unique elements in a Series
     */
     nUnique(): number {
-        return this.unique().values.length;
+        return (new Set(this.values as ArrayType1D)).size;
     }
 
     /**
@@ -1069,7 +1069,7 @@ export default class Series extends NDframe implements SeriesInterface {
             throw Error(`dtype ${dtype} not supported. dtype must be one of ${DATA_TYPES}`);
         }
 
-        const oldValues = this.values;
+        const oldValues = [...this.values];
         const newValues: ArrayType1D = [];
 
         switch (dtype) {
@@ -1080,7 +1080,7 @@ export default class Series extends NDframe implements SeriesInterface {
                 break;
             case "int32":
                 oldValues.forEach((val) => {
-                    newValues.push(Number(Number(val).toFixed()));
+                    newValues.push(parseInt(val as any));
                 });
                 break;
             case "string":
@@ -1117,6 +1117,8 @@ export default class Series extends NDframe implements SeriesInterface {
     /**
      * Add a new value or values to the end of a Series
      * @param newValues Single value | Array | Series to append to the Series 
+     * @param index The new index value(s) to append to the Series. Must contain the same number of values as `newValues`
+     * as they map `1 - 1`. 
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
      */
     append(

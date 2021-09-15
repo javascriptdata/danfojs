@@ -1324,7 +1324,7 @@ describe("Series Functions", () => {
             const df = ndframe.asType("int32");
 
             assert.deepEqual(df.dtypes[0], "int32");
-            assert.deepEqual(df.values, [20, 21, 23, 51]);
+            assert.deepEqual(df.values, [20, 21, 23, 50]);
         });
         it("set type of string column to float", function () {
             const data = ["20.1", "21", "23.4", "50.78"];
