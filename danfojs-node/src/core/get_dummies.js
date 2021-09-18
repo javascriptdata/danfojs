@@ -77,7 +77,7 @@ function get_dummy(kwargs = {}) {
     } else {
 
       columns.forEach((x) => {
-        let col_idx = columns.indexOf(x);
+        let col_idx = in_data.columns.indexOf(x);
         column_index.push(col_idx);
       });
     }
