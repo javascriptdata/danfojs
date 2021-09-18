@@ -18,6 +18,7 @@ import Series from '../core/series';
 import { BaseUserConfig } from "table"
 import Str from '@base/core/strings';
 import { Dt } from '..';
+import { ParseConfig } from 'papaparse';
 
 export type DTYPES = "float32" | "int32" | "string" | "boolean" | "undefined"
 
@@ -103,6 +104,10 @@ export interface NDframeInterface {
     print(): void;
 }
 //End of Generic class types
+
+export interface CsvParserConfig extends ParseConfig {
+    nRows?: number
+  }
 
 //Start of Series class types
 export interface SeriesInterface extends NDframeInterface {

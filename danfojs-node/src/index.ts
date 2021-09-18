@@ -20,6 +20,7 @@ import Series from "./core/series";
 import DataFrame from "./core/frame";
 import Str from "./core/strings"
 import Dt from "./core/datetime"
+import { readCSV, streamCSV } from "./io"
 // export { to_datetime } from "./core/timeseries";
 // export { read_csv, read_json, read_excel, read } from "./io/reader";
 // export { merge } from "./core/merge";
@@ -31,5 +32,5 @@ import Dt from "./core/datetime"
 // export { NDframe };
 // export { tf };
 
-export { NDframe, Config, Utils, Str, Dt, Series, DataFrame }
+export { NDframe, Config, Utils, Str, Dt, Series, DataFrame, readCSV, streamCSV }
 // export const _version = "0.2.7";
