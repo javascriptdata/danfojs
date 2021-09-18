@@ -859,7 +859,9 @@ export default class Series extends NDframe implements SeriesInterface {
 
         if (typeof other == "number") {
             rSeries = Array(this.values.length).fill(other); //create array of repeated value for broadcasting
-        } else if (other instanceof Series) {
+        } else if (typeof other == "string" && ["eq", "ne"].includes(bOps)) {
+            rSeries = Array(this.values.length).fill(other);
+        }else if (other instanceof Series) {
             rSeries = other.values;
         } else if (Array.isArray(other)) {
             rSeries = other;
@@ -894,7 +896,7 @@ export default class Series extends NDframe implements SeriesInterface {
                     data.push(bool);
                     break;
                 case "ne":
-                    bool = lVal != rVal ? true : false;
+                    bool = lVal !== rVal ? true : false;
                     data.push(bool);
                     break;
                 case "eq":

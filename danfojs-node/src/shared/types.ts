@@ -214,10 +214,10 @@ export interface DataFrameInterface extends NDframeInterface {
     sum(options?: { axis?: 0 | 1 }): Series
     count(options?: { axis?: 0 | 1 }): Series
     round(dp?: number, options?: { inplace: boolean }): DataFrame | void
-    cumSum(options?: { axis?: 0 | 1 }): Series
-    cumMin(options?: { axis?: 0 | 1 }): Series
-    cumMax(options?: { axis?: 0 | 1 }): Series
-    cumProd(options?: { axis?: 0 | 1 }): Series
+    cumSum(options?: { axis?: 0 | 1 }): DataFrame | void
+    cumMin(options?: { axis?: 0 | 1 }): DataFrame | void
+    cumMax(options?: { axis?: 0 | 1 }): DataFrame | void
+    cumProd(options?: { axis?: 0 | 1 }): DataFrame | void
     copy(): DataFrame
     resetIndex(options: { inplace?: boolean }): DataFrame | void
     setIndex(
@@ -232,7 +232,7 @@ export interface DataFrameInterface extends NDframeInterface {
     describe(): DataFrame
     selectDtypes(include: Array<string>): DataFrame
     abs(options?: { inplace?: boolean }): DataFrame | void
-    query(condition: Series | Array<boolean>, options?: { inplace?: boolean }): DataFrame
+    query(condition: Series | Array<boolean>, options?: { inplace?: boolean }): DataFrame | void
     addColumn(
         column: string,
         values: Series | ArrayType1D,

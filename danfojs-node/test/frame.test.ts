@@ -1528,223 +1528,6 @@ describe("DataFrame", function () {
         });
     });
 
-
-    //     describe("query", function () {
-
-    //         it("Get the DataFrame containing rows with the filtered column", function () {
-
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columns: cols });
-    //             const query_df = df.query({ "column": "B", "is": ">=", "to": 5 });
-    //             const query_data = [[4, 5, 6], [20, 30, 40], [39, 89, 78]];
-    //             assert.deepEqual(query_df.values, query_data);
-    //         });
-    //         it("Get the Dataframe containing rows with the filtered column in String values", function () {
-    //             const data = { "Abs": [20, 30, 47], "Count": [34, 4, 5], "country code": ["NG", "FR", "GH"] };
-    //             const cols = ["Abs", "Count", "country code"];
-    //             const df = new DataFrame(data, { columns: cols });
-    //             const query_df = df.query({ column: "country code", is: "==", to: "NG" });
-    //             const query_data = [[20, 34, "NG"]];
-    //             assert.deepEqual(query_df.values, query_data);
-    //         });
-    //         it("Print Error for value key not specified", function () {
-
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columns: cols });
-
-    //             assert.throws(function () { df.query({ "column": "B", "is": ">=" }); }, Error, "specify a value in param [to]");
-    //         });
-    //         it("Print Error for operator key not specified", function () {
-
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columns: cols });
-
-    //             assert.throws(function () { df.query({ "column": "B", "to": 5 }); }, Error, "specify an operator in param [is]");
-    //         });
-
-    //         it("Print Error for column key not specified", function () {
-
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columns: cols });
-
-    //             assert.throws(function () { df.query({ "is": ">=", "to": 5 }); }, Error, "specify the column");
-    //         });
-    //         it("Print Error for column name not in dataframe", function () {
-
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columns: cols });
-
-    //             assert.throws(function () { df.query({ "column": "D", "is": ">=", "to": 5 }); }, Error, "column D does not exist");
-    //         });
-    //         it("Confirms that query index are updated", function () {
-
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columns: cols });
-    //             const df_query = df.query({ "column": "B", "is": ">=", "to": 5 });
-    //             assert.deepEqual(df_query.index, [1, 2, 3]);
-    //         });
-    //         it("Confirms that columns data are updated inplace", function () {
-
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columns: cols });
-    //             df.query({ "column": "B", "is": ">=", "to": 5, inplace: true });
-    //             assert.deepEqual(df.expected, [[4, 20, 39], [5, 30, 89], [6, 40, 78]]);
-    //         });
-    //         it("Confirms that query happens inplace", function () {
-
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columns: cols });
-    //             df.query({ "column": "B", "is": ">=", "to": 5, inplace: true });
-    //             const query_data = [[4, 5, 6], [20, 30, 40], [39, 89, 78]];
-    //             assert.deepEqual(df.values, query_data);
-    //         });
-    //         it("Confirms that query happens inplace and index are updated", function () {
-
-    //             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columns: cols });
-    //             df.query({ "column": "B", "is": ">=", "to": 5, inplace: true });
-    //             assert.deepEqual(df.index, [1, 2, 3]);
-    //         });
-    //         it("Wrong query value", function () {
-    //             const data = {
-    //                 "A": [30, 1, 2, 3],
-    //                 "B": [34, 4, 5, 6],
-    //                 "C": [20, 20, 30, 40]
-    //             };
-
-    //             const cols = ["A", "B", "C"];
-    //             const df = new DataFrame(data, { columns: cols });
-
-    //             assert.throws(function () { df.query({ "column": "B", "is": ">", "to": 40 }); }, Error, "query returned empty data; is either 40 does not exist in column B");
-    //         });
-
-    //     });
-
-    //     // describe("groupby", function () {
-    //     //     it("Check group by One column data", function () {
-
-    //     //         const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-    //     //         const cols = ["A", "B", "C"]
-    //     //         const df = new DataFrame(data, { columns: cols })
-    //     //         const group_df = df.groupby(["A"]);
-
-    //     //         const group_dict = {
-    //     //             '1': [[1, 2, 3]],
-    //     //             '4': [[4, 5, 6]],
-    //     //             '20': [[20, 30, 40]],
-    //     //             '39': [[39, 89, 78]]
-    //     //         }
-
-    //     //         assert.deepEqual(group_df.col_dict, group_dict);
-    //     //     });
-    //     //     it("Obtain the DataFrame of one of the group", function () {
-
-    //     //         const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-    //     //         const cols = ["A", "B", "C"]
-    //     //         const df = new DataFrame(data, { columns: cols })
-    //     //         const group_df = df.groupby(["A"]);
-    //     //         const new_data = [[1, 2, 3]]
-
-    //     //         assert.deepEqual(group_df.get_groups([1]).values, new_data);
-    //     //     });
-    //     //     it("Check group by Two column data", function () {
-
-    //     //         const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-    //     //         const cols = ["A", "B", "C"]
-    //     //         const df = new DataFrame(data, { columns: cols })
-    //     //         const group_df = df.groupby(["A", "B"]);
-    //     //         const new_data = {
-    //     //             '1': { '2': [[1, 2, 3]] },
-    //     //             '4': { '5': [[4, 5, 6]] },
-    //     //             '20': { '30': [[20, 30, 40]] },
-    //     //             '39': { '89': [[39, 89, 78]] }
-    //     //         }
-
-    //     //         assert.deepEqual(group_df.col_dict, new_data);
-    //     //     });
-
-    //     //     it("Obtain the DataFrame of one of the group, grouped by two column", function () {
-
-    //     //         const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-    //     //         const cols = ["A", "B", "C"]
-    //     //         const df = new DataFrame(data, { columns: cols })
-    //     //         const group_df = df.groupby(["A", "B"]);
-    //     //         const new_data = [[1, 2, 3]]
-
-    //     //         assert.deepEqual(group_df.get_groups([1, 2]).values, new_data);
-    //     //     });
-
-    //     //     it("Count column in group", function () {
-
-    //     //         const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-    //     //         const cols = ["A", "B", "C"]
-    //     //         const df = new DataFrame(data, { columns: cols })
-    //     //         const group_df = df.groupby(["A", "B"]);
-    //     //         const new_data = {
-    //     //             '1': { '2': [1] },
-    //     //             '4': { '5': [1] },
-    //     //             '20': { '30': [1] },
-    //     //             '39': { '89': [1] }
-    //     //         }
-
-    //     //         assert.deepEqual(group_df.col(["C"]).count(), new_data);
-    //     //     });
-    //     //     it("sum column element in group", function () {
-
-    //     //         const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-    //     //         const cols = ["A", "B", "C"]
-    //     //         const df = new DataFrame(data, { columns: cols })
-    //     //         const group_df = df.groupby(["A", "B"]);
-    //     //         const new_data = {
-    //     //             '1': { '2': [3] },
-    //     //             '4': { '5': [6] },
-    //     //             '20': { '30': [40] },
-    //     //             '39': { '89': [78] }
-    //     //         }
-
-    //     //         assert.deepEqual(group_df.col(["C"]).sum(), new_data);
-    //     //     });
-
-    //     //     it("sum column element group by one column", function () {
-
-    //     //         const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-    //     //         const cols = ["A", "B", "C"]
-    //     //         const df = new DataFrame(data, { columns: cols })
-    //     //         const group_df = df.groupby(["A"]);
-
-    //     //         const new_data = { '1': [2, 3], '4': [5, 6], '20': [30, 40], '39': [89, 78] }
-
-    //     //         assert.deepEqual(group_df.col(["B", "C"]).sum(), new_data);
-    //     //     });
-
-    //     //     it("Perform aggregate on column for groupby", function () {
-
-    //     //         const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-    //     //         const cols = ["A", "B", "C"]
-    //     //         const df = new DataFrame(data, { columns: cols })
-    //     //         const group_df = df.groupby(["A", "B"]);
-    //     //         const new_data = {
-    //     //             '1': { '2': [2, 1] },
-    //     //             '4': { '5': [5, 1] },
-    //     //             '20': { '30': [30, 1] },
-    //     //             '39': { '89': [89, 1] }
-    //     //         }
-
-    //     //         assert.deepEqual(group_df.agg({ "B": "mean", "C": "count" }), new_data);
-    //     //     });
-
-
-    //     // });
-
     describe("column", function () {
         it("Obtain a column from a dataframe created from object", function () {
             const data = [{ alpha: "A", count: 1 }, { alpha: "B", count: 2 }, { alpha: "C", count: 3 }];
@@ -1770,52 +1553,6 @@ describe("DataFrame", function () {
 
         });
     });
-
-    //     // describe("Concatenate", function () {
-
-    //     //     it("Check the axis 0 concatenation", function () {
-    //     //         const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-    //     //         const cols = ["A", "B", "C"]
-    //     //         const df = new DataFrame(data, { columns: cols })
-
-    //     //         const data1 = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-    //     //         const cols1 = ["A", "B", "C"]
-    //     //         const df1 = new DataFrame(data1, { columns: cols1 })
-
-    //     //         const data2 = [[1, 2, 3, 5], [4, 5, 6, 8], [20, 30, 40, 10]]
-    //     //         const cols2 = ["A", "B", "C", "D"]
-    //     //         const df2 = new DataFrame(data2, { columns: cols2 })
-
-    //     //         const new_df = DataFrame.concat({ "df_list": [df, df1, df2], "axis": 0 })
-
-    //     //         const data_values = [[1, 2, 3, NaN], [4, 5, 6, NaN], [20, 30, 40, NaN], [39, 89, 78, NaN],
-    //     //         [1, 2, 3, NaN], [4, 5, 6, NaN], [20, 30, 40, NaN], [39, 89, 78, NaN],
-    //     //         [1, 2, 3, 5], [4, 5, 6, 8], [20, 30, 40, 10]]
-
-    //     //         assert.deepEqual(new_df.values, data_values);
-    //     //     });
-
-    //     //     it("Check the axis 1 concatenation", function () {
-    //     //         const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-    //     //         const cols = ["A", "B", "C"]
-    //     //         const df = new DataFrame(data, { columns: cols })
-
-    //     //         const data1 = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]]
-    //     //         const cols1 = ["A", "B", "C"]
-    //     //         const df1 = new DataFrame(data1, { columns: cols1 })
-
-    //     //         const data2 = [[1, 2, 3, 5], [4, 5, 6, 8], [20, 30, 40, 10]]
-    //     //         const cols2 = ["A", "B", "C", "D"]
-    //     //         const df2 = new DataFrame(data2, { columns: cols2 })
-
-    //     //         const new_df = DataFrame.concat({ "df_list": [df, df1, df2], "axis": 1 })
-
-    //     //         const data_values = [[1, 2, 3, 1, 2, 3, 1, 2, 3, 5], [4, 5, 6, 4, 5, 6, 4, 5, 6, 8],
-    //     //         [20, 30, 40, 20, 30, 40, 20, 30, 40, 10], [39, 89, 78, 39, 89, 78, NaN,
-    //     //             NaN, NaN, NaN]]
-    //     //         assert.deepEqual(new_df.values, data_values);
-    //     //     });
-    //     // });
 
 
     describe("dropNa", function () {
@@ -2014,26 +1751,6 @@ describe("DataFrame", function () {
             assert.deepEqual(df_sub.values, [[30, 1, 2], [3.2, 4, 30], [5.09, 6, 7]]);
         });
     });
-
-    //     describe("cum_ops", function () {
-
-    //         it("check cumsum data", function () {
-    //             const data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]];
-    //             const column = ["A", "B", "C", "D"];
-    //             const df = new DataFrame(data, { columns: column });
-    //             const rslt = [[2, 1, 2, 3], [5, 5, 13, 12], [10, 11, 20, 20]];
-
-    //             assert.deepEqual(df.cumsum().values, rslt);
-    //         });
-    //         it("check cumsum data along axis 1", function () {
-    //             const data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]];
-    //             const column = ["A", "B", "C", "D"];
-    //             const df = new DataFrame(data, { columns: column });
-    //             const rslt = [[2, 3, 5, 8], [3, 7, 18, 27], [5, 11, 18, 26]];
-
-    //             assert.deepEqual(df.cumsum({ axis: 1 }).values, rslt);
-    //         });
-    //     });
 
 
     describe("lt", function () {
@@ -2696,5 +2413,277 @@ describe("DataFrame", function () {
 
         });
     });
+
+    describe("cumProd", function () {
+
+        it("cumProd works for axis 1", function () {
+            const data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columns: column });
+            const rslt = [[2, 2, 4, 12],
+            [3, 12, 132, 1188],
+            [5, 30, 210, 1680]]
+
+            const newDf = df.cumProd()
+            assert.deepEqual(newDf.values, rslt);
+        });
+        it("cumProd axis 0 works", function () {
+            const data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columns: column });
+            const rslt = [[2, 1, 2, 3],
+            [6, 4, 22, 27],
+            [30, 24, 154, 216]]
+
+            assert.deepEqual(df.cumProd({ axis: 0 }).values, rslt);
+        });
+
+        it("cumProd works for axis 1 inplace", function () {
+            const data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columns: column });
+            const rslt = [[2, 2, 4, 12],
+            [3, 12, 132, 1188],
+            [5, 30, 210, 1680]]
+
+            df.cumProd({ inplace: true })
+            assert.deepEqual(df.values, rslt);
+        });
+        it("cumProd axis 0 works inplace", function () {
+            const data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columns: column });
+            const rslt = [[2, 1, 2, 3],
+            [6, 4, 22, 27],
+            [30, 24, 154, 216]]
+            df.cumProd({ axis: 0, inplace: true })
+            assert.deepEqual(df.values, rslt);
+        });
+    });
+
+    describe("cumSum", function () {
+
+        it("cumSum works for axis 1", function () {
+            const data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columns: column });
+            const rslt = [[2, 3, 5, 8],
+            [3, 7, 18, 27],
+            [5, 11, 18, 26]]
+
+            const newDf = df.cumSum()
+            assert.deepEqual(newDf.values, rslt);
+        });
+        it("cumSum axis 0 works", function () {
+            const data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columns: column });
+            const rslt = [[2, 1, 2, 3],
+            [5, 5, 13, 12],
+            [10, 11, 20, 20]]
+
+            assert.deepEqual(df.cumSum({ axis: 0 }).values, rslt);
+        });
+
+        it("cumSum works for axis 1 inplace", function () {
+            const data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columns: column });
+            const rslt = [[2, 3, 5, 8],
+            [3, 7, 18, 27],
+            [5, 11, 18, 26]]
+
+            df.cumSum({ inplace: true })
+            assert.deepEqual(df.values, rslt);
+        });
+        it("cumSum axis 0 works inplace", function () {
+            const data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columns: column });
+            const rslt = [[2, 1, 2, 3],
+            [5, 5, 13, 12],
+            [10, 11, 20, 20]]
+            df.cumSum({ axis: 0, inplace: true })
+            assert.deepEqual(df.values, rslt);
+        });
+    });
+
+    describe("cumMin", function () {
+
+        it("cumMin works for axis 1", function () {
+            const data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columns: column });
+            const rslt = [[2, 1, 1, 1],
+            [3, 3, 3, 3],
+            [5, 5, 5, 5]]
+
+            const newDf = df.cumMin()
+            assert.deepEqual(newDf.values, rslt);
+        });
+        it("cumMin axis 0 works", function () {
+            const data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columns: column });
+            const rslt = [[2, 1, 2, 3],
+            [2, 1, 2, 3],
+            [2, 1, 2, 3]]
+
+            assert.deepEqual(df.cumMin({ axis: 0 }).values, rslt);
+        });
+
+        it("cumMin works for axis 1 inplace", function () {
+            const data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columns: column });
+            const rslt = [[2, 1, 1, 1],
+            [3, 3, 3, 3],
+            [5, 5, 5, 5]]
+
+            df.cumMin({ inplace: true })
+            assert.deepEqual(df.values, rslt);
+        });
+        it("cumMin axis 0 works inplace", function () {
+            const data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columns: column });
+            const rslt = [[2, 1, 2, 3],
+            [2, 1, 2, 3],
+            [2, 1, 2, 3]]
+            df.cumMin({ axis: 0, inplace: true })
+            assert.deepEqual(df.values, rslt);
+        });
+    });
+
+    describe("cumMax", function () {
+
+        it("cumMax works for axis 1", function () {
+            const data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columns: column });
+            const rslt = [[2, 2, 2, 3],
+            [3, 4, 11, 11],
+            [5, 6, 7, 8]]
+
+            const newDf = df.cumMax()
+            assert.deepEqual(newDf.values, rslt);
+        });
+        it("cumMax axis 0 works", function () {
+            const data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columns: column });
+            const rslt = [[2, 1, 2, 3],
+            [3, 4, 11, 9],
+            [5, 6, 11, 9]]
+
+            assert.deepEqual(df.cumMax({ axis: 0 }).values, rslt);
+        });
+
+        it("cumMax works for axis 1 inplace", function () {
+            const data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columns: column });
+            const rslt = [[2, 2, 2, 3],
+            [3, 4, 11, 11],
+            [5, 6, 7, 8]]
+
+            df.cumMax({ inplace: true })
+            assert.deepEqual(df.values, rslt);
+        });
+        it("cumMax axis 0 works inplace", function () {
+            const data = [[2, 1, 2, 3], [3, 4, 11, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columns: column });
+            const rslt = [[2, 1, 2, 3],
+            [3, 4, 11, 9],
+            [5, 6, 11, 9]]
+            df.cumMax({ axis: 0, inplace: true })
+            assert.deepEqual(df.values, rslt);
+        });
+    });
+
+
+    describe("query", function () {
+
+        it("Get the DataFrame containing rows with the filtered column", function () {
+            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columns: cols });
+            const query_df = df.query(df["B"].ge(5));
+            const query_data = [[4, 5, 6], [20, 30, 40], [39, 89, 78]];
+            assert.deepEqual(query_df.values, query_data);
+        });
+        it("Get the Dataframe containing rows with the filtered column in String values", function () {
+            const data = { "Abs": [20, 30, 47], "Count": [34, 4, 5], "country code": ["NG", "FR", "GH"] };
+            const cols = ["Abs", "Count", "country code"];
+            const df = new DataFrame(data, { columns: cols });
+            const query_df = df.query(df["country code"].str.includes("NG"));
+
+            const query_data = [[20, 34, "NG"]];
+            assert.deepEqual(query_df.values, query_data);
+        });
+        it("Get the Dataframe containing rows with the filtered column in String values inplace", function () {
+            const data = { "Abs": [20, 30, 47], "Count": [34, 4, 5], "country code": ["NG", "FR", "GH"] };
+            const cols = ["Abs", "Count", "country code"];
+            const df = new DataFrame(data, { columns: cols });
+            df.query(df["country code"].eq("NG"), { inplace: true });
+            const query_data = [[20, 34, "NG"]];
+            assert.deepEqual(df.values, query_data);
+        });
+        it("Confirms that query index are updated", function () {
+
+            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columns: cols });
+            const query_df = df.query(df["B"].ge(5));
+            assert.deepEqual(query_df.index, [1, 2, 3]);
+        });
+
+        it("Confirms chaining boolean queries work", function () {
+
+            const data = [[1, 2, 3],
+                        [4, 5, 60], 
+                        [20, 30, 4], 
+                        [39, 89, 7]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columns: cols });
+
+            const query_df = df.query(
+                df["B"].ge(5).and(df["C"].lt(10))
+            );
+            const query_data = [[20, 30, 4], [39, 89, 7]];
+            assert.deepEqual(query_df.values, query_data);
+            assert.deepEqual(query_df.index, [2, 3]);
+        });
+
+        it("Confirms chaining boolean queries work and returns empty DF", function () {
+
+            const data = [[1, 2, 3],
+                        [4, 5, 60], 
+                        [20, 30, 40], 
+                        [39, 89, 70]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columns: cols });
+
+            const query_df = df.query(
+                df["B"].ge(5).and(df["C"].lt(10))
+            );
+            assert.deepEqual(query_df.values, []);
+            assert.deepEqual(query_df.index, []);
+        });
+
+    });
+
+    describe("cTypes", function () {
+
+        it("Returns the correct dtype in a DataFrame", function () {
+            const data = [["boy", 1.2, 2, 3], ["girl", 4.32, 11, 9], ['4', 6.1, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columns: column });
+            const rslt = ["string", "float32", "int32", "int32"]
+            assert.deepEqual(df.ctypes.values, rslt);
+        });
+    });
+
 
 });

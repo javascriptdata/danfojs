@@ -1056,6 +1056,107 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     }
 
     /**
+     * Returns cumulative product accross specified axis.
+     * @param options.axis 0 or 1. If 0, count column-wise, if 1, add row-wise. Defaults to 1
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    cumProd(options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
+        const { axis, inplace } = { axis: 1, inplace: false, ...options }
+        return this.cumOps("prod", axis, inplace);
+    }
+
+    /**
+     * Returns cumulative sum accross specified axis.
+     * @param options.axis 0 or 1. If 0, count column-wise, if 1, add row-wise. Defaults to 1
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    cumSum(options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
+        const { axis, inplace } = { axis: 1, inplace: false, ...options }
+        return this.cumOps("sum", axis, inplace);
+    }
+
+    /**
+     * Returns cumulative minimum accross specified axis.
+     * @param options.axis 0 or 1. If 0, count column-wise, if 1, add row-wise. Defaults to 1
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    cumMin(options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
+        const { axis, inplace } = { axis: 1, inplace: false, ...options }
+        return this.cumOps("min", axis, inplace);
+    }
+
+    /**
+     * Returns cumulative maximum accross specified axis.
+     * @param options.axis 0 or 1. If 0, count column-wise, if 1, add row-wise. Defaults to 1
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+    cumMax(options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
+        const { axis, inplace } = { axis: 1, inplace: false, ...options }
+        return this.cumOps("max", axis, inplace);
+    }
+
+    /**
+     * Internal helper function for cumulative operation on DataFrame
+    */
+    private cumOps(ops: string, axis: number, inplace: boolean): DataFrame | void {
+        if (this.dtypes.includes("string")) ErrorThrower.throwStringDtypeOperationError(ops)
+
+        const result = this.$getDataByAxisWithMissingValuesRemoved(axis)
+
+        let newData: ArrayType2D = result.map((sData) => {
+            let tempval = sData[0];
+            const data = [tempval];
+
+            for (let i = 1; i < sData.length; i++) {
+                let currVal = sData[i];
+                switch (ops) {
+                    case "max":
+                        if (currVal > tempval) {
+                            data.push(currVal);
+                            tempval = currVal;
+                        } else {
+                            data.push(tempval);
+                        }
+                        break;
+                    case "min":
+                        if (currVal < tempval) {
+                            data.push(currVal);
+                            tempval = currVal;
+                        } else {
+                            data.push(tempval);
+                        }
+                        break;
+                    case "sum":
+                        tempval = (tempval as number) + (currVal as number)
+                        data.push(tempval);
+                        break;
+                    case "prod":
+                        tempval = (tempval as number) * (currVal as number)
+                        data.push(tempval);
+                        break;
+
+                }
+            }
+            return data;
+        })
+
+        if (axis === 0) {
+            newData = utils.transposeArray(newData) as ArrayType2D
+        }
+
+        if (inplace) {
+            this.$setValues(newData)
+        } else {
+            return new DataFrame(newData, {
+                index: [...this.index],
+                columns: [...this.columns],
+                dtypes: [...this.dtypes],
+                config: { ...this.config }
+            })
+        }
+    }
+
+    /**
      * Generate descriptive statistics for all numeric columns
      * Descriptive statistics include those that summarize the central tendency,
      * dispersion and shape of a dataset’s distribution, excluding NaN values.
@@ -1276,7 +1377,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     * @param columns The list of column names to be replaced
     * @param options.values The list of values to use for replacement.
     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
-   */
+    */
     fillNa(
         values: number | string | boolean | ArrayType1D,
         options:
@@ -1362,7 +1463,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     * @param options.columns Array of column names to drop
     * @param options.index Array of index to drop
     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
-   */
+    */
     drop(options?:
         {
             columns?: Array<string>,
@@ -1490,7 +1591,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     * @param options.column Column name to sort by
     * @param options.ascending Whether to sort values in ascending order or not. Defaults to true
     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
-   */
+    */
     sortValues(
         column: string,
         options:
@@ -1536,7 +1637,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
        * @param options.column A column name to set the index to
        * @param options.drop Whether to drop the column whose index was set. Defaults to false
        * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
-   */
+    */
     setIndex(
         options:
             {
@@ -1614,7 +1715,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
        * Resets the index of the DataFrame to the default index.
        * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
-   */
+    */
     resetIndex(options?: { inplace?: boolean }): DataFrame | void {
         const { inplace } = { inplace: false, ...options }
 
@@ -2070,7 +2171,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             rowsToAdd = newValues.values
 
         } else if (Array.isArray(newValues)) {
-            
+
             if (utils.is1DArray(newValues)) {
                 rowsToAdd = [newValues]
             } else {
@@ -2084,12 +2185,12 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         } else {
             throw Error(`ValueError: newValues must be a Series, DataFrame or Array`);
         }
-        
+
 
         let indexInArrFormat: Array<number | string> = []
         if (!Array.isArray(index)) {
             indexInArrFormat = [index]
-        }else{
+        } else {
             indexInArrFormat = index
         }
 
@@ -2104,7 +2205,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             newData.push(row as ArrayType1D)
             newIndex.push(indexInArrFormat[i])
         })
-        
+
         if (inplace) {
             this.$setValues(newData)
             this.$setIndex(newIndex)
@@ -2117,5 +2218,35 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             })
         }
 
+    }
+
+    /**
+     * Queries the DataFrame for rows that meet the boolean criteria.
+     * @param condition An array of boolean mask, one for each row in the DataFrame. Rows where the value are true will be returned.
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    **/
+    query(condition: Series | Array<boolean>, options?: { inplace?: boolean }): DataFrame | void {
+        const { inplace } = { inplace: false, ...options }
+
+        if (!condition) {
+            throw new Error("ParamError: condition must be specified");
+        }
+
+        const result = _iloc({
+            ndFrame: this,
+            rows: condition,
+        }) as DataFrame
+
+        if (inplace) {
+            this.$setValues(result.values, false, false)
+            this.$setIndex(result.index)
+        } else {
+            return result
+        }
+
+    }
+
+    get ctypes(): Series {
+        return new Series(this.dtypes, { index: this.columns })
     }
 }
