@@ -3,7 +3,7 @@ import Papa from 'papaparse'
 import request from "request"
 import stream from "stream"
 import { DataFrame, Series } from '../index'
-import { ArrayType2D, ConfigsType, CsvParserConfig, PipeTransformerConfig } from "../shared/types"
+import { ArrayType2D, ConfigsType, CsvInputOptions, CsvOutputOptions } from "../shared/types"
 
 
 /**
@@ -12,7 +12,7 @@ import { ArrayType2D, ConfigsType, CsvParserConfig, PipeTransformerConfig } from
  * hence all PapaParse options are supported.
  * @param options optionsuration object. Supports all Papaparse optionsuration options.
  */
-const $readCSV = async (filePath: string, options: CsvParserConfig): Promise<DataFrame> => {
+const $readCSV = async (filePath: string, options: CsvInputOptions): Promise<DataFrame> => {
   if (filePath.startsWith("http") || filePath.startsWith("https")) {
     return new Promise(resolve => {
       const dataStream = request.get(filePath);
@@ -53,7 +53,7 @@ const $readCSV = async (filePath: string, options: CsvParserConfig): Promise<Dat
  *  NB: This is will be returned as a DataFrame object.
  * @param callback Callback function to be called once the specifed rows are parsed into DataFrame.
  */
-const $streamCSV = async (filePath: string, options: CsvParserConfig, callback: (df: DataFrame) => void): Promise<null> => {
+const $streamCSV = async (filePath: string, options: CsvInputOptions, callback: (df: DataFrame) => void): Promise<null> => {
 
   if (filePath.startsWith("http") || filePath.startsWith("https")) {
     return new Promise(resolve => {
@@ -87,12 +87,13 @@ const $streamCSV = async (filePath: string, options: CsvParserConfig, callback: 
   }
 };
 
+
 /**
  * Converts a DataFrame or Series to CSV. 
  * @param df DataFrame or Series to be converted to CSV.
  * @param options.sep Separator character. Default is `,`.
  */
-const $toCSV = (df: DataFrame | Series, options?: { sep?: string, header?: boolean }): string => {
+const $toCSV = (df: DataFrame | Series, options?: CsvOutputOptions): string => {
   const { sep, header } = { sep: ",", header: true, ...options }
 
   if (df.$isSeries) {
@@ -116,13 +117,10 @@ const $toCSV = (df: DataFrame | Series, options?: { sep?: string, header?: boole
  * @param filePath URL or local file path to CSV file.
  * @param options Configuration object. Supports all Papaparse config options.
  */
-const $openCsvInputStream = (filePath: string, options: PipeTransformerConfig) => {
+const $openCsvInputStream = (filePath: string, options: CsvInputOptions) => {
   const { header } = { header: true, ...options }
   let isFirstChunk = true
   let ndFrameColumnNames: Array<string> = []
-  let ndFrameIndex: Array<string | number> = []
-  let ndFrameDtypes: Array<string> = []
-  let ndFrameConfig: ConfigsType
 
   const csvInputStream = new stream.Readable({ objectMode: true });
   csvInputStream._read = () => { };
@@ -133,7 +131,20 @@ const $openCsvInputStream = (filePath: string, options: PipeTransformerConfig) =
     dataStream.pipe(parseStream);
 
     parseStream.on("data", (chunk: any) => {
-      csvInputStream.push(new DataFrame(chunk));
+      if (isFirstChunk) {
+        if (header === true) {
+          ndFrameColumnNames = Object.keys(chunk)
+        } else {
+          ndFrameColumnNames = chunk
+        }
+        isFirstChunk = false
+        return
+      }
+
+      const df = new DataFrame([Object.values(chunk)], {
+        columns: ndFrameColumnNames
+      })
+      csvInputStream.push(df);
     });
 
     parseStream.on("finish", () => {
@@ -149,22 +160,20 @@ const $openCsvInputStream = (filePath: string, options: PipeTransformerConfig) =
       ...{ header, ...options },
       step: results => {
         if (isFirstChunk) {
-          const df = new DataFrame([results.data]);
+          if (header === true) {
+            ndFrameColumnNames = results.meta.fields || []
+          } else {
+            ndFrameColumnNames = results.data
+          }
           isFirstChunk = false
-          ndFrameColumnNames = results.meta.fields || df.columns
-          ndFrameIndex = df.index
-          ndFrameDtypes = df.dtypes
-          ndFrameConfig = df.config
-        } else {
-          const df = new DataFrame([results.data], {
-            columns: ndFrameColumnNames,
-            index: ndFrameIndex,
-            dtypes: ndFrameDtypes,
-            config: ndFrameConfig
-          })
-          csvInputStream.push(df);
+          return
         }
 
+        const df = new DataFrame([results.data], {
+          columns: ndFrameColumnNames
+        })
+
+        csvInputStream.push(df);
       },
       complete: (result: any) => {
         csvInputStream.push(null);
@@ -185,7 +194,7 @@ const $openCsvInputStream = (filePath: string, options: PipeTransformerConfig) =
  * @param filePath URL or local file path to write to.
  * @param options Configuration object. Supports all `toCSV` options.
  */
-const $writeCsvOutputStream = (filePath: string, options: PipeTransformerConfig) => {
+const $writeCsvOutputStream = (filePath: string, options: CsvInputOptions) => {
   let isFirstRow = true
   const fileOutputStream = fs.createWriteStream(filePath)
   const csvOutputStream = new stream.Writable({ objectMode: true })

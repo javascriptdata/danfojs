@@ -105,12 +105,10 @@ export interface NDframeInterface {
 }
 //End of Generic class types
 
-export interface CsvParserConfig extends ParseConfig {
-}
 
-export interface PipeTransformerConfig extends ParseConfig {
-    
-  }
+export type CsvOutputOptions = { sep?: string, header?: boolean }
+export interface CsvInputOptions extends ParseConfig {}
+
 
 //Start of Series class types
 export interface SeriesInterface extends NDframeInterface {
