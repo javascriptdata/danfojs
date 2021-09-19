@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { DataFrame, Series, readJSON } from "../build";
+import { DataFrame, Series, readJSON, toJSON } from "../build";
 
 describe("readJSON", function () {
     this.timeout(10000);
@@ -32,72 +32,86 @@ describe("readJSON", function () {
             'string', 'string',
         ]);
     });
+});
 
 
-    // describe("streamCSV", function () {
-    //     this.timeout(100000);
-    //     it("Streaming local csv file with callback works", async function () {
-    //         const filePath = "test/fixtures/titanic.csv"
-    //         await streamCSV(filePath, { header: true }, (df: any) => {
-    //             if (df) {
-    //                 assert.deepEqual(df.shape, [1, 8])
-    //                 assert.deepEqual(df.columns, [
-    //                     'Survived',
-    //                     'Pclass',
-    //                     'Name',
-    //                     'Sex',
-    //                     'Age',
-    //                     'Siblings/Spouses Aboard',
-    //                     'Parents/Children Aboard',
-    //                     'Fare'
-    //                 ]);
-    //             } else {
-    //                 assert.deepEqual(df, null);
-    //             }
-    //         });
+// describe("streamCSV", function () {
+//     this.timeout(100000);
+//     it("Streaming local csv file with callback works", async function () {
+//         const filePath = "test/fixtures/titanic.csv"
+//         await streamCSV(filePath, { header: true }, (df: any) => {
+//             if (df) {
+//                 assert.deepEqual(df.shape, [1, 8])
+//                 assert.deepEqual(df.columns, [
+//                     'Survived',
+//                     'Pclass',
+//                     'Name',
+//                     'Sex',
+//                     'Age',
+//                     'Siblings/Spouses Aboard',
+//                     'Parents/Children Aboard',
+//                     'Fare'
+//                 ]);
+//             } else {
+//                 assert.deepEqual(df, null);
+//             }
+//         });
 
-    //     });
+//     });
 
-    //     it("Streaming remote csv file with callback works", async function () {
-    //         const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/titanic.csv"
-    //         await streamCSV(remoteFile, { header: true }, (df: any) => {
-    //             if (df) {
-    //                 assert.deepEqual(df.shape, [1, 8])
-    //                 assert.deepEqual(df.columns, [
-    //                     'Survived',
-    //                     'Pclass',
-    //                     'Name',
-    //                     'Sex',
-    //                     'Age',
-    //                     'Siblings/Spouses Aboard',
-    //                     'Parents/Children Aboard',
-    //                     'Fare'
-    //                 ]);
-    //             } else {
-    //                 assert.deepEqual(df, null);
-    //             }
-    //         });
+//     it("Streaming remote csv file with callback works", async function () {
+//         const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/titanic.csv"
+//         await streamCSV(remoteFile, { header: true }, (df: any) => {
+//             if (df) {
+//                 assert.deepEqual(df.shape, [1, 8])
+//                 assert.deepEqual(df.columns, [
+//                     'Survived',
+//                     'Pclass',
+//                     'Name',
+//                     'Sex',
+//                     'Age',
+//                     'Siblings/Spouses Aboard',
+//                     'Parents/Children Aboard',
+//                     'Fare'
+//                 ]);
+//             } else {
+//                 assert.deepEqual(df, null);
+//             }
+//         });
 
-    //     });
+//     });
 
-    // })
+// })
 
 
-    // describe("toCSV", function () {
-    //     it("toCSV works", async function () {
-    //         const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
-    //         let df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
-    //         assert.deepEqual(toCSV(df, {}), `a,b,c,d\n1,2,3,4\n5,6,7,8\n9,10,11,12\n`);
-    //     });
-    //     it("toCSV works for specified seperator", async function () {
-    //         const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
-    //         let df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
-    //         assert.deepEqual(toCSV(df, { sep: "+" }), `a+b+c+d\n1+2+3+4\n5+6+7+8\n9+10+11+12\n`);
-    //     });
-    //     it("toCSV works for series", async function () {
-    //         const data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-    //         let df: any = new Series(data);
-    //         assert.deepEqual(toCSV(df, { sep: "+" }), `1+2+3+4+5+6+7+8+9+10+11+12`);
-    //     });
+describe("toJSON", function () {
+    it("toJSON works", async function () {
+        const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
+        let df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
+        const expected: any = [
+            { "a": 1, "b": 2, "c": 3, "d": 4 },
+            { "a": 5, "b": 6, "c": 7, "d": 8 },
+            { "a": 9, "b": 10, "c": 11, "d": 12 },
+        ]
+        const json = toJSON(df, {})
+        assert.deepEqual(json, expected);
+    });
+    it("toJSON works for row format", async function () {
+        const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
+        let df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
+        const expected: any = {
+            "a": [1, 5, 9],
+            "b": [2, 6, 10],
+            "c": [3, 7, 11],
+            "d": [4, 8, 12],
+        }
+        const json = toJSON(df, { format: "row" })
+        assert.deepEqual(json, expected);
+    });
+    it("toJSON works for series", async function () {
+        const data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        let df: any = new Series(data);
+        assert.deepEqual(toJSON(df, {}), { "0": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] });
+    });
 
 })
