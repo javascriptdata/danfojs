@@ -1,10 +1,10 @@
-import { ArrayType1D, ArrayType2D, CsvInputOptions } from '../shared/types';
 import fs from 'fs'
-import { request } from 'http';
+import request from "request"
+import { parser } from "stream-json"
 import fetch, { HeadersInit } from "node-fetch";
-import Papa from 'papaparse';
 import { DataFrame, Series } from '../index'
-
+import { streamArray } from "stream-json/streamers/StreamArray"
+import { ArrayType1D, ArrayType2D } from '../shared/types';
 
 /**
  * Reads a JSON file from local or remote location into a DataFrame.
@@ -41,45 +41,43 @@ const $readJSON = async (filePath: string, options: { method?: string, headers?:
 };
 
 /**
- * Streams a CSV file from local or remote location in chunks. Intermediate chunks is passed as a DataFrame to the callback function.
- * @param filePath URL or local file path to CSV file. `readCSV` uses PapaParse to parse the CSV file,
- * hence all PapaParse options are supported.
- * @param options Configuration object. Supports all Papaparse parse config options.
+ * Streams a JSON file from local or remote location in chunks. Intermediate chunks is passed as a DataFrame to the callback function.
+ * @param filePath URL or local file path to CSV file.
+ * @param options Configuration object. We use the `request` library for reading remote json files,
+ * Hence all `request` parameters such as `method`, `headers`, are supported.
  * @param callback Callback function to be called once the specifed rows are parsed into DataFrame.
  */
-// const $streamCSV = async (filePath: string, options: CsvInputOptions, callback: (df: DataFrame) => void): Promise<null> => {
+const $streamJSON = async (
+    filePath: string,
+    options: request.RequiredUriUrl & request.CoreOptions,
+    callback: (df: DataFrame) => void
+) => {
+    const { method, headers } = { method: "GET", headers: {}, ...options }
+    if (filePath.startsWith("http") || filePath.startsWith("https")) {
+        return new Promise(resolve => {
+            let count = -1
+            const dataStream = request({ url: filePath, method, headers })
+            const pipeline = dataStream.pipe(parser()).pipe(streamArray());
+            pipeline.on('data', ({ value }) => {
+                const df = new DataFrame([value], { index: [count++] });
+                callback(df);
+            });
+            pipeline.on('end', () => resolve(null));
 
-//     if (filePath.startsWith("http") || filePath.startsWith("https")) {
-//         return new Promise(resolve => {
-//             const dataStream = request.get(filePath);
-//             const parseStream: any = Papa.parse(Papa.NODE_STREAM_INPUT, options);
-//             dataStream.pipe(parseStream);
-
-//             parseStream.on("data", (chunk: any) => {
-//                 const df = new DataFrame([chunk]);
-//                 callback(df);
-//             });
-
-//             parseStream.on("finish", () => {
-//                 resolve(null);
-//             });
-
-//         });
-//     } else {
-//         const fileStream = fs.createReadStream(filePath)
-
-//         return new Promise(resolve => {
-//             Papa.parse(fileStream, {
-//                 ...options,
-//                 step: results => {
-//                     const df = new DataFrame([results.data]);
-//                     callback(df);
-//                 },
-//                 complete: () => resolve(null)
-//             });
-//         });
-//     }
-// };
+        });
+    } else {
+        return new Promise(resolve => {
+            let count = -1
+            const fileStream = fs.createReadStream(filePath)
+            const pipeline = fileStream.pipe(parser()).pipe(streamArray());
+            pipeline.on('data', ({ value }) => {
+                const df = new DataFrame([value], { index: [count++] });
+                callback(df);
+            });
+            pipeline.on('end', () => resolve(null));
+        })
+    }
+};
 
 
 /**
@@ -132,5 +130,6 @@ const $toJSON = (df: DataFrame | Series, options?: { format?: "row" | "column" }
 
 export {
     $readJSON,
-    $toJSON
+    $toJSON,
+    $streamJSON
 }

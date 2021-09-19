@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { DataFrame, Series, readJSON, toJSON } from "../build";
+import { DataFrame, Series, readJSON, toJSON, streamJSON } from "../build";
 
 describe("readJSON", function () {
     this.timeout(10000);
@@ -35,53 +35,51 @@ describe("readJSON", function () {
 });
 
 
-// describe("streamCSV", function () {
-//     this.timeout(100000);
-//     it("Streaming local csv file with callback works", async function () {
-//         const filePath = "test/fixtures/titanic.csv"
-//         await streamCSV(filePath, { header: true }, (df: any) => {
-//             if (df) {
-//                 assert.deepEqual(df.shape, [1, 8])
-//                 assert.deepEqual(df.columns, [
-//                     'Survived',
-//                     'Pclass',
-//                     'Name',
-//                     'Sex',
-//                     'Age',
-//                     'Siblings/Spouses Aboard',
-//                     'Parents/Children Aboard',
-//                     'Fare'
-//                 ]);
-//             } else {
-//                 assert.deepEqual(df, null);
-//             }
-//         });
+describe("streamJSON", function () {
+    this.timeout(100000);
+    it("Streaming local csv file with callback works", async function () {
+        const filePath = "test/fixtures/book_small.json"
+        await streamJSON(filePath, {}, (df: any) => {
+            if (df) {
+                df.print();
+                assert.deepEqual(df.shape, [1, 4])
+                assert.deepEqual(df.columns, [
+                    'book_id',
+                    'title',
+                    'image_url',
+                    'authors',
+                ]);
+                assert.deepEqual(df.dtypes, [
+                    'int32', 'string',
+                    'string', 'string',
+                ]);
+            } else {
+                assert.deepEqual(df, null);
+            }
+        });
 
-//     });
+    });
 
-//     it("Streaming remote csv file with callback works", async function () {
-//         const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/titanic.csv"
-//         await streamCSV(remoteFile, { header: true }, (df: any) => {
-//             if (df) {
-//                 assert.deepEqual(df.shape, [1, 8])
-//                 assert.deepEqual(df.columns, [
-//                     'Survived',
-//                     'Pclass',
-//                     'Name',
-//                     'Sex',
-//                     'Age',
-//                     'Siblings/Spouses Aboard',
-//                     'Parents/Children Aboard',
-//                     'Fare'
-//                 ]);
-//             } else {
-//                 assert.deepEqual(df, null);
-//             }
-//         });
+    // it("Streaming remote csv file with callback works", async function () {
+    //     const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/book.json"
+    //     await streamJSON(remoteFile, { header: true }, (df: any) => {
+    //         if (df) {
+    //             df.print();
+    //             assert.deepEqual(df.shape, [1, 4])
+    //             assert.deepEqual(df.columns, [
+    //                 'book_id',
+    //                 'title',
+    //                 'image_url',
+    //                 'authors',
+    //             ]);
+    //         } else {
+    //             assert.deepEqual(df, null);
+    //         }
+    //     });
 
-//     });
+    // });
 
-// })
+})
 
 
 describe("toJSON", function () {

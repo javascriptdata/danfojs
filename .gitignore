@@ -4,3 +4,4 @@ test/fixtures/titanicO*
 danfojs-node/test/fixtures/titanicOut.csv
 danfojs-node/test/fixtures/titanicOutLocal.csv
 danfojs-node/test/fixtures/titanicOutRemote.csv
+danfojs-node/test/fixtures/book.json

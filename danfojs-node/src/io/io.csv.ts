@@ -54,12 +54,13 @@ const $streamCSV = async (filePath: string, options: CsvInputOptions, callback: 
 
   if (filePath.startsWith("http") || filePath.startsWith("https")) {
     return new Promise(resolve => {
+      let count = -1
       const dataStream = request.get(filePath);
       const parseStream: any = Papa.parse(Papa.NODE_STREAM_INPUT, options);
       dataStream.pipe(parseStream);
 
       parseStream.on("data", (chunk: any) => {
-        const df = new DataFrame([chunk]);
+        const df = new DataFrame([chunk], { index: [count++] });
         callback(df);
       });
 
@@ -72,10 +73,11 @@ const $streamCSV = async (filePath: string, options: CsvInputOptions, callback: 
     const fileStream = fs.createReadStream(filePath)
 
     return new Promise(resolve => {
+      let count = -1
       Papa.parse(fileStream, {
         ...options,
         step: results => {
-          const df = new DataFrame([results.data]);
+          const df = new DataFrame([results.data], { index: [count++] });
           callback(df);
         },
         complete: () => resolve(null)
@@ -126,6 +128,7 @@ const $openCsvInputStream = (filePath: string, options: CsvInputOptions) => {
     const dataStream = request.get(filePath);
     const parseStream: any = Papa.parse(Papa.NODE_STREAM_INPUT, { header, ...options });
     dataStream.pipe(parseStream);
+    let count = -1
 
     parseStream.on("data", (chunk: any) => {
       if (isFirstChunk) {
@@ -139,7 +142,8 @@ const $openCsvInputStream = (filePath: string, options: CsvInputOptions) => {
       }
 
       const df = new DataFrame([Object.values(chunk)], {
-        columns: ndFrameColumnNames
+        columns: ndFrameColumnNames,
+        index: [count++]
       })
       csvInputStream.push(df);
     });
@@ -152,7 +156,7 @@ const $openCsvInputStream = (filePath: string, options: CsvInputOptions) => {
     return csvInputStream;
   } else {
     const fileStream = fs.createReadStream(filePath)
-
+    let count = -1
     Papa.parse(fileStream, {
       ...{ header, ...options },
       step: results => {
@@ -167,7 +171,8 @@ const $openCsvInputStream = (filePath: string, options: CsvInputOptions) => {
         }
 
         const df = new DataFrame([results.data], {
-          columns: ndFrameColumnNames
+          columns: ndFrameColumnNames,
+          index: [count++]
         })
 
         csvInputStream.push(df);

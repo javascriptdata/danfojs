@@ -1,0 +1,80 @@
+[
+    {
+        "book_id": 30555488,
+        "title": "The Underground Railroad",
+        "image_url": "https:\/\/images.gr-assets.com\/books\/1493178362m\/30555488.jpg",
+        "authors": "Colson Whitehead"
+    },
+    {
+        "book_id": 30831912,
+        "title": "Norse Mythology",
+        "image_url": "https:\/\/images.gr-assets.com\/books\/1473864212m\/30831912.jpg",
+        "authors": "Neil Gaiman"
+    },
+    {
+        "book_id": 30839185,
+        "title": "Vicious (Sinners of Saint, #1)",
+        "image_url": "https:\/\/images.gr-assets.com\/books\/1481945407m\/30839185.jpg",
+        "authors": "L.J. Shen"
+    },
+    {
+        "book_id": 31140847,
+        "title": "Bossman",
+        "image_url": "https:\/\/s.gr-assets.com\/assets\/nophoto\/book\/111x148-bcc042a9c91a29c1d680899eff700a03.png",
+        "authors": "Vi Keeland"
+    },
+    {
+        "book_id": 31176886,
+        "title": "The Chemist",
+        "image_url": "https:\/\/images.gr-assets.com\/books\/1468944057m\/31176886.jpg",
+        "authors": "Stephenie Meyer"
+    },
+    {
+        "book_id": 31194270,
+        "title": "Evelyn, After",
+        "image_url": "https:\/\/s.gr-assets.com\/assets\/nophoto\/book\/111x148-bcc042a9c91a29c1d680899eff700a03.png",
+        "authors": "Victoria Helen Stone"
+    },
+    {
+        "book_id": 31538614,
+        "title": "Short Stories from Hogwarts of Power, Politics and Pesky Poltergeists (Pottermore Presents, #2)",
+        "image_url": "https:\/\/images.gr-assets.com\/books\/1471436601m\/31538614.jpg",
+        "authors": "J.K. Rowling, MinaLima"
+    },
+    {
+        "book_id": 31538635,
+        "title": "Short Stories from Hogwarts of Heroism, Hardship and Dangerous Hobbies (Pottermore Presents, #1)",
+        "image_url": "https:\/\/images.gr-assets.com\/books\/1471436733m\/31538635.jpg",
+        "authors": "J.K. Rowling, MinaLima"
+    },
+    {
+        "book_id": 31538647,
+        "title": "Hogwarts: An Incomplete and Unreliable Guide (Pottermore Presents, #3)",
+        "image_url": "https:\/\/images.gr-assets.com\/books\/1502156557m\/31538647.jpg",
+        "authors": "J.K. Rowling"
+    },
+    {
+        "book_id": 31845516,
+        "title": "Love Warrior",
+        "image_url": "https:\/\/images.gr-assets.com\/books\/1473164102m\/31845516.jpg",
+        "authors": "Glennon Doyle Melton"
+    },
+    {
+        "book_id": 32075671,
+        "title": "The Hate U Give",
+        "image_url": "https:\/\/images.gr-assets.com\/books\/1476284759m\/32075671.jpg",
+        "authors": "Angie Thomas"
+    },
+    {
+        "book_id": 32848471,
+        "title": "Egomaniac",
+        "image_url": "https:\/\/images.gr-assets.com\/books\/1479387807m\/32848471.jpg",
+        "authors": "Vi Keeland"
+    },
+    {
+        "book_id": 33288638,
+        "title": "Wait for It",
+        "image_url": "https:\/\/s.gr-assets.com\/assets\/nophoto\/book\/111x148-bcc042a9c91a29c1d680899eff700a03.png",
+        "authors": "Mariana Zapata"
+    }
+]

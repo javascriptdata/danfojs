@@ -26,6 +26,7 @@
     "node-fetch": "^2.6.1",
     "papaparse": "^5.3.1",
     "request": "^2.88.2",
+    "stream-json": "^1.7.3",
     "table": "6.7.1"
   },
   "scripts": {
@@ -72,6 +73,7 @@
     "@types/node": "^15.12.5",
     "@types/papaparse": "^5.2.6",
     "@types/request": "^2.48.7",
+    "@types/stream-json": "^1.7.1",
     "@types/table": "^6.3.2",
     "chai": "^4.2.0",
     "coveralls": "^3.1.0",

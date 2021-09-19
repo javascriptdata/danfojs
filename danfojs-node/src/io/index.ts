@@ -7,7 +7,8 @@ import {
 } from "./io.csv"
 import {
     $readJSON,
-    $toJSON
+    $toJSON,
+    $streamJSON
 } from "./io.json"
 
 const toCSV = $toCSV
@@ -18,6 +19,7 @@ const writeCsvOutputStream = $writeCsvOutputStream
 
 const toJSON = $toJSON
 const readJSON = $readJSON
+const streamJSON = $streamJSON
 
 export {
     readCSV,
@@ -26,5 +28,6 @@ export {
     openCsvInputStream,
     writeCsvOutputStream,
     readJSON,
-    toJSON
+    toJSON,
+    streamJSON
 }
