@@ -149,6 +149,20 @@ describe("get_dummies", function(){
       "prefix for dataframe must be an array");
 
   });
+  it("should one hot encode all other columns", function(){
+
+    let data = [ [ 1, "dog", 1.0, "fat" ], [ 3, "fog", 2.0, "good" ], [ 4, "gof", 3.0, "best" ] ];
+    let columns = [ "A", "B", "C", "d" ];
+    let df = new DataFrame(data, { columns:columns });
+    let rslt = [
+      [ 1, 'dog', 1, 1, 0, 0 ],
+      [ 3, 'fog', 2, 0, 1, 0 ],
+      [ 4, 'gof', 3, 0, 0, 1 ]
+    ]
+
+    assert.deepEqual(get_dummies({ data:df, columns:[ "d" ]}).values, rslt)
+
+  });
 
 
 });
