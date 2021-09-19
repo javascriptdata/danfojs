@@ -49,7 +49,7 @@ const utils = new Utils();
  * @returns NDframe
  */
 export default class NDframe implements NDframeInterface {
-    protected $isSeries: boolean;
+    $isSeries: boolean;
     protected $data: any
     protected $dataIncolumnFormat: ArrayType1D | ArrayType2D = []
     protected $index: Array<string | number> = []

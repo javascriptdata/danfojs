@@ -106,7 +106,10 @@ export interface NDframeInterface {
 //End of Generic class types
 
 export interface CsvParserConfig extends ParseConfig {
-    nRows?: number
+}
+
+export interface PipeTransformerConfig extends ParseConfig {
+    
   }
 
 //Start of Series class types
