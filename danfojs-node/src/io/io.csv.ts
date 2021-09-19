@@ -10,7 +10,7 @@ import { ArrayType2D, ConfigsType, CsvInputOptions, CsvOutputOptions } from "../
  * Reads a CSV file from local or remote location into a DataFrame.
  * @param filePath URL or local file path to CSV file. `readCSV` uses PapaParse to parse the CSV file,
  * hence all PapaParse options are supported.
- * @param options optionsuration object. Supports all Papaparse optionsuration options.
+ * @param options Configuration object. Supports all Papaparse parse config options.
  */
 const $readCSV = async (filePath: string, options: CsvInputOptions): Promise<DataFrame> => {
   if (filePath.startsWith("http") || filePath.startsWith("https")) {
@@ -47,10 +47,7 @@ const $readCSV = async (filePath: string, options: CsvInputOptions): Promise<Dat
  * Streams a CSV file from local or remote location in chunks. Intermediate chunks is passed as a DataFrame to the callback function.
  * @param filePath URL or local file path to CSV file. `readCSV` uses PapaParse to parse the CSV file,
  * hence all PapaParse options are supported.
- * @param options optionsuration object. Supports all Papaparse optionsuration options. The following functions are
- * peculiar to Danfo.js:
- *  - `nRows`: The number of rows to read and pass to the `callback` function at any given time. Default is `10`.
- *  NB: This is will be returned as a DataFrame object.
+ * @param options Configuration object. Supports all Papaparse parse config options.
  * @param callback Callback function to be called once the specifed rows are parsed into DataFrame.
  */
 const $streamCSV = async (filePath: string, options: CsvInputOptions, callback: (df: DataFrame) => void): Promise<null> => {
