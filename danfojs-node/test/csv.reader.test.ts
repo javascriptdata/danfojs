@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { readCSV, streamCSV } from "../build";
+import { DataFrame, readCSV, Series, streamCSV, toCSV } from "../build";
 
 describe("readCSV", function () {
     this.timeout(10000);
@@ -53,9 +53,9 @@ describe("streamCSV", function () {
     this.timeout(100000);
     it("Streaming local csv file with callback works", async function () {
         const filePath = "test/fixtures/titanic.csv"
-        await streamCSV(filePath, { header: true, nRows: 100 }, (df: any) => {
+        await streamCSV(filePath, { header: true }, (df: any) => {
             if (df) {
-                assert.deepEqual(df.shape, [100, 8])
+                assert.deepEqual(df.shape, [1, 8])
                 assert.deepEqual(df.columns, [
                     'Survived',
                     'Pclass',
@@ -75,9 +75,9 @@ describe("streamCSV", function () {
 
     it("Streaming remote csv file with callback works", async function () {
         const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/titanic.csv"
-        await streamCSV(remoteFile, { header: true, nRows: 100 }, (df: any) => {
+        await streamCSV(remoteFile, { header: true }, (df: any) => {
             if (df) {
-                assert.deepEqual(df.shape, [100, 8])
+                assert.deepEqual(df.shape, [1, 8])
                 assert.deepEqual(df.columns, [
                     'Survived',
                     'Pclass',
@@ -93,6 +93,26 @@ describe("streamCSV", function () {
             }
         });
 
+    });
+
+})
+
+
+describe("toCSV", function () {
+    it("toCSV works", async function () {
+        const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
+        let df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
+        assert.deepEqual(toCSV(df, {}), `a,b,c,d\n1,2,3,4\n5,6,7,8\n9,10,11,12\n`);
+    });
+    it("toCSV works for specified seperator", async function () {
+        const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
+        let df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
+        assert.deepEqual(toCSV(df, { sep: "+" }), `a+b+c+d\n1+2+3+4\n5+6+7+8\n9+10+11+12\n`);
+    });
+    it("toCSV works for series", async function () {
+        const data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        let df: any = new Series(data);
+        assert.deepEqual(toCSV(df, { sep: "+" }), `1+2+3+4+5+6+7+8+9+10+11+12`);
     });
 
 })
