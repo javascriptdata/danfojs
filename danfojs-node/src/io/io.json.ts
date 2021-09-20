@@ -84,6 +84,7 @@ const $streamJSON = async (
  * Converts a DataFrame or Series to JSON. 
  * @param df DataFrame or Series to be converted to JSON.
  * @param options Configuration object. Supported options:
+ * - `filePath`: The file path to write the JSON to. If not specified, the JSON object is returned.
  * - `format`: The format of the JSON. Defaults to `'column'`. E.g for using `column` format:
  * ```
  * [{ "a": 1, "b": 2, "c": 3, "d": 4 },
@@ -96,13 +97,20 @@ const $streamJSON = async (
  * }
  * ```
  */
-const $toJSON = (df: DataFrame | Series, options?: { format?: "row" | "column" }): object => {
-    const { format } = { format: "column", ...options }
+const $toJSON = (df: DataFrame | Series, options?: { format?: "row" | "column", filePath?: string }): object | void => {
+    let { filePath, format } = { filePath: undefined, format: "column", ...options }
 
     if (df.$isSeries) {
         const obj: { [key: string]: ArrayType1D } = {};
         obj[df.columns[0]] = df.values as ArrayType1D;
-        return obj
+        if (filePath) {
+            if (!filePath.endsWith(".json")) {
+                filePath = filePath + ".json"
+            }
+            fs.writeFileSync(filePath, JSON.stringify(obj))
+        } else {
+            return obj
+        }
     } else {
         const values = df.values as ArrayType2D
         const header = df.columns
@@ -113,7 +121,15 @@ const $toJSON = (df: DataFrame | Series, options?: { format?: "row" | "column" }
             for (let i = 0; i < df.columns.length; i++) {
                 obj[df.columns[i]] = (df as DataFrame).column(df.columns[i]).values as ArrayType1D;
             }
-            return obj
+            if (filePath !== undefined) {
+                if (!(filePath.endsWith(".json"))) {
+                    filePath = filePath + ".json"
+                }
+                
+                fs.writeFileSync(filePath, JSON.stringify(obj), "utf8")
+            } else {
+                return obj
+            }
         } else {
             values.forEach((val) => {
                 const obj: any = {};
@@ -122,7 +138,14 @@ const $toJSON = (df: DataFrame | Series, options?: { format?: "row" | "column" }
                 });
                 jsonArr.push(obj);
             });
-            return jsonArr
+            if (filePath) {
+                if (!filePath.endsWith(".json")) {
+                    filePath = filePath + ".json"
+                }
+                fs.writeFileSync(filePath, JSON.stringify(jsonArr))
+            } else {
+                return jsonArr
+            }
         }
     }
 };

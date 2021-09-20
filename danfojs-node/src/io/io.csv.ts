@@ -90,14 +90,25 @@ const $streamCSV = async (filePath: string, options: CsvInputOptions, callback: 
 /**
  * Converts a DataFrame or Series to CSV. 
  * @param df DataFrame or Series to be converted to CSV.
- * @param options.sep Separator character. Default is `,`.
+ * @param options Configuration object. Supports the following options:
+ * - `filePath`: Local file path to write the CSV file. If not specified, the CSV will be returned as a string.
+ * - `header`: Boolean indicating whether to include a header row in the CSV file.
+ * - `sep`: Character to be used as a separator in the CSV file.
  */
-const $toCSV = (df: DataFrame | Series, options?: CsvOutputOptions): string => {
-  const { sep, header } = { sep: ",", header: true, ...options }
+const $toCSV = (df: DataFrame | Series, options?: CsvOutputOptions): string | void => {
+  let { filePath, sep, header } = { sep: ",", header: true, filePath: undefined, ...options }
 
   if (df.$isSeries) {
     const csv = df.values.join(sep);
-    return csv;
+
+    if (filePath !== undefined) {
+      if (!(filePath.endsWith(".csv"))) {
+        filePath = filePath + ".csv"
+      }
+      fs.writeFileSync(filePath, csv, "utf8")
+    } else {
+      return csv;
+    }
   } else {
     const rows = df.values as ArrayType2D
     let csvStr = header === true ? `${df.columns.join(sep)}\n` : ""
@@ -106,7 +117,15 @@ const $toCSV = (df: DataFrame | Series, options?: CsvOutputOptions): string => {
       const row = `${rows[i].join(sep)}\n`;
       csvStr += row;
     }
-    return csvStr;
+
+    if (filePath !== undefined) {
+      if (!(filePath.endsWith(".csv"))) {
+        filePath = filePath + ".csv"
+      }
+      fs.writeFileSync(filePath, csvStr, "utf8")
+    } else {
+      return csvStr;
+    }
   }
 };
 

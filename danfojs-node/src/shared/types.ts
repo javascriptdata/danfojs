@@ -106,8 +106,8 @@ export interface NDframeInterface {
 //End of Generic class types
 
 
-export type CsvOutputOptions = { sep?: string, header?: boolean }
-export interface CsvInputOptions extends ParseConfig {}
+export type CsvOutputOptions = { filePath?: string, sep?: string, header?: boolean }
+export interface CsvInputOptions extends ParseConfig { }
 
 
 //Start of Series class types

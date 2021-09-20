@@ -49,13 +49,13 @@ const $readExcel = async (filePath: string, options: { sheet?: number, method?: 
  * @param df DataFrame or Series to be converted to JSON.
  * @param options Configuration object. Supported options:
  * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
- * - `fileName`: The filename to be written to. Defaults to `'output.xlsx'`.
+ * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`.
  */
-const $toExcel = (df: DataFrame | Series, options?: { fileName?: string, sheetName?: string }) => {
-    let { fileName, sheetName } = { fileName: "output.xlsx", sheetName: "Sheet1", ...options }
+const $toExcel = (df: DataFrame | Series, options?: { filePath?: string, sheetName?: string }) => {
+    let { filePath, sheetName } = { filePath: "./output.xlsx", sheetName: "Sheet1", ...options }
 
-    if (!(fileName.endsWith(".xlsx"))) {
-        fileName = fileName + ".xlsx"
+    if (!(filePath.endsWith(".xlsx"))) {
+        filePath = filePath + ".xlsx"
     }
     let data;
 
@@ -72,7 +72,7 @@ const $toExcel = (df: DataFrame | Series, options?: { fileName?: string, sheetNa
     const worksheet = XLSX.utils.aoa_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, worksheet, sheetName);
-    XLSX.writeFile(wb, `${fileName}`)
+    XLSX.writeFile(wb, `${filePath}`)
 };
 
 export {

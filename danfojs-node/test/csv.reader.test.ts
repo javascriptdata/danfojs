@@ -109,6 +109,11 @@ describe("toCSV", function () {
         let df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
         assert.deepEqual(toCSV(df, { sep: "+" }), `a+b+c+d\n1+2+3+4\n5+6+7+8\n9+10+11+12\n`);
     });
+    it("toCSV write to local file works", async function () {
+        const data = [[1, 2, 3, "4"], [5, 6, 7, "8"], [9, 10, 11, "12"]]
+        let df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
+        toCSV(df, { sep: ",", filePath: "test/fixtures/test_write.csv" });
+    });
     it("toCSV works for series", async function () {
         const data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
         let df: any = new Series(data);
