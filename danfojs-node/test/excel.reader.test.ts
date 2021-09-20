@@ -49,12 +49,12 @@ describe("toExcel", function () {
         const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
         const df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
 
-        toExcel(df, { fileName: "test/fixtures/test" })
+        toExcel(df, { filePath: "test/fixtures/test" })
 
         const savedfilePath = "test/fixtures/test.xlsx"
         const dfNew: any = await readExcel(savedfilePath, {});
 
-        assert.equal(fs.existsSync("test/fixtures/testSeries.xlsx"), true)
+        assert.equal(fs.existsSync("test/fixtures/test.xlsx"), true)
         assert.deepEqual(dfNew.columns, [
             'a',
             'b',
@@ -70,9 +70,9 @@ describe("toExcel", function () {
     it("toExcel works for series", async function () {
         const data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
         const df: any = new Series(data);
-        const fileName = "test/fixtures/testSeries.xlsx"
-        toExcel(df, { fileName })
-        assert.equal(fs.existsSync(fileName), true)
+        const filePath = "test/fixtures/testSeries.xlsx"
+        toExcel(df, { filePath })
+        assert.equal(fs.existsSync(filePath), true)
     });
 
 })

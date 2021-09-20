@@ -2,7 +2,7 @@ import fs from 'fs'
 import request from "request"
 import { parser } from "stream-json"
 import fetch, { HeadersInit } from "node-fetch";
-import { DataFrame, Series } from '../index'
+import { DataFrame, NDframe, Series } from '../index'
 import { streamArray } from "stream-json/streamers/StreamArray"
 import { ArrayType1D, ArrayType2D } from '../shared/types';
 
@@ -97,7 +97,7 @@ const $streamJSON = async (
  * }
  * ```
  */
-const $toJSON = (df: DataFrame | Series, options?: { format?: "row" | "column", filePath?: string }): object | void => {
+const $toJSON = (df: NDframe | DataFrame | Series, options?: { format?: "row" | "column", filePath?: string }): object | void => {
     let { filePath, format } = { filePath: undefined, format: "column", ...options }
 
     if (df.$isSeries) {
@@ -125,7 +125,7 @@ const $toJSON = (df: DataFrame | Series, options?: { format?: "row" | "column", 
                 if (!(filePath.endsWith(".json"))) {
                     filePath = filePath + ".json"
                 }
-                
+
                 fs.writeFileSync(filePath, JSON.stringify(obj), "utf8")
             } else {
                 return obj

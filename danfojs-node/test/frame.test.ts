@@ -1,5 +1,6 @@
 import { assert, expect } from "chai";
-import { DataFrame, Series } from '../build';
+import fs from "fs";
+import { DataFrame, readExcel, Series } from '../build';
 
 // const testCSVPath = "./tester.csv";
 
@@ -2642,9 +2643,9 @@ describe("DataFrame", function () {
         it("Confirms chaining boolean queries work", function () {
 
             const data = [[1, 2, 3],
-                        [4, 5, 60], 
-                        [20, 30, 4], 
-                        [39, 89, 7]];
+            [4, 5, 60],
+            [20, 30, 4],
+            [39, 89, 7]];
             const cols = ["A", "B", "C"];
             const df = new DataFrame(data, { columns: cols });
 
@@ -2659,9 +2660,9 @@ describe("DataFrame", function () {
         it("Confirms chaining boolean queries work and returns empty DF", function () {
 
             const data = [[1, 2, 3],
-                        [4, 5, 60], 
-                        [20, 30, 40], 
-                        [39, 89, 70]];
+            [4, 5, 60],
+            [20, 30, 40],
+            [39, 89, 70]];
             const cols = ["A", "B", "C"];
             const df = new DataFrame(data, { columns: cols });
 
@@ -2684,6 +2685,62 @@ describe("DataFrame", function () {
             assert.deepEqual(df.ctypes.values, rslt);
         });
     });
+
+    describe("IO outputs", function () {
+        it("toExcel works", async function () {
+            const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
+            const df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
+
+            df.toExcel({ filePath: "test/fixtures/test.xlsx" })
+            const savedfilePath = "test/fixtures/test.xlsx"
+
+            const dfNew: any = await readExcel(savedfilePath, {});
+            assert.equal(fs.existsSync("test/fixtures/test.xlsx"), true)
+            assert.deepEqual(dfNew.columns, [
+                'a',
+                'b',
+                'c',
+                'd',
+            ]);
+            assert.deepEqual(dfNew.dtypes, [
+                'int32', 'int32',
+                'int32', 'int32',
+            ]);
+            assert.deepEqual(dfNew.shape, [3, 4])
+        });
+
+        it("toCSV works for specified seperator", async function () {
+            const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
+            let df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
+            assert.deepEqual(df.toCSV({ sep: "+" }), `a+b+c+d\n1+2+3+4\n5+6+7+8\n9+10+11+12\n`);
+        });
+        it("toCSV write to local file works", async function () {
+            const data = [[1, 2, 3, "4"], [5, 6, 7, "8"], [9, 10, 11, "12"]]
+            let df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
+            df.toCSV({ sep: ",", filePath: "test/fixtures/test_write.csv" });
+            assert.equal(fs.existsSync("test/fixtures/test_write.csv"), true);
+        });
+        it("toJSON works for row format", async function () {
+            const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
+            const df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
+            const expected: any = {
+                "a": [1, 5, 9],
+                "b": [2, 6, 10],
+                "c": [3, 7, 11],
+                "d": [4, 8, 12],
+            }
+            const json = df.toJSON({ format: "row" })
+            assert.deepEqual(json, expected);
+        });
+        it("toJSON writes file to local path", async function () {
+            const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
+            const df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
+            df.toJSON({ format: "row", filePath: "test/fixtures/test_row_write.json" })
+            df.toJSON({ format: "column", filePath: "test/fixtures/test_col_write.json" })
+            assert.equal(fs.existsSync("test/fixtures/test_row_write.json"), true);
+            assert.equal(fs.existsSync("test/fixtures/test_col_write.json"), true);
+        });
+    })
 
 
 });

@@ -11,3 +11,4 @@ danfojs-node/test/fixtures/test_write.json
 danfojs-node/test/fixtures/test_write.csv
 danfojs-node/test/fixtures/test_row_write.json
 danfojs-node/test/fixtures/test_col_write.json
+danfojs-node/output.xlsx

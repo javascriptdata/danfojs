@@ -99,8 +99,9 @@ export interface NDframeInterface {
     get values(): ArrayType1D | ArrayType2D
     get tensor(): Tensor;
     get size(): number;
-    toCsv(): Promise<String>;
-    toJson(): Promise<String>;
+    toCSV(options?: CsvOutputOptions): string | void
+    toJSON(options?: { format?: "row" | "column", filePath?: string }): object | void
+    toExcel(options?: { filePath?: string, sheetName?: string }): void
     print(): void;
 }
 //End of Generic class types

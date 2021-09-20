@@ -1,5 +1,5 @@
 import fetch, { HeadersInit } from "node-fetch";
-import { DataFrame, Series } from '../index'
+import { DataFrame, NDframe, Series } from '../index'
 import XLSX from 'xlsx';
 import { ArrayType1D, ArrayType2D } from '../shared/types';
 
@@ -51,7 +51,7 @@ const $readExcel = async (filePath: string, options: { sheet?: number, method?: 
  * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
  * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`.
  */
-const $toExcel = (df: DataFrame | Series, options?: { filePath?: string, sheetName?: string }) => {
+const $toExcel = (df: NDframe | DataFrame | Series, options?: { filePath?: string, sheetName?: string }) => {
     let { filePath, sheetName } = { filePath: "./output.xlsx", sheetName: "Sheet1", ...options }
 
     if (!(filePath.endsWith(".xlsx"))) {

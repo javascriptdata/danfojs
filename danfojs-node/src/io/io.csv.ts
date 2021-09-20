@@ -2,7 +2,7 @@ import fs from 'fs'
 import Papa from 'papaparse'
 import request from "request"
 import stream from "stream"
-import { DataFrame, Series } from '../index'
+import { DataFrame, NDframe, Series } from '../index'
 import { ArrayType2D, ConfigsType, CsvInputOptions, CsvOutputOptions } from "../shared/types"
 
 
@@ -95,7 +95,7 @@ const $streamCSV = async (filePath: string, options: CsvInputOptions, callback: 
  * - `header`: Boolean indicating whether to include a header row in the CSV file.
  * - `sep`: Character to be used as a separator in the CSV file.
  */
-const $toCSV = (df: DataFrame | Series, options?: CsvOutputOptions): string | void => {
+const $toCSV = (df: NDframe | DataFrame | Series, options?: CsvOutputOptions): string | void => {
   let { filePath, sep, header } = { sep: ",", header: true, filePath: undefined, ...options }
 
   if (df.$isSeries) {
