@@ -13,7 +13,7 @@
 * ==========================================================================
 */
 
-import { tensor1d, Tensor, tensor2d, moments } from "@tensorflow/tfjs-node"
+import { tensor1d, Tensor, tensor2d } from "@tensorflow/tfjs-node"
 import Series from "../../core/series"
 import DataFrame from "../../core/frame"
 import Utils from "../../shared/utils"
@@ -21,21 +21,21 @@ import Utils from "../../shared/utils"
 const utils = new Utils()
 
 /**
- * Standardize features by removing the mean and scaling to unit variance.
- * The standard score of a sample x is calculated as: `z = (x - u) / s`, 
- * where `u` is the mean of the training samples, and `s` is the standard deviation of the training samples.
- */
-export class StandardScaler {
-    private $std: Tensor
-    private $mean: Tensor
+ * Transform features by scaling each feature to a given range.
+ * This estimator scales and translates each feature individually such 
+ * that it is in the given range on the training set, e.g. between the maximum and minimum value.
+*/
+export class MinMaxScaler {
+    private $max: Tensor
+    private $min: Tensor
 
     constructor() {
-        this.$std = tensor1d([])
-        this.$mean = tensor1d([])
+        this.$max = tensor1d([])
+        this.$min = tensor1d([])
     }
 
     /**
-     * Fit a StandardScaler to the data.
+     * Fits a MinMaxScaler to the data
      * @param data Array, Tensor, DataFrame or Series object
      */
     public fit(data: Array<number> | Tensor | DataFrame | Series) {
@@ -57,10 +57,12 @@ export class StandardScaler {
             throw new Error("ParamError: data must be one of Array, DataFrame or Series")
         }
 
-        this.$std = moments(tensorArray, 0).variance.sqrt();
-        this.$mean = tensorArray.mean(0);
+        this.$max = tensorArray.max(0)
+        this.$min = tensorArray.min(0)
 
-        const outputData = tensorArray.sub(this.$mean).div(this.$std)
+        const outputData = tensorArray
+            .sub(this.$min)
+            .div(this.$max.sub(this.$min))
 
         if (Array.isArray(data)) {
             return outputData.arraySync()
@@ -86,9 +88,10 @@ export class StandardScaler {
      * @param data Array, Tensor, DataFrame or Series object
      * @returns Array, Tensor, DataFrame or Series object
      * @example
-     * const scaler = new StandardScaler()
+     * const scaler = new MinMaxScaler()
      * scaler.fit([1, 2, 3, 4, 5])
      * scaler.transform([1, 2, 3, 4, 5])
+     * // [0, 0.25, 0.5, 0.75, 1]
      * */
     public transform(data: Array<number> | Tensor | DataFrame | Series) {
         let tensorArray;
@@ -109,7 +112,9 @@ export class StandardScaler {
             throw new Error("ParamError: data must be one of Array, DataFrame or Series")
         }
 
-        const outputData = tensorArray.sub(this.$mean).div(this.$std)
+        const outputData = tensorArray
+            .sub(this.$min)
+            .div(this.$max.sub(this.$min))
 
         if (Array.isArray(data)) {
             return outputData.arraySync()

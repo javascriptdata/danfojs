@@ -1,4 +1,4 @@
-import { DataFrame, Series, streamCsvTransformer } from "../build";
+import { DataFrame, Series, streamCsvTransformer } from "../../build";
 import stream from "stream"
 
 describe("pipeCsvTransform", function () {
