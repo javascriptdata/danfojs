@@ -20,7 +20,7 @@ import Series from "./core/series";
 import DataFrame from "./core/frame";
 import Str from "./core/strings"
 import Dt from "./core/datetime"
-import { readCSV, streamCSV, toCSV, readJSON, toJSON, streamJSON } from "./io"
+import { readCSV, streamCSV, toCSV, readJSON, toJSON, streamJSON, readExcel, toExcel} from "./io"
 import { streamCsvTransformer } from "./transformers/csv.stream.transformer"
 // export { to_datetime } from "./core/timeseries";
 // export { read_csv, read_json, read_excel, read } from "./io/reader";
@@ -47,6 +47,8 @@ export {
     streamCsvTransformer,
     readJSON,
     toJSON,
-    streamJSON
+    streamJSON,
+    readExcel,
+    toExcel
 }
 // export const _version = "0.2.7";

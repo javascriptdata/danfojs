@@ -10,6 +10,7 @@ import {
     $toJSON,
     $streamJSON
 } from "./io.json"
+import { $readExcel,$toExcel } from "./io.excel"
 
 const toCSV = $toCSV
 const readCSV = $readCSV
@@ -21,6 +22,10 @@ const toJSON = $toJSON
 const readJSON = $readJSON
 const streamJSON = $streamJSON
 
+const readExcel = $readExcel
+const toExcel = $toExcel
+
+
 export {
     readCSV,
     streamCSV,
@@ -29,5 +34,7 @@ export {
     writeCsvOutputStream,
     readJSON,
     toJSON,
-    streamJSON
+    streamJSON,
+    readExcel,
+    toExcel,
 }

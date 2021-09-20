@@ -5,3 +5,5 @@ danfojs-node/test/fixtures/titanicOut.csv
 danfojs-node/test/fixtures/titanicOutLocal.csv
 danfojs-node/test/fixtures/titanicOutRemote.csv
 danfojs-node/test/fixtures/book.json
+danfojs-node/test/fixtures/testSeries.xlsx
+danfojs-node/test/fixtures/test.xlsx
