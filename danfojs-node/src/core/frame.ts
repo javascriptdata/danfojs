@@ -14,7 +14,7 @@
 */
 import { ArrayType1D, ArrayType2D, DataFrameInterface, BaseDataOptionType } from "../shared/types";
 import { variance, std, median, mode, mean } from 'mathjs';
-import { _genericMathOp } from "./generic.math.ops";
+import { _genericMathOp } from "./math.ops";
 import { Tensor } from '@tensorflow/tfjs-node';
 import ErrorThrower from "../shared/errors"
 import { _iloc, _loc } from "./indexing";

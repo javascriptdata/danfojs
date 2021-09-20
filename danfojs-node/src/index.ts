@@ -21,7 +21,7 @@ import DataFrame from "./core/frame";
 import Str from "./core/strings"
 import Dt from "./core/datetime"
 import { readCSV, streamCSV, toCSV, readJSON, toJSON, streamJSON, readExcel, toExcel} from "./io"
-import { streamCsvTransformer } from "./transformers/csv.stream.transformer"
+import { streamCsvTransformer } from "./transformers/streams/csv.stream.transformer"
 // export { to_datetime } from "./core/timeseries";
 // export { read_csv, read_json, read_excel, read } from "./io/reader";
 // export { merge } from "./core/merge";

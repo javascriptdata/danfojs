@@ -14,7 +14,7 @@
 */
 import { ArrayType1D, BaseDataOptionType, SeriesInterface } from "../shared/types";
 import { variance, std, median, mode } from 'mathjs';
-import { _genericMathOp } from "./generic.math.ops";
+import { _genericMathOp } from "./math.ops";
 import { DATA_TYPES } from '../shared/defaults'
 import ErrorThrower from "../shared/errors"
 import { _iloc, _loc } from "./indexing";
