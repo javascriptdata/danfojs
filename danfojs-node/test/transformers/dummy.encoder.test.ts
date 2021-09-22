@@ -1,12 +1,12 @@
 import { assert } from "chai";
-import { DataFrame, Series, dummyEncode } from "../../build";
+import { DataFrame, Series, getDummies } from "../../build";
 
 describe("DummyEncoder", function () {
-    it("dummyEncode works on Series", function () {
+    it("getDummies works on Series", function () {
 
         const data = ["dog", "male", "female", "male", "female", "male", "dog"];
         const series = new Series(data);
-        const df = dummyEncode(series, { prefix: "test", prefixSeparator: "/" });
+        const df = getDummies(series, { prefix: "test", prefixSeparator: "/" });
 
         const dfValues = [
             [1, 0, 0],
@@ -21,11 +21,11 @@ describe("DummyEncoder", function () {
         assert.deepEqual(df.values, dfValues);
         assert.deepEqual(df.columns, dfColumns);
     });
-    it("dummyEncode works on Series with default prefix and prefixSeperator", function () {
+    it("getDummies works on Series with default prefix and prefixSeperator", function () {
 
         const data = ["dog", "male", "female", "male", "female", "male", "dog"];
         const series = new Series(data);
-        const df = dummyEncode(series);
+        const df = getDummies(series);
 
         const dfValues = [
             [1, 0, 0],
@@ -41,13 +41,13 @@ describe("DummyEncoder", function () {
         assert.deepEqual(df.columns, dfColumns);
     });
 
-    it("dummyEncode works on DataFrame", function () {
+    it("getDummies works on DataFrame", function () {
 
         const data = [[1, "dog", 1.0, "fat"], [3, "fog", 2.0, "good"], [4, "gof", 3.0, "best"]];
         const columns = ["A", "B", "C", "d"];
         const df = new DataFrame(data, { columns: columns });
 
-        const df1 = dummyEncode(df, { prefixSeparator: ["_", "#"], columns: ["A", "d"], prefix: "test" });
+        const df1 = getDummies(df, { prefixSeparator: ["_", "#"], columns: ["A", "d"], prefix: "test" });
         const expectedColumns = ['B', 'C', 'test_1', 'test_3', 'test_4', 'test#fat', 'test#good', 'test#best']
         const expected = [['dog', 1.0, 1, 0, 0, 1, 0, 0],
         ['fog', 2.0, 0, 1, 0, 0, 1, 0],
@@ -62,7 +62,7 @@ describe("DummyEncoder", function () {
         const columns = ["A", "B", "C", "d"];
         const df = new DataFrame(data, { columns: columns });
 
-        assert.throws(function () { dummyEncode(df, { prefix: ["fg"], prefixSeparator: "_", columns: ["A", "d"] }); }, Error,
+        assert.throws(function () { getDummies(df, { prefix: ["fg"], prefixSeparator: "_", columns: ["A", "d"] }); }, Error,
             `ParamError: prefix and data array must be of the same length. If you need to use the same prefix, then pass a string param instead. e.g {prefix: "fg"}`);
 
     });
@@ -72,7 +72,7 @@ describe("DummyEncoder", function () {
         const columns = ["A", "B", "C", "d"];
         const df = new DataFrame(data, { columns: columns });
 
-        const df1 = dummyEncode(df, { prefix: ["F", "G"], prefixSeparator: "_", columns: ["A", "d"] });
+        const df1 = getDummies(df, { prefix: ["F", "G"], prefixSeparator: "_", columns: ["A", "d"] });
         const expectedColumns = [
             'B', 'C',
             'F_1', 'F_3',
@@ -89,13 +89,13 @@ describe("DummyEncoder", function () {
 
     });
 
-    it("dummyEncode auto infers and encode columns with string dtype", function () {
+    it("getDummies auto infers and encode columns with string dtype", function () {
 
         const data = [[1, "dog", 1.0, "fat"], [3, "fog", 2.0, "good"], [4, "gof", 3.0, "best"]];
         const columns = ["A", "B", "C", "d"];
         const df = new DataFrame(data, { columns: columns });
 
-        const df1 = dummyEncode(df, { prefixSeparator: "_" });
+        const df1 = getDummies(df, { prefixSeparator: "_" });
         const expectedColumns = [
             'A', 'C',
             'B_dog', 'B_fog',
@@ -132,7 +132,7 @@ describe("DummyEncoder", function () {
             [4, 'gof', 3, 0, 0, 1]
         ]
 
-        assert.deepEqual(dummyEncode(df, { columns: ["d"] }).values, rslt)
+        assert.deepEqual(getDummies(df, { columns: ["d"] }).values, rslt)
 
     });
 });

@@ -19,9 +19,22 @@ import stream from "stream"
 import { writeCsvOutputStream, openCsvInputStream } from "../../io"
 
 /**
- * Converts a function to a pipe transformer.
+ * Converts a function to a pipe transformer. 
+ * @param func The function to convert to a pipe transformer.
+ * @returns A pipe transformer that applies the function to each row of object.
+ * @example
+ * ```
+ * import { convertFunctionTotransformer } from "danfojs-node"
+ * 
+ * const renamer = (dfRow) => {
+ *    const dfModified = dfRow["Names"].map((name) => name.split(",")[0])
+ *    return dfModified
+ * }
+ * const transformer = convertFunctionTotransformer(renamer)
+ * ```
+ * 
 */
-const transformerToStream = (func: (df: DataFrame | Series) => DataFrame | Series) => {
+const convertFunctionTotransformer = (func: (df: DataFrame | Series) => DataFrame | Series) => {
     const transformStream = new stream.Transform({ objectMode: true })
     transformStream._transform = (chunk: any, encoding, callback) => {
         const outputChunk = func(chunk)
@@ -46,6 +59,20 @@ const transformerToStream = (func: (df: DataFrame | Series) => DataFrame | Serie
  * - `inputStreamOptions` Configuration options for the input stream. Supports all Papaparse csv reader config options.
  * - `outputStreamOptions` Configuration options for the output stream. This only applies when
  * using the default CSV stream writer. Supports all `toCSV` options.
+ * @returns A promise that resolves when the pipeline is complete.
+ * @example
+ * ```
+ * import { streamCsvTransformer } from "danfojs-node"
+ * 
+ * const transformer = (dfRow) => {
+ *   const dfModified = dfRow["Names"].map((name) => name.split(",")[0])
+ *  return dfModified
+ * }
+ * const inputFilePath = "./data/input.csv"
+ * const outputFilePath = "./data/output.csv"
+ * 
+ * streamCsvTransformer(inputFilePath, transformer, { outputFilePath })
+ * ```
 */
 const streamCsvTransformer = (
     inputFilePath: string,
@@ -65,7 +92,7 @@ const streamCsvTransformer = (
 
     if (customCSVStreamWriter) {
         openCsvInputStream(inputFilePath, inputStreamOptions)
-            .pipe(transformerToStream(transformer))
+            .pipe(convertFunctionTotransformer(transformer))
             .pipe(customCSVStreamWriter())
             .on("error", (err: any) => {
                 console.error("An error occurred while transforming the CSV file")
@@ -73,7 +100,7 @@ const streamCsvTransformer = (
             })
     } else {
         openCsvInputStream(inputFilePath, inputStreamOptions)
-            .pipe(transformerToStream(transformer))
+            .pipe(convertFunctionTotransformer(transformer))
             .pipe(writeCsvOutputStream(outputFilePath, outputStreamOptions))
             .on("error", (err: any) => {
                 console.error("An error occurred while transforming the CSV file")
@@ -84,5 +111,5 @@ const streamCsvTransformer = (
 
 export {
     streamCsvTransformer,
-    transformerToStream
+    convertFunctionTotransformer
 }

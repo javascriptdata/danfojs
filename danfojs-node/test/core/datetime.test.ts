@@ -86,7 +86,7 @@ describe("TimeSeries", function () {
 
         assert.deepEqual(dateTime.month().values, expectedMonth);
         assert.deepEqual(dateTime.year().values, expectedYear);
-        assert.deepEqual(dateTime.day().values, expectedDay);
+        assert.deepEqual(dateTime.dayOfWeek().values, expectedDay);
         assert.deepEqual(dateTime.monthName().values, expectedMonthName);
 
     });

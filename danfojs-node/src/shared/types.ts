@@ -328,7 +328,7 @@ export interface DataFrameInterface extends NDframeInterface {
 
 export interface DateTime {
     month(): Series
-    day(): Series
+    dayOfWeek(): Series
     year(): Series
     monthName(): Series
     dayOfMonth(): Series

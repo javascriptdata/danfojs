@@ -283,7 +283,7 @@ const $openCsvInputStream = (filePath: string, options: CsvInputOptions) => {
  * ```
  * import { openCsvInputStream,
  *         writeCsvOutputStream,
- *         streamCsvTransformer } from "danfojs-node"
+ *         convertFunctionTotransformer } from "danfojs-node"
  * 
  * const csvStream = openCsvInputStream("./data/sample.csv")
  * const outStream = writeCsvOutputStream("./data/sampleOut.csv")
@@ -292,7 +292,7 @@ const $openCsvInputStream = (filePath: string, options: CsvInputOptions) => {
  *     const dfModified = dfRow["Names"].map((name) => name.split(",")[0])
  *     return dfModified
  * }
- * csvStream.pipe(streamCsvTransformer(transformer)).pipe(outStream)
+ * csvStream.pipe(convertFunctionTotransformer(transformer)).pipe(outStream)
  * ```
  */
 const $writeCsvOutputStream = (filePath: string, options: CsvInputOptions) => {
