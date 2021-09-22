@@ -23,6 +23,27 @@ import { ArrayType1D, ArrayType2D } from '../shared/types';
  * @param options Configuration object. Supported options:
  * - `method`: The HTTP method to use. Defaults to `'GET'`.
  * - `headers`: Additional headers to send with the request. Supports the `node-fetch` [HeadersInit]
+ * @example
+ * ```
+ * import { readExcel } from "danfojs-node"
+ * const df = await readExcel("https://raw.githubusercontent.com/test.xlsx")
+ * ```
+ * @example
+ * ```
+ * import { readExcel } from "danfojs-node"
+ * const df = await readExcel("https://raw.githubusercontent.com/test.xlsx", {
+ *    method: "GET",
+ *    headers: {
+ *      Accept: "text/csv",
+ *      Authorization: "Bearer YWRtaW46YWRtaW4="
+ *    }
+ * })
+ * ```
+ * @example
+ * ```
+ * import { readExcel } from "danfojs-node"
+ * const df = await readExcel("./data/sample.xlsx")
+ * ```
  */
 const $readExcel = async (filePath: string, options: { sheet?: number, method?: string, headers?: HeadersInit } = {}) => {
     const { sheet, method, headers } = { sheet: 0, method: "GET", headers: {}, ...options }
@@ -64,6 +85,15 @@ const $readExcel = async (filePath: string, options: { sheet?: number, method?: 
  * @param options Configuration object. Supported options:
  * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
  * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`.
+ * @example
+ * ```
+ * import { toExcel } from "danfojs-node"
+ * const df = new DataFrame([[1, 2, 3], [4, 5, 6]])
+ * toExcel(df, {
+ *     filePath: "./data/sample.xlsx",
+ *     sheetName: "MySheet",
+ *   })
+ * ```
  */
 const $toExcel = (df: NDframe | DataFrame | Series, options?: { filePath?: string, sheetName?: string }) => {
     let { filePath, sheetName } = { filePath: "./output.xlsx", sheetName: "Sheet1", ...options }

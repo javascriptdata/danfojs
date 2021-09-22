@@ -12,6 +12,26 @@ import { ArrayType1D, ArrayType2D } from '../shared/types';
  * @param options Configuration object. Supported options:
  * - `method`: The HTTP method to use. Defaults to `'GET'`.
  * - `headers`: Additional headers to send with the request. Supports the `node-fetch` [HeadersInit]
+ * @example
+ * ```
+ * import { readJSON } from "danfojs-node"
+ * const df = await readJSON("https://raw.githubusercontent.com/test.json")
+ * ```
+ * @example
+ * ```
+ * import { readJSON } from "danfojs-node"
+ * const df = await readJSON("https://raw.githubusercontent.com/test.json", {
+ *    headers: {
+ *      Accept: "text/json",
+ *      Authorization: "Bearer YWRtaW46YWRtaW4="
+ *    }
+ * })
+ * ```
+ * @example
+ * ```
+ * import { readJSON } from "danfojs-node"
+ * const df = await readJSON("./data/sample.json")
+ * ```
  */
 const $readJSON = async (filePath: string, options: { method?: string, headers?: HeadersInit } = {}) => {
     const { method, headers } = { method: "GET", headers: {}, ...options }
@@ -46,6 +66,14 @@ const $readJSON = async (filePath: string, options: { method?: string, headers?:
  * @param options Configuration object. We use the `request` library for reading remote json files,
  * Hence all `request` parameters such as `method`, `headers`, are supported.
  * @param callback Callback function to be called once the specifed rows are parsed into DataFrame.
+ * @example
+ * ```
+ * import { streamJSON } from "danfojs-node"
+ * streamJSON("https://raw.githubusercontent.com/test.json", {}, (dfRow) => {
+ *     const dfModified = dfRow["Names"].map((name) => name.split(",")[0])
+ *     return dfModified
+ * })
+ * ```
  */
 const $streamJSON = async (
     filePath: string,
@@ -95,6 +123,21 @@ const $streamJSON = async (
  * { "a": [1, 5, 9],
  *  "b": [2, 6, 10]
  * }
+ * ```
+ * @example
+ * ```
+ * import { toJSON } from "danfojs-node"
+ * const df = new DataFrame([[1, 2, 3], [4, 5, 6]])
+ * const json = toJSON(df)
+ * ```
+ * @example
+ * ```
+ * import { toJSON } from "danfojs-node"
+ * const df = new DataFrame([[1, 2, 3], [4, 5, 6]])
+ * toJSON(df, {
+ *     filePath: "./data/sample.json",
+ *     format: "row"
+ *   })
  * ```
  */
 const $toJSON = (df: NDframe | DataFrame | Series, options?: { format?: "row" | "column", filePath?: string }): object | void => {

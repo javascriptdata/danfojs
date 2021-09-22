@@ -24,31 +24,17 @@ import {
     $toJSON,
     $streamJSON
 } from "./io.json"
-import { $readExcel,$toExcel } from "./io.excel"
-
-const toCSV = $toCSV
-const readCSV = $readCSV
-const streamCSV = $streamCSV
-const openCsvInputStream = $openCsvInputStream
-const writeCsvOutputStream = $writeCsvOutputStream
-
-const toJSON = $toJSON
-const readJSON = $readJSON
-const streamJSON = $streamJSON
-
-const readExcel = $readExcel
-const toExcel = $toExcel
-
+import { $readExcel, $toExcel } from "./io.excel"
 
 export {
-    readCSV,
-    streamCSV,
-    toCSV,
-    openCsvInputStream,
-    writeCsvOutputStream,
-    readJSON,
-    toJSON,
-    streamJSON,
-    readExcel,
-    toExcel,
+    $readCSV as readCSV,
+    $streamCSV as streamCSV,
+    $toCSV as toCSV,
+    $openCsvInputStream as openCsvInputStream,
+    $writeCsvOutputStream as writeCsvOutputStream,
+    $readJSON as readJSON,
+    $toJSON as toJSON,
+    $streamJSON as streamJSON,
+    $readExcel as readExcel,
+    $toExcel as toExcel,
 }

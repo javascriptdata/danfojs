@@ -20,6 +20,14 @@ import Utils from "../../shared/utils"
 
 const utils = new Utils()
 
+/**
+ * Fits a OneHotEncoder to the data.
+ * @example
+ * ```js
+ * const encoder = new OneHotEncoder()
+ * encoder.fit(["a", "b", "c"])
+ * ```
+*/
 export default class OneHotEncoder {
     private $labels: Array<string | number | boolean>
 
@@ -55,7 +63,7 @@ export default class OneHotEncoder {
      * const encoder = new OneHotEncoder()
      * encoder.fit(["a", "b", "c"])
      * ```
-     */
+    */
     public fit(data: Array<string | number> | Tensor | Series) {
         const $data = this.$getData(data)
         const dataSet = Array.from(new Set($data))
