@@ -31,7 +31,7 @@
     "xlsx": "^0.17.2"
   },
   "scripts": {
-    "test": "nyc mocha --require ts-node/register test/*",
+    "test": "nyc mocha --require ts-node/register test/**/**.test.ts",
     "test:clean": "yarn build:clean && yarn test",
     "dev": "nodemon",
     "build": "tsc",

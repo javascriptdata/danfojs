@@ -1,14 +1,6 @@
 .editorconfig
 node_modules
 test/fixtures/titanicO*
-danfojs-node/test/fixtures/titanicOut.csv
-danfojs-node/test/fixtures/titanicOutLocal.csv
-danfojs-node/test/fixtures/titanicOutRemote.csv
-danfojs-node/test/fixtures/book.json
-danfojs-node/test/fixtures/testSeries.xlsx
-danfojs-node/test/fixtures/test.xlsx
-danfojs-node/test/fixtures/test_write.json
-danfojs-node/test/fixtures/test_write.csv
-danfojs-node/test/fixtures/test_row_write.json
-danfojs-node/test/fixtures/test_col_write.json
-danfojs-node/output.xlsx
+danfojs-node/test/samples/test*
+danfojs-node/test/samples/titanicO*
+danfojs-node/test/samples/sampleO*

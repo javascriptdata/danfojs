@@ -1,6 +1,7 @@
 import { assert, expect } from "chai";
 import fs from "fs";
-import { DataFrame, readExcel, Series } from '../build';
+import path from "path";
+import { DataFrame, readExcel, Series } from '../../build';
 
 // const testCSVPath = "./tester.csv";
 
@@ -2691,11 +2692,11 @@ describe("DataFrame", function () {
             const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
             const df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
 
-            df.toExcel({ filePath: "test/fixtures/test.xlsx" })
-            const savedfilePath = "test/fixtures/test.xlsx"
+            const filePath = path.join(process.cwd(), "test", "samples", "test.xlsx");
+            df.toExcel({ filePath })
 
-            const dfNew: any = await readExcel(savedfilePath, {});
-            assert.equal(fs.existsSync("test/fixtures/test.xlsx"), true)
+            const dfNew: any = await readExcel(filePath, {});
+            assert.equal(fs.existsSync(filePath), true)
             assert.deepEqual(dfNew.columns, [
                 'a',
                 'b',
@@ -2717,8 +2718,11 @@ describe("DataFrame", function () {
         it("toCSV write to local file works", async function () {
             const data = [[1, 2, 3, "4"], [5, 6, 7, "8"], [9, 10, 11, "12"]]
             let df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
-            df.toCSV({ sep: ",", filePath: "test/fixtures/test_write.csv" });
-            assert.equal(fs.existsSync("test/fixtures/test_write.csv"), true);
+
+            const filePath = path.join(process.cwd(), "test", "samples", "test_write.csv");
+
+            df.toCSV({ sep: ",", filePath });
+            assert.equal(fs.existsSync(filePath), true);
         });
         it("toJSON works for row format", async function () {
             const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
@@ -2735,10 +2739,14 @@ describe("DataFrame", function () {
         it("toJSON writes file to local path", async function () {
             const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
             const df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
-            df.toJSON({ format: "row", filePath: "test/fixtures/test_row_write.json" })
-            df.toJSON({ format: "column", filePath: "test/fixtures/test_col_write.json" })
-            assert.equal(fs.existsSync("test/fixtures/test_row_write.json"), true);
-            assert.equal(fs.existsSync("test/fixtures/test_col_write.json"), true);
+
+            const rowfilePath = path.join(process.cwd(), "test", "samples", "test_row_write.json");
+            const colfilePath = path.join(process.cwd(), "test", "samples", "test_col_write.json");
+
+            df.toJSON({ format: "row", filePath: rowfilePath })
+            df.toJSON({ format: "column", filePath: colfilePath })
+            assert.equal(fs.existsSync(rowfilePath), true);
+            assert.equal(fs.existsSync(colfilePath), true);
         });
     })
 

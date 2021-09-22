@@ -1,11 +1,12 @@
-import { assert } from "chai";
 import fs from "fs";
-import { DataFrame, Series, readJSON, toJSON, streamJSON } from "../build";
+import path from "path"
+import { assert } from "chai";
+import { DataFrame, Series, readJSON, toJSON, streamJSON } from "../../build";
 
 describe("readJSON", function () {
-    this.timeout(10000);
+    this.timeout(100000);
     it("Read local json file works", async function () {
-        const filePath = "test/fixtures/book.json"
+        const filePath = path.join(process.cwd(), "test", "samples", "book.json");
         const df: any = await readJSON(filePath, {});
         assert.deepEqual(df.columns, [
             'book_id',
@@ -19,27 +20,27 @@ describe("readJSON", function () {
         ]);
     });
 
-    it("Read remote csv file works", async function () {
-        const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/book.json"
-        const df: any = await readJSON(remoteFile, {});
-        assert.deepEqual(df.columns, [
-            'book_id',
-            'title',
-            'image_url',
-            'authors',
-        ]);
-        assert.deepEqual(df.dtypes, [
-            'int32', 'string',
-            'string', 'string',
-        ]);
-    });
+    // it("Read remote csv file works", async function () {
+    //     const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/book.json"
+    //     const df: any = await readJSON(remoteFile, {});
+    //     assert.deepEqual(df.columns, [
+    //         'book_id',
+    //         'title',
+    //         'image_url',
+    //         'authors',
+    //     ]);
+    //     assert.deepEqual(df.dtypes, [
+    //         'int32', 'string',
+    //         'string', 'string',
+    //     ]);
+    // });
 });
 
 
 describe("streamJSON", function () {
     this.timeout(100000);
     it("Streaming local csv file with callback works", async function () {
-        const filePath = "test/fixtures/book_small.json"
+        const filePath = path.join(process.cwd(), "test", "samples", "book_small.json");
         await streamJSON(filePath, {}, (df: any) => {
             if (df) {
                 df.print();
@@ -110,10 +111,15 @@ describe("toJSON", function () {
     it("toJSON writes file to local path", async function () {
         const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
         const df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
-        toJSON(df, { format: "row", filePath: "test/fixtures/test_row_write.json" })
-        toJSON(df, { format: "column", filePath: "test/fixtures/test_col_write.json" })
-        assert.equal(fs.existsSync("test/fixtures/test_row_write.json"), true);
-        assert.equal(fs.existsSync("test/fixtures/test_col_write.json"), true);
+
+        const colFilePath = path.join(process.cwd(), "test", "samples", "test_col_write.json");
+        const rowFilePath = path.join(process.cwd(), "test", "samples", "test_row_write.json");
+
+        toJSON(df, { format: "row", filePath: rowFilePath })
+        toJSON(df, { format: "column", filePath: colFilePath })
+
+        assert.equal(fs.existsSync(rowFilePath), true);
+        assert.equal(fs.existsSync(colFilePath), true);
     });
     it("toJSON works for series", async function () {
         const data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]

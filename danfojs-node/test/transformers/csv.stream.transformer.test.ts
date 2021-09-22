@@ -1,10 +1,12 @@
 import { DataFrame, Series, streamCsvTransformer } from "../../build";
 import stream from "stream"
+import path from "path"
 
 describe("pipeCsvTransform", function () {
     it("streamCsvTransformer works for local files", async function () {
-        const inputFilePath = "test/fixtures/titanic.csv"
-        const outputFilePath = "test/fixtures/titanicOutLocal.csv"
+        const inputFilePath = path.join(process.cwd(), "test", "samples", "titanic.csv");
+        const outputFilePath = path.join(process.cwd(), "test", "samples", "titanicOutLocal.csv");
+
         const transformer = (df: DataFrame) => {
             const titles = df["Name"].map((name: string) => name.split(".")[0]);
             const names = df["Name"].map((name: string) => name.split(".")[1]);
@@ -17,7 +19,7 @@ describe("pipeCsvTransform", function () {
 
     it("streamCsvTransformer works for remote files", async function () {
         const inputFilePath = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/titanic.csv"
-        const outputFilePath = "test/fixtures/titanicOutRemote.csv"
+        const outputFilePath = path.join(process.cwd(), "test", "samples", "titanicOutRemote.csv");
         const transformer = (df: DataFrame) => {
             const titles = df["Name"].map((name: string) => name.split(".")[0]);
             const names = df["Name"].map((name: string) => name.split(".")[1]);

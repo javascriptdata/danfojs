@@ -1,11 +1,12 @@
-import { assert } from "chai";
 import fs from "fs";
-import { DataFrame, readExcel, Series, toExcel } from "../build";
+import path from "path"
+import { assert } from "chai";
+import { DataFrame, readExcel, Series, toExcel } from "../../build";
 
 describe("readExcel", function () {
-    this.timeout(10000);
+    this.timeout(100000);
     it("Read local excel file works", async function () {
-        const filePath = "test/fixtures/sample.xlsx"
+        const filePath = path.join(process.cwd(), "test", "samples", "sample.xlsx");
         let df: any = await readExcel(filePath, {});
         assert.deepEqual(df.columns, [
             'Year',
@@ -20,27 +21,27 @@ describe("readExcel", function () {
         assert.deepEqual(df.shape, [82, 4])
     });
     it("Read local excel file works for selected sheet", async function () {
-        const filePath = "test/fixtures/sample.xlsx"
+        const filePath = path.join(process.cwd(), "test", "samples", "sample.xlsx");
         let df: any = await readExcel(filePath, { sheet: 1 });
         assert.deepEqual(df.columns, []);
         assert.deepEqual(df.shape, [0, 0])
     });
 
-    it("Read remote csv file works", async function () {
-        const remoteFile = "https://github.com/opensource9ja/danfojs/raw/dev/danfojs-browser/tests/samples/SampleData.xlsx"
-        let df: any = await readExcel(remoteFile, {});
-        assert.deepEqual(df.columns, [
-            'Year',
-            'Stocks',
-            'T.Bills',
-            'T.Bonds',
-        ]);
-        assert.deepEqual(df.dtypes, [
-            'int32', 'float32',
-            'float32', 'float32',
-        ]);
-        assert.deepEqual(df.shape, [82, 4])
-    });
+    // it("Read remote excel file works", async function () {
+    //     const remoteFile = "https://github.com/opensource9ja/danfojs/raw/dev/danfojs-browser/tests/samples/SampleData.xlsx"
+    //     let df: any = await readExcel(remoteFile, {});
+    //     assert.deepEqual(df.columns, [
+    //         'Year',
+    //         'Stocks',
+    //         'T.Bills',
+    //         'T.Bonds',
+    //     ]);
+    //     assert.deepEqual(df.dtypes, [
+    //         'int32', 'float32',
+    //         'float32', 'float32',
+    //     ]);
+    //     assert.deepEqual(df.shape, [82, 4])
+    // });
 });
 
 
@@ -48,13 +49,12 @@ describe("toExcel", function () {
     it("toExcel works", async function () {
         const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
         const df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
+        const filePath = path.join(process.cwd(), "test", "samples", "sampleOut.xlsx");
+        toExcel(df, { filePath })
 
-        toExcel(df, { filePath: "test/fixtures/test" })
+        const dfNew: any = await readExcel(filePath, {});
 
-        const savedfilePath = "test/fixtures/test.xlsx"
-        const dfNew: any = await readExcel(savedfilePath, {});
-
-        assert.equal(fs.existsSync("test/fixtures/test.xlsx"), true)
+        assert.equal(fs.existsSync(filePath), true)
         assert.deepEqual(dfNew.columns, [
             'a',
             'b',
@@ -70,7 +70,7 @@ describe("toExcel", function () {
     it("toExcel works for series", async function () {
         const data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
         const df: any = new Series(data);
-        const filePath = "test/fixtures/testSeries.xlsx"
+        const filePath = path.join(process.cwd(), "test", "samples", "testSeries.xlsx");
         toExcel(df, { filePath })
         assert.equal(fs.existsSync(filePath), true)
     });
