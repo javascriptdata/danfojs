@@ -27,9 +27,11 @@ import { streamCsvTransformer } from "./transformers/streams/csv.stream.transfor
 // export { merge } from "./core/merge";
 // export { concat } from "./core/concat";
 // export { LabelEncoder, OneHotEncoder } from "./preprocessing/encodings";
-import { MinMaxScaler } from "./transformers/scalers/min.max.scaler";
-import { StandardScaler } from "./transformers/scalers/standard.scaler";
-import { LabelEncoder } from "./transformers/encoders/label.encoder";
+import MinMaxScaler from "./transformers/scalers/min.max.scaler";
+import StandardScaler from "./transformers/scalers/standard.scaler";
+import LabelEncoder from "./transformers/encoders/label.encoder";
+import OneHotEncoder from "./transformers/encoders/one.hot.encoder";
+// import DummyEncode from "./transformers/encoders/dummy.encoder"
 // export { date_range } from "./core/date_range";
 // export { get_dummies } from "./core/get_dummies";
 // export { NDframe };
@@ -54,6 +56,8 @@ export {
     toExcel,
     MinMaxScaler,
     StandardScaler,
-    LabelEncoder
+    LabelEncoder,
+    OneHotEncoder,
+    DummyEncode
 }
 // export const _version = "0.2.7";

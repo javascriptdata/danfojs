@@ -25,7 +25,7 @@ const utils = new Utils()
  * The standard score of a sample x is calculated as: `z = (x - u) / s`, 
  * where `u` is the mean of the training samples, and `s` is the standard deviation of the training samples.
  */
-export class StandardScaler {
+export default class StandardScaler {
     private $std: Tensor
     private $mean: Tensor
 
@@ -34,6 +34,26 @@ export class StandardScaler {
         this.$mean = tensor1d([])
     }
 
+    private $getTensor(data: Array<number> | Tensor | DataFrame | Series) {
+        let $tensorArray;
+
+        if (data instanceof Array) {
+            if (utils.is1DArray(data)) {
+                $tensorArray = tensor1d(data)
+            } else {
+                $tensorArray = tensor2d(data)
+            }
+        } else if (data instanceof DataFrame) {
+            $tensorArray = tensor2d(data.values as number[][])
+        } else if (data instanceof Series) {
+            $tensorArray = tensor1d(data.values as number[])
+        } else if (data instanceof Tensor) {
+            $tensorArray = data
+        } else {
+            throw new Error("ParamError: data must be one of Array, DataFrame or Series")
+        }
+        return $tensorArray
+    }
     /**
      * Fit a StandardScaler to the data.
      * @param data Array, Tensor, DataFrame or Series object
@@ -43,27 +63,9 @@ export class StandardScaler {
      * scaler.fit([1, 2, 3, 4, 5])
      */
     public fit(data: Array<number> | Tensor | DataFrame | Series) {
-        let tensorArray;
-
-        if (data instanceof Array) {
-            if (utils.is1DArray(data)) {
-                tensorArray = tensor1d(data)
-            } else {
-                tensorArray = tensor2d(data)
-            }
-        } else if (data instanceof DataFrame) {
-            tensorArray = tensor2d(data.values as number[][])
-        } else if (data instanceof Series) {
-            tensorArray = tensor1d(data.values as number[])
-        } else if (data instanceof Tensor) {
-            tensorArray = data
-        } else {
-            throw new Error("ParamError: data must be one of Array, DataFrame or Series")
-        }
-
+        const tensorArray = this.$getTensor(data)
         this.$std = moments(tensorArray, 0).variance.sqrt();
         this.$mean = tensorArray.mean(0);
-
         return this
     }
 
@@ -78,24 +80,7 @@ export class StandardScaler {
      * // [0.0, 0.0, 0.0, 0.0, 0.0]
      * */
     public transform(data: Array<number> | Tensor | DataFrame | Series) {
-        let tensorArray;
-
-        if (data instanceof Array) {
-            if (utils.is1DArray(data)) {
-                tensorArray = tensor1d(data)
-            } else {
-                tensorArray = tensor2d(data)
-            }
-        } else if (data instanceof DataFrame) {
-            tensorArray = tensor2d(data.values as number[][])
-        } else if (data instanceof Series) {
-            tensorArray = tensor1d(data.values as number[])
-        } else if (data instanceof Tensor) {
-            tensorArray = data
-        } else {
-            throw new Error("ParamError: data must be one of Array, DataFrame or Series")
-        }
-
+        const tensorArray = this.$getTensor(data)
         const outputData = tensorArray.sub(this.$mean).div(this.$std)
 
         if (Array.isArray(data)) {
@@ -145,24 +130,7 @@ export class StandardScaler {
      * // [1, 2, 3, 4, 5]
      * */
     public inverseTransform(data: Array<number> | Tensor | DataFrame | Series) {
-        let tensorArray;
-
-        if (data instanceof Array) {
-            if (utils.is1DArray(data)) {
-                tensorArray = tensor1d(data)
-            } else {
-                tensorArray = tensor2d(data)
-            }
-        } else if (data instanceof DataFrame) {
-            tensorArray = tensor2d(data.values as number[][])
-        } else if (data instanceof Series) {
-            tensorArray = tensor1d(data.values as number[])
-        } else if (data instanceof Tensor) {
-            tensorArray = data
-        } else {
-            throw new Error("ParamError: data must be one of Array, DataFrame or Series")
-        }
-
+        const tensorArray = this.$getTensor(data)
         const outputData = tensorArray.mul(this.$std).add(this.$mean)
 
         if (Array.isArray(data)) {

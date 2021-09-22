@@ -21,23 +21,14 @@ const utils = new Utils()
 /**
  * Encode target labels with value between 0 and n_classes-1.
  */
-export class LabelEncoder {
+export default class LabelEncoder {
     private $labels: { [key: string]: number }
 
     constructor() {
         this.$labels = {}
     }
 
-    /**
-     * Maps values to unique integer labels between 0 and n_classes-1.
-     * @param data 1d array of labels, Tensor, or  Series to fit.
-     * @example
-     * ```
-     * const encoder = new LabelEncoder()
-     * encoder.fit(["a", "b", "c", "d"])
-     * ```
-    */
-    fit(data: Array<string | number> | Tensor | Series) {
+    private $getData(data: Array<string | number> | Tensor | Series) {
         let $data: Array<string | number>
 
         if (data instanceof Array) {
@@ -53,7 +44,20 @@ export class LabelEncoder {
         } else {
             throw new Error("ParamError: data must be one of Array, 1d Tensor or Series.")
         }
+        return $data
+    }
 
+    /**
+     * Maps values to unique integer labels between 0 and n_classes-1.
+     * @param data 1d array of labels, Tensor, or  Series to fit.
+     * @example
+     * ```
+     * const encoder = new LabelEncoder()
+     * encoder.fit(["a", "b", "c", "d"])
+     * ```
+    */
+    fit(data: Array<string | number> | Tensor | Series) {
+        const $data = this.$getData(data)
         const dataSet = Array.from(new Set($data))
         const tempObj: { [key: string | number]: number } = {}
         dataSet.forEach((value, index) => {
@@ -75,22 +79,7 @@ export class LabelEncoder {
      * ```
     */
     transform(data: Array<string | number> | Tensor | Series) {
-        let $data: Array<string | number>
-
-        if (data instanceof Array) {
-            if (utils.is1DArray(data)) {
-                $data = data
-            } else {
-                throw new Error("ValueError: data must be a 1D array.")
-            }
-        } else if (data instanceof Series) {
-            $data = data.values as Array<string | number>
-        } else if (data instanceof Tensor) {
-            $data = data.arraySync() as Array<string | number>
-        } else {
-            throw new Error("ParamError: data must be one of Array, 1d Tensor or Series.")
-        }
-
+        const $data = this.$getData(data)
         const encodedData: Array<number> = $data.map(value => {
             return this.$labels[value]
         })
@@ -131,22 +120,7 @@ export class LabelEncoder {
      * ```
     */
     inverseTransform(data: Array<number> | Tensor | Series) {
-        let $data: Array<number>
-
-        if (data instanceof Array) {
-            if (utils.is1DArray(data)) {
-                $data = data
-            } else {
-                throw new Error("ValueError: data must be a 1D array.")
-            }
-        } else if (data instanceof Series) {
-            $data = data.values as Array<number>
-        } else if (data instanceof Tensor) {
-            $data = data.arraySync() as Array<number>
-        } else {
-            throw new Error("ParamError: data must be one of Array, 1d Tensor or Series.")
-        }
-
+        const $data = this.$getData(data)
         const tempData = $data.map(value => {
             return Object.keys(this.$labels).find(key => this.$labels[key] === value)
         })

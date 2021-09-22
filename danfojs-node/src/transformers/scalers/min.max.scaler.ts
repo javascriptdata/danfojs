@@ -25,13 +25,34 @@ const utils = new Utils()
  * This estimator scales and translates each feature individually such 
  * that it is in the given range on the training set, e.g. between the maximum and minimum value.
 */
-export class MinMaxScaler {
+export default class MinMaxScaler {
     private $max: Tensor
     private $min: Tensor
 
     constructor() {
         this.$max = tensor1d([])
         this.$min = tensor1d([])
+    }
+
+    private $getTensor(data: Array<number> | Tensor | DataFrame | Series) {
+        let $tensorArray;
+
+        if (data instanceof Array) {
+            if (utils.is1DArray(data)) {
+                $tensorArray = tensor1d(data)
+            } else {
+                $tensorArray = tensor2d(data)
+            }
+        } else if (data instanceof DataFrame) {
+            $tensorArray = tensor2d(data.values as number[][])
+        } else if (data instanceof Series) {
+            $tensorArray = tensor1d(data.values as number[])
+        } else if (data instanceof Tensor) {
+            $tensorArray = data
+        } else {
+            throw new Error("ParamError: data must be one of Array, DataFrame or Series")
+        }
+        return $tensorArray
     }
 
     /**
@@ -48,27 +69,9 @@ export class MinMaxScaler {
      *
      */
     public fit(data: Array<number> | Tensor | DataFrame | Series) {
-        let tensorArray;
-
-        if (data instanceof Array) {
-            if (utils.is1DArray(data)) {
-                tensorArray = tensor1d(data)
-            } else {
-                tensorArray = tensor2d(data)
-            }
-        } else if (data instanceof DataFrame) {
-            tensorArray = tensor2d(data.values as number[][])
-        } else if (data instanceof Series) {
-            tensorArray = tensor1d(data.values as number[])
-        } else if (data instanceof Tensor) {
-            tensorArray = data
-        } else {
-            throw new Error("ParamError: data must be one of Array, DataFrame or Series")
-        }
-
+        const tensorArray = this.$getTensor(data)
         this.$max = tensorArray.max(0)
         this.$min = tensorArray.min(0)
-
         return this
     }
 
@@ -83,24 +86,7 @@ export class MinMaxScaler {
      * // [0, 0.25, 0.5, 0.75, 1]
      * */
     public transform(data: Array<number> | Tensor | DataFrame | Series) {
-        let tensorArray;
-
-        if (data instanceof Array) {
-            if (utils.is1DArray(data)) {
-                tensorArray = tensor1d(data)
-            } else {
-                tensorArray = tensor2d(data)
-            }
-        } else if (data instanceof DataFrame) {
-            tensorArray = tensor2d(data.values as number[][])
-        } else if (data instanceof Series) {
-            tensorArray = tensor1d(data.values as number[])
-        } else if (data instanceof Tensor) {
-            tensorArray = data
-        } else {
-            throw new Error("ParamError: data must be one of Array, DataFrame or Series")
-        }
-
+        const tensorArray = this.$getTensor(data)
         const outputData = tensorArray
             .sub(this.$min)
             .div(this.$max.sub(this.$min))
@@ -149,24 +135,7 @@ export class MinMaxScaler {
      * // [1, 2, 3, 4, 5]
      * */
     public inverseTransform(data: Array<number> | Tensor | DataFrame | Series) {
-        let tensorArray;
-
-        if (data instanceof Array) {
-            if (utils.is1DArray(data)) {
-                tensorArray = tensor1d(data)
-            } else {
-                tensorArray = tensor2d(data)
-            }
-        } else if (data instanceof DataFrame) {
-            tensorArray = tensor2d(data.values as number[][])
-        } else if (data instanceof Series) {
-            tensorArray = tensor1d(data.values as number[])
-        } else if (data instanceof Tensor) {
-            tensorArray = data
-        } else {
-            throw new Error("ParamError: data must be one of Array, DataFrame or Series")
-        }
-
+        const tensorArray = this.$getTensor(data)
         const outputData = tensorArray
             .mul(this.$max.sub(this.$min))
             .add(this.$min)
