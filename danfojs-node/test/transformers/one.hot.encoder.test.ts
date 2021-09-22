@@ -1,6 +1,5 @@
 import { assert } from "chai";
-import { index } from "mathjs";
-import { DataFrame, Series, OneHotEncoder } from "../../build";
+import { Series, OneHotEncoder } from "../../build";
 
 describe("OneHotEncoder", function () {
     it("OneHotEncoder works on array", function () {

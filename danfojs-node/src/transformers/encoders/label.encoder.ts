@@ -64,7 +64,7 @@ export default class LabelEncoder {
             tempObj[value] = index
         })
         this.$labels = tempObj
-
+        return this
     }
 
     /**
@@ -88,7 +88,7 @@ export default class LabelEncoder {
             return encodedData
         } else if (data instanceof Series) {
             return new Series(encodedData)
-        } else if (data instanceof Tensor) {
+        } else  {
             return tensor1d(encodedData)
         }
     }
@@ -137,7 +137,7 @@ export default class LabelEncoder {
             return decodedData
         } else if (data instanceof Series) {
             return new Series(decodedData)
-        } else if (data instanceof Tensor) {
+        } else {
             return tensor1d(decodedData as any)
         }
     }

@@ -60,6 +60,7 @@ export default class OneHotEncoder {
         const $data = this.$getData(data)
         const dataSet = Array.from(new Set($data))
         this.$labels = dataSet
+        return this
     }
 
     /**
@@ -72,7 +73,7 @@ export default class OneHotEncoder {
      * encoder.transform(["a", "b", "c"])
      * ```
      */
-    public transform(data: Array<string | number> | Tensor | Series) {
+    public transform(data: Array<string | number> | Tensor | Series): DataFrame | Tensor | number[][] {
         const $data = this.$getData(data)
         const oneHotArr: any = utils.zeros($data.length, this.$labels.length)
 
@@ -87,7 +88,7 @@ export default class OneHotEncoder {
             return new DataFrame(oneHotArr, {
                 index: data.index,
             })
-        } else if (data instanceof Tensor) {
+        } else {
             return tensor1d(oneHotArr)
         }
     }
@@ -101,7 +102,7 @@ export default class OneHotEncoder {
      * encoder.fitTransform(["a", "b", "c"])
      * ```
      */
-    public fitTransform(data: Array<string | number> | Tensor | Series) {
+    public fitTransform(data: Array<string | number> | Tensor | Series): DataFrame | Tensor | number[][] {
         this.fit(data)
         return this.transform(data)
     }
