@@ -31,7 +31,7 @@ import MinMaxScaler from "./transformers/scalers/min.max.scaler";
 import StandardScaler from "./transformers/scalers/standard.scaler";
 import LabelEncoder from "./transformers/encoders/label.encoder";
 import OneHotEncoder from "./transformers/encoders/one.hot.encoder";
-// import DummyEncode from "./transformers/encoders/dummy.encoder"
+import dummyEncode from "./transformers/encoders/dummy.encoder"
 // export { date_range } from "./core/date_range";
 // export { get_dummies } from "./core/get_dummies";
 // export { NDframe };
@@ -58,6 +58,6 @@ export {
     StandardScaler,
     LabelEncoder,
     OneHotEncoder,
-    DummyEncode
+    dummyEncode
 }
 // export const _version = "0.2.7";

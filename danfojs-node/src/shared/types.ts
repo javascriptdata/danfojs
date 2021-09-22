@@ -179,6 +179,12 @@ export interface SeriesInterface extends NDframeInterface {
     toString(): string;
     and(other: any): Series
     or(other: any): Series
+    getDummies(options?: {
+        columns?: string | Array<string>,
+        prefix?: string | Array<string>,
+        prefixSeparator?: string,
+        inplace?: boolean
+    }): DataFrame
 
 }
 
@@ -311,6 +317,12 @@ export interface DataFrameInterface extends NDframeInterface {
         }
     ): DataFrame | void
     toString(): string;
+    getDummies(options?: {
+        columns?: string | Array<string>,
+        prefix?: string | Array<string>,
+        prefixSeparator?: string,
+        inplace?: boolean
+    }): DataFrame | void
 
 }
 

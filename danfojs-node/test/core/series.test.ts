@@ -1499,4 +1499,46 @@ describe("Series Functions", () => {
             assert.deepEqual(sf.or(data2).values, expected);
         });
     });
+
+    describe("getDummies", function () {
+        it("getDummies works on Series", function () {
+
+            const data = ["dog", "male", "female", "male", "female", "male", "dog"];
+            const sf = new Series(data);
+            const df = sf.getDummies({ prefix: "test", prefixSeparator: "/" });
+
+            const dfValues = [
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 1],
+                [0, 1, 0],
+                [0, 0, 1],
+                [0, 1, 0],
+                [1, 0, 0]
+            ];
+            const dfColumns = ['test/dog', 'test/male', 'test/female'];
+            assert.deepEqual(df.values, dfValues);
+            assert.deepEqual(df.columns, dfColumns);
+        });
+        it("getDummies works on Series with default prefix and prefixSeperator", function () {
+
+            const data = ["dog", "male", "female", "male", "female", "male", "dog"];
+            const sf = new Series(data);
+            const df = sf.getDummies();
+
+            const dfValues = [
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 1],
+                [0, 1, 0],
+                [0, 0, 1],
+                [0, 1, 0],
+                [1, 0, 0]
+            ];
+            const dfColumns = ['0_dog', '1_male', '2_female'];
+            assert.deepEqual(df.values, dfValues);
+            assert.deepEqual(df.columns, dfColumns);
+        });
+
+    })
 })

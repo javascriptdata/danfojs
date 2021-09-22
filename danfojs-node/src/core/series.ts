@@ -23,6 +23,8 @@ import NDframe from "./generic";
 import { table } from "table";
 import Str from './strings';
 import Dt from './datetime';
+import dummyEncode from "../transformers/encoders/dummy.encoder";
+import DataFrame from "./frame";
 
 const utils = new Utils();
 
@@ -861,7 +863,7 @@ export default class Series extends NDframe implements SeriesInterface {
             rSeries = Array(this.values.length).fill(other); //create array of repeated value for broadcasting
         } else if (typeof other == "string" && ["eq", "ne"].includes(bOps)) {
             rSeries = Array(this.values.length).fill(other);
-        }else if (other instanceof Series) {
+        } else if (other instanceof Series) {
             rSeries = other.values;
         } else if (Array.isArray(other)) {
             rSeries = other;
@@ -1346,4 +1348,22 @@ export default class Series extends NDframe implements SeriesInterface {
         }
     }
 
+    /**
+     * One-hot encode values in the Series.
+     * @param options Options for the operation. The following options are available:
+     * - `prefix`: Prefix to add to the new column. Defaults to unique labels.
+     * - `prefixSeparator`: Separator to use for the prefix. Defaults to '_'.
+     * @returns A DataFrame with the one-hot encoded columns.
+     * @example
+     * sf.getDummies()
+     * sf.getDummies({prefix: 'cat' })
+     * sf.getDummies({ prefix: 'cat', prefixSeparator: '-' })
+     */
+    getDummies(options?: {
+        columns?: string | Array<string>,
+        prefix?: string | Array<string>,
+        prefixSeparator?: string,
+    }): DataFrame {
+        return dummyEncode(this, options)
+    }
 }

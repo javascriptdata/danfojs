@@ -13,16 +13,17 @@
 * ==========================================================================
 */
 import { ArrayType1D, ArrayType2D, DataFrameInterface, BaseDataOptionType } from "../shared/types";
+import dummyEncode from "../transformers/encoders/dummy.encoder"
 import { variance, std, median, mode, mean } from 'mathjs';
+import { DATA_TYPES } from '../shared/defaults'
+import { Tensor } from '@tensorflow/tfjs-core';
 import { _genericMathOp } from "./math.ops";
-import { Tensor } from '@tensorflow/tfjs-node';
 import ErrorThrower from "../shared/errors"
 import { _iloc, _loc } from "./indexing";
 import Utils from "../shared/utils"
 import NDframe from "./generic";
 import { table } from "table";
 import Series from './series';
-import { DATA_TYPES } from '../shared/defaults'
 
 const utils = new Utils();
 
@@ -2246,7 +2247,43 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     }
 
+    /**
+     * Returns the data types for each column as a Series.
+     */
     get ctypes(): Series {
         return new Series(this.dtypes, { index: this.columns })
+    }
+
+    /**
+     * One-hot encode specified columns in the DataFrame. If columns are not specified, all columns of dtype string will be encoded.
+     * @param options Options for the operation. The following options are available:
+     * - `columns`: A single column name or an array of column names to encode. Defaults to all columns of dtype string.
+     * - `prefix`: Prefix to add to the column names. Defaults to unique labels.
+     * - `prefixSeparator`: Separator to use for the prefix. Defaults to '_'.
+     * - `inplace`: Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     * @returns A DataFrame with the one-hot encoded columns.
+     * @example
+     * df.getDummies({ columns: ['a', 'b'] })
+     * df.getDummies({ columns: ['a', 'b'], prefix: 'cat' })
+     * df.getDummies({ columns: ['a', 'b'], prefix: 'cat', prefixSeparator: '-' })
+     * df.getDummies({ columns: ['a', 'b'], prefix: 'cat', prefixSeparator: '-', inplace: true })
+     * df.getDummies({ columns: ['a', 'b'], prefix: ['col1', 'col2'], prefixSeparator: '-', inplace: true })
+     */
+    getDummies(options?: {
+        columns?: string | Array<string>,
+        prefix?: string | Array<string>,
+        prefixSeparator?: string,
+        inplace?: boolean
+    }): DataFrame | void {
+        const { inplace } = { inplace: false, ...options }
+
+        const encodedDF = dummyEncode(this, options)
+        if (inplace) {
+            this.$setValues(encodedDF.values, false, false)
+            this.$setColumnNames(encodedDF.columns)
+        } else {
+            return encodedDF
+        }
+
     }
 }
