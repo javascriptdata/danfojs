@@ -37,6 +37,10 @@ export class StandardScaler {
     /**
      * Fit a StandardScaler to the data.
      * @param data Array, Tensor, DataFrame or Series object
+     * @returns StandardScaler
+     * @example
+     * const scaler = new StandardScaler()
+     * scaler.fit([1, 2, 3, 4, 5])
      */
     public fit(data: Array<number> | Tensor | DataFrame | Series) {
         let tensorArray;
@@ -60,25 +64,7 @@ export class StandardScaler {
         this.$std = moments(tensorArray, 0).variance.sqrt();
         this.$mean = tensorArray.mean(0);
 
-        const outputData = tensorArray.sub(this.$mean).div(this.$std)
-
-        if (Array.isArray(data)) {
-            return outputData.arraySync()
-
-        } else if (data instanceof Series) {
-            return new Series(outputData, {
-                index: data.index,
-            });
-
-        } else if (data instanceof Series) {
-            return new DataFrame(outputData, {
-                index: data.index,
-                columns: data.columns,
-                config: { ...data.config },
-            });
-        } else {
-            return outputData
-        }
+        return this
     }
 
     /**
@@ -89,6 +75,7 @@ export class StandardScaler {
      * const scaler = new StandardScaler()
      * scaler.fit([1, 2, 3, 4, 5])
      * scaler.transform([1, 2, 3, 4, 5])
+     * // [0.0, 0.0, 0.0, 0.0, 0.0]
      * */
     public transform(data: Array<number> | Tensor | DataFrame | Series) {
         let tensorArray;
@@ -110,6 +97,73 @@ export class StandardScaler {
         }
 
         const outputData = tensorArray.sub(this.$mean).div(this.$std)
+
+        if (Array.isArray(data)) {
+            return outputData.arraySync()
+
+        } else if (data instanceof Series) {
+            return new Series(outputData, {
+                index: data.index,
+            });
+
+        } else if (data instanceof DataFrame) {
+            return new DataFrame(outputData, {
+                index: data.index,
+                columns: data.columns,
+                config: { ...data.config },
+            });
+        } else {
+            return outputData
+        }
+    }
+
+    /**
+     * Fit and transform the data using the fitted scaler
+     * @param data Array, Tensor, DataFrame or Series object
+     * @returns Array, Tensor, DataFrame or Series object
+     * @example
+     * const scaler = new StandardScaler()
+     * scaler.fit([1, 2, 3, 4, 5])
+     * scaler.fitTransform([1, 2, 3, 4, 5])
+     * // [0.0, 0.0, 0.0, 0.0, 0.0]
+     * */
+    public fitTransform(data: Array<number> | Tensor | DataFrame | Series) {
+        this.fit(data)
+        return this.transform(data)
+    }
+
+    /**
+     * Inverse transform the data using the fitted scaler
+     * @param data Array, Tensor, DataFrame or Series object
+     * @returns Array, Tensor, DataFrame or Series object
+     * @example
+     * const scaler = new StandardScaler()
+     * scaler.fit([1, 2, 3, 4, 5])
+     * scaler.transform([1, 2, 3, 4, 5])
+     * // [0.0, 0.0, 0.0, 0.0, 0.0]
+     * scaler.inverseTransform([0.0, 0.0, 0.0, 0.0, 0.0])
+     * // [1, 2, 3, 4, 5]
+     * */
+    public inverseTransform(data: Array<number> | Tensor | DataFrame | Series) {
+        let tensorArray;
+
+        if (data instanceof Array) {
+            if (utils.is1DArray(data)) {
+                tensorArray = tensor1d(data)
+            } else {
+                tensorArray = tensor2d(data)
+            }
+        } else if (data instanceof DataFrame) {
+            tensorArray = tensor2d(data.values as number[][])
+        } else if (data instanceof Series) {
+            tensorArray = tensor1d(data.values as number[])
+        } else if (data instanceof Tensor) {
+            tensorArray = data
+        } else {
+            throw new Error("ParamError: data must be one of Array, DataFrame or Series")
+        }
+
+        const outputData = tensorArray.mul(this.$std).add(this.$mean)
 
         if (Array.isArray(data)) {
             return outputData.arraySync()

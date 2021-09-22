@@ -15,9 +15,26 @@ describe("MinMaxscaler", function () {
         assert.deepEqual(resultDf.values, expected);
         assert.deepEqual(scaler.transform([[2, 2]]), transformedData);
     });
+    it("fitTransform using a MinMaxScaler", function () {
+        const data = [[-1, 2], [-0.5, 6], [0, 10], [1, 18]];
+        const scaler = new MinMaxScaler();
+        const resultDf =  scaler.fitTransform(new DataFrame(data));
+        
+        const expected = [[0, 0], [0.25, 0.25], [0.5, 0.5], [1, 1]];
+        assert.deepEqual(resultDf.values, expected);
+    });
+    it("InverseTransform with MinMaxScaler", function () {
+        const scaler = new MinMaxScaler();
+        scaler.fit([1, 2, 3, 4, 5])
+        const resultTransform = scaler.transform([1, 2, 3, 4, 5])
+        const resultInverse = scaler.inverseTransform([0, 0.25, 0.5, 0.75, 1])
+
+        assert.deepEqual(resultTransform, [0, 0.25, 0.5, 0.75, 1]);
+        assert.deepEqual([1, 2, 3, 4, 5], resultInverse);
+    });
     it("Index and columns are kept after transformation", function () {
         const data = [[-1, 2], [-0.5, 6], [0, 10], [1, 18]];
-        const df = new DataFrame(data, {index: [1, 2, 3, 4], columns: ["a", "b"]});
+        const df = new DataFrame(data, { index: [1, 2, 3, 4], columns: ["a", "b"] });
 
         const scaler = new MinMaxScaler();
         scaler.fit(df);

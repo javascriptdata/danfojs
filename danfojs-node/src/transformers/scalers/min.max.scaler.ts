@@ -37,6 +37,15 @@ export class MinMaxScaler {
     /**
      * Fits a MinMaxScaler to the data
      * @param data Array, Tensor, DataFrame or Series object
+     * @returns MinMaxScaler
+     * @example
+     * const scaler = new MinMaxScaler()
+     * scaler.fit([1, 2, 3, 4, 5])
+     * // MinMaxScaler {
+     * //   $max: [5],
+     * //   $min: [1]
+     * // }
+     *
      */
     public fit(data: Array<number> | Tensor | DataFrame | Series) {
         let tensorArray;
@@ -60,27 +69,7 @@ export class MinMaxScaler {
         this.$max = tensorArray.max(0)
         this.$min = tensorArray.min(0)
 
-        const outputData = tensorArray
-            .sub(this.$min)
-            .div(this.$max.sub(this.$min))
-
-        if (Array.isArray(data)) {
-            return outputData.arraySync()
-
-        } else if (data instanceof Series) {
-            return new Series(outputData, {
-                index: data.index,
-            });
-
-        } else if (data instanceof Series) {
-            return new DataFrame(outputData, {
-                index: data.index,
-                columns: data.columns,
-                config: { ...data.config },
-            });
-        } else {
-            return outputData
-        }
+        return this
     }
 
     /**
@@ -134,6 +123,73 @@ export class MinMaxScaler {
             return outputData
         }
     }
+
+    /**
+     * Fit the data and transform it
+     * @param data Array, Tensor, DataFrame or Series object
+     * @returns Array, Tensor, DataFrame or Series object
+     * @example
+     * const scaler = new MinMaxScaler()
+     * scaler.fitTransform([1, 2, 3, 4, 5])
+     * // [0, 0.25, 0.5, 0.75, 1]
+     * */
+    public fitTransform(data: Array<number> | Tensor | DataFrame | Series) {
+        this.fit(data)
+        return this.transform(data)
+    }
+
+    /**
+     * Inverse transform the data using the fitted scaler
+     * @param data Array, Tensor, DataFrame or Series object
+     * @returns Array, Tensor, DataFrame or Series object
+     * @example
+     * const scaler = new MinMaxScaler()
+     * scaler.fit([1, 2, 3, 4, 5])
+     * scaler.inverseTransform([0, 0.25, 0.5, 0.75, 1])
+     * // [1, 2, 3, 4, 5]
+     * */
+    public inverseTransform(data: Array<number> | Tensor | DataFrame | Series) {
+        let tensorArray;
+
+        if (data instanceof Array) {
+            if (utils.is1DArray(data)) {
+                tensorArray = tensor1d(data)
+            } else {
+                tensorArray = tensor2d(data)
+            }
+        } else if (data instanceof DataFrame) {
+            tensorArray = tensor2d(data.values as number[][])
+        } else if (data instanceof Series) {
+            tensorArray = tensor1d(data.values as number[])
+        } else if (data instanceof Tensor) {
+            tensorArray = data
+        } else {
+            throw new Error("ParamError: data must be one of Array, DataFrame or Series")
+        }
+
+        const outputData = tensorArray
+            .mul(this.$max.sub(this.$min))
+            .add(this.$min)
+
+        if (Array.isArray(data)) {
+            return outputData.arraySync()
+
+        } else if (data instanceof Series) {
+            return new Series(outputData, {
+                index: data.index,
+            });
+
+        } else if (data instanceof DataFrame) {
+            return new DataFrame(outputData, {
+                index: data.index,
+                columns: data.columns,
+                config: { ...data.config },
+            });
+        } else {
+            return outputData
+        }
+    }
+
 }
 
 
