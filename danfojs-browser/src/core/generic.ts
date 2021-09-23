@@ -24,7 +24,7 @@ import {
     AxisType,
     ArrayType1D,
     ArrayType2D,
-    CsvOutputOptions,
+    CsvOutputOptionsNode,
 } from '../shared/types'
 import ErrorThrower from '../shared/errors';
 import { BASE_CONFIG, DATA_TYPES } from '../shared/defaults';
@@ -416,7 +416,7 @@ export default class NDframe implements NDframeInterface {
     //  * - `header`: Boolean indicating whether to include a header row in the CSV file.
     //  * - `sep`: Character to be used as a separator in the CSV file.
     //  */
-    // toCSV(options?: CsvOutputOptions): string | void {
+    // toCSV(options?: CsvOutputOptionsNode): string | void {
     //     return toCSV(this, options);
     // }
 

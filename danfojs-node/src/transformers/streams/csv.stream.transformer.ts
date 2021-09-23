@@ -12,7 +12,7 @@
 * limitations under the License.
 * ==========================================================================
 */
-import { CsvInputOptions, CsvOutputOptions } from "../../shared/types"
+import { CsvInputOptions, CsvOutputOptionsNode } from "../../shared/types"
 import DataFrame from "../../core/frame"
 import Series from "../../core/series"
 import stream from "stream"
@@ -81,7 +81,7 @@ const streamCsvTransformer = (
         outputFilePath?: string,
         customCSVStreamWriter?: any,
         inputStreamOptions?: CsvInputOptions,
-        outputStreamOptions?: CsvOutputOptions
+        outputStreamOptions?: CsvOutputOptionsNode
     }) => {
     const { outputFilePath, customCSVStreamWriter, inputStreamOptions, outputStreamOptions } = {
         outputFilePath: "./",

@@ -99,7 +99,7 @@ export interface NDframeInterface {
     get values(): ArrayType1D | ArrayType2D
     get tensor(): Tensor;
     get size(): number;
-    toCSV(options?: CsvOutputOptions): string | void
+    toCSV(options?: CsvOutputOptionsNode): string | void
     toJSON(options?: { format?: "row" | "column", filePath?: string }): object | void
     toExcel(options?: { filePath?: string, sheetName?: string }): void
     print(): void;
@@ -107,7 +107,7 @@ export interface NDframeInterface {
 //End of Generic class types
 
 
-export type CsvOutputOptions = { filePath?: string, sep?: string, header?: boolean }
+export type CsvOutputOptionsNode = { filePath?: string, sep?: string, header?: boolean }
 export interface CsvInputOptions extends ParseConfig { }
 
 

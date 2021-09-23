@@ -13,7 +13,7 @@
 * ==========================================================================
 */
 import Series from "./series";
-import { ArrayType1D, DateTime } from "@base/shared/types";
+import { ArrayType1D, DateTime } from "../shared/types";
 
 const MONTH_NAME = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const WEEK_NAME = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];

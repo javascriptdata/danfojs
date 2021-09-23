@@ -17,7 +17,7 @@ import Papa from 'papaparse'
 import request from "request"
 import stream from "stream"
 import { DataFrame, NDframe, Series } from '../index'
-import { ArrayType2D, CsvInputOptions, CsvOutputOptions } from "../shared/types"
+import { ArrayType2D, CsvInputOptions, CsvOutputOptionsNode } from "../shared/types"
 
 
 /**
@@ -155,7 +155,7 @@ const $streamCSV = async (filePath: string, options: CsvInputOptions, callback: 
  *   })
  * ```
  */
-const $toCSV = (df: NDframe | DataFrame | Series, options?: CsvOutputOptions): string | void => {
+const $toCSV = (df: NDframe | DataFrame | Series, options?: CsvOutputOptionsNode): string | void => {
   let { filePath, sep, header } = { sep: ",", header: true, filePath: undefined, ...options }
 
   if (df.$isSeries) {
