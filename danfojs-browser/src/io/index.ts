@@ -19,11 +19,10 @@ import {
     // $openCsvInputStream,
     // $writeCsvOutputStream,
 } from "./io.csv"
-// import {
-//     $readJSON,
-//     $toJSON,
-//     $streamJSON
-// } from "./io.json"
+import {
+    $readJSON,
+    $toJSON,
+} from "./io.json"
 import { $readExcel, $toExcel } from "./io.excel"
 
 export {
@@ -32,9 +31,8 @@ export {
     $toCSV as toCSV,
     // $openCsvInputStream as openCsvInputStream,
     // $writeCsvOutputStream as writeCsvOutputStream,
-    // $readJSON as readJSON,
-    // $toJSON as toJSON,
-    // $streamJSON as streamJSON,
+    $readJSON as readJSON,
+    $toJSON as toJSON,
     $readExcel as readExcel,
     $toExcel as toExcel,
 }
