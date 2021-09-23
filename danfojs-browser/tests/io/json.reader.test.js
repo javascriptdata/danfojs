@@ -28,7 +28,7 @@ describe("toJSON", function () {
       { "a": 5, "b": 6, "c": 7, "d": 8 },
       { "a": 9, "b": 10, "c": 11, "d": 12 }
     ];
-    const json = dfd.toJSON(df);
+    const json = dfd.toJSON(df, { download: false });
     assert.deepEqual(json, expected);
   });
   it("toJSON works for row format", async function () {
@@ -40,14 +40,14 @@ describe("toJSON", function () {
       "c": [ 3, 7, 11 ],
       "d": [ 4, 8, 12 ]
     };
-    const json = dfd.toJSON(df, { format: "row" });
+    const json = dfd.toJSON(df, { format: "row", download: false });
     assert.deepEqual(json, expected);
   });
 
   it("toJSON works for series", async function () {
     const data = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ];
     const df = new dfd.Series(data);
-    assert.deepEqual(dfd.toJSON(df), { "0": [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ] });
+    assert.deepEqual(dfd.toJSON(df, { download: false }), { "0": [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ] });
   });
 
 });

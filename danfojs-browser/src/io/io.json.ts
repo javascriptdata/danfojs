@@ -100,7 +100,7 @@ const $toJSON = (df: NDframe | DataFrame | Series, options?: { format?: "row" | 
         const obj: { [key: string]: ArrayType1D } = {};
         obj[df.columns[0]] = df.values as ArrayType1D;
 
-        if (fileName) {
+        if (download) {
             if (!fileName.endsWith(".json")) {
                 fileName = fileName + ".json"
             }
