@@ -20,7 +20,7 @@ describe("readJSON", function () {
         ]);
     });
 
-    // it("Read remote csv file works", async function () {
+    // it("Read remote json file works", async function () {
     //     const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/book.json"
     //     const df: any = await readJSON(remoteFile, {});
     //     assert.deepEqual(df.columns, [
@@ -61,7 +61,7 @@ describe("streamJSON", function () {
         }, {});
     });
 
-    // it("Streaming remote csv file with callback works", async function () {
+    // it("Streaming remote json file with callback works", async function () {
     //     const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/book.json"
     //     await streamJSON(remoteFile, { header: true }, (df: any) => {
     //         if (df) {

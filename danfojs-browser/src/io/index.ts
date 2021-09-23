@@ -24,7 +24,7 @@ import {
 //     $toJSON,
 //     $streamJSON
 // } from "./io.json"
-// import { $readExcel, $toExcel } from "./io.excel"
+import { $readExcel, $toExcel } from "./io.excel"
 
 export {
     $readCSV as readCSV,
@@ -35,6 +35,6 @@ export {
     // $readJSON as readJSON,
     // $toJSON as toJSON,
     // $streamJSON as streamJSON,
-    // $readExcel as readExcel,
-    // $toExcel as toExcel,
+    $readExcel as readExcel,
+    $toExcel as toExcel,
 }
