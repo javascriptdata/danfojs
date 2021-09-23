@@ -77,8 +77,8 @@ const $readJSON = async (filePath: string, options: { method?: string, headers?:
  */
 const $streamJSON = async (
     filePath: string,
-    options: request.RequiredUriUrl & request.CoreOptions,
-    callback: (df: DataFrame) => void
+    callback: (df: DataFrame) => void,
+    options?: request.RequiredUriUrl & request.CoreOptions,
 ) => {
     const { method, headers } = { method: "GET", headers: {}, ...options }
     if (filePath.startsWith("http") || filePath.startsWith("https")) {

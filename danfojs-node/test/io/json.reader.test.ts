@@ -41,7 +41,7 @@ describe("streamJSON", function () {
     this.timeout(100000);
     it("Streaming local csv file with callback works", async function () {
         const filePath = path.join(process.cwd(), "test", "samples", "book_small.json");
-        await streamJSON(filePath, {}, (df: any) => {
+        await streamJSON(filePath, (df: any) => {
             if (df) {
                 df.print();
                 assert.deepEqual(df.shape, [1, 4])
@@ -58,8 +58,7 @@ describe("streamJSON", function () {
             } else {
                 assert.deepEqual(df, null);
             }
-        });
-
+        }, {});
     });
 
     // it("Streaming remote csv file with callback works", async function () {

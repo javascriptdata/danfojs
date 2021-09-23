@@ -88,13 +88,13 @@ const $readCSV = async (filePath: string, options: CsvInputOptions): Promise<Dat
  * @example
  * ```
  * import { streamCSV } from "danfojs-node"
- * streamCSV("https://raw.githubusercontent.com/test.csv", {header: true}, (dfRow) => {
+ * streamCSV("https://raw.githubusercontent.com/test.csv", (dfRow) => {
  *     const dfModified = dfRow["Names"].map((name) => name.split(",")[0])
  *     return dfModified
  * })
  * ```
  */
-const $streamCSV = async (filePath: string, options: CsvInputOptions, callback: (df: DataFrame) => void): Promise<null> => {
+const $streamCSV = async (filePath: string, callback: (df: DataFrame) => void, options?: CsvInputOptions): Promise<null> => {
 
   if (filePath.startsWith("http") || filePath.startsWith("https")) {
     return new Promise(resolve => {

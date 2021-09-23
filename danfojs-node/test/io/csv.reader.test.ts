@@ -54,7 +54,7 @@ describe("streamCSV", function () {
     this.timeout(100000);
     it("Streaming local csv file with callback works", async function () {
         const filePath = path.join(process.cwd(), "test", "samples", "titanic.csv");
-        await streamCSV(filePath, { header: true }, (df: any) => {
+        await streamCSV(filePath, (df: any) => {
             if (df) {
                 assert.deepEqual(df.shape, [1, 8])
                 assert.deepEqual(df.columns, [
@@ -70,7 +70,7 @@ describe("streamCSV", function () {
             } else {
                 assert.deepEqual(df, null);
             }
-        });
+        }, { header: true });
 
     });
 
