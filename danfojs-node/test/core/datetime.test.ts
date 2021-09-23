@@ -1,6 +1,6 @@
 import { assert } from "chai";
-import { Series } from "../../build";
-import { toDateTime } from '../../build/core/datetime';
+import { Series } from "../../dist";
+import { toDateTime } from '../../dist/core/datetime';
 
 describe("TimeSeries", function () {
 

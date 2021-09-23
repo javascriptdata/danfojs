@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { Series, OneHotEncoder } from "../../build";
+import { Series, OneHotEncoder } from "../../dist";
 
 describe("OneHotEncoder", function () {
     it("OneHotEncoder works on array", function () {

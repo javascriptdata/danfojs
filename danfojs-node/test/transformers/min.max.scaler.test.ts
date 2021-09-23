@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { DataFrame, Series, MinMaxScaler } from "../../build";
+import { DataFrame, Series, MinMaxScaler } from "../../dist";
 
 describe("MinMaxscaler", function () {
 

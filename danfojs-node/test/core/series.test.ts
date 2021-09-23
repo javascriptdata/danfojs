@@ -1,5 +1,5 @@
 import { assert, expect } from "chai";
-import { Series } from "../../build";
+import { Series } from "../../dist";
 
 describe("Series Functions", () => {
 

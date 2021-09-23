@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path"
 import { assert } from "chai";
-import { DataFrame, Series, readJSON, toJSON, streamJSON } from "../../build";
+import { DataFrame, Series, readJSON, toJSON, streamJSON } from "../../dist";
 
 describe("readJSON", function () {
     this.timeout(100000);
@@ -58,7 +58,7 @@ describe("streamJSON", function () {
             } else {
                 assert.deepEqual(df, null);
             }
-        }, {});
+        });
     });
 
     // it("Streaming remote json file with callback works", async function () {

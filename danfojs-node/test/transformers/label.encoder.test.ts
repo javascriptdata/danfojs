@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { DataFrame, Series, LabelEncoder } from "../../build";
+import { DataFrame, Series, LabelEncoder } from "../../dist";
 
 describe("LabelEncoder", function () {
 

@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { Utils } from "../build";
+import { Utils } from "../dist";
 
 const utils = new Utils();
 

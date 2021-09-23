@@ -1,4 +1,4 @@
-import { DataFrame, Series, streamCsvTransformer } from "../../build";
+import { DataFrame, Series, streamCsvTransformer } from "../../dist";
 import stream from "stream"
 import path from "path"
 

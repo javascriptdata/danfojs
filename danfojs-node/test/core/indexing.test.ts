@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { DataFrame, Series } from "../../build";
+import { DataFrame, Series } from "../../dist";
 
 describe("Iloc and Loc based Indexing", function () {
     describe("Iloc Index", function () {

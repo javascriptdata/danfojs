@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { DataFrame, Series, StandardScaler } from "../../build";
+import { DataFrame, Series, StandardScaler } from "../../dist";
 
 
 describe("StandardScaler", function () {

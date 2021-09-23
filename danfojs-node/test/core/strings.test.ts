@@ -1,5 +1,5 @@
 import { assert, expect } from "chai";
-import { Series} from "../../build";
+import { Series} from "../../dist";
 
 describe("Str", function () {
     it("Converts all characters to lowercase.", function () {

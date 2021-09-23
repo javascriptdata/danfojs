@@ -1,6 +1,6 @@
 import path from "path"
 import { assert } from "chai";
-import { DataFrame, readCSV, Series, streamCSV, toCSV } from "../../build";
+import { DataFrame, readCSV, Series, streamCSV, toCSV } from "../../dist";
 
 describe("readCSV", function () {
     this.timeout(10000);

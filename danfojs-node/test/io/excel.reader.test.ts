@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path"
 import { assert } from "chai";
-import { DataFrame, readExcel, Series, toExcel } from "../../build";
+import { DataFrame, readExcel, Series, toExcel } from "../../dist";
 
 describe("readExcel", function () {
     this.timeout(100000);
