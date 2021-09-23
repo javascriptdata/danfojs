@@ -20,6 +20,7 @@ import DataFrame from "./core/frame";
 import Str from "./core/strings"
 import Dt, { toDateTime } from "./core/datetime"
 // import { readCSV, streamCSV, toCSV, readJSON, toJSON, streamJSON, readExcel, toExcel } from "./io"
+import { readCSV, toCSV, streamCSV } from "./io"
 // import { streamCsvTransformer, convertFunctionTotransformer } from "./transformers/streams/csv.stream.transformer"
 import MinMaxScaler from "./transformers/scalers/min.max.scaler";
 import StandardScaler from "./transformers/scalers/standard.scaler";
@@ -36,9 +37,9 @@ export {
     toDateTime,
     Series,
     DataFrame,
-    // readCSV,
-    // streamCSV,
-    // toCSV,
+    readCSV,
+    streamCSV,
+    toCSV,
     // streamCsvTransformer,
     // convertFunctionTotransformer,
     // readJSON,

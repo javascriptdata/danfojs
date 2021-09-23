@@ -4,3 +4,5 @@ test/fixtures/titanicO*
 danfojs-node/test/samples/test*
 danfojs-node/test/samples/titanicO*
 danfojs-node/test/samples/sampleO*
+danfojs-browser/lib/bundle.js.map
+danfojs-browser/lib/bundle.js

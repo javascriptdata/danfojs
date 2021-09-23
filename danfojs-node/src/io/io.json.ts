@@ -78,6 +78,7 @@ const $readJSON = async (filePath: string, options: { method?: string, headers?:
 const $streamJSON = async (
     filePath: string,
     callback: (df: DataFrame) => void,
+    
     options?: request.RequiredUriUrl & request.CoreOptions,
 ) => {
     const { method, headers } = { method: "GET", headers: {}, ...options }
