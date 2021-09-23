@@ -24,7 +24,7 @@ export default class Configs {
     tableMaxColInConsole: number;
     dtypeTestLim: number;
     lowMemoryMode: boolean;
-    useTfjsMathFunctions: boolean;
+    tfInstance: any
 
     constructor(options: ConfigsType) {
         const {
@@ -33,14 +33,14 @@ export default class Configs {
             tableMaxColInConsole = 21,
             dtypeTestLim = 10,
             lowMemoryMode = false,
-            useTfjsMathFunctions = false,
+            tfInstance = null,
         } = options
         this.tableDisplayConfig = tableDisplayConfig
         this.tableMaxRow = tableMaxRow  // The maximum number of rows to display in console
         this.tableMaxColInConsole = tableMaxColInConsole  // The maximum number of columns to display in console
         this.dtypeTestLim = dtypeTestLim  // The number of rows to use when inferring data type
         this.lowMemoryMode = lowMemoryMode  // Whether to use minimal memory or not.
-        this.useTfjsMathFunctions = useTfjsMathFunctions //whether to use tfjs lib for performing math operations
+        this.tfInstance = tfInstance // A Tensorflow backend instance. Can any instance of tensoflowjs, tensorflowjs-node, or tensorflow-gpu. 
     }
 
     setTableDisplayConfig(config: BaseUserConfig) {
@@ -83,12 +83,12 @@ export default class Configs {
         this.lowMemoryMode = val;
     }
 
-    get toUseTfjsMathFunctions(): boolean {
-        return this.useTfjsMathFunctions;
+    get getTfInstance() {
+        return this.tfInstance;
     }
 
-    setUseTfjsMathFunctions(val: boolean) {
-        this.useTfjsMathFunctions = val;
+    setTfInstance(tfInstance: any) {
+        this.tfInstance = tfInstance;
     }
 }
 

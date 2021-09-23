@@ -12,18 +12,19 @@
 * limitations under the License.
 * ==========================================================================
 */
-import * as tf from '@tensorflow/tfjs';
+import { ArrayType1D, BaseDataOptionType, SeriesInterface } from "../shared/types";
+import { variance, std, median, mode } from 'mathjs';
+import { _genericMathOp } from "./math.ops";
+import { DATA_TYPES } from '../shared/defaults'
+import ErrorThrower from "../shared/errors"
+import { _iloc, _loc } from "./indexing";
+import Utils from "../shared/utils"
 import NDframe from "./generic";
 import { table } from "table";
-import { variance, std, median, mode } from 'mathjs';
-import { _iloc, _loc } from "./indexing";
-import { _genericMathOp } from "./generic.math.ops";
-import Utils from "../shared/utils"
-import ErrorThrower from "../shared/errors"
-import { ArrayType1D, BaseDataOptionType, SeriesInterface } from "../shared/types";
-import { DATA_TYPES } from '../shared/defaults'
 import Str from './strings';
 import Dt from './datetime';
+import dummyEncode from "../transformers/encoders/dummy.encoder";
+import DataFrame from "./frame";
 
 const utils = new Utils();
 
@@ -33,20 +34,20 @@ const utils = new Utils();
  * Operations between DataFrame (+, -, /, , *) align values based on their associated index values– they need not be the same length.
  * @param data 2D Array, JSON, Tensor, Block of data.
  * @param options.index Array of numeric or string names for subseting array. If not specified, indexes are auto generated.
- * @param options.columnNames Array of column names. If not specified, column names are auto generated.
+ * @param options.columns Array of column names. If not specified, column names are auto generated.
  * @param options.dtypes Array of data types for each the column. If not specified, dtypes are/is inferred.
  * @param options.config General configuration object for extending or setting NDframe behavior.  
  */
 export default class Series extends NDframe implements SeriesInterface {
 
     constructor(data: any = [], options: BaseDataOptionType = {}) {
-        const { index, columnNames, dtypes, config } = options;
+        const { index, columns, dtypes, config } = options;
         if (Array.isArray(data[0]) || utils.isObject(data[0])) {
             data = utils.convert2DArrayToSeriesArray(data);
             super({
                 data,
                 index,
-                columnNames,
+                columns,
                 dtypes,
                 config,
                 isSeries: true
@@ -55,7 +56,7 @@ export default class Series extends NDframe implements SeriesInterface {
             super({
                 data,
                 index,
-                columnNames,
+                columns,
                 dtypes,
                 config,
                 isSeries: true
@@ -146,7 +147,7 @@ export default class Series extends NDframe implements SeriesInterface {
         }
         num = num === -1 ? this.shape[0] : num;
 
-        const shuffledIndex = await tf.data.array(this.index).shuffle(num, `${seed}`).take(num).toArray();
+        const shuffledIndex = await this.$tf.data.array(this.index).shuffle(num, `${seed}`).take(num).toArray();
         const sf = this.iloc(shuffledIndex);
         return sf;
     }
@@ -154,10 +155,10 @@ export default class Series extends NDframe implements SeriesInterface {
     /**
       * Return Addition of series and other, element-wise (binary operator add).
       * Equivalent to series + other
-      * @param other Series or Number to add
+      * @param other Series, Array of same length or scalar number to add
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
       */
-    add(other: Series | number, options?: { inplace?: boolean }): Series | void {
+    add(other: Series | Array<number> | number, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("add")
@@ -167,7 +168,7 @@ export default class Series extends NDframe implements SeriesInterface {
         if (inplace) {
             this.$setValues(newData as ArrayType1D)
         } else {
-            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
+            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true }) as Series
         }
     }
 
@@ -177,7 +178,7 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param other Number to subtract
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
       */
-    sub(other: Series | number, options?: { inplace?: boolean }): Series | void {
+    sub(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("sub")
@@ -187,7 +188,7 @@ export default class Series extends NDframe implements SeriesInterface {
         if (inplace) {
             this.$setValues(newData as ArrayType1D)
         } else {
-            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
+            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true }) as Series
         }
 
     }
@@ -198,7 +199,7 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param other Number to multiply with.
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    mul(other: Series | number, options?: { inplace?: boolean }): Series | void {
+    mul(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("mul")
@@ -208,7 +209,7 @@ export default class Series extends NDframe implements SeriesInterface {
         if (inplace) {
             this.$setValues(newData as ArrayType1D)
         } else {
-            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
+            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true }) as Series
         }
     }
 
@@ -218,7 +219,7 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param other Series or number to divide with.
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
       */
-    div(other: Series | number, options?: { inplace?: boolean }): Series | void {
+    div(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("div")
@@ -228,7 +229,7 @@ export default class Series extends NDframe implements SeriesInterface {
         if (inplace) {
             this.$setValues(newData as ArrayType1D)
         } else {
-            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
+            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true }) as Series
         }
     }
 
@@ -238,7 +239,7 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param other Number to multiply with.
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
       */
-    pow(other: Series | number, options?: { inplace?: boolean }): Series | void {
+    pow(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("pow")
@@ -248,7 +249,7 @@ export default class Series extends NDframe implements SeriesInterface {
         if (inplace) {
             this.$setValues(newData as ArrayType1D)
         } else {
-            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
+            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true }) as Series
         }
     }
 
@@ -258,7 +259,7 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param other Number to modulo with
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    mod(other: Series | number, options?: { inplace?: boolean }): Series | void {
+    mod(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("mod")
@@ -268,7 +269,7 @@ export default class Series extends NDframe implements SeriesInterface {
         if (inplace) {
             this.$setValues(newData as ArrayType1D)
         } else {
-            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
+            return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true }) as Series
         }
     }
 
@@ -291,7 +292,6 @@ export default class Series extends NDframe implements SeriesInterface {
     */
     mean(): number {
         const values = this.$checkAndCleanValues(this.values as ArrayType1D, "mean")
-        if (this.config.toUseTfjsMathFunctions) return tf.tensor(values).mean().arraySync() as number
         return (values.reduce((a, b) => a + b) / values.length) as number
     }
 
@@ -342,7 +342,6 @@ export default class Series extends NDframe implements SeriesInterface {
     */
     sum(): number {
         const values = this.$checkAndCleanValues(this.values as ArrayType1D, "sum")
-        if (this.config.toUseTfjsMathFunctions) return tf.tensor(values).sum().arraySync() as number
         return values.reduce((sum, value) => sum + value, 0)
     }
 
@@ -358,52 +357,28 @@ export default class Series extends NDframe implements SeriesInterface {
       * Return maximum of series and other.
       * @param other Series or number to check against
     */
-    maximum(other: Series | number): Series {
-        if (typeof other === "number") {
-            const maxResult = this.tensor.maximum(other as number);
-            return new Series(maxResult.arraySync(), {
-                columnNames: this.columnNames,
-                dtypes: [maxResult.dtype],
-                index: this.index
-            });
-        } else {
-            utils.checkSeriesOpCompactibility({ firstSeries: this, secondSeries: other, operation: "maximum" })
-            const tensor1 = this.tensor.asType(this.dtypes[0] as any);
-            const tensor2 = other.tensor;
-            const result = tensor1.maximum(tensor2).arraySync();
-            return new Series(result,
-                {
-                    columnNames: this.columnNames,
-                    index: this.index
-                });
+    maximum(other: Series | number | Array<number>): Series {
+        if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("maximum")
 
-        }
+        const newData = _genericMathOp({ ndFrame: this, other, operation: "maximum" })
+        return new Series(newData, {
+            columns: this.columns,
+            index: this.index
+        });
     }
 
     /**
       * Return minimum of series and other.
       * @param other Series, Numbers to check against
     */
-    minimum(other: Series | number): Series {
-        if (typeof other === "number") {
-            const maxResult = this.tensor.minimum(other as number);
-            return new Series(maxResult.arraySync(), {
-                columnNames: this.columnNames,
-                dtypes: [maxResult.dtype],
-                index: this.index
-            });
-        } else {
-            utils.checkSeriesOpCompactibility({ firstSeries: this, secondSeries: other, operation: "maximum" })
+    minimum(other: Series | number | Array<number>): Series {
+        if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("maximum")
 
-            const tensor1 = this.tensor.asType(this.dtypes[0] as any);
-            const tensor2 = other.tensor;
-            const result = tensor1.minimum(tensor2).arraySync();
-            return new Series(result,
-                {
-                    columnNames: this.columnNames,
-                    index: this.index
-                });
-        }
+        const newData = _genericMathOp({ ndFrame: this, other, operation: "minimum" })
+        return new Series(newData, {
+            columns: this.columns,
+            index: this.index
+        });
     }
 
     /**
@@ -414,8 +389,7 @@ export default class Series extends NDframe implements SeriesInterface {
     round(dp = 1, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
-        const values = utils.removeMissingValuesFromArray(this.values as ArrayType1D)
-        const newValues = utils.round(values as number[], dp, true);
+        const newValues = utils.round(this.values as number[], dp, true);
 
         if (inplace) {
             this.$setValues(newValues)
@@ -424,7 +398,7 @@ export default class Series extends NDframe implements SeriesInterface {
                 ndFrame: this,
                 newData: newValues,
                 isSeries: true
-            })
+            }) as Series
         }
 
     }
@@ -494,7 +468,7 @@ export default class Series extends NDframe implements SeriesInterface {
                 ndFrame: this,
                 newData: newValues,
                 isSeries: true
-            })
+            }) as Series
         }
     }
 
@@ -541,7 +515,7 @@ export default class Series extends NDframe implements SeriesInterface {
     */
     copy(): Series {
         const sf = new Series([...this.values], {
-            columnNames: [...this.columnNames],
+            columns: [...this.columns],
             index: [...this.index],
             dtypes: [...this.dtypes],
             config: { ...this.config }
@@ -687,7 +661,7 @@ export default class Series extends NDframe implements SeriesInterface {
        * Return the number of unique elements in a Series
     */
     nUnique(): number {
-        return this.unique().values.length;
+        return (new Set(this.values as ArrayType1D)).size;
     }
 
     /**
@@ -725,11 +699,8 @@ export default class Series extends NDframe implements SeriesInterface {
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("abs")
         let newValues;
 
-        if (this.config.toUseTfjsMathFunctions) {
-            newValues = this.tensor.abs().arraySync()
-        } else {
-            newValues = this.values.map(val => Math.abs(val as number));
-        }
+
+        newValues = this.values.map(val => Math.abs(val as number));
 
         if (inplace) {
             this.$setValues(newValues as ArrayType1D)
@@ -838,7 +809,7 @@ export default class Series extends NDframe implements SeriesInterface {
        * @param {other} Series, Scalar
        * @return {Series}
        */
-    gt(other: Series | number): Series {
+    gt(other: Series | number | Array<number>): Series {
         return this.boolOps(other, "gt");
     }
 
@@ -847,7 +818,7 @@ export default class Series extends NDframe implements SeriesInterface {
        * @param {other} Series, Scalar
        * @return {Series}
        */
-    le(other: Series | number): Series {
+    le(other: Series | number | Array<number>): Series {
         return this.boolOps(other, "le");
     }
 
@@ -856,7 +827,7 @@ export default class Series extends NDframe implements SeriesInterface {
        * @param {other} Series, Scalar
        * @return {Series}
        */
-    ge(other: Series | number): Series {
+    ge(other: Series | number | Array<number>): Series {
         return this.boolOps(other, "ge");
     }
 
@@ -865,7 +836,7 @@ export default class Series extends NDframe implements SeriesInterface {
         * @param {other} Series, Scalar
         * @return {Series}
         */
-    ne(other: Series | number): Series {
+    ne(other: Series | number | Array<number>): Series {
         return this.boolOps(other, "ne");
     }
 
@@ -874,7 +845,7 @@ export default class Series extends NDframe implements SeriesInterface {
        * @param {other} Series, Scalar
        * @return {Series}
        */
-    eq(other: Series | number): Series {
+    eq(other: Series | number | Array<number>): Series {
         return this.boolOps(other, "eq");
     }
 
@@ -883,22 +854,25 @@ export default class Series extends NDframe implements SeriesInterface {
      * @param other Other Series or number to compare with
      * @param bOps Name of operation to perform [ne, ge, le, gt, lt, eq]
      */
-    private boolOps(other: Series | number, bOps: string) {
+    private boolOps(other: Series | number | Array<number>, bOps: string) {
         const data = [];
         const lSeries = this.values;
         let rSeries;
 
         if (typeof other == "number") {
             rSeries = Array(this.values.length).fill(other); //create array of repeated value for broadcasting
-        } else {
-            if (!(other instanceof Series)) {
-                throw new Error("Param Error: 'other' must be a Series");
-            }
+        } else if (typeof other == "string" && ["eq", "ne"].includes(bOps)) {
+            rSeries = Array(this.values.length).fill(other);
+        } else if (other instanceof Series) {
             rSeries = other.values;
+        } else if (Array.isArray(other)) {
+            rSeries = other;
+        } else {
+            throw new Error("ParamError: value for other not supported. It must be either a scalar, Array or Series");
         }
 
         if (!(lSeries.length === rSeries.length)) {
-            throw new Error("Length Error: Both Series must be of the same length");
+            throw new Error("LengthError: Lenght of other must be equal to length of Series");
         }
 
 
@@ -924,7 +898,7 @@ export default class Series extends NDframe implements SeriesInterface {
                     data.push(bool);
                     break;
                 case "ne":
-                    bool = lVal != rVal ? true : false;
+                    bool = lVal !== rVal ? true : false;
                     data.push(bool);
                     break;
                 case "eq":
@@ -954,26 +928,23 @@ export default class Series extends NDframe implements SeriesInterface {
             throw Error(`Params Error: Must specify param 'oldValue' to replace`);
         }
 
-        if (!newValue && typeof oldValue !== 'boolean') {
+        if (!newValue && typeof newValue !== 'boolean') {
             throw Error(`Params Error: Must specify param 'newValue' to replace with`);
         }
 
-        const newArr: any = [];
-        const oldArr = [...this.values]
-
-        oldArr.forEach((val) => {
+        const newArr = [...this.values].map((val) => {
             if (val === oldValue) {
-                newArr.push(newValue);
+                return newValue
             } else {
-                newArr.push(val);
+                return val
             }
         });
 
         if (inplace) {
-            this.$setValues(newArr)
+            this.$setValues(newArr as ArrayType1D)
         } else {
             const sf = this.copy();
-            sf.$setValues(newArr)
+            sf.$setValues(newArr as ArrayType1D)
             return sf;
         }
 
@@ -1038,11 +1009,11 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
      * Remove duplicate values from a Series
-     * @param keep "first" | "last", which dupliate value to keep
+     * @param keep "first" | "last", which dupliate value to keep. Defaults to "first".
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    dropDuplicates(keep: "first" | "last" = "first", options?: { inplace?: boolean }): Series | void {
-        const { inplace } = { inplace: false, ...options }
+    dropDuplicates(options?: { keep?: "first" | "last", inplace?: boolean }): Series | void {
+        const { keep, inplace } = { keep: "first", inplace: false, ...options }
 
         if (!(["first", "last"].includes(keep))) {
             throw Error(`Params Error: Keep must be one of 'first' or 'last'`);
@@ -1102,7 +1073,7 @@ export default class Series extends NDframe implements SeriesInterface {
             throw Error(`dtype ${dtype} not supported. dtype must be one of ${DATA_TYPES}`);
         }
 
-        const oldValues = this.values;
+        const oldValues = [...this.values];
         const newValues: ArrayType1D = [];
 
         switch (dtype) {
@@ -1113,7 +1084,7 @@ export default class Series extends NDframe implements SeriesInterface {
                 break;
             case "int32":
                 oldValues.forEach((val) => {
-                    newValues.push(Number(Number(val).toFixed()));
+                    newValues.push(parseInt(val as any));
                 });
                 break;
             case "string":
@@ -1150,6 +1121,8 @@ export default class Series extends NDframe implements SeriesInterface {
     /**
      * Add a new value or values to the end of a Series
      * @param newValues Single value | Array | Series to append to the Series 
+     * @param index The new index value(s) to append to the Series. Must contain the same number of values as `newValues`
+     * as they map `1 - 1`. 
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
      */
     append(
@@ -1209,7 +1182,7 @@ export default class Series extends NDframe implements SeriesInterface {
                 newData,
                 {
                     index: newIndx,
-                    columnNames: this.columnNames,
+                    columns: this.columns,
                     dtypes: this.dtypes,
                     config: this.config
                 })
@@ -1241,7 +1214,7 @@ export default class Series extends NDframe implements SeriesInterface {
     */
     get dt() {
         if (this.dtypes[0] == "string") {
-            return new Dt(this);
+            return new Dt(this)
         } else {
             throw new Error("Cannot call accessor dt on non-string type");
         }
@@ -1271,5 +1244,126 @@ export default class Series extends NDframe implements SeriesInterface {
         return table(tabledata as any);
     }
 
+    /**
+     * Returns the logical AND between Series and other. Supports element wise operations and broadcasting. 
+     * @param other Series, Scalar, Array of Scalars
+    */
+    and(other: any): Series {
 
+        if (other === undefined) {
+            throw new Error("Param Error: other cannot be undefined");
+        }
+
+        if (other instanceof Series) {
+            if (this.dtypes[0] !== other.dtypes[0]) {
+                throw new Error("Param Error: Series must be of same dtype");
+            }
+
+            if (this.shape[0] !== other.shape[0]) {
+                throw new Error("Param Error: Series must be of same shape");
+            }
+
+            const newValues: ArrayType1D = [];
+
+            this.values.forEach((val, i) => {
+                newValues.push(Boolean(val) && Boolean(other.values[i]));
+            });
+
+            return new Series(newValues, {
+                config: { ...this.config }
+            })
+        } else if (Array.isArray(other)) {
+            const newValues: ArrayType1D = [];
+
+            this.values.forEach((val, i) => {
+                newValues.push(Boolean(val) && Boolean(other[i]));
+            });
+
+            return new Series(newValues, {
+                config: { ...this.config }
+            })
+        } else {
+            const newValues: ArrayType1D = [];
+
+            this.values.forEach((val) => {
+                newValues.push(Boolean(val) && Boolean(other));
+            });
+
+            return new Series(newValues, {
+                config: { ...this.config }
+            })
+        }
+    }
+
+    /**
+     * Returns the logical OR between Series and other. Supports element wise operations and broadcasting. 
+     * @param other Series, Scalar, Array of Scalars
+    */
+    or(other: any): Series {
+
+        if (other === undefined) {
+            throw new Error("Param Error: other cannot be undefined");
+        }
+
+        if (other instanceof Series) {
+            if (this.dtypes[0] !== other.dtypes[0]) {
+                throw new Error("Param Error: Series must be of same dtype");
+            }
+
+            if (this.shape[0] !== other.shape[0]) {
+                throw new Error("Param Error: Series must be of same shape");
+            }
+
+            const newValues: ArrayType1D = [];
+
+            this.values.forEach((val, i) => {
+                newValues.push(Boolean(val) || Boolean(other.values[i]));
+            });
+
+            return new Series(newValues, {
+                config: { ...this.config }
+            })
+        } else if (typeof other === "boolean") {
+            const newValues: ArrayType1D = [];
+
+            this.values.forEach((val) => {
+                newValues.push(Boolean(val) || Boolean(other));
+            });
+
+            return new Series(newValues, {
+                config: { ...this.config }
+            })
+        } else if (Array.isArray(other)) {
+            const newValues: ArrayType1D = [];
+
+            this.values.forEach((val, i) => {
+                newValues.push(Boolean(val) || Boolean(other[i]));
+            });
+
+            return new Series(newValues, {
+                config: { ...this.config }
+            })
+        } else {
+            throw new Error("Param Error: other must be a Series, Scalar, or Array of Scalars");
+        }
+    }
+
+    /**
+     * One-hot encode values in the Series.
+     * @param options Options for the operation. The following options are available:
+     * - `prefix`: Prefix to add to the new column. Defaults to unique labels.
+     * - `prefixSeparator`: Separator to use for the prefix. Defaults to '_'.
+     * @returns A DataFrame with the one-hot encoded columns.
+     * @example
+     * sf.getDummies()
+     * sf.getDummies({prefix: 'cat' })
+     * sf.getDummies({ prefix: 'cat', prefixSeparator: '-' })
+     */
+    getDummies(options?: {
+        columns?: string | Array<string>,
+        prefix?: string | Array<string>,
+        prefixSeparator?: string,
+    }): DataFrame {
+        return dummyEncode(this, options)
+    }
 }

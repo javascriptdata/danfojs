@@ -22,7 +22,7 @@ const WEEK_NAME = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Frid
  * Format and handle all datetime operations on Series or Array of date strings
  * @param data Series or Array of date strings
  */
-export default class TimeSeries implements DateTime{
+export default class TimeSeries implements DateTime {
     private $dateObjectArray: Array<Date>
 
     constructor(data: Series | ArrayType1D) {
@@ -43,7 +43,21 @@ export default class TimeSeries implements DateTime{
     }
 
     /**
-     *  Returns the month, in local time
+     *  Returns the month, in local time.
+     * @example
+     * ```
+     * import { Dataframe } from "danfojs-node"
+     * const data = [
+     * "2019-01-01",
+     * "2019-02-01",
+     * "2019-03-01",
+     * "2019-04-01",
+     * ]
+     * const df = new Dataframe(data)
+     * const dfNew = df.dt.month()
+     * console.log(dfNew.values)
+     * // [1, 2, 3, 4]
+     * ```
     */
     month(): Series {
         const newValues = this.$dateObjectArray.map(date => date.getMonth())
@@ -52,14 +66,41 @@ export default class TimeSeries implements DateTime{
 
     /**
      * Returns the day of the week, in local time
+     * @example
+     * ```
+     * import { Dataframe } from "danfojs-node"
+     * const data = [
+     * "2019-01-01",
+     * "2019-02-01",
+     * "2019-03-01",
+     * "2019-04-01",
+     * ]
+     * const df = new Dataframe(data)
+     * const dayOfWeek = df.dt.dayOfWeek()
+     * console.log(dayOfWeek.values)
+     * ```
     */
-    day() {
+     dayOfWeek() {
         const newValues = this.$dateObjectArray.map(date => date.getDay())
         return new Series(newValues);
     }
 
     /**
      * Returns the year, in local time
+     * @example
+     * ```
+     * import { Dataframe } from "danfojs-node"
+     * const data = [
+     * "2019-01-01",
+     * "2019-02-01",
+     * "2021-03-01",
+     * "2020-04-01",
+     * ]
+     * const df = new Dataframe(data)
+     * const year = df.dt.year()
+     * console.log(year.values)
+     * // [2019, 2019, 2021, 2020]
+     * ```
     */
     year() {
         const newValues = this.$dateObjectArray.map(date => date.getFullYear())
@@ -68,6 +109,20 @@ export default class TimeSeries implements DateTime{
 
     /**
      *  Returns the name of the month, in local time
+     * @example
+     * ```
+     * import { Dataframe } from "danfojs-node"
+     * const data = [
+     * "2019-01-01",
+     * "2019-02-01",
+     * "2021-03-01",
+     * "2020-04-01",
+     * ]
+     * const df = new Dataframe(data)
+     * const monthName = df.dt.monthName().values
+     * console.log(monthName)
+     * // ["January", "February", "March", "April"]
+     * ```
     */
     monthName() {
         const newValues = this.$dateObjectArray.map(date => MONTH_NAME[date.getMonth()])
@@ -75,7 +130,20 @@ export default class TimeSeries implements DateTime{
     }
 
     /**
-       * Returns the name of the day, of the week, in local time
+     * Returns the name of the day, of the week, in local time
+     * @example
+     * ```
+     * import { Dataframe } from "danfojs-node"
+     * const data = [
+     * "2019-01-01",
+     * "2019-02-01",
+     * "2021-03-01",
+     * "2020-04-01",
+     * ]
+     * const df = new Dataframe(data)
+     * const dayOfWeekName = df.dt.dayOfWeekName().values
+     * console.log(dayOfWeekName)
+     * ```
     */
     dayOfWeekName() {
         const newValues = this.$dateObjectArray.map(date => WEEK_NAME[date.getDay()])
@@ -84,6 +152,20 @@ export default class TimeSeries implements DateTime{
 
     /**
      * Returns the day of the month, in local time
+     * @example
+     * ```
+     * import { Dataframe } from "danfojs-node"
+     * const data = [
+     * "2019-01-01",
+     * "2019-02-05",
+     * "2021-03-02",
+     * "2020-04-01",
+     * ]
+     * const df = new Dataframe(data)
+     * const dayOfMonth = df.dt.dayOfMonth().values
+     * console.log(dayOfMonth)
+     * // [1, 5, 2, 1]
+     * ```
     */
     dayOfMonth() {
         const newValues = this.$dateObjectArray.map(date => date.getDate())
@@ -92,6 +174,20 @@ export default class TimeSeries implements DateTime{
 
     /**
      * Returns the hour of the day, in local time
+     * @example
+     * ```
+     * import { Dataframe } from "danfojs-node"
+     * const data = [
+     * "2019-01-01",
+     * "2019-02-05",
+     * "2021-03-02",
+     * "2020-04-01",
+     * ]
+     * const df = new Dataframe(data)
+     * const hour = df.dt.hour().values
+     * console.log(hour)
+     * // [0, 0, 0, 0]
+     * ```
     */
     hours() {
         const newValues = this.$dateObjectArray.map(date => date.getHours())
@@ -100,6 +196,19 @@ export default class TimeSeries implements DateTime{
 
     /**
      * Returns the second of the day, in local time
+     * @example
+     * ```
+     * import { Dataframe } from "danfojs-node"
+     * const data = [
+     * "2019-01-01",
+     * "2019-02-05",
+     * "2021-03-02",
+     * "2020-04-01",
+     * ]
+     * const df = new Dataframe(data)
+     * const second = df.dt.second().values
+     * console.log(second)
+     * ```
     */
     seconds() {
         const newValues = this.$dateObjectArray.map(date => date.getSeconds())
@@ -108,6 +217,19 @@ export default class TimeSeries implements DateTime{
 
     /**
      * Returns the minute of the day, in local time
+     * @example
+     * ```
+     * import { Dataframe } from "danfojs-node"
+     * const data = [
+     * "2019-01-01",
+     * "2019-02-05",
+     * "2021-03-02",
+     * "2020-04-01",
+     * ]
+     * const df = new Dataframe(data)
+     * const minute = df.dt.minute().values
+     * console.log(minute)
+     * ```
     */
     minutes() {
         const newValues = this.$dateObjectArray.map(date => date.getMinutes())
@@ -115,7 +237,6 @@ export default class TimeSeries implements DateTime{
     }
 
 }
-
 
 export const toDateTime = (data: Series | ArrayType1D) => {
     return new TimeSeries(data);

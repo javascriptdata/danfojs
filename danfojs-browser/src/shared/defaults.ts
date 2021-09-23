@@ -12,7 +12,7 @@
 * limitations under the License.
 * ==========================================================================
 */
-
+import * as tf from "@tensorflow/tfjs"
 /**
  * Default config object
  */
@@ -21,7 +21,7 @@ export const BASE_CONFIG = {
     tableMaxColInConsole: 21,
     dtypeTestLim: 7,
     lowMemoryMode: false,
-    useTfjsMathFunctions: false
+    tfInstance: tf,
 }
 
 

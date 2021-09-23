@@ -13,11 +13,9 @@
 * ==========================================================================
 */
 
-import * as tf from '@tensorflow/tfjs';
 import Utils from "../shared/utils";
 import Configs from "../shared/config";
 import { _iloc } from "./indexing"
-import { BASE_CONFIG, DATA_TYPES } from '../shared/defaults';
 import {
     NDframeInterface,
     NdframeInputDataType,
@@ -26,8 +24,11 @@ import {
     AxisType,
     ArrayType1D,
     ArrayType2D,
+    CsvOutputOptions,
 } from '../shared/types'
 import ErrorThrower from '../shared/errors';
+import { BASE_CONFIG, DATA_TYPES } from '../shared/defaults';
+// import { toCSV, toJSON, toExcel } from "../io"
 
 const utils = new Utils();
 
@@ -41,7 +42,7 @@ const utils = new Utils();
  * 
  *  index: Array of numeric or string names for subseting array. If not specified, indexes are auto generated.
  * 
- *  columnNames: Array of column names. If not specified, column names are auto generated.
+ *  columns: Array of column names. If not specified, column names are auto generated.
  * 
  *  dtypes: Array of data types for each the column. If not specified, dtypes inferred.
  * 
@@ -50,44 +51,47 @@ const utils = new Utils();
  * @returns NDframe
  */
 export default class NDframe implements NDframeInterface {
-    protected $isSeries: boolean;
+    $isSeries: boolean;
     protected $data: any
     protected $dataIncolumnFormat: ArrayType1D | ArrayType2D = []
     protected $index: Array<string | number> = []
-    protected $columnNames: string[] = []
+    protected $columns: string[] = []
     protected $dtypes: Array<string> = []
     protected $config: Configs
+    $tf: any
 
-    constructor({ data, index, columnNames, dtypes, config, isSeries }: NdframeInputDataType) {
+    constructor({ data, index, columns, dtypes, config, isSeries }: NdframeInputDataType) {
         this.$isSeries = isSeries
         if (config) {
-            this.$config = new Configs(config);
+            this.$config = new Configs({ ...BASE_CONFIG, ...config });
         } else {
             this.$config = new Configs(BASE_CONFIG);
         }
 
-        if (data instanceof tf.Tensor) {
+        this.$tf = this.$config.getTfInstance;
+
+        if (data instanceof this.$tf.Tensor) {
             data = data.arraySync();
         }
 
         if (data === undefined || (Array.isArray(data) && data.length === 0)) {
-            this.loadArrayIntoNdframe({ data: [], index: [], columnNames: [], dtypes: [] });
+            this.loadArrayIntoNdframe({ data: [], index: [], columns: [], dtypes: [] });
         } else if (utils.is1DArray(data)) {
-            this.loadArrayIntoNdframe({ data, index, columnNames, dtypes });
+            this.loadArrayIntoNdframe({ data, index, columns, dtypes });
         } else {
 
             if (Array.isArray(data) && utils.isObject(data[0])) {
-                this.loadObjectIntoNdframe({ data, type: 1, index, columnNames, dtypes });
+                this.loadObjectIntoNdframe({ data, type: 1, index, columns, dtypes });
 
             } else if (utils.isObject(data)) {
-                this.loadObjectIntoNdframe({ data, type: 2, index, columnNames, dtypes });
+                this.loadObjectIntoNdframe({ data, type: 2, index, columns, dtypes });
 
             } else if (
                 Array.isArray((data)[0]) ||
                 utils.isNumber((data)[0]) ||
                 utils.isString((data)[0])
             ) {
-                this.loadArrayIntoNdframe({ data, index, columnNames, dtypes });
+                this.loadArrayIntoNdframe({ data, index, columns, dtypes });
             } else {
                 throw new Error("File format not supported!");
             }
@@ -95,11 +99,13 @@ export default class NDframe implements NDframeInterface {
     }
 
     /**
-     * Load array of data into NDFrame
+     * Internal function to load array of data into NDFrame
      * @param data The array of data to load into NDFrame
-     * 
+     * @param index Array of numeric or string names for subsetting array.
+     * @param columns Array of column names.
+     * @param dtypes Array of data types for each the column.
     */
-    private loadArrayIntoNdframe({ data, index, columnNames, dtypes }: LoadArrayDataType): void {
+    private loadArrayIntoNdframe({ data, index, columns, dtypes }: LoadArrayDataType): void {
         // this.$data = utils.replaceUndefinedWithNaN(data, this.$isSeries);
         this.$data = data
         if (!this.$config.isLowMemoryMode) {
@@ -109,19 +115,22 @@ export default class NDframe implements NDframeInterface {
         }
         this.$setIndex(index);
         this.$setDtypes(dtypes);
-        this.$setColumnNames(columnNames);
+        this.$setColumnNames(columns);
     }
 
     /**
-     * Load Javascript objects or object of arrays into NDFrame
+     * Internal function to format and load a Javascript object or object of arrays into NDFrame.
      * @param data Object or object of arrays.
      * @param type The type of the object. There are two recognized types:
      * 
-     * type 1 object are in JSON format [{a: 1, b: 2}, {a: 30, b: 20}].
+     * - type 1 object are in JSON format `[{a: 1, b: 2}, {a: 30, b: 20}]`.
      * 
-     * type 2 object are of the form {a: [1,2,3,4], b: [30,20, 30, 20}]}
+     * - type 2 object are of the form `{a: [1,2,3,4], b: [30,20, 30, 20}]}`
+     * @param index Array of numeric or string names for subsetting array.
+     * @param columns Array of column names.
+     * @param dtypes Array of data types for each the column.
     */
-    private loadObjectIntoNdframe({ data, type, index, columnNames, dtypes }: LoadObjectDataType): void {
+    private loadObjectIntoNdframe({ data, type, index, columns, dtypes }: LoadObjectDataType): void {
         if (type === 1 && Array.isArray(data)) {
             const _data = (data).map((item) => {
                 return Object.values(item);
@@ -129,41 +138,49 @@ export default class NDframe implements NDframeInterface {
 
             let _columnNames;
 
-            if (columnNames) {
-                _columnNames = columnNames
+            if (columns) {
+                _columnNames = columns
             } else {
                 _columnNames = Object.keys((data)[0]);
             }
 
-            this.loadArrayIntoNdframe({ data: _data, index, columnNames: _columnNames, dtypes });
+            this.loadArrayIntoNdframe({ data: _data, index, columns: _columnNames, dtypes });
 
         } else {
             const [_data, _colNames] = utils.getRowAndColValues(data);
             let _columnNames;
 
-            if (columnNames) {
-                _columnNames = columnNames
+            if (columns) {
+                _columnNames = columns
             } else {
                 _columnNames = _colNames
             }
-            this.loadArrayIntoNdframe({ data: _data, index, columnNames: _columnNames, dtypes });
+            this.loadArrayIntoNdframe({ data: _data, index, columns: _columnNames, dtypes });
         }
     }
 
-
-
-    get tensor(): tf.Tensor {
+    /**
+     * Converts and returns the data in the NDframe as a Tensorflow.js Tensor.
+    */
+    get tensor() {
         if (this.$isSeries) {
-            return tf.tensor1d(this.$data)
+            return this.$tf.tensor1d(this.$data)
         } else {
-            return tf.tensor2d(this.$data)
+            return this.$tf.tensor2d(this.$data)
         }
     }
 
+    /**
+     * Returns the dtypes of the columns
+    */
     get dtypes(): Array<string> {
         return this.$dtypes
     }
 
+    /**
+     * Internal function to set the Dtypes of the NDFrame from an array. This function
+     * performs the necessary checks.
+    */
     $setDtypes(dtypes: Array<string> | undefined): void {
         if (this.$isSeries) {
             if (dtypes) {
@@ -205,35 +222,56 @@ export default class NDframe implements NDframeInterface {
         }
     }
 
+    /**
+     * Returns the dimension of the data. Series have a dimension of 1,
+     * while DataFrames have a dimension of 2.
+    */
     get ndim(): number {
         if (this.$isSeries) {
             return 1;
         } else {
-            return this.tensor.shape.length;
+            return 2
         }
     }
 
+    /**
+     * Returns the axis labels of the NDFrame. 
+    */
     get axis(): AxisType {
         return {
             index: this.$index,
-            columns: this.$columnNames
+            columns: this.$columns
         };
     }
 
+    /**
+     * Returns the configuration object of the NDFrame.
+    */
     get config(): Configs {
         return this.$config
 
     }
 
+    /**
+     * Internal function to set the configuration of the ndframe
+    */
     $setConfig(config: Configs): void {
         this.$config = config
     }
 
+    /**
+     * Returns the indices of the NDFrame
+    */
     get index(): Array<string | number> {
         return this.$index
 
     }
 
+    /**
+     * Internal function to set the index of the NDFrame with the specified
+     * array of indices. Performs all necessary checks to ensure that the
+     * index is valid.
+    */
     $setIndex(index: Array<string | number> | undefined): void {
         if (index) {
 
@@ -250,43 +288,57 @@ export default class NDframe implements NDframeInterface {
         }
     }
 
+    /**
+     * Internal function to reset the index of the NDFrame using a range of indices.
+    */
     $resetIndex(): void {
         this.$index = utils.range(0, this.shape[0] - 1)
     }
 
-    get columnNames(): string[] {
-        return this.$columnNames
+    /**
+     * Returns the column names of the NDFrame
+    */
+    get columns(): string[] {
+        return this.$columns
     }
 
-    $setColumnNames(columnNames?: string[]) {
+    /**
+     * Internal function to set the column names for the NDFrame. This function
+     * performs a check to ensure that the column names are unique, and same length as the
+     * number of columns in the data.
+    */
+    $setColumnNames(columns?: string[]) {
 
         if (this.$isSeries) {
-            if (columnNames) {
-                if (this.$data.length != 0 && columnNames.length != 1 && typeof columnNames != 'string') {
-                    ErrorThrower.throwColumnNamesLengthError(this, columnNames)
+            if (columns) {
+                if (this.$data.length != 0 && columns.length != 1 && typeof columns != 'string') {
+                    ErrorThrower.throwColumnNamesLengthError(this, columns)
                 }
-                this.$columnNames = columnNames
+                this.$columns = columns
             } else {
-                this.$columnNames = ["0"]
+                this.$columns = ["0"]
             }
         } else {
-            if (columnNames) {
+            if (columns) {
 
-                if (this.$data.length != 0 && columnNames.length != this.shape[1]) {
-                    ErrorThrower.throwColumnNamesLengthError(this, columnNames)
+                if (this.$data.length != 0 && columns.length != this.shape[1]) {
+
+                    ErrorThrower.throwColumnNamesLengthError(this, columns)
                 }
-                if (Array.from(new Set(columnNames)).length !== this.shape[1]) {
+                if (Array.from(new Set(columns)).length !== this.shape[1]) {
                     ErrorThrower.throwColumnDuplicateError()
                 }
 
-                this.$columnNames = columnNames
+                this.$columns = columns
             } else {
-                this.$columnNames = (utils.range(0, this.shape[1] - 1)).map((val) => `${val}`) //generate columns
+                this.$columns = (utils.range(0, this.shape[1] - 1)).map((val) => `${val}`) //generate columns
             }
         }
     }
 
-
+    /**
+     * Returns the shape of the NDFrame. Shape is determined by [row lenght, column length]
+    */
     get shape(): Array<number> {
         if (this.$data.length === 0) return [0, 0]
         if (this.$isSeries) {
@@ -299,6 +351,9 @@ export default class NDframe implements NDframeInterface {
 
     }
 
+    /**
+     * Returns the underlying data in Array format.
+    */
     get values(): ArrayType1D | ArrayType2D {
         return this.$data;
     }
@@ -346,23 +401,58 @@ export default class NDframe implements NDframeInterface {
 
     }
 
+    /**
+     * Returns the size of the NDFrame object
+     * 
+    */
     get size(): number {
-        return this.tensor.size
+        return this.shape[0] * this.shape[1]
     }
 
-    async toCsv(): Promise<String> {
-        ErrorThrower.throwNotImplementedError()
-        return ""
-    }
+    // /**
+    //  * Converts a DataFrame or Series to CSV. 
+    //  * @param options Configuration object. Supports the following options:
+    //  * - `filePath`: Local file path to write the CSV file. If not specified, the CSV will be returned as a string.
+    //  * - `header`: Boolean indicating whether to include a header row in the CSV file.
+    //  * - `sep`: Character to be used as a separator in the CSV file.
+    //  */
+    // toCSV(options?: CsvOutputOptions): string | void {
+    //     return toCSV(this, options);
+    // }
 
-    async toJson(): Promise<String> {
-        ErrorThrower.throwNotImplementedError()
-        return ""
-    }
+    // /**
+    //  * Converts a DataFrame or Series to JSON. 
+    //  * @param options Configuration object. Supported options:
+    //  * - `filePath`: The file path to write the JSON to. If not specified, the JSON object is returned.
+    //  * - `format`: The format of the JSON. Defaults to `'column'`. E.g for using `column` format:
+    //  * ```
+    //  * [{ "a": 1, "b": 2, "c": 3, "d": 4 },
+    //  *  { "a": 5, "b": 6, "c": 7, "d": 8 }]
+    //  * ```
+    //  * and `row` format:
+    //  * ```
+    //  * { "a": [1, 5, 9],
+    //  *  "b": [2, 6, 10]
+    //  * }
+    //  * ```
+    //  */
+    // toJSON(options?: { format?: "row" | "column", filePath?: string }): object | void {
+    //     return toJSON(this, options);
+    // }
+
+
+    // /**
+    //  * Converts a DataFrame or Series to Excel Sheet. 
+    //  * @param options Configuration object. Supported options:
+    //  * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
+    //  * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`.
+    //  */
+    // toExcel(options?: { filePath?: string, sheetName?: string }): void {
+    //     return toExcel(this, options);
+    // }
 
     /**
-     * Pretty prints n number of rows in a DataFrame or isSeries in the console
-     * @param {rows} Number of rows to print
+     * Pretty prints a DataFrame or Series to the console
      */
     print() {
         console.log(this + "");

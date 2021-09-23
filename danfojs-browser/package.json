@@ -23,7 +23,11 @@
   "dependencies": {
     "@tensorflow/tfjs": "^3.9.0",
     "mathjs": "9.4.4",
-    "table": "6.7.1"
+    "table": "6.7.1",
+    "papaparse": "^5.3.1",
+    "request": "^2.88.2",
+    "stream-json": "^1.7.3",
+    "xlsx": "^0.17.2"
   },
   "scripts": {
     "test": "karma start --single-run --browsers ChromeHeadless karma.conf.js",
@@ -67,6 +71,9 @@
     "@types/chai": "^4.2.19",
     "@types/mocha": "^8.2.2",
     "@types/node": "^15.12.5",
+    "@types/papaparse": "^5.2.6",
+    "@types/request": "^2.48.7",
+    "@types/stream-json": "^1.7.1",
     "@types/table": "^6.3.2",
     "@typescript-eslint/eslint-plugin": "^4.30.0",
     "@typescript-eslint/parser": "^4.30.0",

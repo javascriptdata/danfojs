@@ -13,11 +13,11 @@
 * ==========================================================================
 */
 
-import * as tf from '@tensorflow/tfjs';
 import { BASE_CONFIG } from './defaults'
 import Config from './config';
 import { ArrayType1D, ArrayType2D } from './types';
 import { Series } from '../';
+import { DataFrame } from '../';
 import ErrorThrower from '../shared/errors'
 
 const config = new Config(BASE_CONFIG);
@@ -86,13 +86,33 @@ export default class Utils {
     }
 
     /**
+     * Checks if a value is empty. Empty means it's either null, undefined or NaN
+     * @param value The value to check.
+     * @returns 
+     */
+    isEmpty<T>(value: T): boolean {
+        return value === undefined || value === null || (isNaN(value as any) && typeof value !== "string");
+    }
+
+    /**
      * Generates an array of integers between specified range
      * @param start The starting number.
      * @param end The ending number.
      */
     range(start: number, end: number): Array<number> {
-        const value = tf.linspace(start, end, end - start + 1).arraySync();
-        return value;
+        if (end < start) {
+            throw new Error("ParamError: end must be greater than start")
+        }
+
+        if (start === end) {
+            return [start]
+        }
+
+        const arr = [];
+        for (let i = start; i <= end; i++) {
+            arr.push(i);
+        }
+        return arr;
     }
 
     /**
@@ -218,11 +238,11 @@ export default class Utils {
     inferDtype(arr: ArrayType1D | ArrayType2D) {
         const self = this;
         if (this.is1DArray(arr)) {
-            return [this._typeChecker(arr)];
+            return [this.$typeChecker(arr)];
         } else {
             const arrSlice = this.transposeArray(arr.slice(0, config.getDtypeTestLim))
             const dtypes = arrSlice.map((innerArr) => {
-                return self._typeChecker(innerArr as any);
+                return self.$typeChecker(innerArr as any);
             });
             return dtypes;
         }
@@ -232,7 +252,7 @@ export default class Utils {
      * Private type checker used by inferDtype function
      * @param arr The array
      */
-    private _typeChecker(arr: ArrayType1D | ArrayType2D) {
+    private $typeChecker(arr: ArrayType1D | ArrayType2D) {
         let dtypes: string;
         let lim: number;
         let intTracker: Array<boolean> = [];
@@ -255,7 +275,7 @@ export default class Utils {
                 intTracker.push(false);
                 stringTracker.push(false);
                 boolTracker.push(true);
-            } else if (isNaN(ele as unknown as number) && typeof ele != "string") {
+            } else if (this.isEmpty(ele)) {
                 floatTracker.push(true);
                 intTracker.push(false);
                 stringTracker.push(false);
@@ -399,7 +419,7 @@ export default class Utils {
             const newArr = [];
             for (let i = 0; i < arr.length; i++) {
                 const ele = arr[i];
-                if (typeof ele == "number") {
+                if (typeof ele == "number" && !isNaN(ele) && ele !== undefined && ele !== null) {
                     newArr.push(Number((ele).toFixed(dp)));
                 } else {
                     newArr.push(ele)
@@ -414,7 +434,7 @@ export default class Utils {
                 if (Array.isArray(innerVal)) {
                     for (let i = 0; i < innerVal.length; i++) {
                         const ele = innerVal[i];
-                        if (typeof ele == "number") {
+                        if (typeof ele == "number" && !isNaN(ele) && ele !== undefined && ele !== null) {
                             newArr.push(Number((ele).toFixed(dp)));
                         } else {
                             newArr.push(ele)
@@ -422,7 +442,7 @@ export default class Utils {
                     }
                     resultArr.push(newArr);
                 } else {
-                    if (typeof innerVal == "number") {
+                    if (typeof innerVal == "number" && !isNaN(innerVal) && innerVal !== undefined && innerVal !== null) {
                         newArr.push(Number((innerVal).toFixed(dp)));
                     } else {
                         newArr.push(innerVal)
@@ -624,7 +644,7 @@ export default class Utils {
      */
     removeMissingValuesFromArray(arr: Array<number> | ArrayType1D) {
         const values = arr.filter((val) => {
-            return !(isNaN(val as unknown as number) && typeof val != "string") && val !== undefined && val !== null
+            return !(this.isEmpty(val))
         })
         return values;
     }
@@ -702,25 +722,24 @@ export default class Utils {
      * 
      * @param series The series to copy
     */
-    createNdframeFromNewDataWithOldProps({ ndFrame, newData, isSeries }: { ndFrame: Series, newData: any, isSeries: boolean }): Series {
+    createNdframeFromNewDataWithOldProps({ ndFrame, newData, isSeries }: { ndFrame: Series, newData: any, isSeries: boolean }) {
         if (isSeries) {
             return new Series(
                 newData,
                 {
-                    index: ndFrame.index,
-                    columnNames: ndFrame.columnNames,
-                    dtypes: ndFrame.dtypes,
-                    config: ndFrame.config
+                    index: [...ndFrame.index],
+                    columns: [...ndFrame.columns],
+                    dtypes: [...ndFrame.dtypes],
+                    config: { ...ndFrame.config }
                 })
         } else {
-            return ndFrame
-            // return new Frame({
-            //     data: newData,
-            //     index: ndframe.index,
-            //     columnNames: ndframe.columnNames,
-            //     dtypes: ndframe.dtypes,
-            //     config: ndframe.config
-            // })
+            return new DataFrame(newData,
+                {
+                    index: [...ndFrame.index],
+                    columns: [...ndFrame.columns],
+                    dtypes: [...ndFrame.dtypes],
+                    config: { ...ndFrame.config }
+                })
         }
     }
 
@@ -744,5 +763,38 @@ export default class Utils {
         if (firstSeries.dtypes[0] == 'string' || secondSeries.dtypes[0] == 'string') {
             ErrorThrower.throwStringDtypeOperationError(operation)
         }
+    }
+
+    /**
+    * Custom sort for an array of index and values
+    * @param arr The array of objects to sort
+    * @param ascending Whether to sort in ascending order or not
+    */
+    sortObj(
+        arr: Array<{ index: number | string, value: number | string | boolean }>,
+        ascending: boolean
+    ) {
+        return arr.sort((obj1, obj2) => {
+            const a = obj2.value;
+            const b = obj1.value;
+
+            if (!ascending) {
+                if (typeof a === "string" && typeof b === "string") {
+                    return a.charCodeAt(0) - b.charCodeAt(0);
+                } else if ((typeof a === "number" && typeof b === "number") || (typeof a === "boolean" && typeof b === "boolean")) {
+                    return Number(a) - Number(b);
+                } else {
+                    throw Error('ParamError: column values must be either numbers or strings');
+                }
+            } else {
+                if (typeof a === "string" && typeof b === "string") {
+                    return b.charCodeAt(0) - a.charCodeAt(0);
+                } else if ((typeof a === "number" && typeof b === "number") || (typeof a === "boolean" && typeof b === "boolean")) {
+                    return Number(b) - Number(a);
+                } else {
+                    throw Error('ParamError: column values must be either numbers or strings');
+                }
+            }
+        });
     }
 }
