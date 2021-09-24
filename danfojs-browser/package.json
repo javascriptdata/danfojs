@@ -22,10 +22,10 @@
   "dependencies": {
     "@tensorflow/tfjs": "^3.9.0",
     "mathjs": "9.4.4",
-    "table": "6.7.1",
     "papaparse": "^5.3.1",
     "request": "^2.88.2",
     "stream-json": "^1.7.3",
+    "table": "6.7.1",
     "xlsx": "^0.17.2"
   },
   "scripts": {
@@ -35,7 +35,7 @@
     "build:clean": "rimraf ./build && rimraf ./lib && yarn run build",
     "dev": "nodemon",
     "lint": "eslint ./src",
-    "bundle": "webpack --mode development",
+    "bundle": "webpack --mode production",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
     "patch": "npm version patch"
