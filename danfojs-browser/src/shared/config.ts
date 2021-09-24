@@ -12,14 +12,14 @@
 * limitations under the License.
 * ==========================================================================
 */
-import { BaseUserConfig } from 'table';
+import { BaseUserConfig, TableUserConfig } from 'table';
 import { ConfigsType } from './types'
 
 /**
  * Package wide configuration class
  */
 export default class Configs {
-    tableDisplayConfig: BaseUserConfig
+    tableDisplayConfig: BaseUserConfig & TableUserConfig
     tableMaxRow: number;
     tableMaxColInConsole: number;
     dtypeTestLim: number;
@@ -28,13 +28,21 @@ export default class Configs {
 
     constructor(options: ConfigsType) {
         const {
-            tableDisplayConfig = {},
-            tableMaxRow = 10,
-            tableMaxColInConsole = 21,
-            dtypeTestLim = 10,
-            lowMemoryMode = false,
-            tfInstance = null,
-        } = options
+            tableDisplayConfig,
+            tableMaxRow,
+            tableMaxColInConsole,
+            dtypeTestLim,
+            lowMemoryMode,
+            tfInstance,
+        } = {
+            tableDisplayConfig: {},
+            tableMaxRow: 10,
+            tableMaxColInConsole: 21,
+            dtypeTestLim: 10,
+            lowMemoryMode: false,
+            tfInstance: null,
+            ...options
+        }
         this.tableDisplayConfig = tableDisplayConfig
         this.tableMaxRow = tableMaxRow  // The maximum number of rows to display in console
         this.tableMaxColInConsole = tableMaxColInConsole  // The maximum number of columns to display in console
@@ -43,11 +51,11 @@ export default class Configs {
         this.tfInstance = tfInstance // A Tensorflow backend instance. Can any instance of tensoflowjs, tensorflowjs-node, or tensorflow-gpu. 
     }
 
-    setTableDisplayConfig(config: BaseUserConfig) {
+    setTableDisplayConfig(config: BaseUserConfig & TableUserConfig) {
         this.tableDisplayConfig = config;
     }
 
-    get getTableDisplayConfig(): BaseUserConfig {
+    get getTableDisplayConfig(): BaseUserConfig & TableUserConfig {
         return this.tableDisplayConfig;
     }
 

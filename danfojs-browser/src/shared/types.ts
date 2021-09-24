@@ -15,7 +15,7 @@
 import DataFrame from '../core/frame';
 import { Tensor } from '@tensorflow/tfjs';
 import Series from '../core/series';
-import { BaseUserConfig } from "table"
+import { BaseUserConfig, TableUserConfig, } from "table"
 import Str from '../core/strings';
 import Dt from '../core/datetime';
 import { ParseConfig } from 'papaparse';
@@ -37,9 +37,9 @@ export type ArrayType1D = Array<
 //Start of Config class types
 
 export type ConfigsType = {
-    tableDisplayConfig?: BaseUserConfig
-    tableMaxRow: number;
-    tableMaxColInConsole: number;
+    tableDisplayConfig?: BaseUserConfig & TableUserConfig
+    tableMaxRow?: number;
+    tableMaxColInConsole?: number;
     dtypeTestLim?: number;
     lowMemoryMode?: boolean
     tfInstance?: any
@@ -84,7 +84,7 @@ export type AxisType = {
 }
 
 export interface NDframeInterface {
-    config: ConfigsType;
+    config?: ConfigsType;
     $setDtypes(dtypes: Array<string>, infer: boolean): void;
     $setIndex(index: Array<string | number>): void;
     $resetIndex(): void;
@@ -99,16 +99,15 @@ export interface NDframeInterface {
     get values(): ArrayType1D | ArrayType2D
     get tensor(): Tensor;
     get size(): number;
-    // toCSV(options?: CsvOutputOptionsNode): string | void
-    // toJSON(options?: { format?: "row" | "column", filePath?: string }): object | void
-    // toExcel(options?: { filePath?: string, sheetName?: string }): void
+    toCSV(options?: CsvOutputOptionsBrowser): string | void
+    toJSON(options?: { download: boolean, format?: "row" | "column", fileName?: string }): object | void
+    toExcel(options?: { download: boolean,fileName?: string, sheetName?: string }): void
     print(): void;
 }
 //End of Generic class types
 
-
-export type CsvOutputOptionsNode = { filePath?: string, sep?: string, header?: boolean }
 export type CsvOutputOptionsBrowser = { fileName?: string, sep?: string, header?: boolean, download?: boolean}
+export type CsvOutputOptionsNode = { filePath?: string, sep?: string, header?: boolean }
 export interface CsvInputOptions extends ParseConfig { }
 
 
@@ -126,7 +125,7 @@ export interface SeriesInterface extends NDframeInterface {
     mod(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void;
     mean(): number
     median(): number
-    mode(): number
+    mode(): any
     min(): number
     max(): number
     sum(): number
@@ -174,16 +173,15 @@ export interface SeriesInterface extends NDframeInterface {
     asType(dtype: "float32" | "int32" | "string" | "boolean", options?: { inplace?: boolean }): Series | void
     get str(): Str
     get dt(): Dt
-    append(values: Series | Array<number | string | boolean> | number | string | boolean,
+    append(values: string | number | boolean | Series | ArrayType1D,
         index: Array<number | string> | number | string,
         options?: { inplace?: boolean }): Series | void
     toString(): string;
     and(other: any): Series
     or(other: any): Series
     getDummies(options?: {
-        columns?: string | Array<string>,
         prefix?: string | Array<string>,
-        prefixSeparator?: string,
+        prefixSeparator?: string | Array<string>,
         inplace?: boolean
     }): DataFrame
 
@@ -191,10 +189,11 @@ export interface SeriesInterface extends NDframeInterface {
 
 //Start of Series class types
 export interface DataFrameInterface extends NDframeInterface {
+    [key: string]: any
     drop(
         options:
             {
-                columns?: Array<string>,
+                columns?: string | Array<string>,
                 index?: Array<string | number>,
                 inplace?: boolean
             }
@@ -212,12 +211,12 @@ export interface DataFrameInterface extends NDframeInterface {
     head(rows?: number): DataFrame
     tail(rows?: number): DataFrame
     sample(num: number, options?: { seed?: number }): Promise<DataFrame>;
-    add(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
-    sub(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
-    mul(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
-    div(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
-    pow(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
-    mod(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
+    add(other: DataFrame | Series | number | number[], options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
+    sub(other: DataFrame | Series | number | number[], options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
+    mul(other: DataFrame | Series | number | number[], options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
+    div(other: DataFrame | Series | number | number[], options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
+    pow(other: DataFrame | Series | number | number[], options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
+    mod(other: DataFrame | Series | number | number[], options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
     mean(options?: { axis?: 0 | 1 }): Series
     median(options?: { axis?: 0 | 1 }): Series
     mode(options?: { axis?: 0 | 1, keep?: number }): Series
@@ -257,7 +256,7 @@ export interface DataFrameInterface extends NDframeInterface {
     groupby(column: [string, string]): any //Update to GroupBy class later
     column(column: string): Series
     fillNa(value: ArrayType1D,
-        options:
+        options?:
             {
                 columns?: Array<string>,
                 inplace?: boolean
@@ -311,7 +310,7 @@ export interface DataFrameInterface extends NDframeInterface {
             }
     ): DataFrame | void
     append(
-        newValues: ArrayType1D | Series | DataFrame,
+        newValues: ArrayType1D | ArrayType2D | Series | DataFrame,
         index: Array<number | string> | number | string,
         options?: {
             inplace?: boolean,
@@ -321,7 +320,7 @@ export interface DataFrameInterface extends NDframeInterface {
     getDummies(options?: {
         columns?: string | Array<string>,
         prefix?: string | Array<string>,
-        prefixSeparator?: string,
+        prefixSeparator?: string | Array<string>,
         inplace?: boolean
     }): DataFrame | void
 

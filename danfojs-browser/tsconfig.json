@@ -4,7 +4,7 @@
     "module": "commonjs",                     /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'. */
     "lib": ["es6", "dom"],                           /* Specify library files to be included in the compilation. */
     "allowJs": true,                          /* Allow javascript files to be compiled. */
-    "outDir": "./build",                        /* Redirect output structure to the directory. */
+    "outDir": "./dist",                        /* Redirect output structure to the directory. */
     "strict": true,                           /* Enable all strict type-checking options. */
     "noImplicitAny": true,                    /* Raise error on expressions and declarations with an implied 'any' type. */
     // "noUnusedLocals": true,                /* Report errors on unused locals. */
@@ -14,6 +14,7 @@
     "resolveJsonModule": true,                /* Include modules imported with '.json' extension */
     "skipLibCheck": true,                     /* Skip type checking of declaration files. */
     "forceConsistentCasingInFileNames": true,  /* Disallow inconsistently-cased references to the same file. */
+    "declaration": true,
     "baseUrl": "./src",
     "paths": {
       "@base/*": ["./*"],

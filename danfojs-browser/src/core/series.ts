@@ -307,7 +307,7 @@ export default class Series extends NDframe implements SeriesInterface {
     /**
       * Returns the modal value of elements in Series
     */
-    mode(): number {
+    mode() {
         const values = this.$checkAndCleanValues(this.values as ArrayType1D, "mode")
         return mode(values);
     }
@@ -1126,7 +1126,7 @@ export default class Series extends NDframe implements SeriesInterface {
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
      */
     append(
-        newValue: Series | Array<number | string | boolean> | number | string | boolean,
+        newValue: string | number | boolean | Series | ArrayType1D,
         index: Array<number | string> | number | string,
         options?: { inplace?: boolean }
     ): Series | void {

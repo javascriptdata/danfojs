@@ -24,11 +24,11 @@ import {
     AxisType,
     ArrayType1D,
     ArrayType2D,
-    CsvOutputOptionsNode,
+    CsvOutputOptionsBrowser,
 } from '../shared/types'
 import ErrorThrower from '../shared/errors';
 import { BASE_CONFIG, DATA_TYPES } from '../shared/defaults';
-// import { toCSV, toJSON, toExcel } from "../io"
+import { toCSV, toJSON, toExcel } from "../io"
 
 const utils = new Utils();
 
@@ -409,47 +409,47 @@ export default class NDframe implements NDframeInterface {
         return this.shape[0] * this.shape[1]
     }
 
-    // /**
-    //  * Converts a DataFrame or Series to CSV. 
-    //  * @param options Configuration object. Supports the following options:
-    //  * - `filePath`: Local file path to write the CSV file. If not specified, the CSV will be returned as a string.
-    //  * - `header`: Boolean indicating whether to include a header row in the CSV file.
-    //  * - `sep`: Character to be used as a separator in the CSV file.
-    //  */
-    // toCSV(options?: CsvOutputOptionsNode): string | void {
-    //     return toCSV(this, options);
-    // }
+    /**
+     * Converts a DataFrame or Series to CSV. 
+     * @param options Configuration object. Supports the following options:
+     * - `filePath`: Local file path to write the CSV file. If not specified, the CSV will be returned as a string.
+     * - `header`: Boolean indicating whether to include a header row in the CSV file.
+     * - `sep`: Character to be used as a separator in the CSV file.
+     */
+    toCSV(options?: CsvOutputOptionsBrowser): string | void {
+        return toCSV(this, options);
+    }
 
-    // /**
-    //  * Converts a DataFrame or Series to JSON. 
-    //  * @param options Configuration object. Supported options:
-    //  * - `filePath`: The file path to write the JSON to. If not specified, the JSON object is returned.
-    //  * - `format`: The format of the JSON. Defaults to `'column'`. E.g for using `column` format:
-    //  * ```
-    //  * [{ "a": 1, "b": 2, "c": 3, "d": 4 },
-    //  *  { "a": 5, "b": 6, "c": 7, "d": 8 }]
-    //  * ```
-    //  * and `row` format:
-    //  * ```
-    //  * { "a": [1, 5, 9],
-    //  *  "b": [2, 6, 10]
-    //  * }
-    //  * ```
-    //  */
-    // toJSON(options?: { format?: "row" | "column", filePath?: string }): object | void {
-    //     return toJSON(this, options);
-    // }
+    /**
+     * Converts a DataFrame or Series to JSON. 
+     * @param options Configuration object. Supported options:
+     * - `filePath`: The file path to write the JSON to. If not specified, the JSON object is returned.
+     * - `format`: The format of the JSON. Defaults to `'column'`. E.g for using `column` format:
+     * ```
+     * [{ "a": 1, "b": 2, "c": 3, "d": 4 },
+     *  { "a": 5, "b": 6, "c": 7, "d": 8 }]
+     * ```
+     * and `row` format:
+     * ```
+     * { "a": [1, 5, 9],
+     *  "b": [2, 6, 10]
+     * }
+     * ```
+     */
+    toJSON(options?: { download: boolean, format?: "row" | "column", fileName?: string }): object | void {
+        return toJSON(this, options);
+    }
 
 
-    // /**
-    //  * Converts a DataFrame or Series to Excel Sheet. 
-    //  * @param options Configuration object. Supported options:
-    //  * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
-    //  * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`.
-    //  */
-    // toExcel(options?: { filePath?: string, sheetName?: string }): void {
-    //     return toExcel(this, options);
-    // }
+    /**
+     * Converts a DataFrame or Series to Excel Sheet. 
+     * @param options Configuration object. Supported options:
+     * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
+     * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`.
+     */
+    toExcel(options?: { download: boolean, fileName?: string, sheetName?: string }): void {
+        return toExcel(this, options);
+    }
 
     /**
      * Pretty prints a DataFrame or Series to the console

@@ -14,7 +14,7 @@
 */
 import Papa from 'papaparse'
 import { DataFrame, NDframe, Series } from '../index'
-import { ArrayType2D, CsvInputOptions, CsvOutputOptionsBrowser, CsvOutputOptionsNode } from "../shared/types"
+import { ArrayType2D, CsvInputOptions, CsvOutputOptionsBrowser } from "../shared/types"
 
 
 /**

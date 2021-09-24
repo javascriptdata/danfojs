@@ -1,9 +1,9 @@
 {
-  "name": "danfojs",
-  "version": "0.2.7",
+  "name": "@danfojs/browser",
+  "version": "1.0.0",
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
-  "main": "lib/bundle.js",
-  "types": "types/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "directories": {
     "test": "tests"
   },
@@ -17,8 +17,7 @@
   ],
   "files": [
     "lib/",
-    "src/",
-    "types"
+    "dist/"
   ],
   "dependencies": {
     "@tensorflow/tfjs": "^3.9.0",
