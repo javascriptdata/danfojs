@@ -16,7 +16,7 @@ import { ArrayType1D, ArrayType2D, DataFrameInterface, BaseDataOptionType } from
 import dummyEncode from "../transformers/encoders/dummy.encoder"
 import { variance, std, median, mode, mean } from 'mathjs';
 import { DATA_TYPES } from '../shared/defaults'
-import { Tensor } from '@tensorflow/tfjs-core';
+import { Tensor, scalar, tensor2d, data as tfData } from '@tensorflow/tfjs-node';
 import { _genericMathOp } from "./math.ops";
 import ErrorThrower from "../shared/errors"
 import { _iloc, _loc } from "./indexing";
@@ -230,20 +230,20 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         axis: number
     ): [Tensor, Tensor] {
         if (typeof other === "number") {
-            return [this.tensor, this.$tf.scalar(other)];
+            return [this.tensor, scalar(other)];
         } else if (other instanceof DataFrame) {
             return [this.tensor, other.tensor];
         } else if (other instanceof Series) {
             if (axis === 0) {
-                return [this.tensor, this.$tf.tensor2d(other.values as Array<number>, [other.shape[0], 1])];
+                return [this.tensor, tensor2d(other.values as Array<number>, [other.shape[0], 1])];
             } else {
-                return [this.tensor, this.$tf.tensor2d(other.values as Array<number>, [other.shape[0], 1]).transpose()];
+                return [this.tensor, tensor2d(other.values as Array<number>, [other.shape[0], 1]).transpose()];
             }
         } else if (Array.isArray(other)) {
             if (axis === 0) {
-                return [this.tensor, this.$tf.tensor2d(other, [other.length, 1])];
+                return [this.tensor, tensor2d(other, [other.length, 1])];
             } else {
-                return [this.tensor, this.$tf.tensor2d(other, [other.length, 1]).transpose()];
+                return [this.tensor, tensor2d(other, [other.length, 1]).transpose()];
             }
         } else {
             throw new Error("ParamError: Invalid type for other parameter. other must be one of Series, DataFrame or number.")
@@ -535,7 +535,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             throw new Error("ParamError: Sample size cannot be less than 1");
         }
 
-        const shuffledIndex = await this.$tf.data.array(this.index).shuffle(num, `${seed}`).take(num).toArray();
+        const shuffledIndex = await tfData.array(this.index).shuffle(num, `${seed}`).take(num).toArray();
         const df = this.iloc({ rows: shuffledIndex });
         return df;
     }

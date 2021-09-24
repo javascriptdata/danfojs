@@ -25,6 +25,7 @@ import Str from './strings';
 import Dt from './datetime';
 import dummyEncode from "../transformers/encoders/dummy.encoder";
 import DataFrame from "./frame";
+import { data as tfData } from "@tensorflow/tfjs-node"
 
 const utils = new Utils();
 
@@ -147,7 +148,7 @@ export default class Series extends NDframe implements SeriesInterface {
         }
         num = num === -1 ? this.shape[0] : num;
 
-        const shuffledIndex = await this.$tf.data.array(this.index).shuffle(num, `${seed}`).take(num).toArray();
+        const shuffledIndex = await tfData.array(this.index).shuffle(num, `${seed}`).take(num).toArray();
         const sf = this.iloc(shuffledIndex);
         return sf;
     }

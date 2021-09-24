@@ -24,7 +24,6 @@ export default class Configs {
     tableMaxColInConsole: number;
     dtypeTestLim: number;
     lowMemoryMode: boolean;
-    tfInstance: any
 
     constructor(options: ConfigsType) {
         const {
@@ -33,14 +32,12 @@ export default class Configs {
             tableMaxColInConsole,
             dtypeTestLim,
             lowMemoryMode,
-            tfInstance,
         } = {
             tableDisplayConfig: {},
             tableMaxRow: 10,
             tableMaxColInConsole: 21,
             dtypeTestLim: 10,
             lowMemoryMode: false,
-            tfInstance: null,
             ...options
         }
         this.tableDisplayConfig = tableDisplayConfig
@@ -48,7 +45,6 @@ export default class Configs {
         this.tableMaxColInConsole = tableMaxColInConsole  // The maximum number of columns to display in console
         this.dtypeTestLim = dtypeTestLim  // The number of rows to use when inferring data type
         this.lowMemoryMode = lowMemoryMode  // Whether to use minimal memory or not.
-        this.tfInstance = tfInstance // A Tensorflow backend instance. Can any instance of tensoflowjs, tensorflowjs-node, or tensorflow-gpu. 
     }
 
     setTableDisplayConfig(config: BaseUserConfig & TableUserConfig) {
@@ -89,14 +85,6 @@ export default class Configs {
 
     setIsLowMemoryMode(val: boolean) {
         this.lowMemoryMode = val;
-    }
-
-    get getTfInstance() {
-        return this.tfInstance;
-    }
-
-    setTfInstance(tfInstance: any) {
-        this.tfInstance = tfInstance;
     }
 }
 

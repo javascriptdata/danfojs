@@ -29,6 +29,7 @@ import {
 import ErrorThrower from '../shared/errors';
 import { BASE_CONFIG, DATA_TYPES } from '../shared/defaults';
 import { toCSV, toJSON, toExcel } from "../io"
+import { Tensor, tensor1d, tensor2d } from "@tensorflow/tfjs-node"
 
 const utils = new Utils();
 
@@ -58,7 +59,6 @@ export default class NDframe implements NDframeInterface {
     protected $columns: string[] = []
     protected $dtypes: Array<string> = []
     protected $config: Configs
-    $tf: any
 
     constructor({ data, index, columns, dtypes, config, isSeries }: NdframeInputDataType) {
         this.$isSeries = isSeries
@@ -68,9 +68,7 @@ export default class NDframe implements NDframeInterface {
             this.$config = new Configs(BASE_CONFIG);
         }
 
-        this.$tf = this.$config.getTfInstance;
-
-        if (data instanceof this.$tf.Tensor) {
+        if (data instanceof Tensor) {
             data = data.arraySync();
         }
 
@@ -164,9 +162,9 @@ export default class NDframe implements NDframeInterface {
     */
     get tensor() {
         if (this.$isSeries) {
-            return this.$tf.tensor1d(this.$data)
+            return tensor1d(this.$data)
         } else {
-            return this.$tf.tensor2d(this.$data)
+            return tensor2d(this.$data)
         }
     }
 

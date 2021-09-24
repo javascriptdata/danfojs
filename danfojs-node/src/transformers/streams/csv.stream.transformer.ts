@@ -14,7 +14,6 @@
 */
 import { CsvInputOptions, CsvOutputOptionsNode } from "../../shared/types"
 import DataFrame from "../../core/frame"
-import Series from "../../core/series"
 import stream from "stream"
 import { writeCsvOutputStream, openCsvInputStream } from "../../io"
 

@@ -24,11 +24,12 @@ import {
     AxisType,
     ArrayType1D,
     ArrayType2D,
-    CsvOutputOptionsBrowser,
+    CsvOutputOptionsNode,
 } from '../shared/types'
 import ErrorThrower from '../shared/errors';
 import { BASE_CONFIG, DATA_TYPES } from '../shared/defaults';
 import { toCSV, toJSON, toExcel } from "../io"
+import { Tensor, tensor1d, tensor2d } from "@tensorflow/tfjs"
 
 const utils = new Utils();
 
@@ -58,7 +59,6 @@ export default class NDframe implements NDframeInterface {
     protected $columns: string[] = []
     protected $dtypes: Array<string> = []
     protected $config: Configs
-    $tf: any
 
     constructor({ data, index, columns, dtypes, config, isSeries }: NdframeInputDataType) {
         this.$isSeries = isSeries
@@ -68,9 +68,7 @@ export default class NDframe implements NDframeInterface {
             this.$config = new Configs(BASE_CONFIG);
         }
 
-        this.$tf = this.$config.getTfInstance;
-
-        if (data instanceof this.$tf.Tensor) {
+        if (data instanceof Tensor) {
             data = data.arraySync();
         }
 
@@ -164,9 +162,9 @@ export default class NDframe implements NDframeInterface {
     */
     get tensor() {
         if (this.$isSeries) {
-            return this.$tf.tensor1d(this.$data)
+            return tensor1d(this.$data)
         } else {
-            return this.$tf.tensor2d(this.$data)
+            return tensor2d(this.$data)
         }
     }
 
@@ -416,7 +414,7 @@ export default class NDframe implements NDframeInterface {
      * - `header`: Boolean indicating whether to include a header row in the CSV file.
      * - `sep`: Character to be used as a separator in the CSV file.
      */
-    toCSV(options?: CsvOutputOptionsBrowser): string | void {
+    toCSV(options?: CsvOutputOptionsNode): string | void {
         return toCSV(this, options);
     }
 
@@ -436,7 +434,7 @@ export default class NDframe implements NDframeInterface {
      * }
      * ```
      */
-    toJSON(options?: { download: boolean, format?: "row" | "column", fileName?: string }): object | void {
+    toJSON(options?: { format?: "row" | "column", filePath?: string }): object | void {
         return toJSON(this, options);
     }
 
@@ -447,7 +445,7 @@ export default class NDframe implements NDframeInterface {
      * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
      * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`.
      */
-    toExcel(options?: { download: boolean, fileName?: string, sheetName?: string }): void {
+    toExcel(options?: { filePath?: string, sheetName?: string }): void {
         return toExcel(this, options);
     }
 
