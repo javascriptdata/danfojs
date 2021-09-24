@@ -6,7 +6,8 @@ describe("Iloc and Loc based Indexing", function () {
         it("throw error for wrong row index value", function () {
             let data = [1, 2, 34, 5, 6];
             let df = new Series(data);
-            assert.throws(function () { df.iloc(0) }, Error, `rows parameter must be an Array. For example: rows: [1,2] or rows: ["0:10"]`);
+            
+            assert.throws(function () { df.iloc(0 as any) }, Error, `rows parameter must be an Array. For example: rows: [1,2] or rows: ["0:10"]`);
         });
 
         it("throw error for wrong string split parameter", function () {
@@ -209,7 +210,7 @@ describe("Iloc and Loc based Indexing", function () {
         it("throw error for wrong row index value", function () {
             let data = [1, 2, 34, 5, 6];
             let df = new Series(data);
-            assert.throws(function () { df.loc(0) }, Error, `rows parameter must be an Array. For example: rows: [1,2] or rows: ["0:10"]`);
+            assert.throws(function () { df.loc(0 as any) }, Error, `rows parameter must be an Array. For example: rows: [1,2] or rows: ["0:10"]`);
         });
 
         it("throw error for wrong string split parameter", function () {

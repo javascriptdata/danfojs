@@ -1,11 +1,11 @@
 {
-  "name": "danfojs-node",
-  "version": "0.2.7",
+  "name": "@danfojs/node",
+  "version": "1.0.0",
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "directories": {
-    "test": "tests"
+    "test": "test"
   },
   "contributors": [
     {
@@ -16,9 +16,7 @@
     }
   ],
   "files": [
-    "dist/",
-    "src/",
-    "types"
+    "dist/"
   ],
   "dependencies": {
     "@tensorflow/tfjs-node": "3.6.1",
@@ -71,13 +69,14 @@
     "@babel/register": "^7.10.1",
     "@types/chai": "^4.2.19",
     "@types/mocha": "^8.2.2",
-    "@types/node": "^15.12.5",
+    "@types/node": "^16.9.6",
     "@types/papaparse": "^5.2.6",
     "@types/request": "^2.48.7",
     "@types/stream-json": "^1.7.1",
     "@types/table": "^6.3.2",
     "chai": "^4.2.0",
     "coveralls": "^3.1.0",
+    "dts-bundle-generator": "^5.9.0",
     "eslint": "^7.1.0",
     "mocha": "^7.2.0",
     "nodemon": "^2.0.7",

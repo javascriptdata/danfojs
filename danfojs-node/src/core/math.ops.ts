@@ -14,7 +14,6 @@
 */
 import Series from "./series";
 import Utils from "../shared/utils"
-import { ArrayType1D } from "@base/shared/types";
 
 const utils = new Utils();
 

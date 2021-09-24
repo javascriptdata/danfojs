@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { Series, OneHotEncoder } from "../../dist";
+import { Series, OneHotEncoder, DataFrame } from "../../dist";
 
 describe("OneHotEncoder", function () {
     it("OneHotEncoder works on array", function () {
@@ -36,14 +36,14 @@ describe("OneHotEncoder", function () {
             [0, 0, 1],
             [0, 1, 0]
         ];
-        assert.deepEqual(encoder.transform(series).values, expected);
+        assert.deepEqual((encoder.transform(series) as DataFrame).values, expected);
     });
 
     it("fitTransform works on OneHotEncoder", function () {
         const data = ["dog", "cat", "man", "dog", "cat", "man", "man", "cat"];
         const series = new Series(data);
         const encoder = new OneHotEncoder();
-        const result = encoder.fitTransform(series);
+        const result = encoder.fitTransform(series) as DataFrame
 
         const expected = [
             [1, 0, 0],
@@ -64,7 +64,7 @@ describe("OneHotEncoder", function () {
             { index: ["a", "b", "c", "d", "e", "f", "g", "h"],
         });
         const encoder = new OneHotEncoder();
-        const result = encoder.fitTransform(series);
+        const result = encoder.fitTransform(series) as DataFrame
 
         const expected = [
             [1, 0, 0],

@@ -34,12 +34,12 @@ export default class StandardScaler {
         this.$mean = tensor1d([])
     }
 
-    private $getTensor(data: Array<number> | Tensor | DataFrame | Series) {
+    private $getTensor(data: number[] | number[][] | Tensor | DataFrame | Series) {
         let $tensorArray;
 
         if (data instanceof Array) {
             if (utils.is1DArray(data)) {
-                $tensorArray = tensor1d(data)
+                $tensorArray = tensor1d(data as number[])
             } else {
                 $tensorArray = tensor2d(data)
             }
@@ -62,7 +62,7 @@ export default class StandardScaler {
      * const scaler = new StandardScaler()
      * scaler.fit([1, 2, 3, 4, 5])
      */
-    public fit(data: Array<number> | Tensor | DataFrame | Series) {
+    public fit(data: number[] | number[][] | Tensor | DataFrame | Series) {
         const tensorArray = this.$getTensor(data)
         this.$std = moments(tensorArray, 0).variance.sqrt();
         this.$mean = tensorArray.mean(0);
@@ -79,7 +79,7 @@ export default class StandardScaler {
      * scaler.transform([1, 2, 3, 4, 5])
      * // [0.0, 0.0, 0.0, 0.0, 0.0]
      * */
-    public transform(data: Array<number> | Tensor | DataFrame | Series) {
+    public transform(data: number[] | number[][] | Tensor | DataFrame | Series) {
         const tensorArray = this.$getTensor(data)
         const outputData = tensorArray.sub(this.$mean).div(this.$std)
 
@@ -112,7 +112,7 @@ export default class StandardScaler {
      * scaler.fitTransform([1, 2, 3, 4, 5])
      * // [0.0, 0.0, 0.0, 0.0, 0.0]
      * */
-    public fitTransform(data: Array<number> | Tensor | DataFrame | Series) {
+    public fitTransform(data: number[] | number[][] | Tensor | DataFrame | Series) {
         this.fit(data)
         return this.transform(data)
     }
@@ -129,7 +129,7 @@ export default class StandardScaler {
      * scaler.inverseTransform([0.0, 0.0, 0.0, 0.0, 0.0])
      * // [1, 2, 3, 4, 5]
      * */
-    public inverseTransform(data: Array<number> | Tensor | DataFrame | Series) {
+    public inverseTransform(data:number[] | number[][] | Tensor | DataFrame | Series) {
         const tensorArray = this.$getTensor(data)
         const outputData = tensorArray.mul(this.$std).add(this.$mean)
 

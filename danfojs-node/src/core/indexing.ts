@@ -16,7 +16,7 @@
 import Series from "./series";
 import Utils from "../shared/utils"
 import DataFrame from "./frame";
-import { ArrayType2D, NDframeInterface } from "@base/shared/types";
+import { NDframeInterface } from "../shared/types";
 
 const utils = new Utils();
 

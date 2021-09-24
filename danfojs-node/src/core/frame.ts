@@ -39,7 +39,7 @@ const utils = new Utils();
  */
 /* @ts-ignore */ //COMMENT OUT WHEN METHODS HAVE BEEN IMPLEMENTED
 export default class DataFrame extends NDframe implements DataFrameInterface {
-
+    [key: string]: any
     constructor(data: any, options: BaseDataOptionType = {}) {
         const { index, columns, dtypes, config } = options;
         super({ data, index, columns, dtypes, config, isSeries: false });
@@ -546,7 +546,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    add(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
+    add(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
         const { inplace, axis } = { inplace: false, axis: 1, ...options }
 
         if (this.$frameIsNotCompactibleForArithmeticOperation()) {
@@ -567,7 +567,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param options.axis 0 or 1. If 0, compute the subtraction column-wise, if 1, row-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    sub(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
+    sub(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
         const { inplace, axis } = { inplace: false, axis: 1, ...options }
 
         if (this.$frameIsNotCompactibleForArithmeticOperation()) {
@@ -589,7 +589,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param options.axis 0 or 1. If 0, compute the multiplication column-wise, if 1, row-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    mul(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
+    mul(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
         const { inplace, axis } = { inplace: false, axis: 1, ...options }
 
         if (this.$frameIsNotCompactibleForArithmeticOperation()) {
@@ -611,7 +611,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param options.axis 0 or 1. If 0, compute the division column-wise, if 1, row-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    div(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
+    div(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
         const { inplace, axis } = { inplace: false, axis: 1, ...options }
 
         if (this.$frameIsNotCompactibleForArithmeticOperation()) {
@@ -634,7 +634,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param options.axis 0 or 1. If 0, compute the power column-wise, if 1, row-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    pow(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
+    pow(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
         const { inplace, axis } = { inplace: false, axis: 1, ...options }
 
         if (this.$frameIsNotCompactibleForArithmeticOperation()) {
@@ -657,7 +657,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param options.axis 0 or 1. If 0, compute the mod column-wise, if 1, row-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
-    mod(other: DataFrame | Series | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
+    mod(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
         const { inplace, axis } = { inplace: false, axis: 1, ...options }
 
         if (this.$frameIsNotCompactibleForArithmeticOperation()) {
@@ -846,7 +846,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param other DataFrame, Series, Array or Scalar number to compare with
      * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
     */
-    lt(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame {
+    lt(other: DataFrame | Series | number | Array<number>, options?: { axis?: 0 | 1 }): DataFrame {
         const { axis } = { axis: 1, ...options }
 
         if (this.$frameIsNotCompactibleForArithmeticOperation()) {
@@ -866,7 +866,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param other DataFrame, Series, Array or Scalar number to compare with
      * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
     */
-    gt(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame {
+    gt(other: DataFrame | Series | number | Array<number>, options?: { axis?: 0 | 1 }): DataFrame {
         const { axis } = { axis: 1, ...options }
 
         if (this.$frameIsNotCompactibleForArithmeticOperation()) {
@@ -886,7 +886,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param other DataFrame, Series, Array or Scalar number to compare with
      * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
     */
-    eq(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame {
+    eq(other: DataFrame | Series | number | Array<number>, options?: { axis?: 0 | 1 }): DataFrame {
         const { axis } = { axis: 1, ...options }
 
         if (this.$frameIsNotCompactibleForArithmeticOperation()) {
@@ -906,7 +906,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param other DataFrame, Series, Array or Scalar number to compare with
      * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
     */
-    ne(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame {
+    ne(other: DataFrame | Series | number | Array<number>, options?: { axis?: 0 | 1 }): DataFrame {
         const { axis } = { axis: 1, ...options }
 
         if (this.$frameIsNotCompactibleForArithmeticOperation()) {
@@ -926,7 +926,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     * @param other DataFrame, Series, Array or Scalar number to compare with
     * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
     */
-    le(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame {
+    le(other: DataFrame | Series | number | Array<number>, options?: { axis?: 0 | 1 }): DataFrame {
         const { axis } = { axis: 1, ...options }
 
         if (this.$frameIsNotCompactibleForArithmeticOperation()) {
@@ -946,7 +946,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     * @param other DataFrame, Series, Array or Scalar number to compare with
     * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
     */
-    ge(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame {
+    ge(other: DataFrame | Series | number | Array<number>, options?: { axis?: 0 | 1 }): DataFrame {
         const { axis } = { axis: 1, ...options }
 
         if (this.$frameIsNotCompactibleForArithmeticOperation()) {
@@ -1381,7 +1381,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     */
     fillNa(
         values: number | string | boolean | ArrayType1D,
-        options:
+        options?:
             {
                 columns?: Array<string>,
                 inplace?: boolean
@@ -1467,7 +1467,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     */
     drop(options?:
         {
-            columns?: Array<string>,
+            columns?: string | Array<string>,
             index?: Array<string | number>,
             inplace?: boolean
         }): DataFrame | void {
@@ -1595,7 +1595,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     */
     sortValues(
         column: string,
-        options:
+        options?:
             {
                 ascending?: boolean
                 inplace?: boolean
@@ -2140,7 +2140,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
      */
     append(
-        newValues: ArrayType1D | Series | DataFrame,
+        newValues: ArrayType1D | ArrayType2D | Series | DataFrame,
         index: Array<number | string> | number | string,
         options?: {
             inplace?: boolean,
@@ -2272,7 +2272,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     getDummies(options?: {
         columns?: string | Array<string>,
         prefix?: string | Array<string>,
-        prefixSeparator?: string,
+        prefixSeparator?: string | Array<string>,
         inplace?: boolean
     }): DataFrame | void {
         const { inplace } = { inplace: false, ...options }

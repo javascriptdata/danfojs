@@ -34,7 +34,7 @@ import { writeCsvOutputStream, openCsvInputStream } from "../../io"
  * ```
  * 
 */
-const convertFunctionTotransformer = (func: (df: DataFrame | Series) => DataFrame | Series) => {
+const convertFunctionTotransformer = (func: (df: DataFrame) => DataFrame) => {
     const transformStream = new stream.Transform({ objectMode: true })
     transformStream._transform = (chunk: any, encoding, callback) => {
         const outputChunk = func(chunk)
@@ -76,7 +76,7 @@ const convertFunctionTotransformer = (func: (df: DataFrame | Series) => DataFram
 */
 const streamCsvTransformer = (
     inputFilePath: string,
-    transformer: (df: DataFrame | Series) => DataFrame | Series,
+    transformer: (df: DataFrame) => DataFrame,
     options: {
         outputFilePath?: string,
         customCSVStreamWriter?: any,

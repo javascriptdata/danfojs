@@ -12,7 +12,7 @@
 * limitations under the License.
 * ==========================================================================
 */
-import DataFrame from "@base/core/frame"
+import DataFrame from "../core/frame"
 import NDframe from "../core/generic"
 import { DATA_TYPES } from "./defaults"
 

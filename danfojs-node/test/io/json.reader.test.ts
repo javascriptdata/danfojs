@@ -58,7 +58,7 @@ describe("streamJSON", function () {
             } else {
                 assert.deepEqual(df, null);
             }
-        }, { header: false});
+        });
     });
 
     // it("Streaming remote json file with callback works", async function () {

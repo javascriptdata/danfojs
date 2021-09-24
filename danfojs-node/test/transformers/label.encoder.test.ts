@@ -8,7 +8,7 @@ describe("LabelEncoder", function () {
         const scaler = new LabelEncoder();
         scaler.fit(sf);
         const expected = [0, 1, 1, 2];
-        assert.deepEqual(scaler.transform(sf).values, expected);
+        assert.deepEqual((scaler.transform(sf) as Series).values, expected);
     });
     it("LabelEncoder works for 1D array", function () {
         const sf = [1, 2, 2, "boy", "git", "git"]
