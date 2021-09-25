@@ -1793,12 +1793,15 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     applyMap(callable: any, options?: { inplace?: boolean }): DataFrame | void {
         const { inplace } = { inplace: false, ...options }
 
-        const newData = this.values.map(row => {
-            return callable(row)
-        })
+        const newData = (this.values  as ArrayType2D).map((row) => {
+            const tempData = row.map((val) => {
+              return callable(val);
+            });
+            return tempData;
+          });
 
         if (inplace) {
-            this.$setValues(newData)
+            this.$setValues(newData);
         } else {
             return new DataFrame(newData,
                 {
@@ -1806,7 +1809,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                     columns: [...this.columns],
                     dtypes: [...this.dtypes],
                     config: { ...this.config }
-                })
+                });
         }
     }
 
