@@ -12,7 +12,13 @@ import get_dummies from "./core/get_dummies";
 import Str from "./core/strings";
 import Dt from "./core/datetime";
 import { toDateTime } from "./core/datetime";
-// import { read_csv, to_csv, read_json, to_json, read_excel, to_excel } from "./io";
+import {
+  readCSV as read_csv,
+  toCSV as to_csv,
+  readJSON as read_json,
+  toJSON as to_json,
+  readExcel as read_excel,
+  toExcel as to_excel } from "./io";
 
 
 export {
@@ -27,12 +33,12 @@ export {
   Dt,
   Series,
   DataFrame,
-  //   read_csv,
-  //   to_csv,
-  //   read_json,
-  //   to_json,
-  //   read_excel,
-  //   to_excel
+  read_csv,
+  to_csv,
+  read_json,
+  to_json,
+  read_excel,
+  to_excel,
   MinMaxScaler,
   StandardScaler,
   LabelEncoder,

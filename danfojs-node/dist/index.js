@@ -97,6 +97,42 @@ Object.defineProperty(exports, "toDateTime", {
     return _datetime.toDateTime;
   }
 });
+Object.defineProperty(exports, "read_csv", {
+  enumerable: true,
+  get: function () {
+    return _io.readCSV;
+  }
+});
+Object.defineProperty(exports, "to_csv", {
+  enumerable: true,
+  get: function () {
+    return _io.toCSV;
+  }
+});
+Object.defineProperty(exports, "read_json", {
+  enumerable: true,
+  get: function () {
+    return _io.readJSON;
+  }
+});
+Object.defineProperty(exports, "to_json", {
+  enumerable: true,
+  get: function () {
+    return _io.toJSON;
+  }
+});
+Object.defineProperty(exports, "read_excel", {
+  enumerable: true,
+  get: function () {
+    return _io.readExcel;
+  }
+});
+Object.defineProperty(exports, "to_excel", {
+  enumerable: true,
+  get: function () {
+    return _io.toExcel;
+  }
+});
 exports._version = void 0;
 
 var _generic = _interopRequireDefault(require("./core/generic"));
@@ -122,6 +158,8 @@ var _get_dummies = _interopRequireDefault(require("./core/get_dummies"));
 var _strings = _interopRequireDefault(require("./core/strings"));
 
 var _datetime = _interopRequireWildcard(require("./core/datetime"));
+
+var _io = require("./io");
 
 const _version = "0.2.8";
 exports._version = _version;
