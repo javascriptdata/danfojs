@@ -1,4 +1,4 @@
-// import * as tf from "@tensorflow/tfjs-node";
+import * as tf from "@tensorflow/tfjs-node";
 import NDframe from "./core/generic";
 import { utils } from './shared/utils';
 import Series from "./core/series";
@@ -22,7 +22,7 @@ import {
 
 
 export {
-  // tf,
+  tf,
   date_range,
   toDateTime,
   concat,

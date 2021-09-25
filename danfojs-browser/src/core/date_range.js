@@ -1,6 +1,4 @@
-import { Utils } from "./utils";
-
-const utils = new Utils;
+import { utils } from "../shared/utils";
 
 /**
  * Generate date range between a specified set of date
@@ -17,25 +15,25 @@ export class date_range {
 
     this.offset = null;
 
-    if (utils.__key_in_object(kwargs, "start")){
+    if (utils.keyInObject(kwargs, "start")){
       this.start = kwargs["start"];
     } else {
       this.start = null;
     }
 
-    if (utils.__key_in_object(kwargs, "end")){
+    if (utils.keyInObject(kwargs, "end")){
       this.end = kwargs["end"];
     } else {
       this.end = null;
     }
 
-    if (utils.__key_in_object(kwargs, "period")){
+    if (utils.keyInObject(kwargs, "period")){
       this.period = kwargs["period"];
     } else {
       this.period = null;
     }
 
-    if (utils.__key_in_object(kwargs, "freq")){
+    if (utils.keyInObject(kwargs, "freq")){
       this.freq = kwargs["freq"];
     } else {
       this.freq = "D";
@@ -86,7 +84,7 @@ export class date_range {
         }
       }
 
-      let range_array = utils.__range(start_range, end_range);
+      let range_array = utils.range(start_range, end_range);
 
       if (offset){
         range_array = this.offset_count(range_array, offset);
@@ -112,7 +110,7 @@ export class date_range {
       if (start_range > end_range){
         end_range = end_range + start_range;
       }
-      let range_array = utils.__range(start_range, end_range);
+      let range_array = utils.range(start_range, end_range);
 
 
       if (offset){
@@ -131,7 +129,7 @@ export class date_range {
       end_range = this.freq_type(end_date, this.freq);
       start_range = (end_range - period) + 1;
 
-      let range_array = utils.__range(start_range, end_range);
+      let range_array = utils.range(start_range, end_range);
 
       if (offset){
         range_array = this.offset_count(range_array, offset);
@@ -263,7 +261,7 @@ export class date_range {
   day_end(start_date, end_date){
 
     let month_end = this.month_end(start_date, end_date);
-    let range = utils.__range(start_date.getMonth(), month_end);
+    let range = utils.range(start_date.getMonth(), month_end);
     let m_range = this.month_range(range);
 
     // let s_date = new Date(start_date.getFullYear(),start_date.getMonth(),0)

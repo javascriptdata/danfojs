@@ -17,7 +17,7 @@ import { utils } from "../shared/utils";
 import Configs from "../shared/config";
 import ErrorThrower from '../shared/errors';
 import { BASE_CONFIG, DATA_TYPES } from '../shared/defaults';
-// import { toCSV, toJSON, toExcel } from "../io";
+import { toCSV, toJSON, toExcel } from "../io";
 import { Tensor, tensor1d, tensor2d } from "@tensorflow/tfjs-node";
 
 // const utils = new Utils();
@@ -396,7 +396,7 @@ export default class NDframe {
      * - `header`: Boolean indicating whether to include a header row in the CSV file.
      * - `sep`: Character to be used as a separator in the CSV file.
      */
-  toCSV(options) {
+  to_csv(options) {
     return toCSV(this, options);
   }
 
@@ -416,7 +416,7 @@ export default class NDframe {
      * }
      * ```
      */
-  toJSON(options) {
+  to_json(options) {
     return toJSON(this, options);
   }
 
@@ -427,7 +427,7 @@ export default class NDframe {
      * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
      * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`.
      */
-  toExcel(options){
+  to_excel(options){
     return toExcel(this, options);
   }
 

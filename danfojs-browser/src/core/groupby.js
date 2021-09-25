@@ -1,8 +1,7 @@
-import { DataFrame } from "./frame";
-import { Utils } from "./utils";
-import { Series } from "./series";
+import DataFrame from "./frame";
+import { utils } from "../shared/utils";
+import Series from "./series";
 import { concat } from "./concat";
-const utils = new Utils;
 
 /**
  * The class performs all groupby operation on a dataframe
@@ -237,7 +236,7 @@ export class GroupBy {
     if (key.length !== this.key_col.length)
       throw new Error("specify the group by column");
 
-    utils.__is_object(this.data_tensors, key[0], `Key Error: ${key[0]} not in object`);
+    utils.isObject(this.data_tensors, key[0], `Key Error: ${key[0]} not in object`);
     const last_key = key[key.length - 1];
     let sub_data_tensors = this.data_tensors;
     for (const k of key) {

@@ -1,6 +1,6 @@
-import { Utils } from "../core/utils";
-import { Series } from "../core/series";
-const utils = new Utils();
+/* eslint-disable no-undef */
+import { utils } from "../shared/utils";
+import Series from "../core/series";
 
 /**
  * Change: Rising Odegua 6th Feb 2021

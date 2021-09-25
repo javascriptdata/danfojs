@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 
 describe("groupby", function () {
   it("Check group by One column data", function () {
@@ -291,5 +292,4 @@ describe("groupby", function () {
     ];
     assert.deepEqual(group_df.apply((x) => x.count()).values, rslt);
   });
-
 });

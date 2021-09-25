@@ -1,17 +1,18 @@
 /* eslint-disable no-undef */
-const tf = require("@tensorflow/tfjs");
+
+const tf = require('@tensorflow/tfjs');
 
 describe("Series", function () {
   describe("tensor", function () {
     it("Returns the tensor object of a Series", function () {
       let data = [ 1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78 ];
       let sf = new dfd.Series(data);
-      assert.deepEqual(sf.tensor.dtype, "int32");
+      assert.deepEqual(sf.dtype, "int32");
     });
     it("Returns the float dtype of a tensor object", function () {
       let data = [ 1.1, 2.2, 3, 4.1, 5, 620, 30.1, 40, 39, 89, 78 ];
       let sf = new dfd.Series(data);
-      assert.deepEqual(sf.tensor.dtype, "float32");
+      assert.deepEqual(sf.dtype, "float32");
     });
     it("Compares a tensor returned from a Series to Tensorflow's tensor", function () {
       let data = [ 1.1, 2.2, 3, 4.1, 5, 620, 30.1, 40, 39, 89, 78 ];
@@ -45,17 +46,6 @@ describe("Series", function () {
       let sf = new dfd.Series(data, { columns: cols });
       assert.deepEqual(sf.head(2).values, [ 1, 2 ]);
     });
-    it("Return all rows in a Series if row specified is greater than values", function () {
-      let data = [ "Boy", "Girl", "Man", "Woman", "Tall" ];
-      let cols = [ "Items" ];
-      let sf = new dfd.Series(data, { columns: cols });
-      assert.deepEqual(sf.head(10).values, data);
-    });
-    it("Return all rows in a Series if row specified is less than 0", function () {
-      let data = [ 1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78 ];
-      let sf = new dfd.Series(data);
-      assert.deepEqual(sf.head(-1).values, data);
-    });
   });
 
   describe("tail", function () {
@@ -64,17 +54,6 @@ describe("Series", function () {
       let sf = new dfd.Series(data);
       assert.deepEqual(sf.tail(2).values, [ 89, 78 ]);
     });
-    it("Return all rows in a Series if row specified is greater than values", function () {
-      let data = [ 1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78 ];
-      let sf = new dfd.Series(data);
-      assert.deepEqual(sf.tail(15).values, data);
-    });
-    it("Return all rows in a Series if row specified is less than 0", function () {
-      let data = [ "Boy", "Girl", "Man", "Woman", "Tall" ];
-      let cols = [ "Items" ];
-      let sf = new dfd.Series(data, { columns: cols });
-      assert.deepEqual(sf.tail(-1).values, data);
-    });
   });
 
   describe("sample", function () {
@@ -82,11 +61,6 @@ describe("Series", function () {
       let data = [ 1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78 ];
       let sf = new dfd.Series(data);
       assert.deepEqual((await sf.sample(7)).values.length, 7);
-    });
-    it("Return all values if n of sample -1", async function () {
-      let data = [ 1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78 ];
-      let sf = new dfd.Series(data);
-      assert.deepEqual((await sf.sample(-1)).values.length, data.length);
     });
     it("Throw error if n is greater than lenght of Series", async function () {
       let data = [ 1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78 ];
@@ -123,16 +97,16 @@ describe("Series", function () {
           sf.add(sf2);
         },
         Error,
-        "Argument 'x' passed to 'cast' must be numeric tensor, but got string tensor"
+        "DtypeError: String data type does not support add operation"
       );
     });
-    // it("Throws length error if series lenght mixmatch", function () {
-    //     let data = [1, 2, 3, 4]
-    //     let data2 = [1, 2, 3, 4, 5, 6]
-    //     let sf = new dfd.Series(data)
-    //     let sf2 = new dfd.Series(data2)
-    //     assert.throws(() => { sf.add(sf2) }, Error, "Incompatible shapes: [4] vs. [6]")
-    // })
+    it("Throws length error if series lenght mixmatch", function () {
+      let data = [ 1, 2, 3, 4 ];
+      let data2 = [ 1, 2, 3, 4, 5, 6 ];
+      let sf = new dfd.Series(data);
+      let sf2 = new dfd.Series(data2);
+      assert.throws(() => { sf.add(sf2); }, Error, "ParamError: Row length mismatch. Length of other (6), must be the same as Ndframe (4)");
+    });
   });
 
   describe("sub", function () {
@@ -158,16 +132,16 @@ describe("Series", function () {
           sf.sub(sf2);
         },
         Error,
-        "Argument 'x' passed to 'cast' must be numeric tensor, but got string tensor"
+        "DtypeError: String data type does not support sub operation"
       );
     });
-    // it("Throws length error if series lenght mixmatch", function () {
-    //     let data = [1, 2, 3, 4]
-    //     let data2 = [1, 2, 3, 4, 5, 6]
-    //     let sf = new dfd.Series(data)
-    //     let sf2 = new dfd.Series(data2)
-    //     assert.throws(() => { sf.sub(sf2) }, Error, "Incompatible shapes: [4] vs. [6]")
-    // })
+    it("Throws length error if series lenght mixmatch", function () {
+      let data = [ 1, 2, 3, 4 ];
+      let data2 = [ 1, 2, 3, 4, 5, 6 ];
+      let sf = new dfd.Series(data);
+      let sf2 = new dfd.Series(data2);
+      assert.throws(() => { sf.sub(sf2); }, Error, "ParamError: Row length mismatch. Length of other (6), must be the same as Ndframe (4)");
+    });
   });
 
   describe("mul", function () {
@@ -183,20 +157,20 @@ describe("Series", function () {
       let sf = new dfd.Series(data);
       assert.deepEqual(sf.mul(1).values, [ 1, 2, 3, 4, 5 ]);
     });
-    // it("Throws type error on multiplication of string type", function () {
-    //     let data = [1, 2, 3, 4]
-    //     let data2 = ["A", "B", "C", "d"]
-    //     let sf = new dfd.Series(data)
-    //     let sf2 = new dfd.Series(data2)
-    //     assert.throws(() => { sf.mul(sf2) }, Error, "Argument 'x' passed to 'cast' must be numeric tensor, but got string tensor")
-    // })
-    // it("Throws length error if series lenght mixmatch", function () {
-    //     let data = [1, 2, 3, 4]
-    //     let data2 = [1, 2, 3, 4, 5, 6]
-    //     let sf = new dfd.Series(data)
-    //     let sf2 = new dfd.Series(data2)
-    //     assert.throws(() => { sf.mul(sf2) }, Error, "Operands could not be broadcast together with shapes 4 and 6")
-    // })
+    it("Throws type error on multiplication of string type", function () {
+      let data = [ 1, 2, 3, 4 ];
+      let data2 = [ "A", "B", "C", "d" ];
+      let sf = new dfd.Series(data);
+      let sf2 = new dfd.Series(data2);
+      assert.throws(() => { sf.mul(sf2); }, Error, "DtypeError: String data type does not support mul operation");
+    });
+    it("Throws length error if series lenght mixmatch", function () {
+      let data = [ 1, 2, 3, 4 ];
+      let data2 = [ 1, 2, 3, 4, 5, 6 ];
+      let sf = new dfd.Series(data);
+      let sf2 = new dfd.Series(data2);
+      assert.throws(() => { sf.mul(sf2); }, Error, "ParamError: Row length mismatch. Length of other (6), must be the same as Ndframe (4)");
+    });
   });
 
   describe("div", function () {
@@ -207,32 +181,11 @@ describe("Series", function () {
       let sf2 = new dfd.Series(data2);
       assert.deepEqual(sf1.div(sf2).values, [ 30, 20, 1, 1.25 ]);
     });
-    it("Return integer division of series with another series", function () {
-      let data1 = [ 30, 40, 3, 5 ];
-      let data2 = [ 1, 2, 3, 4 ];
-      let sf1 = new dfd.Series(data1);
-      let sf2 = new dfd.Series(data2);
-      assert.deepEqual(sf1.div(sf2, false).values, [ 30, 20, 1, 1 ]);
-    });
     it("Return division of series with a single value (Broadcasting)", function () {
       let data = [ 10, 2, 3, 90 ];
       let sf = new dfd.Series(data);
       assert.deepEqual(sf.div(2).values, [ 5, 1, 1.5, 45 ]);
     });
-    // it("Throws type error on division of string type", function () {
-    //     let data = [1, 2, 3, 4]
-    //     let data2 = ["A", "B", "C", "d"]
-    //     let sf = new dfd.Series(data)
-    //     let sf2 = new dfd.Series(data2)
-    //     assert.throws(() => { sf.mul(sf2) }, Error, "Argument 'x' passed to 'cast' must be numeric tensor, but got string tensor")
-    // })
-    // it("Throws length error if series lenght mixmatch", function () {
-    //     let data = [1, 2, 3, 4]
-    //     let data2 = [1, 2, 3, 4, 5, 6]
-    //     let sf = new dfd.Series(data)
-    //     let sf2 = new dfd.Series(data2)
-    //     assert.throws(() => { sf.mul(sf2) }, Error, "Operands could not be broadcast together with shapes 4 and 6")
-    // })
   });
 
   describe("pow", function () {
@@ -257,10 +210,10 @@ describe("Series", function () {
       let sf1 = new dfd.Series(data1);
       let sf2 = new dfd.Series(data2);
       let expected = [
-        0.8999999761581421,
-        1.3999993801116943,
-        0.7000000476837158,
-        0.19999980926513672
+        0.8999999999999999,
+        1.3999999999999977,
+        0.7000000000000002,
+        0.20000000000000018
       ];
       assert.deepEqual(sf1.mod(sf2).values, expected);
     });
@@ -302,7 +255,7 @@ describe("Series", function () {
           sf.mean();
         },
         Error,
-        "dtype error: String data type does not support mean operation"
+        "DtypeError: String data type does not support mean operation"
       );
     });
   });
@@ -314,7 +267,7 @@ describe("Series", function () {
       assert.deepEqual(sf.median(), 17.5);
     });
     it("Computes the median value of elements across float Series", function () {
-      let data1 = [ 30.1, 40.2, 3.1, 5.1 ];
+      let data1 = [ 30.1, 40.2, 3.1, 5.1, NaN ];
       let sf = new dfd.Series(data1);
       assert.deepEqual(sf.median(), 17.6);
     });
@@ -350,7 +303,7 @@ describe("Series", function () {
       assert.deepEqual(sf.mode(), [ 5, 3 ]);
     });
     it("Computes the modal value of a Series", function () {
-      let data1 = [ 30.1, 3.1, 40.2, 3.1, 5.1, NaN ];
+      let data1 = [ 30.1, 3.1, 40.2, 3.1, 5.1 ];
       let sf = new dfd.Series(data1);
       assert.deepEqual(sf.mode(), [ 3.1 ]);
     });
@@ -388,7 +341,7 @@ describe("Series", function () {
           sf.max();
         },
         Error,
-        "dtype error: String data type does not support max operation"
+        "DtypeError: String data type does not support max operation"
       );
     });
   });
@@ -436,7 +389,7 @@ describe("Series", function () {
       assert.deepEqual(sf.describe().round().values, [
         7,
         27,
-        17,
+        17.4,
         10,
         23,
         56,
@@ -446,15 +399,7 @@ describe("Series", function () {
     it("Computes the descriptive statistics on a float Series", function () {
       let data1 = [ 30.1, 40.2, 3.1, 5.1 ];
       let sf = new dfd.Series(data1);
-      assert.deepEqual(sf.describe().round().values, [
-        4,
-        20,
-        18,
-        3,
-        18,
-        40,
-        339
-      ]);
+      assert.deepEqual(sf.describe().round().values, [ 4, 19.6, 18.4, 3.1, 17.6, 40.2, 339 ]);
     });
     it("Computes the descriptive statistics on a float Series", function () {
       let data1 = [ 30.1, 40.2, 3.1, 5.1 ];
@@ -489,7 +434,7 @@ describe("Series", function () {
           sf1.maximum(sf2);
         },
         Error,
-        "Operands could not be broadcast together with shapes 4 and 3"
+        "ParamError: Row length mismatch. Length of other (3), must be the same as Ndframe (4)"
       );
     });
   });
@@ -502,14 +447,14 @@ describe("Series", function () {
       let sf2 = new dfd.Series(data2);
       assert.deepEqual(sf1.minimum(sf2).values, [ 10, 40, 2, 0 ]);
     });
-    // it("Return sum of float values in a series", function () {
-    //     let data1 = [30.1, 40.9, 3, 5]
-    //     let data2 = [10.2, 41, 2, 0]
-    //     let sf1 = new dfd.Series(data1)
-    //     let sf2 = new dfd.Series(data2)
-    //     assert.deepEqual(sf1.minimum(sf2).values, [30, 41, 3, 5])
+    it("Return sum of float values in a series", function () {
+      let data1 = [ 30.1, 40.9, 3, 5 ];
+      let data2 = [ 10.2, 41, 2, 0 ];
+      let sf1 = new dfd.Series(data1);
+      let sf2 = new dfd.Series(data2);
+      assert.deepEqual(sf1.minimum(sf2).values, [ 10.2, 40.9, 2, 0 ]);
 
-    // })
+    });
   });
 
   describe("count", function () {
@@ -539,7 +484,7 @@ describe("Series", function () {
     it("Rounds elements in a Series to nearest whole number", function () {
       let data1 = [ 30.21091, 40.190901, 3.564, 5.0212 ];
       let sf = new dfd.Series(data1);
-      assert.deepEqual(sf.round().values, [ 30, 40, 4, 5 ]);
+      assert.deepEqual(sf.round(0).values, [ 30, 40, 4, 5 ]);
     });
     it("Rounds elements in a Series to 1dp", function () {
       let data1 = [ 30.21091, 40.190901, 3.564, 5.0212 ];
@@ -623,10 +568,6 @@ describe("Series", function () {
       let sorted_sf = sf.sort_values({ ascending: false });
       assert.deepEqual(sorted_sf.values, result);
     });
-    // it("Throws error on sorting of string", function () {
-    //     let sf = new dfd.Series(["boy", "man", "girl"])
-    //     assert.throws(() => { sf.sort_values() }, Error, "Dtype Error: cannot sort Series of type string")
-    // })
   });
 
   describe("copy", function () {
@@ -641,15 +582,15 @@ describe("Series", function () {
       let sf_copy = sf.copy();
       assert.deepEqual(sf.index, sf_copy.index);
     });
-    // it("Checks if copied dtype is the same", function () {
-    //     let sf = new dfd.Series([30.21091, 40.190901, 3.564, 5.0212])
-    //     sf.round()
-    //     sf.astype(['int32'])
-    //     let sf_copy = sf.copy()
-    //     assert.deepEqual(sf.dtypes[0], sf_copy.dtypes[0])
-    //     assert.deepEqual(sf.values, sf_copy.values)
+    it("Checks if copied dtype is the same", function () {
+      let sf = new dfd.Series([ 30.21091, 40.190901, 3.564, 5.0212 ]);
+      sf.round();
+      sf.astype('int32');
+      let sf_copy = sf.copy();
+      assert.deepEqual(sf.dtypes[0], sf_copy.dtypes[0]);
+      assert.deepEqual(sf.values, sf_copy.values);
 
-    // })
+    });
   });
 
   describe("reset_index", function () {
@@ -973,7 +914,7 @@ describe("Series", function () {
       let data1 = [ 10, 45, 56, 25, 23, 20, 10 ];
       let sf = new dfd.Series(data1);
       let expected = [ -50, 45, 56, 25, 23, 20, -50 ];
-      let df_rep = sf.replace({ replace: 10, with: -50 });
+      let df_rep = sf.replace({ oldValue: 10, newValue: -50 });
       assert.deepEqual(df_rep.values, expected);
     });
 
@@ -981,16 +922,16 @@ describe("Series", function () {
       let data1 = [ "A", "A", "A", "B", "B", "C", "C", "D" ];
       let sf = new dfd.Series(data1);
       let expected = [ "boy", "boy", "boy", "B", "B", "C", "C", "D" ];
-      sf.replace({ replace: "A", with: "boy", inplace: true });
+      sf.replace({ oldValue: "A", newValue: "boy", inplace: true });
       assert.deepEqual(sf.values, expected);
     });
     it("Throw error on wrong param passed", function () {
       let data1 = [ "A", "A", "A", "B", "B", "C", "C", "D" ];
       let sf = new dfd.Series(data1);
-      let expected = `Params Error: A specified parameter is not supported. Your params must be any of the following [replace,with,inplace]`;
+      let expected = `Params Error: Must specify param 'oldValue' to replace`;
       assert.throws(
         () => {
-          sf.replace({ replce: "A", with: "boy", inplace: true });
+          sf.replace({ newValue: "boy", inplace: true });
         },
         Error,
         expected
@@ -1062,10 +1003,10 @@ describe("Series", function () {
       assert.deepEqual(sf_sort.values, expected);
     });
 
-    it("Return the integer indices that would sort the Series values", function () {
+    it("Return the integer indices that would sort the Series values (Float)", function () {
       let data1 = [ 10.22, 4.5, 2.0, 10, 23.23, 20.1, 30, 11 ];
       let sf = new dfd.Series(data1);
-      let expected = [ 6, 4, 5, 7, 0, 3, 1, 2 ];
+      let expected = [ 2, 1, 3, 0, 7, 5, 4, 6 ];
       let sf_sort = sf.argsort(false);
       assert.deepEqual(sf_sort.values, expected);
     });
@@ -1184,14 +1125,14 @@ describe("Series", function () {
       let ndframe = new dfd.Series(data);
       let df = ndframe.astype("int32");
 
-      assert.deepEqual(df.dtypes, "int32");
+      assert.deepEqual(df.dtypes, [ "int32" ]);
       assert.deepEqual(df.values, [ -20, 30, 47, -20 ]);
     });
     it("set type of int column to float", function () {
       let data = [ 34, -4, 5, 6 ];
       let ndframe = new dfd.Series(data);
       let df = ndframe.astype("float32");
-      assert.deepEqual(df.dtypes, "float32");
+      assert.deepEqual(df.dtypes, [ "float32" ]);
       assert.deepEqual(df.values, [ 34, -4, 5, 6 ]);
     });
     it("set type of string column to int", function () {
@@ -1199,15 +1140,15 @@ describe("Series", function () {
       let ndframe = new dfd.Series(data);
       let df = ndframe.astype("int32");
 
-      assert.deepEqual(df.dtypes, "int32");
-      assert.deepEqual(df.values, [ 20, 21, 23, 51 ]);
+      assert.deepEqual(df.dtypes, [ "int32" ]);
+      assert.deepEqual(df.values, [ 20, 21, 23, 50 ]);
     });
     it("set type of string column to float", function () {
       let data = [ "20.1", "21", "23.4", "50.78" ];
       let ndframe = new dfd.Series(data);
       let df = ndframe.astype("float32");
 
-      assert.deepEqual(df.dtypes, "float32");
+      assert.deepEqual(df.dtypes, [ "float32" ]);
       assert.deepEqual(df.values, [ 20.1, 21, 23.4, 50.78 ]);
     });
   });
@@ -1248,7 +1189,7 @@ describe("Series", function () {
       let data = [ 1, 2, 3, 4, "a", "b", "c" ];
       let sf = new dfd.Series(data);
       let expected_val = [ 1, 2, 3, 4, "a", "b", "c", "d" ];
-      sf.append("d", true);
+      sf.append("d", "r1", { inplace: true });
       assert.deepEqual(sf.values, expected_val);
     });
     it("Add a new array of values to the end of a Series", function () {
@@ -1256,21 +1197,21 @@ describe("Series", function () {
       let to_add = [ "a", "b", "c" ];
       let sf = new dfd.Series(data);
       let expected_val = [ 1, 2, 3, 4, "a", "b", "c" ];
-      sf.append(to_add, true);
+      sf.append(to_add, [ "r1", "r2", "r3" ], { inplace: true });
       assert.deepEqual(sf.values, expected_val);
     });
     it("Add a Series to the end of another Series", function () {
       let sf1 = new dfd.Series([ 1, 2, 3, 4 ]);
       let sf2 = new dfd.Series([ "a", "b", "c" ]);
       let expected_val = [ 1, 2, 3, 4, "a", "b", "c" ];
-      sf1.append(sf2, true);
+      sf1.append(sf2, [ "r1", "r2", "r3" ], { inplace: true });
       assert.deepEqual(sf1.values, expected_val);
     });
     it("Add a new single value to the end of a Series", function () {
       let data = [ 1, 2, 3, 4, "a", "b", "c" ];
       let sf = new dfd.Series(data);
       let expected_val = [ 1, 2, 3, 4, "a", "b", "c", "d" ];
-      sf = sf.append("d");
+      sf = sf.append("d", "r1");
       assert.deepEqual(sf.values, expected_val);
     });
     it("Add a new array of values to the end of a Series", function () {
@@ -1278,27 +1219,8 @@ describe("Series", function () {
       let to_add = [ "a", "b", "c" ];
       let sf = new dfd.Series(data);
       let expected_val = [ 1, 2, 3, 4, "a", "b", "c" ];
-      sf = sf.append(to_add);
+      sf = sf.append(to_add, [ "r1", "r2", "r3" ]);
       assert.deepEqual(sf.values, expected_val);
-    });
-    it("Add a Series to the end of another Series", function () {
-      let sf1 = new dfd.Series([ 1, 2, 3, 4 ]);
-      let sf2 = new dfd.Series([ "a", "b", "c" ]);
-      let expected_val = [ 1, 2, 3, 4, "a", "b", "c" ];
-      sf1 = sf1.append(sf2);
-      assert.deepEqual(sf1.values, expected_val);
-    });
-    it("Confirm index Change after append", function () {
-      let sf1 = new dfd.Series([ 1, 2, 3, 4 ]);
-      let sf2 = new dfd.Series([ "a", "b", "c" ]);
-      sf1 = sf1.append(sf2);
-      assert.deepEqual(sf1.index, [ 0, 1, 2, 3, 0, 1, 2 ]);
-    });
-    it("Confirm index Change after append inplace", function () {
-      let sf1 = new dfd.Series([ 1, 2, 3, 4 ]);
-      let sf2 = new dfd.Series([ "a", "b", "c" ]);
-      sf1.append(sf2, true);
-      assert.deepEqual(sf1.index, [ 0, 1, 2, 3, 0, 1, 2 ]);
     });
   });
 });

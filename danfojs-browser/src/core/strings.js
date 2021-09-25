@@ -1,133 +1,226 @@
-import { Series } from "./series";
+/**
+*  @license
+* Copyright 2021, JsData. All rights reserved.
+*
+* This source code is licensed under the MIT license found in the
+* LICENSE file in the root directory of this source tree.
+
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+* ==========================================================================
+*/
 
 /**
- * String methods applied on Series and DataFrames
+ * Exposes numerous String methods. All methods are applied Element-wise
  */
-export class Str {
+export default class Str {
   constructor(series) {
     this.series = series;
-    this.array = series.values;
+    this.values = (series.values);
   }
 
   /**
-     *  Converts all characters to lowercase.
-     * @return {array}
-     */
-  toLowerCase() {
-    let new_arr = [];
-    this.array.map((val) => {
+     * Converts all characters to lowercase.
+     * @param options The following optional parameters are supported:
+     * - `inplace` Boolean, indicating whether to perform the operation inplace or not. Defaults to `false`
+     * @example
+     * ```
+     * import { Series } from "danfojs-node"
+     * const sf = new Series(["GooD", "Bad", "CrAzy"])
+     * const newSf = sf.str.toLowerCase()
+     * console.log(newSf.values)
+     * // ["good", "bad", "crazy"]
+     * ```
+    */
+  toLowerCase(options) {
+    const { inplace } = { inplace: false, ...options };
+    const newArr = [];
+    this.values.map((val) => {
       if (isNaN(val) && typeof val != "string") {
-        new_arr.push(val);
+        newArr.push(NaN);
       } else {
-        new_arr.push(val.toLowerCase());
+        newArr.push(`${val}`.toLowerCase());
       }
 
     });
-    let sf = this.__create_new_sf_from(new_arr, this.series);
-    return sf;
+
+    if (inplace) {
+      this.series.$setValues(newArr);
+      this.series.print();
+    } else {
+      const sf = this.series.copy();
+      sf.$setValues(newArr);
+      return sf;
+    }
+
   }
 
   /**
      * Converts all characters to uppercase.
-     * @return {array}
-     */
-  toUpperCase() {
-    let new_arr = [];
-    this.array.map((val) => {
+     * @param options The following optional parameters are supported:
+     * - `inplace` Boolean, indicating whether to perform the operation inplace or not. Defaults to `false`
+     * @example
+     * ```
+     * import { Series } from "danfojs-node"
+     * const sf = new Series(["GooD", "Bad", "CrAzy"])
+     * const newSf = sf.str.toUpperCase()
+     * console.log(newSf.values)
+     * // ["GOOD", "BAD", "CRAZY"]
+     * ```
+    */
+  toUpperCase(options){
+    const { inplace } = { inplace: false, ...options };
+    const newArr = [];
+    this.values.map((val) => {
       if (isNaN(val) && typeof val != "string") {
-        new_arr.push(val);
+        newArr.push(NaN);
       } else {
-        new_arr.push(val.toUpperCase());
+        newArr.push(`${val}`.toUpperCase());
       }
 
     });
-    let sf = this.__create_new_sf_from(new_arr, this.series);
-    return sf;
+    if (inplace) {
+      this.series.$setValues(newArr);
+      this.series.print();
+    } else {
+      const sf = this.series.copy();
+      sf.$setValues(newArr);
+      return sf;
+
+    }
   }
 
   /**
      * Capitalize first string
-     * @return {array}
-     */
-  capitalize() {
-    let new_arr = [];
-    this.array.map((val) => {
+     * @param options The following optional parameters are supported:
+     * - `inplace` Boolean, indicating whether to perform the operation inplace or not. Defaults to `false`
+     * @example
+     * ```
+     * import { Series } from "danfojs-node"
+     * const sf = new Series(["Good", "bad", "crazy"])
+     * const newSf = sf.str.capitalize()
+     * console.log(newSf.values)
+     * // ["Good", "Bad", "Crazy"]
+     * ```
+    */
+  capitalize(options) {
+    const { inplace } = { inplace: false, ...options };
+    const newArr = [];
+    this.values.map((val) => {
       if (isNaN(val) && typeof val != "string") {
-        new_arr.push(val);
+        newArr.push(NaN);
       } else {
-        let f_char = val.slice(0, 1);
-        let l_char = val.slice(1);
-        let new_str = `${f_char.toUpperCase()}${l_char.toLowerCase()}`;
-        new_arr.push(new_str);
+        let firstChar = `${val}`.slice(0, 1);
+        let leftChar = `${val}`.slice(1);
+        let newStr = `${firstChar.toUpperCase()}${leftChar.toLowerCase()}`;
+        newArr.push(newStr);
       }
 
     });
-    let sf = this.__create_new_sf_from(new_arr, this.series);
-    return sf;
+
+    if (inplace) {
+      this.series.$setValues(newArr);
+      this.series.print();
+    } else {
+      const sf = this.series.copy();
+      sf.$setValues(newArr);
+      return sf;
+    }
 
   }
 
   /**
      * Returns the character at the specified index (position)
-     * @params {index} index position of character
-     * @return {array}
-     */
-  charAt(index = 0) {
-    let new_arr = [];
-    this.array.map((val) => {
+     * @param index position of character
+     * @param options The following optional parameters are supported:
+     * - `inplace` Boolean, indicating whether to perform the operation inplace or not. Defaults to `false`
+     * @example
+     * ```
+     * import { Series } from "danfojs-node"
+     * const sf = new Series(["Good", "bad", "crazy"])
+     * const newSf = sf.str.charAt(1)
+     * console.log(newSf.values)
+     * // ["o", "a", "r"]
+     * ```
+    */
+  charAt(index = 0, options) {
+    const { inplace } = { inplace: false, ...options };
+    const newArr = [];
+    this.values.map((val) => {
       if (isNaN(val) && typeof val != "string") {
-        new_arr.push(val);
+        newArr.push(NaN);
       } else {
-        new_arr.push(val.charAt(index));
+        newArr.push(`${val}`.charAt(index));
       }
     });
-    let sf = this.__create_new_sf_from(new_arr, this.series);
-    return sf;
+    if (inplace) {
+      this.series.$setValues(newArr);
+      this.series.print();
+    } else {
+      const sf = this.series.copy();
+      sf.$setValues(newArr);
+      return sf;
+    }
   }
 
   /**
-     * Joins two or more strings/arrays. 0 joins from the start
-     * @params {other} string|array to concatenate with.
-     * @params {position} where to concat the string from. O concats from the start, 1 concats from the end
-     * @params {isArray} whether operation is performed on Array or not
-     * @return {array}
-     */
-  concat(other = "", position = 1) {
+     * Joins specified `other` with values in the Series.
+     * @param other string|values to concatenate with.
+     * @param position where to concat the string from. O concats from the start, 1 concats from the end. Defaults to 1.
+     * @param options The following optional parameters are supported:
+     * - `inplace` Boolean, indicating whether to perform the operation inplace or not. Defaults to `false`
+     * @example
+     * ```
+     * import { Series } from "danfojs-node"
+     * const sf = new Series(["Good", "bad", "crazy"])
+     * const newSf = sf.str.concat("_new")
+     * console.log(newSf.values)
+     * // ["Good_new", "bad_new", "crazy_new"
+     * ```
+    */
+  concat(other, position = 1, options) {
+    const { inplace } = { inplace: false, ...options };
+    const newArr = [];
+
     if (Array.isArray(other)) {
-      let final_arr = [];
       for (let i = 0; i < other.length; i++) {
-        let l_str = this.array[i];
-        let r_str = other[i];
+        let leftStr = `${this.values[i]}`;
+        let rightStr = `${other[i]}`;
         if (position == 1) {
-          final_arr.push(l_str.concat(r_str));
+          newArr.push(leftStr.concat(rightStr));
         } else {
-          final_arr.push(r_str.concat(l_str));
+          newArr.push(rightStr.concat(leftStr));
         }
 
       }
-      let sf = this.__create_new_sf_from(final_arr, this.series);
-      return sf;
     } else {
-
-      let new_arr = [];
-
-      this.array.map((val) => {
+      this.values.map((val) => {
         if (position == 1) {
           if (isNaN(val) && typeof val != "string") {
-            new_arr.push(String(val).concat(other));
+            newArr.push(NaN);
           } else {
-            new_arr.push(val.concat(other));
+            newArr.push(`${val}`.concat(`${other}`));
           }
 
         } else {
           if (isNaN(val) && typeof val != "string") {
-            new_arr.push(other.concat(String(val)));
+            newArr.push(NaN);
           } else {
-            new_arr.push(other.concat(val));
+            newArr.push(other.concat(`${val}`));
           }
         }
       });
-      let sf = this.__create_new_sf_from(new_arr, this.series);
+    }
+
+    if (inplace) {
+      this.series.$setValues(newArr);
+      this.series.print();
+    } else {
+      const sf = this.series.copy();
+      sf.$setValues(newArr);
       return sf;
     }
 
@@ -135,289 +228,512 @@ export class Str {
 
 
   /**
-    * Checks whether a string begins with specified characters
-    * @params {String | Character} String or Character to check against
-    * @return {array}
+     * Checks whether a string begins with specified characters
+     * @param str String or Character to check against
+     * @param options The following optional parameters are supported:
+     * - `inplace` Boolean, indicating whether to perform the operation inplace or not. Defaults to `false`
+     * @example
+     * ```
+     * import { Series } from "danfojs-node"
+     * const sf = new Series(["Good", "bad", "crazy"])
+     * const newSf = sf.str.startsWith("G")
+     * console.log(newSf.values)
+     * // [true, false, false]
+     * ```
     */
-  startsWith(str = "") {
-    let new_arr = [];
-    this.array.forEach((val) => {
+  startsWith(str = "", options) {
+    const { inplace } = { inplace: false, ...options };
+    const newArr = [];
+    this.values.forEach((val) => {
       if (isNaN(val) && typeof val != "string") {
-        new_arr.push(false);
+        newArr.push(NaN);
       } else {
-        new_arr.push(val.startsWith(str));
+        newArr.push(`${val}`.startsWith(str));
       }
     });
-    let sf = this.__create_new_sf_from(new_arr, this.series);
-    return sf;
+    if (inplace) {
+      this.series.$setValues(newArr);
+      this.series.print();
+    } else {
+      const sf = this.series.copy();
+      sf.$setValues(newArr);
+      return sf;
+    }
   }
 
   /**
-   * Checks whether a string ends with specified characters
-   * @params {String | Character} String or Character to check against
-   * @return {array}
-   */
-  endsWith(str = "") {
-    let new_arr = [];
-    this.array.map((val) => {
+     * Checks whether a string ends with specified characters
+     * @param str String or Character to check against
+     * @param options The following optional parameters are supported:
+     * - `inplace` Boolean, indicating whether to perform the operation inplace or not. Defaults to `false`
+     * @example
+     * ```
+     * import { Series } from "danfojs-node"
+     * const sf = new Series(["Good", "bad", "crazy"])
+     * const newSf = sf.str.endsWith("d")
+     * console.log(newSf.values)
+     * // [true, true, false]
+     * ```
+    */
+  endsWith(str = "", options) {
+    const { inplace } = { inplace: false, ...options };
+    const newArr = [];
+    this.values.map((val) => {
       if (isNaN(val) && typeof val != "string") {
-        new_arr.push(false);
+        newArr.push(NaN);
       } else {
-        new_arr.push(val.endsWith(str));
+        newArr.push(`${val}`.endsWith(str));
       }
     });
-    let sf = this.__create_new_sf_from(new_arr, this.series);
-    return sf;
+    if (inplace) {
+      this.series.$setValues(newArr);
+      this.series.print();
+    } else {
+      const sf = this.series.copy();
+      sf.$setValues(newArr);
+      return sf;
+    }
   }
 
   /**
      * Checks whether a string contains the specified string/characters
-     * @params {String | Character} String or Character to check against
-     * @return {array}
-     */
-  includes(str = "") {
-    let new_arr = [];
-    this.array.map((val) => {
-      if (isNaN(val) && typeof val != "string") {
-        new_arr.push(false);
-      } else {
-        new_arr.push(val.includes(str));
-      }
-    });
-    let sf = this.__create_new_sf_from(new_arr, this.series);
-    return sf;
-  }
-
-  /**
-    * Returns the position of the first found occurrence of a specified value in a string
-    * @params {String | Character} String or Character to check against
-    * @return {array}
+     * @param str String or Character to check against
+     * @param options The following optional parameters are supported:
+     * - `inplace` Boolean, indicating whether to perform the operation inplace or not. Defaults to `false`
+     * @example
+     * ```
+     * import { Series } from "danfojs-node"
+     * const sf = new Series(["Good", "bad", "crazy"])
+     * const newSf = sf.str.includes("d")
+     * console.log(newSf.values)
+     * // [true, true, false]
+     * ```
     */
-  indexOf(str = "") {
-    let new_arr = [];
-    this.array.map((val) => {
+  includes(str = "", options) {
+    const { inplace } = { inplace: false, ...options };
+    const newArr = [];
+    this.values.map((val) => {
       if (isNaN(val) && typeof val != "string") {
-        new_arr.push(-1);
+        newArr.push(NaN);
       } else {
-        new_arr.push(val.indexOf(str));
+        newArr.push(`${val}`.includes(str));
       }
     });
-    let sf = this.__create_new_sf_from(new_arr, this.series);
-    return sf;
+    if (inplace) {
+      this.series.$setValues(newArr);
+      this.series.print();
+    } else {
+      const sf = this.series.copy();
+      sf.$setValues(newArr);
+      return sf;
+    }
   }
 
   /**
-   * Returns the position of the last found occurrence of a specified value in a string
-   * @params {str: String | Character} String or Character to check against
-   * @return {array}
-   */
-  lastIndexOf(str = "") {
-    let new_arr = [];
-    this.array.map((val) => {
-      if (isNaN(val) && typeof val != "string") {
-        new_arr.push(-1);
-      } else {
-        new_arr.push(val.lastIndexOf(str));
-      }
-    });
-    let sf = this.__create_new_sf_from(new_arr, this.series);
-    return sf;
-  }
-
-
-  /**
-    * Searches a string for a specified value, or a regular expression, and returns a new string where the specified values are replaced
-    * @params {searchValue: String | Character} string value to replace
-    * @params {replaceValue: String | Character} string to replace with
-    * @return {array}
+     * Returns the position of the first occurrence of a specified value in a string.
+     * @param str String or Character to check against
+     * @param options The following optional parameters are supported:
+     * - `inplace` Boolean, indicating whether to perform the operation inplace or not. Defaults to `false`
+     * @example
+     * ```
+     * import { Series } from "danfojs-node"
+     * const sf = new Series(["Good", "bad", "crazy"])
+     * const newSf = sf.str.indexOf("d")
+     * console.log(newSf.values)
+     * // [3, 2, -1]
+     * ```
     */
-  replace(searchValue = "", replaceValue = "") {
-    let new_arr = [];
-    this.array.map((val) => {
+  indexOf(str = "", options) {
+    const { inplace } = { inplace: false, ...options };
+    const newArr = [];
+    this.values.map((val) => {
       if (isNaN(val) && typeof val != "string") {
-        new_arr.push(val);
+        newArr.push(NaN);
       } else {
-        new_arr.push(val.replace(searchValue, replaceValue));
+        newArr.push(`${val}`.indexOf(str));
       }
     });
-    let sf = this.__create_new_sf_from(new_arr, this.series);
-    return sf;
+    if (inplace) {
+      this.series.$setValues(newArr);
+      this.series.print();
+    } else {
+      const sf = this.series.copy();
+      sf.$setValues(newArr);
+      return sf;
+    }
+  }
+
+  /**
+     * Returns the position of the last found occurrence of a specified value in a string
+     * @param str String or Character to check against
+     * @param options The following optional parameters are supported:
+     * - `inplace` Boolean, indicating whether to perform the operation inplace or not. Defaults to `false`
+     * @example
+     * ```
+     * import { Series } from "danfojs-node"
+     * const sf = new Series(["Good", "odd", "crazy"])
+     * const newSf = sf.str.lastIndexOf("d")
+     * console.log(newSf.values)
+     * // [3, 2, -1]
+     * ```
+    */
+  lastIndexOf(str = "", options) {
+    const { inplace } = { inplace: false, ...options };
+    const newArr = [];
+    this.values.map((val) => {
+      if (isNaN(val) && typeof val != "string") {
+        newArr.push(NaN);
+      } else {
+        newArr.push(`${val}`.lastIndexOf(str));
+      }
+    });
+    if (inplace) {
+      this.series.$setValues(newArr);
+      this.series.print();
+    } else {
+      const sf = this.series.copy();
+      sf.$setValues(newArr);
+      return sf;
+    }
+  }
+
+
+  /**
+     * Searches a string for a specified value, or a regular expression, and returns a new string where the specified values are replaced
+     * @param searchValue String | Character value to replace
+     * @param replaceValue String | Character string to replace with
+     * @param options The following optional parameters are supported:
+     * - `inplace` Boolean, indicating whether to perform the operation inplace or not. Defaults to `false`
+     * @example
+     * ```
+     * import { Series } from "danfojs-node"
+     * const sf = new Series(["Good", "odd", "crazy"])
+     * const newSf = sf.str.replace("d", 7)
+     * console.log(newSf.values)
+     * // ["Goo7", "o77", "crazy"]
+     * ```
+    */
+  replace(searchValue = "", replaceValue = "", options) {
+    const { inplace } = { inplace: false, ...options };
+    const newArr = [];
+    this.values.map((val) => {
+      if (isNaN(val) && typeof val != "string") {
+        newArr.push(NaN);
+      } else {
+        newArr.push(`${val}`.replace(searchValue, replaceValue));
+      }
+    });
+    if (inplace) {
+      this.series.$setValues(newArr);
+      this.series.print();
+    } else {
+      const sf = this.series.copy();
+      sf.$setValues(newArr);
+      return sf;
+    }
   }
 
   /**
      * Returns a new string with a specified number of copies of an existing string
-     * @params {num: Integer} Number of times to repeat
-     * @return {array}
-     */
-  repeat(num = 1) {
-    let new_arr = [];
-    this.array.map((val) => {
+     * @param num Number of times to repeat
+     * @param options The following optional parameters are supported:
+     * - `inplace` Boolean, indicating whether to perform the operation inplace or not. Defaults to `false`
+     * @example
+     * ```
+     * import { Series } from "danfojs-node"
+     * const sf = new Series(["Good", "odd", "crazy"])
+     * const newSf = sf.str.replace(2)
+     * console.log(newSf.values)
+     * // ["GoodGood", "oddodd", "crazycrazy"]
+     * ```
+    */
+  repeat(num = 1, options) {
+    const { inplace } = { inplace: false, ...options };
+    const newArr = [];
+    this.values.map((val) => {
       if (isNaN(val) && typeof val != "string") {
-        new_arr.push(val);
+        newArr.push(NaN);
       } else {
-        new_arr.push(val.repeat(num));
+        newArr.push(`${val}`.repeat(num));
       }
     });
-    let sf = this.__create_new_sf_from(new_arr, this.series);
-    return sf;
+    if (inplace) {
+      this.series.$setValues(newArr);
+      this.series.print();
+    } else {
+      const sf = this.series.copy();
+      sf.$setValues(newArr);
+      return sf;
+    }
   }
 
 
   /**
      * Searches a string for a specified value, or regular expression, and returns the position of the match
-     * @params {str: String | Character} String or Character to check against
-     * @return {array}
-     */
-  search(str = "") {
-    let new_arr = [];
-    this.array.map((val) => {
-      if (isNaN(val) && typeof val != "string") {
-        new_arr.push(-1);
-      } else {
-        new_arr.push(val.search(str));
-      }
-    });
-    let sf = this.__create_new_sf_from(new_arr, this.series);
-    return sf;
-  }
-
-  /**
-   * Extracts a part of a string and returns a new string
-   * @params {startIndex: Int} index position of start character
-   * @params {endIndex: Int} index position of last character
-   * @return {array}
-   */
-  slice(startIndex = 0, endIndex = 1) {
-    let new_arr = [];
-    this.array.map((val) => {
-      if (isNaN(val) && typeof val != "string") {
-        new_arr.push(val);
-      } else {
-        new_arr.push(val.slice(startIndex, endIndex));
-      }
-    });
-    let sf = this.__create_new_sf_from(new_arr, this.series);
-    return sf;
-  }
-
-  /**
-     * Splits a string into an array of substrings
-     * @params {val: string} string or character to split at
-     * @params {endIndex: Int} index position of last character
-     * @return {array}
-     */
-  split(splitVal = " ") {
-    let new_arr = [];
-    this.array.map((val) => {
-      if (isNaN(val) && typeof val != "string") {
-        new_arr.push(val);
-      } else {
-        new_arr.push(val.split(splitVal));
-      }
-    });
-    let sf = this.__create_new_sf_from(new_arr, this.series);
-    return sf;
-  }
-
-  /**
-   * Extracts the characters from a string, beginning at a specified start position, and through the specified number of character
-   * @params {startIndex: Int} index position of start character
-   * @params {num: Int} number of characters to return
-   * @return {array}
-   */
-  substr(startIndex = 0, num = 1) {
-    let new_arr = [];
-    this.array.map((val) => {
-      if (isNaN(val) && typeof val != "string") {
-        new_arr.push(val);
-      } else {
-        new_arr.push(val.substr(startIndex, num));
-      }
-    });
-    let sf = this.__create_new_sf_from(new_arr, this.series);
-    return sf;
-  }
-
-  /**
-  * Extracts the characters from a string, between two specified indices
-  * @params {startIndex: Int} index position of start character
-  * @params {endIndex: Int} index position of last character
-  * @return {array}
-  */
-  substring(startIndex = 0, endIndex = 1) {
-    let new_arr = [];
-    this.array.map((val) => {
-      if (isNaN(val) && typeof val != "string") {
-        new_arr.push(val);
-      } else {
-        new_arr.push(val.substring(startIndex, endIndex));
-      }
-    });
-    let sf = this.__create_new_sf_from(new_arr, this.series);
-    return sf;
-  }
-
-  /**
-    * Removes whitespace from both ends of a string
-    * @return {array}
+     * @param str String or Character to check against
+     * @param options The following optional parameters are supported:
+     * - `inplace` Boolean, indicating whether to perform the operation inplace or not. Defaults to `false`
+     * @example
+     * ```
+     * import { Series } from "danfojs-node"
+     * const sf = new Series(["Good", "odd", "crazy"])
+     * const newSf = sf.str.search("d")
+     * console.log(newSf.values)
+     * ```
     */
-  trim() {
-    let new_arr = [];
-    this.array.map((val) => {
+  search(str = "", options) {
+    const { inplace } = { inplace: false, ...options };
+    const newArr = [];
+    this.values.map((val) => {
       if (isNaN(val) && typeof val != "string") {
-        new_arr.push(val);
+        newArr.push(NaN);
       } else {
-        new_arr.push(val.trim());
+        newArr.push(`${val}`.search(str));
       }
     });
-    let sf = this.__create_new_sf_from(new_arr, this.series);
-    return sf;
+    if (inplace) {
+      this.series.$setValues(newArr);
+      this.series.print();
+    } else {
+      const sf = this.series.copy();
+      sf.$setValues(newArr);
+      return sf;
+    }
   }
 
   /**
-    * Joins strings to specified value
-    * @params {valToJoin} string value to join to the array
-    * @params {joinChar} Character to Join with
-    * @return {array}
+     * Extracts a part of a string and returns a new string
+     * @param startIndex index position of start character
+     * @param endIndex index position of last character
+     * @param options The following optional parameters are supported:
+     * - `inplace` Boolean, indicating whether to perform the operation inplace or not. Defaults to `false`
+     * @example
+     * ```
+     * import { Series } from "danfojs-node"
+     * const sf = new Series(["Good", "odd", "crazy"])
+     * const newSf = sf.str.slice(0,1)
+     * console.log(newSf.values)
+     * // ["G", "o", "c"]
+     * ```
     */
-  join(valToJoin = "", joinChar = " ") {
-    let new_arr = [];
-    this.array.map((val) => {
+  slice(startIndex = 0, endIndex = 1, options) {
+    const { inplace } = { inplace: false, ...options };
+    const newArr = [];
+    this.values.map((val) => {
       if (isNaN(val) && typeof val != "string") {
-        new_arr.push(val);
+        newArr.push(NaN);
       } else {
-        let l_char = val;
-        let r_char = valToJoin;
-        let new_char = `${l_char}${joinChar}${r_char}`;
-        new_arr.push(new_char);
+        newArr.push(`${val}`.slice(startIndex, endIndex));
       }
     });
-    let sf = this.__create_new_sf_from(new_arr, this.series);
-    return sf;
+    if (inplace) {
+      this.series.$setValues(newArr);
+      this.series.print();
+    } else {
+      const sf = this.series.copy();
+      sf.$setValues(newArr);
+      return sf;
+    }
   }
 
   /**
-    * Counts the number of characters in string
-    * @return {array}
+     * Splits a string into an values of substrings
+     * @param splitVal string or character to split at
+     * @param options The following optional parameters are supported:
+     * - `inplace` Boolean, indicating whether to perform the operation inplace or not. Defaults to `false`
+     * @example
+     * ```
+     * import { Series } from "danfojs-node"
+     * const sf = new Series(["Good", "odd", "grade"])
+     * const newSf = sf.str.split(d)
+     * console.log(newSf.values)
+     * ```
     */
-  len() {
-    let new_arr = [];
-    this.array.map((val) => {
+  split(splitVal = " ", options) {
+    const { inplace } = { inplace: false, ...options };
+    const newArr = [];
+    this.values.map((val) => {
       if (isNaN(val) && typeof val != "string") {
-        new_arr.push(val);
+        newArr.push(NaN);
       } else {
-        new_arr.push(val.length);
+        newArr.push(`${String(val).split(splitVal)}`);
       }
     });
-    let sf = this.__create_new_sf_from(new_arr, this.series);
-    return sf;
+    if (inplace) {
+      this.series.$setValues(newArr);
+      this.series.print();
+    } else {
+      const sf = this.series.copy();
+      sf.$setValues(newArr);
+      return sf;
+    }
   }
 
-  //create a new series
-  __create_new_sf_from(new_val, series) {
-    let sf = new Series(new_val, { columns: series.column_names, index: series.index });
-    return sf;
+  /**
+     * Extracts the characters from a string, beginning at a specified start position, and through the specified number of character
+     * @param startIndex index position of start character
+     * @param num number of characters to return
+     * @param options The following optional parameters are supported:
+     * - `inplace` Boolean, indicating whether to perform the operation inplace or not. Defaults to `false`
+     * @example
+     * ```
+     * import { Series } from "danfojs-node"
+     * const sf = new Series(["Good", "odd", "grade"])
+     * const newSf = sf.str.substr(d)
+     * ```
+    */
+  substr(startIndex = 0, num = 1, options) {
+    const { inplace } = { inplace: false, ...options };
+    const newArr = [];
+    this.values.map((val) => {
+      if (isNaN(val) && typeof val != "string") {
+        newArr.push(NaN);
+      } else {
+        newArr.push(`${String(val).substr(startIndex, num)}`);
+      }
+    });
+    if (inplace) {
+      this.series.$setValues(newArr);
+      this.series.print();
+    } else {
+      const sf = this.series.copy();
+      sf.$setValues(newArr);
+      return sf;
+    }
   }
 
+  /**
+    * Extracts the characters from a string, between two specified indices
+    * @param startIndex index position of start character
+    * @param endIndex index position of last character
+     * @param options The following optional parameters are supported:
+     * - `inplace` Boolean, indicating whether to perform the operation inplace or not. Defaults to `false`
+     * @example
+     * ```
+     * import { Series } from "danfojs-node"
+     * const sf = new Series(["Good", "odd", "grade"])
+     * const newSf = sf.str.substring(d)
+     * ```
+    */
+  substring(startIndex = 0, endIndex = 1, options) {
+    const { inplace } = { inplace: false, ...options };
+    const newArr = [];
+    this.values.map((val) => {
+      if (isNaN(val) && typeof val != "string") {
+        newArr.push(NaN);
+      } else {
+        newArr.push(`${String(val).substring(startIndex, endIndex)}`);
+      }
+    });
+    if (inplace) {
+      this.series.$setValues(newArr);
+      this.series.print();
+    } else {
+      const sf = this.series.copy();
+      sf.$setValues(newArr);
+      return sf;
+    }
+  }
+
+  /**
+      * Removes whitespace from both ends of a string
+     * @param options The following optional parameters are supported:
+     * - `inplace` Boolean, indicating whether to perform the operation inplace or not. Defaults to `false`
+     * @example
+     * ```
+     * import { Series } from "danfojs-node"
+     * const sf = new Series([" Good", "odd ", " grade "])
+     * const newSf = sf.str.trim(d)
+     * ["Good", "odd", "grade"]
+     * ```
+    */
+  trim(options) {
+    const { inplace } = { inplace: false, ...options };
+    const newArr = [];
+    this.values.map((val) => {
+      if (isNaN(val) && typeof val != "string") {
+        newArr.push(NaN);
+      } else {
+        newArr.push(`${val}`.trim());
+      }
+    });
+    if (inplace) {
+      this.series.$setValues(newArr);
+      this.series.print();
+    } else {
+      const sf = this.series.copy();
+      sf.$setValues(newArr);
+      return sf;
+    }
+  }
+
+  /**
+      * Joins strings to specified value
+      * @param valToJoin string value to join to the values
+      * @param joinChar Character to Join with
+     * @param options The following optional parameters are supported:
+     * - `inplace` Boolean, indicating whether to perform the operation inplace or not. Defaults to `false`
+     * @example
+     * ```
+     * import { Series } from "danfojs-node"
+     * const sf = new Series(["Good", "odd", "grade"])
+     * const newSf = sf.str.join("new", "_")
+     * // ["Good_new", "odd_new", "grade_new"]
+     * ```
+    */
+  join(valToJoin = "", joinChar = " ", options) {
+    const { inplace } = { inplace: false, ...options };
+    const newArr = [];
+    this.values.map((val) => {
+      if (isNaN(val) && typeof val != "string") {
+        newArr.push(NaN);
+      } else {
+        let leftChar = val;
+        let rightChar = valToJoin;
+        let new_char = `${leftChar}${joinChar}${rightChar}`;
+        newArr.push(new_char);
+      }
+    });
+    if (inplace) {
+      this.series.$setValues(newArr);
+      this.series.print();
+    } else {
+      const sf = this.series.copy();
+      sf.$setValues(newArr);
+      return sf;
+    }
+  }
+
+  /**
+     * Counts the number of characters in string
+     * @param options The following optional parameters are supported:
+     * - `inplace` Boolean, indicating whether to perform the operation inplace or not. Defaults to `false`
+     * @example
+     * ```
+     * import { Series } from "danfojs-node"
+     * const sf = new Series(["Good", "odd", "grade"])
+     * const newSf = sf.str.len(d)
+     * // [4,3,5]
+     * ```
+    */
+  len(options) {
+    const { inplace } = { inplace: false, ...options };
+    const newArr = [];
+    this.values.map((val) => {
+      if (isNaN(val) && typeof val != "string") {
+        newArr.push(NaN);
+      } else {
+        newArr.push(`${val}`.length);
+      }
+    });
+    if (inplace) {
+      this.series.$setValues(newArr);
+      this.series.print();
+    } else {
+      const sf = this.series.copy();
+      sf.$setValues(newArr);
+      return sf;
+    }
+  }
 
 }

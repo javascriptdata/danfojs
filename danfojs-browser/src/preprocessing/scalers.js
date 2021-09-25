@@ -1,9 +1,7 @@
 import { tensor, moments } from "@tensorflow/tfjs";
-import { Series } from "../core/series";
-import { DataFrame } from "../core/frame";
-import { Utils } from "../core/utils";
-
-const utils = new Utils();
+import Series from "../core/series";
+import DataFrame from "../core/frame";
+import { utils } from "../shared/utils";
 
 export class MinMaxScaler {
   /**
@@ -61,7 +59,7 @@ export class MinMaxScaler {
         .sub(this.min)
         .div(this.max.sub(this.min))
         .arraySync();
-      if (utils.__is_1D_array(data)) {
+      if (utils.is1DArray(data)) {
         return new Series(output_data);
       } else {
         return new DataFrame(output_data);
@@ -87,7 +85,7 @@ export class MinMaxScaler {
    * @param {Series|Array|DataFrame} data
    * @returns Series|DataFrame
    */
-   inverse_transform(data) {
+  inverse_transform(data) {
     if (data instanceof Series) {
       if (data.dtypes.includes("string")) {
         throw Error("Dtype Error: Cannot perform operation on string dtypes");
@@ -104,7 +102,7 @@ export class MinMaxScaler {
         .mul(this.max.sub(this.min))
         .add(this.min)
         .arraySync();
-      if (utils.__is_1D_array(data)) {
+      if (utils.is1DArray(data)) {
         return new Series(output_data);
       } else {
         return new DataFrame(output_data);
@@ -170,7 +168,7 @@ export class StandardScaler {
     } else if (Array.isArray(data)) {
       let tensor_data = tensor(data);
       let output_data = tensor_data.sub(this.mean).div(this.std).arraySync();
-      if (utils.__is_1D_array(data)) {
+      if (utils.is1DArray(data)) {
         return new Series(output_data);
       } else {
         return new DataFrame(output_data);
@@ -204,7 +202,7 @@ export class StandardScaler {
     } else if (Array.isArray(data)) {
       let tensor_data = tensor(data);
       let output_data = tensor_data.mul(this.std).add(this.mean).arraySync();
-      if (utils.__is_1D_array(data)) {
+      if (utils.is1DArray(data)) {
         return new Series(output_data);
       } else {
         return new DataFrame(output_data);

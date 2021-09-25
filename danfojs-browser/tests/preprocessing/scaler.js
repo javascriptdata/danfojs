@@ -1,3 +1,6 @@
+/* eslint-disable no-undef */
+
+
 describe("Preprocessing", function(){
 
   describe("MinMaxscaler", function(){

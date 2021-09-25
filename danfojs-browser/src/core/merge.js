@@ -1,17 +1,16 @@
-import { DataFrame } from './frame';
-import { Utils } from "./utils";
+import DataFrame from './frame';
+import { utils } from "../shared/utils";
 
-const utils = new Utils;
 export class Merge {
 
   constructor(kwargs) {
 
     //check if keys exist in kwargs
-    utils.__in_object(kwargs, "left");
-    utils.__in_object(kwargs, "right");
-    utils.__in_object(kwargs, "on");
-    // utils.__in_object(kwargs, "how")
-    if (!utils.__key_in_object(kwargs, "how")){
+    utils.keyInObject(kwargs, "left");
+    utils.keyInObject(kwargs, "right");
+    utils.keyInObject(kwargs, "on");
+    // utils.keyInObject(kwargs, "how")
+    if (!utils.keyInObject(kwargs, "how")){
       this.how = 'inner';
       kwargs['how'] = 'inner';
     } else {
@@ -96,7 +95,7 @@ export class Merge {
       //check if the key combination already exist or not
       //before storing the key combination and the value
       //associated with it
-      if (utils.__key_in_object(this.left_key_dict, left_key_comb)) {
+      if (utils.keyInObject(this.left_key_dict, left_key_comb)) {
         this.left_key_dict[left_key_comb].filters.push(left_value_filter);
       } else {
         this.left_key_dict[left_key_comb] = {
@@ -122,7 +121,7 @@ export class Merge {
         return !self.right_col_index.includes(index);
       });
 
-      if (utils.__key_in_object(this.right_key_dict, right_key_comb)) {
+      if (utils.keyInObject(this.right_key_dict, right_key_comb)) {
         this.right_key_dict[right_key_comb].filters.push(right_value_filter);
       } else {
         this.right_key_dict[right_key_comb] = {
@@ -179,7 +178,7 @@ export class Merge {
     for (let i = 0; i < temp_column.length; i++) {
 
       let col = temp_column[i];
-      if (utils.__key_in_object(column_duplicate, col)) {
+      if (utils.keyInObject(column_duplicate, col)) {
 
         let col_name = `${col}_${column_duplicate[col]}`;
         self.columns.push(col_name);
@@ -247,7 +246,7 @@ export class Merge {
         return val != "";
       });
 
-      if (utils.__key_in_object(this.left_key_dict, key)) {
+      if (utils.keyInObject(this.left_key_dict, key)) {
         let left_row = this.left_key_dict[key].filters;
         let key_array = this.left_key_dict[key].comb_values;
 
@@ -256,7 +255,7 @@ export class Merge {
 
           let left_row_row = left_row[left_i];
 
-          if (utils.__key_in_object(this.right_key_dict, key)) {
+          if (utils.keyInObject(this.right_key_dict, key)) {
 
             let right_row = this.right_key_dict[key].filters;
 
