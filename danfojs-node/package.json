@@ -30,7 +30,7 @@
     "xlsx": "^0.17.2"
   },
   "scripts": {
-    "test": "nyc mocha --require @babel/register tests/core/series.js",
+    "test": "nyc mocha --require @babel/register tests/**/*.js",
     "test:clean": "yarn run build:clean && yarn test",
     "dev": "yarn run lint && babel ./src -d dist --no-comments",
     "build": "babel ./src -d ./dist --no-comments",

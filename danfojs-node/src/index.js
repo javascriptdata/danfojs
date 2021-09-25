@@ -1,38 +1,43 @@
 // import * as tf from "@tensorflow/tfjs-node";
 import NDframe from "./core/generic";
-// import Config from './shared/config';
-// import { utils } from './shared/utils';
+import { utils } from './shared/utils';
 import Series from "./core/series";
-// import DataFrame from "./core/frame";
-// import Str from "./core/strings";
-// import Dt from "./core/datetime";
+import DataFrame from "./core/frame";
+import { concat } from "./core/concat";
+import { merge } from "./core/merge";
+import { LabelEncoder, OneHotEncoder } from "./preprocessing/encodings";
+import { MinMaxScaler, StandardScaler } from "./preprocessing/scalers";
+import { date_range } from "./core/date_range";
+import get_dummies from "./core/get_dummies";
+import Str from "./core/strings";
+import Dt from "./core/datetime";
+import { toDateTime } from "./core/datetime";
 // import { read_csv, to_csv, read_json, to_json, read_excel, to_excel } from "./io";
-// import MinMaxScaler from "./transformers/scalers/min.max.scaler";
-// import StandardScaler from "./transformers/scalers/standard.scaler";
-// import LabelEncoder from "./transformers/encoders/label.encoder";
-// import OneHotEncoder from "./transformers/encoders/one.hot.encoder";
-// import getDummies from "./transformers/encoders/dummy.encoder";
+
 
 export {
   // tf,
+  date_range,
+  toDateTime,
+  concat,
+  merge,
   NDframe,
-  // Config,
-  // utils,
-  //   Str,
-  // Dt,
-  Series
-  // DataFrame
-//   read_csv,
-//   to_csv,
-//   read_json,
-//   to_json,
-//   read_excel,
-//   to_excel
-//   MinMaxScaler,
-//   StandardScaler,
-//   LabelEncoder,
-//   OneHotEncoder,
-//   getDummies
+  utils,
+  Str,
+  Dt,
+  Series,
+  DataFrame,
+  //   read_csv,
+  //   to_csv,
+  //   read_json,
+  //   to_json,
+  //   read_excel,
+  //   to_excel
+  MinMaxScaler,
+  StandardScaler,
+  LabelEncoder,
+  OneHotEncoder,
+  get_dummies
 };
 
 export const _version = "0.2.8";

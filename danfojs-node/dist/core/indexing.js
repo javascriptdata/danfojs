@@ -231,12 +231,14 @@ function _loc({
 
   if (!rows) {
     _rowIndexes = _index.map(indexValue => _index.indexOf(indexValue));
-  } else if (rows.length == 1 && typeof rows[0] == "string") {
+  } else if (rows.length === 1 && typeof rows[0] === "string") {
     if (rows[0].indexOf(":") === -1) {
       let temp;
 
       if (rows[0].startsWith(`"`) || rows[0].startsWith(`'`) || rows[0].startsWith("`")) {
         temp = _index.indexOf(rows[0].replace(/['"`]/g, ''));
+      } else if (typeof rows[0] === "string") {
+        temp = _index.indexOf(rows[0]);
       } else {
         temp = _index.indexOf(Number(rows[0]));
       }
@@ -269,7 +271,7 @@ function _loc({
       if (rowSplit[1] === "") {
         end = _index.indexOf(_index[_index.length - 1]) + 1;
       } else {
-        if (rowSplit[0].startsWith(`"`) || rowSplit[0].startsWith(`'`) || rowSplit[0].startsWith("`")) {
+        if (rowSplit[1].startsWith(`"`) || rowSplit[1].startsWith(`'`) || rowSplit[1].startsWith("`")) {
           end = _index.indexOf(rowSplit[1].replace(/['"`]/g, ''));
         } else {
           end = _index.indexOf(Number(rowSplit[1]));
