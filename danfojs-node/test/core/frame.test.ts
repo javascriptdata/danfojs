@@ -1448,8 +1448,8 @@ describe("DataFrame", function () {
             [0, 2, 4]]
             const df = new DataFrame(data)
 
-            const add = (arr: any) => {
-                return arr.map((x: any) => x + 1000)
+            const add = (x: any) => {
+                return x + 1000
             }
             const expected = [[1000, 1002, 1004], [1360, 1180, 1360], [1000, 1002, 1004]]
             const dfApply = df.applyMap(add) as DataFrame
@@ -1463,8 +1463,8 @@ describe("DataFrame", function () {
             [0, 2, 4]]
             const df = new DataFrame(data)
 
-            const add = (arr: any) => {
-                return arr.map((x: any) => x + 1000)
+            const add = (x: any) => {
+                return x + 1000
             }
             const expected = [[1000, 1002, 1004], [1360, 1180, 1360], [1000, 1002, 1004], [1000, 1002, 1004]]
             const dfApply = df.applyMap(add) as DataFrame
@@ -1477,8 +1477,8 @@ describe("DataFrame", function () {
             [0, 2, 4]]
             const df = new DataFrame(data)
 
-            const add = (arr: any) => {
-                return arr.map((x: any) => x + 1000)
+            const add = (x: any) => {
+                return x + 1000
             }
             const expected = [[1000, 1002, 1004], [1360, 1180, 1360], [1000, 1002, 1004]]
             df.applyMap(add, { inplace: true })
@@ -1492,8 +1492,8 @@ describe("DataFrame", function () {
             [0, 2, 4]]
             const df = new DataFrame(data)
 
-            const add = (arr: any) => {
-                return arr.map((x: any) => x + 1000)
+            const add = (x: any) => {
+                return x + 1000
             }
             const expected = [[1000, 1002, 1004], [1360, 1180, 1360], [1000, 1002, 1004], [1000, 1002, 1004]]
             df.applyMap(add, { inplace: true })

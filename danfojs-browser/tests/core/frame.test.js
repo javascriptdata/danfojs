@@ -1448,8 +1448,8 @@ describe("DataFrame", function () {
         [ 0, 2, 4 ] ];
       const df = new dfd.DataFrame(data);
 
-      const add = (arr) => {
-        return arr.map((x) => x + 1000);
+      const add = (x) => {
+        return x + 1000;
       };
       const expected = [ [ 1000, 1002, 1004 ], [ 1360, 1180, 1360 ], [ 1000, 1002, 1004 ] ];
       const dfApply = df.applyMap(add);
@@ -1462,9 +1462,8 @@ describe("DataFrame", function () {
         [ 0, 2, 4 ],
         [ 0, 2, 4 ] ];
       const df = new dfd.DataFrame(data);
-
-      const add = (arr) => {
-        return arr.map((x) => x + 1000);
+      const add = (x) => {
+        return x + 1000;
       };
       const expected = [ [ 1000, 1002, 1004 ], [ 1360, 1180, 1360 ], [ 1000, 1002, 1004 ], [ 1000, 1002, 1004 ] ];
       const dfApply = df.applyMap(add);
@@ -1477,8 +1476,8 @@ describe("DataFrame", function () {
         [ 0, 2, 4 ] ];
       const df = new dfd.DataFrame(data);
 
-      const add = (arr) => {
-        return arr.map((x) => x + 1000);
+      const add = (x) => {
+        return x + 1000;
       };
       const expected = [ [ 1000, 1002, 1004 ], [ 1360, 1180, 1360 ], [ 1000, 1002, 1004 ] ];
       df.applyMap(add, { inplace: true });
@@ -1492,8 +1491,8 @@ describe("DataFrame", function () {
         [ 0, 2, 4 ] ];
       const df = new dfd.DataFrame(data);
 
-      const add = (arr) => {
-        return arr.map((x) => x + 1000);
+      const add = (x) => {
+        return x + 1000;
       };
       const expected = [ [ 1000, 1002, 1004 ], [ 1360, 1180, 1360 ], [ 1000, 1002, 1004 ], [ 1000, 1002, 1004 ] ];
       df.applyMap(add, { inplace: true });
