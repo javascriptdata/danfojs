@@ -2,907 +2,832 @@
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 
-var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard");
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Series = void 0;
-
-var tf = _interopRequireWildcard(require("@tensorflow/tfjs-node"));
+exports.default = void 0;
 
 var _mathjs = require("mathjs");
 
-var _utils = require("./utils");
+var _math = require("./math.ops");
 
-var _strings = require("./strings");
+var _defaults = require("../shared/defaults");
+
+var _errors = _interopRequireDefault(require("../shared/errors"));
+
+var _indexing = require("./indexing");
+
+var _utils = require("../shared/utils");
 
 var _generic = _interopRequireDefault(require("./generic"));
 
 var _table = require("table");
 
-var _config = require("../config/config");
+var _strings = _interopRequireDefault(require("./strings"));
 
-var _timeseries = require("./timeseries");
+var _datetime = _interopRequireDefault(require("./datetime"));
 
-var _indexing = require("./indexing");
+var _tfjsNode = require("@tensorflow/tfjs-node");
 
-const utils = new _utils.Utils();
-const config = new _config.Configs();
+/**
+*  @license
+* Copyright 2021, JsData. All rights reserved.
+*
+* This source code is licensed under the MIT license found in the
+* LICENSE file in the root directory of this source tree.
 
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+* ==========================================================================
+*/
 class Series extends _generic.default {
-  constructor(data, kwargs) {
-    if (Array.isArray(data[0]) || utils.__is_object(data[0])) {
-      data = utils.__convert_2D_to_1D(data);
-      super(data, kwargs);
+  constructor(data = [], options) {
+    const {
+      index,
+      columns,
+      dtypes,
+      config
+    } = {
+      index: undefined,
+      columns: undefined,
+      dtypes: undefined,
+      config: undefined,
+      ...options
+    };
+
+    if (Array.isArray(data[0]) || _utils.utils.isObject(data[0])) {
+      data = _utils.utils.convert2DArrayToSeriesArray(data);
+      super({
+        data,
+        index,
+        columns,
+        dtypes,
+        config,
+        isSeries: true
+      });
     } else {
-      super(data, kwargs);
+      super({
+        data,
+        index,
+        columns,
+        dtypes,
+        config,
+        isSeries: true
+      });
     }
   }
 
-  get tensor() {
-    return tf.tensor(this.values).asType(this.dtypes[0]);
+  iloc(rows) {
+    return (0, _indexing._iloc)({
+      ndFrame: this,
+      rows
+    });
+  }
+
+  loc(rows) {
+    return (0, _indexing._loc)({
+      ndFrame: this,
+      rows
+    });
   }
 
   head(rows = 5) {
-    if (rows > this.shape[0] || rows < 1) {
-      return new Series(this.values, {
-        columns: this.column_names
-      });
-    } else {
-      let data = this.values.slice(0, rows);
-      return new Series(data, {
-        columns: this.column_names
-      });
-    }
+    return this.iloc([`0:${rows}`]);
   }
 
   tail(rows = 5) {
-    if (rows > this.values.length || rows < 1) {
-      return new Series(this.values, {
-        columns: this.column_names
-      });
-    } else {
-      let data = this.values.slice(this.shape[0] - rows);
-      let idx = this.index.slice(this.shape[0] - rows);
-      let sf = new Series(data, {
-        columns: this.column_names,
-        index: idx
-      });
-      return sf;
-    }
+    const startIdx = this.shape[0] - rows;
+    return this.iloc([`${startIdx}:`]);
   }
 
-  async sample(num = 5, seed = 1) {
+  async sample(num = 5, options) {
+    const {
+      seed
+    } = {
+      seed: 1,
+      ...options
+    };
+
     if (num > this.shape[0]) {
       throw new Error("Sample size n cannot be bigger than size of dataset");
     }
 
     if (num < -1 || num == 0) {
-      throw new Error("Sample size cannot be less than -1 or 0");
+      throw new Error("Sample size cannot be less than -1 or be equal to 0");
     }
 
     num = num === -1 ? this.shape[0] : num;
-    const shuffled_index = await tf.data.array(this.index).shuffle(num, seed).take(num).toArray();
-    const sf = this.iloc(shuffled_index);
+    const shuffledIndex = await _tfjsNode.data.array(this.index).shuffle(num, `${seed}`).take(num).toArray();
+    const sf = this.iloc(shuffledIndex);
     return sf;
   }
 
-  add(other) {
-    if (utils.__is_number(other)) {
-      let sum = this.row_data_tensor.add(other).arraySync();
-      return new Series(sum, {
-        columns: this.column_names
-      });
+  add(other, options) {
+    const {
+      inplace
+    } = {
+      inplace: false,
+      ...options
+    };
+    if (this.dtypes[0] == "string") _errors.default.throwStringDtypeOperationError("add");
+    const newData = (0, _math._genericMathOp)({
+      ndFrame: this,
+      other,
+      operation: "add"
+    });
+
+    if (inplace) {
+      this.$setValues(newData);
     } else {
-      if (this.__check_series_op_compactibility) {
-        let sum = this.tensor.add(other.tensor).arraySync();
-        return new Series(sum, {
-          columns: this.column_names
-        });
-      }
+      return _utils.utils.createNdframeFromNewDataWithOldProps({
+        ndFrame: this,
+        newData,
+        isSeries: true
+      });
     }
   }
 
-  sub(other) {
-    if (utils.__is_number(other)) {
-      let sub = this.tensor.sub(other).arraySync();
-      return new Series(sub, {
-        columns: this.column_names
-      });
+  sub(other, options) {
+    const {
+      inplace
+    } = {
+      inplace: false,
+      ...options
+    };
+    if (this.dtypes[0] == "string") _errors.default.throwStringDtypeOperationError("sub");
+    const newData = (0, _math._genericMathOp)({
+      ndFrame: this,
+      other,
+      operation: "sub"
+    });
+
+    if (inplace) {
+      this.$setValues(newData);
     } else {
-      if (this.__check_series_op_compactibility) {
-        let sub = this.tensor.sub(other.tensor).arraySync();
-        return new Series(sub, {
-          columns: this.column_names
-        });
-      }
+      return _utils.utils.createNdframeFromNewDataWithOldProps({
+        ndFrame: this,
+        newData,
+        isSeries: true
+      });
     }
   }
 
-  mul(other) {
-    if (utils.__is_number(other)) {
-      let mul = this.tensor.mul(other).arraySync();
-      return new Series(mul, {
-        columns: this.column_names
-      });
+  mul(other, options) {
+    const {
+      inplace
+    } = {
+      inplace: false,
+      ...options
+    };
+    if (this.dtypes[0] == "string") _errors.default.throwStringDtypeOperationError("mul");
+    const newData = (0, _math._genericMathOp)({
+      ndFrame: this,
+      other,
+      operation: "mul"
+    });
+
+    if (inplace) {
+      this.$setValues(newData);
     } else {
-      if (this.__check_series_op_compactibility) {
-        let mul = this.tensor.mul(other.tensor).arraySync();
-        return new Series(mul, {
-          columns: this.column_names
-        });
-      }
+      return _utils.utils.createNdframeFromNewDataWithOldProps({
+        ndFrame: this,
+        newData,
+        isSeries: true
+      });
     }
   }
 
-  div(other, round = true) {
-    if (utils.__is_number(other)) {
-      let div_result = this.tensor.div(other);
-      return new Series(div_result.arraySync(), {
-        columns: this.column_names,
-        dtypes: [div_result.dtype]
-      });
+  div(other, options) {
+    const {
+      inplace
+    } = {
+      inplace: false,
+      ...options
+    };
+    if (this.dtypes[0] == "string") _errors.default.throwStringDtypeOperationError("div");
+    const newData = (0, _math._genericMathOp)({
+      ndFrame: this,
+      other,
+      operation: "div"
+    });
+
+    if (inplace) {
+      this.$setValues(newData);
     } else {
-      if (this.__check_series_op_compactibility) {
-        let dtype;
-
-        if (round) {
-          dtype = "float32";
-        } else {
-          dtype = "int32";
-        }
-
-        let tensor1 = this.tensor.asType(dtype);
-        let tensor2 = other.tensor.asType(dtype);
-        let result = tensor1.div(tensor2);
-        return new Series(result.arraySync(), {
-          columns: this.column_names,
-          dtypes: [result.dtype]
-        });
-      }
+      return _utils.utils.createNdframeFromNewDataWithOldProps({
+        ndFrame: this,
+        newData,
+        isSeries: true
+      });
     }
   }
 
-  pow(other) {
-    if (utils.__is_number(other)) {
-      let pow_result = this.tensor.pow(other).arraySync();
-      return new Series(pow_result, {
-        columns: this.column_names
-      });
+  pow(other, options) {
+    const {
+      inplace
+    } = {
+      inplace: false,
+      ...options
+    };
+    if (this.dtypes[0] == "string") _errors.default.throwStringDtypeOperationError("pow");
+    const newData = (0, _math._genericMathOp)({
+      ndFrame: this,
+      other,
+      operation: "pow"
+    });
+
+    if (inplace) {
+      this.$setValues(newData);
     } else {
-      if (this.__check_series_op_compactibility) {
-        let pow_result = this.tensor.pow(other.tensor).arraySync();
-        return new Series(pow_result, {
-          columns: this.column_names
-        });
-      }
+      return _utils.utils.createNdframeFromNewDataWithOldProps({
+        ndFrame: this,
+        newData,
+        isSeries: true
+      });
     }
   }
 
-  mod(other) {
-    if (utils.__is_number(other)) {
-      let mod_result = this.tensor.mod(other).arraySync();
-      return new Series(mod_result, {
-        columns: this.column_names
-      });
+  mod(other, options) {
+    const {
+      inplace
+    } = {
+      inplace: false,
+      ...options
+    };
+    if (this.dtypes[0] == "string") _errors.default.throwStringDtypeOperationError("mod");
+    const newData = (0, _math._genericMathOp)({
+      ndFrame: this,
+      other,
+      operation: "mod"
+    });
+
+    if (inplace) {
+      this.$setValues(newData);
     } else {
-      if (this.__check_series_op_compactibility) {
-        let mod_result = this.tensor.mod(other.tensor).arraySync();
-        return new Series(mod_result, {
-          columns: this.column_names
-        });
-      }
+      return _utils.utils.createNdframeFromNewDataWithOldProps({
+        ndFrame: this,
+        newData,
+        isSeries: true
+      });
     }
+  }
+
+  $checkAndCleanValues(values, operation) {
+    if (this.dtypes[0] == "string") _errors.default.throwStringDtypeOperationError(operation);
+    values = _utils.utils.removeMissingValuesFromArray(values);
+
+    if (this.dtypes[0] == "boolean") {
+      values = _utils.utils.mapBooleansToIntegers(values, 1);
+    }
+
+    return values;
   }
 
   mean() {
-    utils._throw_str_dtype_error(this, 'mean');
-
-    let values = utils._remove_nans(this.values);
-
-    let mean = tf.tensor(values).mean().arraySync();
-    return mean;
+    const values = this.$checkAndCleanValues(this.values, "mean");
+    return values.reduce((a, b) => a + b) / values.length;
   }
 
   median() {
-    utils._throw_str_dtype_error(this, 'median');
-
-    let values = utils._remove_nans(this.values);
-
-    let median_val = (0, _mathjs.median)(values);
-    return median_val;
+    const values = this.$checkAndCleanValues(this.values, "median");
+    return (0, _mathjs.median)(values);
   }
 
   mode() {
-    utils._throw_str_dtype_error(this, 'median');
-
-    let values = utils._remove_nans(this.values);
-
-    let modal_val = (0, _mathjs.mode)(values);
-    return modal_val;
+    const values = this.$checkAndCleanValues(this.values, "mode");
+    return (0, _mathjs.mode)(values);
   }
 
   min() {
-    utils._throw_str_dtype_error(this, 'min');
+    const values = this.$checkAndCleanValues(this.values, "min");
+    let smallestValue = values[0];
 
-    let min = this.row_data_tensor.min().arraySync();
-    return min;
+    for (let i = 0; i < values.length; i++) {
+      smallestValue = smallestValue < values[i] ? smallestValue : values[i];
+    }
+
+    return smallestValue;
   }
 
   max() {
-    utils._throw_str_dtype_error(this, 'max');
+    const values = this.$checkAndCleanValues(this.values, "max");
+    let biggestValue = values[0];
 
-    let max = this.row_data_tensor.max().arraySync();
-    return max;
+    for (let i = 0; i < values.length; i++) {
+      biggestValue = biggestValue > values[i] ? biggestValue : values[i];
+    }
+
+    return biggestValue;
   }
 
   sum() {
-    utils._throw_str_dtype_error(this, 'sum');
-
-    if (this.dtypes[0] == "boolean") {
-      let temp = utils._remove_nans(this.values);
-
-      let temp_sum = tf.tensor(temp).sum().arraySync();
-      return Number(temp_sum);
-    }
-
-    let temp = utils._remove_nans(this.values);
-
-    let temp_sum = tf.tensor(temp).sum().arraySync();
-    return Number(temp_sum.toFixed(5));
+    const values = this.$checkAndCleanValues(this.values, "sum");
+    return values.reduce((sum, value) => sum + value, 0);
   }
 
   count() {
-    return utils.__count_nan(this.values, true, true);
+    const values = _utils.utils.removeMissingValuesFromArray(this.values);
+
+    return values.length;
   }
 
   maximum(other) {
-    if (utils.__is_number(other)) {
-      let max_result = this.row_data_tensor.maximum(other);
-      return new Series(max_result.arraySync(), {
-        columns: this.column_names,
-        dtypes: max_result.dtype,
-        index: this.index
-      });
-    } else {
-      if (this.__check_series_op_compactibility) {
-        let tensor1 = this.row_data_tensor;
-        let tensor2 = other.tensor;
-        let result = tensor1.maximum(tensor2).arraySync();
-        return new Series(result, {
-          columns: this.column_names,
-          index: this.index
-        });
-      }
-    }
+    if (this.dtypes[0] == "string") _errors.default.throwStringDtypeOperationError("maximum");
+    const newData = (0, _math._genericMathOp)({
+      ndFrame: this,
+      other,
+      operation: "maximum"
+    });
+    return new Series(newData, {
+      columns: this.columns,
+      index: this.index
+    });
   }
 
   minimum(other) {
-    if (utils.__is_number(other)) {
-      let max_result = this.row_data_tensor.minimum(other);
-      return new Series(max_result.arraySync(), {
-        columns: this.column_names,
-        dtypes: max_result.dtype,
-        index: this.index
-      });
-    } else {
-      if (this.__check_series_op_compactibility) {
-        let tensor1 = this.tensor;
-        let tensor2 = other.tensor;
-        let result = tensor1.minimum(tensor2).arraySync();
-        return new Series(result, {
-          columns: this.column_names,
-          index: this.index
-        });
-      }
-    }
+    if (this.dtypes[0] == "string") _errors.default.throwStringDtypeOperationError("maximum");
+    const newData = (0, _math._genericMathOp)({
+      ndFrame: this,
+      other,
+      operation: "minimum"
+    });
+    return new Series(newData, {
+      columns: this.columns,
+      index: this.index
+    });
   }
 
-  round(dp) {
-    if (utils.__is_undefined(dp)) {
-      let result = tf.round(this.row_data_tensor).arraySync();
-      return new Series(result, {
-        columns: this.column_names,
-        index: this.index
-      });
-    } else {
-      let result = utils.__round(this.values, dp, true);
+  round(dp = 1, options) {
+    const {
+      inplace
+    } = {
+      inplace: false,
+      ...options
+    };
 
-      return new Series(result, {
-        columns: this.column_names,
-        index: this.index
+    const newValues = _utils.utils.round(this.values, dp, true);
+
+    if (inplace) {
+      this.$setValues(newValues);
+    } else {
+      return _utils.utils.createNdframeFromNewDataWithOldProps({
+        ndFrame: this,
+        newData: newValues,
+        isSeries: true
       });
     }
   }
 
   std() {
-    utils._throw_str_dtype_error(this, 'std');
-
-    let values = utils._remove_nans(this.values);
-
-    let std_val = (0, _mathjs.std)(values);
-    return std_val;
+    const values = this.$checkAndCleanValues(this.values, "max");
+    return (0, _mathjs.std)(values);
   }
 
   var() {
-    utils._throw_str_dtype_error(this, 'std');
-
-    let values = utils._remove_nans(this.values);
-
-    let var_val = (0, _mathjs.variance)(values);
-    return var_val;
+    const values = this.$checkAndCleanValues(this.values, "max");
+    return (0, _mathjs.variance)(values);
   }
 
   isna() {
-    let new_arr = this.__isna();
-
-    let sf = new Series(new_arr, {
+    const newData = this.values.map(value => {
+      if (isNaN(value) && typeof value != "string") {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    const sf = new Series(newData, {
       index: this.index,
-      columns: this.column_names,
-      dtypes: ["boolean"]
+      dtypes: ["boolean"],
+      config: this.config
     });
     return sf;
   }
 
-  fillna(kwargs = {}) {
-    let params_needed = ["value", "inplace"];
+  fillna(options) {
+    const {
+      value,
+      inplace
+    } = {
+      value: undefined,
+      inplace: false,
+      ...options
+    };
 
-    utils._throw_wrong_params_error(kwargs, params_needed);
-
-    kwargs['inplace'] = kwargs['inplace'] || false;
-
-    if (!("value" in kwargs)) {
+    if (!value && typeof value !== 'boolean') {
       throw Error('Value Error: Must specify value to replace with');
     }
 
-    let new_values = [];
+    const newValues = [];
     this.values.forEach(val => {
       if (isNaN(val) && typeof val != "string") {
-        new_values.push(kwargs['value']);
+        newValues.push(value);
       } else {
-        new_values.push(val);
+        newValues.push(val);
       }
     });
 
-    if (kwargs['inplace']) {
-      this.data = new_values;
+    if (inplace) {
+      this.$setValues(newValues);
     } else {
-      let sf = new Series(new_values, {
-        columns: this.column_names,
-        index: this.index,
-        dtypes: this.dtypes
+      return _utils.utils.createNdframeFromNewDataWithOldProps({
+        ndFrame: this,
+        newData: newValues,
+        isSeries: true
       });
-      return sf;
     }
   }
 
-  sort_values(kwargs = {}) {
-    let params_needed = ["inplace", "ascending"];
+  sort_values(options) {
+    const {
+      ascending,
+      inplace
+    } = {
+      inplace: false,
+      ascending: true,
+      ...options
+    };
+    let sortedValues = [];
 
-    utils._throw_wrong_params_error(kwargs, params_needed);
+    const rangeIdx = _utils.utils.range(0, this.index.length - 1);
 
-    if (!('ascending' in kwargs)) {
-      kwargs['ascending'] = true;
+    let sortedIdx = _utils.utils.sortArrayByIndex(rangeIdx, this.values, this.dtypes[0]);
+
+    for (let indx of sortedIdx) {
+      sortedValues.push(this.values[indx]);
     }
 
-    if (!('inplace' in kwargs)) {
-      kwargs['inplace'] = false;
+    if (ascending) {
+      sortedValues = sortedValues.reverse();
+      sortedIdx = sortedIdx.reverse();
     }
 
-    let sorted_values = [];
-    let arr_obj = [...this.values];
-
-    let range_idx = utils.__range(0, this.index.length - 1);
-
-    let sorted_idx = utils._sort_arr_with_index(range_idx, arr_obj, this.dtypes[0]);
-
-    sorted_idx.forEach(idx => {
-      sorted_values.push(this.values[idx]);
-    });
-
-    if (kwargs['ascending']) {
-      sorted_values = sorted_values.reverse();
-      sorted_idx = sorted_idx.reverse();
-    }
-
-    if (kwargs['inplace']) {
-      this.data = sorted_values;
-
-      this.__set_index(sorted_idx);
+    if (inplace) {
+      this.$setValues(sortedValues);
+      this.$setIndex(sortedIdx);
     } else {
-      let sf = new Series(sorted_values, {
-        columns: this.column_names,
-        index: sorted_idx
+      const sf = new Series(sortedValues, {
+        index: sortedIdx,
+        dtypes: this.dtypes,
+        config: this.config
       });
       return sf;
     }
   }
 
   copy() {
-    let sf = new Series([...this.values], {
-      columns: [...this.column_names],
+    const sf = new Series([...this.values], {
+      columns: [...this.columns],
       index: [...this.index],
-      dtypes: [...this.dtypes[0]]
+      dtypes: [...this.dtypes],
+      config: { ...this.config
+      }
     });
     return sf;
   }
 
   describe() {
     if (this.dtypes[0] == "string") {
-      return null;
+      throw new Error("DType Error: Cannot generate descriptive statistics for Series with string dtype");
     } else {
-      let index = ['count', 'mean', 'std', 'min', 'median', 'max', 'variance'];
-      let count = this.count();
-      let mean = this.mean();
-      let std = this.std();
-      let min = this.min();
-      let median = this.median();
-      let max = this.max();
-      let variance = this.var();
-      let vals = [count, mean, std, min, median, max, variance];
-      let sf = new Series(vals, {
-        columns: this.columns,
+      const index = ['count', 'mean', 'std', 'min', 'median', 'max', 'variance'];
+      const count = this.count();
+      const mean = this.mean();
+      const std = this.std();
+      const min = this.min();
+      const median = this.median();
+      const max = this.max();
+      const variance = this.var();
+      const data = [count, mean, std, min, median, max, variance];
+      const sf = new Series(data, {
         index: index
       });
       return sf;
     }
   }
 
-  reset_index(kwargs = {}) {
-    let params_needed = ["inplace"];
+  reset_index(options) {
+    const {
+      inplace
+    } = {
+      inplace: false,
+      ...options
+    };
 
-    utils._throw_wrong_params_error(kwargs, params_needed);
-
-    kwargs['inplace'] = kwargs['inplace'] || false;
-
-    if (kwargs['inplace']) {
-      this.__reset_index();
+    if (inplace) {
+      this.$resetIndex();
     } else {
-      let sf = this.copy();
-
-      sf.__reset_index();
-
+      const sf = this.copy();
+      sf.$resetIndex();
       return sf;
     }
   }
 
-  set_index(kwargs = {}) {
-    let params_needed = ["index", "inplace"];
+  set_index(options) {
+    const {
+      index,
+      inplace
+    } = {
+      index: undefined,
+      inplace: false,
+      ...options
+    };
 
-    utils._throw_wrong_params_error(kwargs, params_needed);
-
-    kwargs['inplace'] = kwargs['inplace'] || false;
-
-    if (!('index' in kwargs)) {
-      throw Error("Index ValueError: You must specify an array of index");
+    if (!index) {
+      throw Error('Param Error: Must specify index array');
     }
 
-    if (kwargs['index'].length != this.index.length) {
-      throw Error(`Index LengthError: Lenght of new Index array ${kwargs['index'].length} must match lenght of existing index ${this.index.length}`);
-    }
-
-    if (kwargs['inplace']) {
-      this.index_arr = kwargs['index'];
+    if (inplace) {
+      this.$setIndex(index);
     } else {
-      let sf = this.copy();
-
-      sf.__set_index(kwargs['index']);
-
+      const sf = this.copy();
+      sf.$setIndex(index);
       return sf;
     }
   }
 
-  __check_series_op_compactibility(other) {
-    if (utils.__is_undefined(other.series)) {
-      throw Error("param [other] must be a Series or a single value that can be broadcasted");
-    }
+  map(callable, options) {
+    const {
+      inplace
+    } = {
+      inplace: false,
+      ...options
+    };
 
-    if (other.values.length != this.values.length) {
-      throw Error("Shape Error: Series shape do not match");
-    }
+    const isCallable = _utils.utils.isFunction(callable);
 
-    if (this.dtypes[0] != 'float' || this.dtypes[0] != 'int') {
-      throw Error(`dtype Error: Cannot perform operation on type ${this.dtypes[0]} with type ${other.dtypes[0]}`);
-    }
-
-    if (other.dtypes[0] != 'float' || other.dtypes[0] != 'int') {
-      throw Error(`dtype Error: Cannot perform operation on type ${other.dtypes[0]} with type ${this.dtypes[0]}`);
-    }
-
-    return true;
-  }
-
-  map(callable) {
-    let is_callable = utils.__is_function(callable);
-
-    let data = this.data.map(val => {
-      if (is_callable) {
+    const data = this.values.map(val => {
+      if (isCallable) {
         return callable(val);
-      } else {
-        if (utils.__is_object(callable)) {
-          if (val in callable) {
-            return callable[val];
-          } else {
-            return NaN;
-          }
+      } else if (_utils.utils.isObject(callable)) {
+        if (val in callable) {
+          return callable[val];
         } else {
-          throw new Error("callable must either be a function or an object");
+          return NaN;
         }
+      } else {
+        throw new Error("Param Error: callable must either be a function or an object");
       }
     });
-    let sf = new Series(data, {
-      columns: this.column_names,
-      index: this.index
-    });
-    return sf;
+
+    if (inplace) {
+      this.$setValues(data);
+    } else {
+      const sf = this.copy();
+      sf.$setValues(data);
+      return sf;
+    }
   }
 
-  apply(callable) {
-    let is_callable = utils.__is_function(callable);
+  apply(callable, options) {
+    const {
+      inplace
+    } = {
+      inplace: false,
+      ...options
+    };
 
-    if (!is_callable) {
-      throw new Error("the arguement most be a function");
+    const isCallable = _utils.utils.isFunction(callable);
+
+    if (!isCallable) {
+      throw new Error("Param Error: callable must be a function");
     }
 
-    let data = this.data.map(val => {
+    const data = this.values.map(val => {
       return callable(val);
     });
-    return new Series(data, {
-      columns: this.column_names,
-      index: this.index
-    });
+
+    if (inplace) {
+      this.$setValues(data);
+    } else {
+      const sf = this.copy();
+      sf.$setValues(data);
+      return sf;
+    }
   }
 
   unique() {
-    let data_set = new Set(this.values);
-    let series = new Series(Array.from(data_set));
+    const newValues = new Set(this.values);
+    let series = new Series(Array.from(newValues));
     return series;
   }
 
   nunique() {
-    return this.unique().values.length;
+    return new Set(this.values).size;
   }
 
   value_counts() {
-    let s_data = this.values;
-    let data_dict = {};
+    const sData = this.values;
+    const dataDict = {};
 
-    for (let i = 0; i < s_data.length; i++) {
-      let val = s_data[i];
+    for (let i = 0; i < sData.length; i++) {
+      const val = sData[i];
 
-      if (val in data_dict) {
-        data_dict[val] += 1;
+      if (`${val}` in dataDict) {
+        dataDict[`${val}`] = dataDict[`${val}`] + 1;
       } else {
-        data_dict[val] = 1;
+        dataDict[`${val}`] = 1;
       }
     }
 
-    let index = Object.keys(data_dict).map(x => {
+    const index = Object.keys(dataDict).map(x => {
       return parseInt(x) ? parseInt(x) : x;
     });
-    let data = Object.values(data_dict);
-    let series = new Series(data, {
+    const data = Object.values(dataDict);
+    const series = new Series(data, {
       index: index
     });
     return series;
   }
 
-  abs() {
-    let abs_data = this.row_data_tensor.abs().arraySync();
-    return new Series(utils.__round(abs_data, 2, true));
-  }
-
-  cumsum() {
-    let data = this.__cum_ops("sum");
-
-    return data;
-  }
-
-  cummin() {
-    let data = this.__cum_ops("min");
-
-    return data;
-  }
-
-  cummax() {
-    let data = this.__cum_ops("max");
-
-    return data;
-  }
-
-  cumprod() {
-    let data = this.__cum_ops("prod");
-
-    return data;
-  }
-
-  lt(other) {
-    return this.__bool_ops(other, "lt");
-  }
-
-  gt(other) {
-    return this.__bool_ops(other, "gt");
-  }
-
-  le(other) {
-    return this.__bool_ops(other, "le");
-  }
-
-  ge(other) {
-    return this.__bool_ops(other, "ge");
-  }
-
-  ne(other) {
-    return this.__bool_ops(other, "ne");
-  }
-
-  eq(other) {
-    return this.__bool_ops(other, "eq");
-  }
-
-  replace(kwargs = {}) {
-    let params_needed = ["replace", "with", "inplace"];
-
-    utils._throw_wrong_params_error(kwargs, params_needed);
-
-    kwargs['inplace'] = kwargs['inplace'] || false;
-
-    if (!("replace" in kwargs)) {
-      throw Error("Params Error: Must specify param 'replace'");
-    }
-
-    if (!("with" in kwargs)) {
-      throw Error("Params Error: Must specify param 'with'");
-    }
-
-    let replaced_arr = [];
-    let old_arr = this.values;
-    old_arr.forEach(val => {
-      if (val == kwargs['replace']) {
-        replaced_arr.push(kwargs['with']);
-      } else {
-        replaced_arr.push(val);
-      }
-    });
-
-    if (kwargs['inplace']) {
-      this.data = replaced_arr;
-    } else {
-      let sf = new Series(replaced_arr, {
-        index: this.index,
-        columns: this.columns,
-        dtypes: this.dtypes
-      });
-      return sf;
-    }
-  }
-
-  dropna(kwargs = {}) {
-    let params_needed = ["inplace"];
-
-    utils._throw_wrong_params_error(kwargs, params_needed);
-
-    kwargs['inplace'] = kwargs['inplace'] || false;
-    let old_values = this.values;
-    let old_index = this.index;
-    let new_values = [];
-    let new_index = [];
-    let isna_vals = this.isna().values;
-    isna_vals.forEach((val, i) => {
-      if (!val) {
-        new_values.push(old_values[i]);
-        new_index.push(old_index[i]);
-      }
-    });
-
-    if (kwargs['inplace']) {
-      this.index_arr = new_index;
-      this.data = new_values;
-    } else {
-      let sf = new Series(new_values, {
-        columns: this.column_names,
-        index: new_index,
-        dtypes: this.dtypes
-      });
-      return sf;
-    }
-  }
-
-  argsort(ascending = true) {
-    let sorted_index = this.sort_values({
-      ascending: ascending
-    }).index;
-    let sf = new Series(sorted_index);
-    return sf;
-  }
-
-  argmax() {
-    return this.row_data_tensor.argMax().arraySync();
-  }
-
-  argmin() {
-    return this.row_data_tensor.argMin().arraySync();
-  }
-
-  get dtype() {
-    return this.dtypes[0];
-  }
-
-  drop_duplicates(kwargs = {}) {
-    let params_needed = ["inplace", "keep"];
-
-    utils._throw_wrong_params_error(kwargs, params_needed);
-
-    kwargs['inplace'] = kwargs['inplace'] || false;
-    kwargs['keep'] = kwargs['keep'] || "first";
-    let data_arr, old_index;
-
-    if (kwargs['keep'] == "last") {
-      data_arr = this.values.reverse();
-      old_index = this.index.reverse();
-    } else {
-      data_arr = this.values;
-      old_index = this.index;
-    }
-
-    let new_index = [];
-    let new_arr = [];
-    data_arr.forEach((val, i) => {
-      if (!new_arr.includes(val)) {
-        new_index.push(old_index[i]);
-        new_arr.push(val);
-      }
-    });
-
-    if (kwargs['keep'] == "last") {
-      new_arr = new_arr.reverse();
-      new_index = new_index.reverse();
-    }
-
-    if (kwargs['inplace']) {
-      this.data = new_arr;
-      this.index_arr = new_index;
-    } else {
-      let sf = new Series(new_arr, {
-        index: new_index,
-        columns: this.column_names,
-        dtypes: this.dtypes
-      });
-      return sf;
-    }
-  }
-
-  toString() {
-    let table_width = 20;
-    let table_truncate = 20;
-    let max_row = config.get_max_row;
-    let data_arr = [];
-    let table_config = {};
-    let header = [""].concat(this.columns);
-    let idx, data;
-
-    if (this.values.length > max_row) {
-      data = this.values.slice(0, max_row);
-      idx = this.index.slice(0, max_row);
-    } else {
-      data = this.values;
-      idx = this.index;
-    }
-
-    idx.forEach((val, i) => {
-      let row = [val].concat(data[i]);
-      data_arr.push(row);
-    });
-    table_config[0] = 10;
-    table_config[1] = {
-      width: table_width,
-      truncate: table_truncate
+  abs(options) {
+    const {
+      inplace
+    } = {
+      inplace: false,
+      ...options
     };
-    let table_data = [header].concat(data_arr);
-    return (0, _table.table)(table_data, {
-      columns: table_config
-    });
-  }
+    if (this.dtypes[0] == "string") _errors.default.throwStringDtypeOperationError("abs");
+    let newValues;
+    newValues = this.values.map(val => Math.abs(val));
 
-  __bool_ops(other, b_ops) {
-    let r_series;
-    let l_series = this.values;
-
-    if (typeof other == "number") {
-      r_series = [...l_series].fill(other);
+    if (inplace) {
+      this.$setValues(newValues);
     } else {
-      if (!(other instanceof Series)) {
-        throw new Error("Value Error: 'other' must be an instance of Series");
-      }
-
-      r_series = other.values;
+      const sf = this.copy();
+      sf.$setValues(newValues);
+      return sf;
     }
-
-    if (!(l_series.length === r_series.length)) {
-      throw new Error("Length Error: Both series must be of the same length");
-    }
-
-    let data = [];
-
-    for (let i = 0; i < l_series.length; i++) {
-      let l_val = l_series[i];
-      let r_val = r_series[i];
-      let bool = null;
-
-      switch (b_ops) {
-        case "lt":
-          bool = l_val < r_val ? true : false;
-          data.push(bool);
-          break;
-
-        case "gt":
-          bool = l_val > r_val ? true : false;
-          data.push(bool);
-          break;
-
-        case "le":
-          bool = l_val <= r_val ? true : false;
-          data.push(bool);
-          break;
-
-        case "ge":
-          bool = l_val >= r_val ? true : false;
-          data.push(bool);
-          break;
-
-        case "ne":
-          bool = l_val != r_val ? true : false;
-          data.push(bool);
-          break;
-
-        case "eq":
-          bool = l_val === r_val ? true : false;
-          data.push(bool);
-          break;
-      }
-    }
-
-    return new Series(data);
   }
 
-  __cum_ops(ops) {
-    let s_data = this.values;
-    let temp_val = s_data[0];
-    let data = [temp_val];
+  cumsum(options) {
+    const ops = {
+      inplace: false,
+      ...options
+    };
+    return this.cumOps("sum", ops);
+  }
 
-    for (let i = 1; i < s_data.length; i++) {
-      let curr_val = s_data[i];
+  cummin(options) {
+    const ops = {
+      inplace: false,
+      ...options
+    };
+    return this.cumOps("min", ops);
+  }
+
+  cummax(options) {
+    const ops = {
+      inplace: false,
+      ...options
+    };
+    return this.cumOps("max", ops);
+  }
+
+  cumprod(options) {
+    const ops = {
+      inplace: false,
+      ...options
+    };
+    return this.cumOps("prod", ops);
+  }
+
+  cumOps(ops, options) {
+    if (this.dtypes[0] == "string") _errors.default.throwStringDtypeOperationError(ops);
+    const {
+      inplace
+    } = options;
+    const sData = this.values;
+    let tempval = sData[0];
+    const data = [tempval];
+
+    for (let i = 1; i < sData.length; i++) {
+      let currVal = sData[i];
 
       switch (ops) {
         case "max":
-          if (curr_val > temp_val) {
-            data.push(curr_val);
-            temp_val = curr_val;
+          if (currVal > tempval) {
+            data.push(currVal);
+            tempval = currVal;
           } else {
-            data.push(temp_val);
+            data.push(tempval);
           }
 
           break;
 
         case "min":
-          if (curr_val < temp_val) {
-            data.push(curr_val);
-            temp_val = curr_val;
+          if (currVal < tempval) {
+            data.push(currVal);
+            tempval = currVal;
           } else {
-            data.push(temp_val);
+            data.push(tempval);
           }
 
           break;
 
         case "sum":
-          temp_val = temp_val + curr_val;
-          data.push(temp_val);
+          tempval = tempval + currVal;
+          data.push(tempval);
           break;
 
         case "prod":
-          temp_val = temp_val * curr_val;
-          data.push(temp_val);
+          tempval = tempval * currVal;
+          data.push(tempval);
+          break;
+      }
+    }
+
+    if (inplace) {
+      this.$setValues(data);
+    } else {
+      const sf = this.copy();
+      sf.$setValues(data);
+      return sf;
+    }
+  }
+
+  lt(other) {
+    return this.boolOps(other, "lt");
+  }
+
+  gt(other) {
+    return this.boolOps(other, "gt");
+  }
+
+  le(other) {
+    return this.boolOps(other, "le");
+  }
+
+  ge(other) {
+    return this.boolOps(other, "ge");
+  }
+
+  ne(other) {
+    return this.boolOps(other, "ne");
+  }
+
+  eq(other) {
+    return this.boolOps(other, "eq");
+  }
+
+  boolOps(other, bOps) {
+    const data = [];
+    const lSeries = this.values;
+    let rSeries;
+
+    if (typeof other == "number") {
+      rSeries = Array(this.values.length).fill(other);
+    } else if (typeof other == "string" && ["eq", "ne"].includes(bOps)) {
+      rSeries = Array(this.values.length).fill(other);
+    } else if (other instanceof Series) {
+      rSeries = other.values;
+    } else if (Array.isArray(other)) {
+      rSeries = other;
+    } else {
+      throw new Error("ParamError: value for other not supported. It must be either a scalar, Array or Series");
+    }
+
+    if (!(lSeries.length === rSeries.length)) {
+      throw new Error("LengthError: Lenght of other must be equal to length of Series");
+    }
+
+    for (let i = 0; i < lSeries.length; i++) {
+      let lVal = lSeries[i];
+      let rVal = rSeries[i];
+      let bool = null;
+
+      switch (bOps) {
+        case "lt":
+          bool = lVal < rVal ? true : false;
+          data.push(bool);
+          break;
+
+        case "gt":
+          bool = lVal > rVal ? true : false;
+          data.push(bool);
+          break;
+
+        case "le":
+          bool = lVal <= rVal ? true : false;
+          data.push(bool);
+          break;
+
+        case "ge":
+          bool = lVal >= rVal ? true : false;
+          data.push(bool);
+          break;
+
+        case "ne":
+          bool = lVal !== rVal ? true : false;
+          data.push(bool);
+          break;
+
+        case "eq":
+          bool = lVal === rVal ? true : false;
+          data.push(bool);
           break;
       }
     }
@@ -910,42 +835,184 @@ class Series extends _generic.default {
     return new Series(data);
   }
 
-  astype(dtype) {
-    const __supported_dtypes = ['float32', "int32", 'string', 'boolean'];
+  replace(options) {
+    const {
+      oldValue,
+      newValue,
+      inplace
+    } = {
+      oldValue: undefined,
+      newValue: undefined,
+      inplace: false,
+      ...options
+    };
+
+    if (!oldValue && typeof oldValue !== 'boolean') {
+      throw Error(`Params Error: Must specify param 'oldValue' to replace`);
+    }
+
+    if (!newValue && typeof newValue !== 'boolean') {
+      throw Error(`Params Error: Must specify param 'newValue' to replace with`);
+    }
+
+    const newArr = [...this.values].map(val => {
+      if (val === oldValue) {
+        return newValue;
+      } else {
+        return val;
+      }
+    });
+
+    if (inplace) {
+      this.$setValues(newArr);
+    } else {
+      const sf = this.copy();
+      sf.$setValues(newArr);
+      return sf;
+    }
+  }
+
+  dropna(options) {
+    const {
+      inplace
+    } = {
+      inplace: false,
+      ...options
+    };
+    const oldValues = this.values;
+    const oldIndex = this.index;
+    const newValues = [];
+    const newIndex = [];
+    const isNaVals = this.isna().values;
+    isNaVals.forEach((val, i) => {
+      if (!val) {
+        newValues.push(oldValues[i]);
+        newIndex.push(oldIndex[i]);
+      }
+    });
+
+    if (inplace) {
+      this.$setValues(newValues, false);
+      this.$setIndex(newIndex);
+    } else {
+      const sf = this.copy();
+      sf.$setValues(newValues, false);
+      sf.$setIndex(newIndex);
+      return sf;
+    }
+  }
+
+  argsort(ascending = true) {
+    const sortedIndex = this.sort_values(ascending);
+    const sf = new Series(sortedIndex?.index);
+    return sf;
+  }
+
+  argmax() {
+    return this.tensor.argMax().arraySync();
+  }
+
+  argmin() {
+    return this.tensor.argMin().arraySync();
+  }
+
+  drop_duplicates(options) {
+    const {
+      keep,
+      inplace
+    } = {
+      keep: "first",
+      inplace: false,
+      ...options
+    };
+
+    if (!["first", "last"].includes(keep)) {
+      throw Error(`Params Error: Keep must be one of 'first' or 'last'`);
+    }
+
+    let dataArr;
+    let newArr = [];
+    let oldIndex;
+    let newIndex = [];
+
+    if (keep === "last") {
+      dataArr = this.values.reverse();
+      oldIndex = this.index.reverse();
+    } else {
+      dataArr = this.values;
+      oldIndex = this.index;
+    }
+
+    dataArr.forEach((val, i) => {
+      if (!newArr.includes(val)) {
+        newIndex.push(oldIndex[i]);
+        newArr.push(val);
+      }
+    });
+
+    if (keep === "last") {
+      newArr = newArr.reverse();
+      newIndex = newIndex.reverse();
+    }
+
+    if (inplace) {
+      this.$setValues(newArr, false);
+      this.$setIndex(newIndex);
+    } else {
+      const sf = this.copy();
+      sf.$setValues(newArr, false);
+      sf.$setIndex(newIndex);
+      return sf;
+    }
+  }
+
+  astype(dtype, options) {
+    const {
+      inplace
+    } = {
+      inplace: false,
+      ...options
+    };
 
     if (!dtype) {
-      throw Error("Value Error: Please specify dtype to cast to");
+      throw Error("Param Error: Please specify dtype to cast to");
     }
 
-    if (!__supported_dtypes.includes(dtype)) {
-      throw Error(`dtype ${dtype} not supported. dtype must be one of ${__supported_dtypes}`);
+    if (!_defaults.DATA_TYPES.includes(dtype)) {
+      throw Error(`dtype ${dtype} not supported. dtype must be one of ${_defaults.DATA_TYPES}`);
     }
 
-    let col_values = this.values;
-    let new_values = [];
+    const oldValues = [...this.values];
+    const newValues = [];
 
     switch (dtype) {
       case "float32":
-        col_values.forEach(val => {
-          new_values.push(Number(val));
+        oldValues.forEach(val => {
+          newValues.push(Number(val));
         });
         break;
 
       case "int32":
-        col_values.forEach(val => {
-          new_values.push(Number(Number(val).toFixed()));
+        oldValues.forEach(val => {
+          newValues.push(parseInt(val));
         });
         break;
 
       case "string":
-        col_values.forEach(val => {
-          new_values.push(String(val));
+        oldValues.forEach(val => {
+          newValues.push(String(val));
         });
         break;
 
       case "boolean":
-        col_values.forEach(val => {
-          new_values.push(Boolean(val));
+        oldValues.forEach(val => {
+          newValues.push(Boolean(val));
+        });
+        break;
+
+      case "undefined":
+        oldValues.forEach(_ => {
+          newValues.push(NaN);
         });
         break;
 
@@ -953,94 +1020,205 @@ class Series extends _generic.default {
         break;
     }
 
-    let sf = new Series(new_values, {
-      dtypes: dtype,
-      index: this.index
-    });
-    return sf;
+    if (inplace) {
+      this.$setValues(newValues, false);
+      this.$setDtypes([dtype]);
+    } else {
+      const sf = this.copy();
+      sf.$setValues(newValues, false);
+      sf.$setDtypes([dtype]);
+      return sf;
+    }
+  }
+
+  append(newValue, index, options) {
+    const {
+      inplace
+    } = {
+      inplace: false,
+      ...options
+    };
+
+    if (!newValue && typeof newValue !== "boolean") {
+      throw Error("Param Error: newValues cannot be null or undefined");
+    }
+
+    if (!index) {
+      throw Error("Param Error: index cannot be null or undefined");
+    }
+
+    const newData = [...this.values];
+    const newIndx = [...this.index];
+
+    if (Array.isArray(newValue) && Array.isArray(index)) {
+      if (newValue.length !== index.length) {
+        throw Error("Param Error: Length of new values and index must be the same");
+      }
+
+      newValue.forEach((el, i) => {
+        newData.push(el);
+        newIndx.push(index[i]);
+      });
+    } else if (newValue instanceof Series) {
+      const _value = newValue.values;
+
+      if (!Array.isArray(index)) {
+        throw Error("Param Error: index must be an array");
+      }
+
+      if (index.length !== _value.length) {
+        throw Error("Param Error: Length of new values and index must be the same");
+      }
+
+      _value.forEach((el, i) => {
+        newData.push(el);
+        newIndx.push(index[i]);
+      });
+    } else {
+      newData.push(newValue);
+      newIndx.push(index);
+    }
+
+    if (inplace) {
+      this.$setValues(newData, false);
+      this.$setIndex(newIndx);
+    } else {
+      const sf = new Series(newData, {
+        index: newIndx,
+        columns: this.columns,
+        dtypes: this.dtypes,
+        config: this.config
+      });
+      return sf;
+    }
+  }
+
+  get dtype() {
+    return this.dtypes[0];
   }
 
   get str() {
     if (this.dtypes[0] == "string") {
-      return new _strings.Str(this);
+      return new _strings.default(this);
     } else {
       throw new Error("Cannot call accessor str on non-string type");
     }
   }
 
   get dt() {
-    let timeseries = new _timeseries.TimeSeries({
-      data: this
-    });
-    timeseries.preprocessed();
-    return timeseries;
-  }
-
-  print() {
-    console.log(this + "");
-  }
-
-  plot(div) {
-    const plt = new Plot(this, div);
-    return plt;
-  }
-
-  iloc(row) {
-    let kwargs = {};
-    kwargs["rows"] = row;
-    kwargs["type"] = "iloc";
-    let [new_data, columns, rows] = (0, _indexing.indexLoc)(this, kwargs);
-    let sf = new Series(new_data, {
-      columns: columns,
-      index: rows
-    });
-    return sf;
-  }
-
-  append(val, inplace = false) {
-    if (inplace) {
-      let self = this;
-
-      if (Array.isArray(val)) {
-        val.forEach((el, i) => {
-          self.data.push(el);
-          self.index_arr.push(i);
-        });
-      } else if (val instanceof Series) {
-        let value = val.values;
-        let old_index = val.index;
-        value.forEach((el, i) => {
-          self.data.push(el);
-          self.index_arr.push(old_index[i]);
-        });
-      } else {
-        self.data.push(val);
-        self.index_arr.push(0);
-      }
+    if (this.dtypes[0] == "string") {
+      return new _datetime.default(this);
     } else {
-      let sf = this.copy();
+      throw new Error("Cannot call accessor dt on non-string type");
+    }
+  }
 
-      if (Array.isArray(val)) {
-        val.forEach((el, i) => {
-          sf.data.push(el);
-          sf.index_arr.push(i);
-        });
-      } else if (val instanceof Series) {
-        let value = val.values;
-        let old_index = val.index;
-        value.forEach((el, i) => {
-          sf.data.push(el);
-          sf.index_arr.push(old_index[i]);
-        });
-      } else {
-        sf.data.push(val);
-        sf.index_arr.push(0);
+  toString() {
+    const maxRow = this.$config.getMaxRow;
+    let indx;
+    let values = [];
+
+    if (this.shape[0] > maxRow) {
+      const sfSlice = this.iloc([`0:${maxRow}`]);
+      indx = sfSlice.index;
+      values = sfSlice.values;
+    } else {
+      indx = this.index;
+      values = this.values;
+    }
+
+    const tabledata = values.map((x, i) => [indx[i], x]);
+    return (0, _table.table)(tabledata);
+  }
+
+  and(other) {
+    if (other === undefined) {
+      throw new Error("Param Error: other cannot be undefined");
+    }
+
+    if (other instanceof Series) {
+      if (this.dtypes[0] !== other.dtypes[0]) {
+        throw new Error("Param Error must be of same dtype");
       }
 
-      return sf;
+      if (this.shape[0] !== other.shape[0]) {
+        throw new Error("Param Error must be of same shape");
+      }
+
+      const newValues = [];
+      this.values.forEach((val, i) => {
+        newValues.push(Boolean(val) && Boolean(other.values[i]));
+      });
+      return new Series(newValues, {
+        config: { ...this.config
+        }
+      });
+    } else if (Array.isArray(other)) {
+      const newValues = [];
+      this.values.forEach((val, i) => {
+        newValues.push(Boolean(val) && Boolean(other[i]));
+      });
+      return new Series(newValues, {
+        config: { ...this.config
+        }
+      });
+    } else {
+      const newValues = [];
+      this.values.forEach(val => {
+        newValues.push(Boolean(val) && Boolean(other));
+      });
+      return new Series(newValues, {
+        config: { ...this.config
+        }
+      });
+    }
+  }
+
+  or(other) {
+    if (other === undefined) {
+      throw new Error("Param Error: other cannot be undefined");
+    }
+
+    if (other instanceof Series) {
+      if (this.dtypes[0] !== other.dtypes[0]) {
+        throw new Error("Param Error must be of same dtype");
+      }
+
+      if (this.shape[0] !== other.shape[0]) {
+        throw new Error("Param Error must be of same shape");
+      }
+
+      const newValues = [];
+      this.values.forEach((val, i) => {
+        newValues.push(Boolean(val) | other.values[i]);
+      });
+      return new Series(newValues, {
+        config: { ...this.config
+        }
+      });
+    } else if (typeof other === "boolean") {
+      const newValues = [];
+      this.values.forEach(val => {
+        newValues.push(Boolean(val) | other);
+      });
+      return new Series(newValues, {
+        config: { ...this.config
+        }
+      });
+    } else if (Array.isArray(other)) {
+      const newValues = [];
+      this.values.forEach((val, i) => {
+        newValues.push(Boolean(val) | other[i]);
+      });
+      return new Series(newValues, {
+        config: { ...this.config
+        }
+      });
+    } else {
+      throw new Error("Param Error: other must be a Series, Scalar, or Array of Scalars");
     }
   }
 
 }
 
-exports.Series = Series;
+exports.default = Series;

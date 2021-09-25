@@ -1,391 +1,358 @@
 "use strict";
 
-var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard");
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
 
-var tf = _interopRequireWildcard(require("@tensorflow/tfjs-node"));
+var _utils = require("../shared/utils");
 
-var _table = require("table");
+var _config = _interopRequireDefault(require("../shared/config"));
 
-var _utils = require("./utils");
+var _errors = _interopRequireDefault(require("../shared/errors"));
 
-var _config = require("../config/config");
+var _defaults = require("../shared/defaults");
 
-const utils = new _utils.Utils();
-const config = new _config.Configs();
+var _tfjsNode = require("@tensorflow/tfjs-node");
 
+/**
+*  @license
+* Copyright 2021, JsData. All rights reserved.
+*
+* This source code is licensed under the MIT license found in the
+* LICENSE file in the root directory of this source tree.
+
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+* ==========================================================================
+*/
 class NDframe {
-  constructor(data, kwargs = {}) {
-    this.kwargs = kwargs;
+  constructor({
+    data,
+    index,
+    columns,
+    dtypes,
+    config,
+    isSeries
+  }) {
+    this.$isSeries = isSeries;
 
-    if (data instanceof tf.Tensor) {
+    if (config) {
+      this.$config = new _config.default({ ..._defaults.BASE_CONFIG,
+        ...config
+      });
+    } else {
+      this.$config = new _config.default(_defaults.BASE_CONFIG);
+    }
+
+    if (data instanceof _tfjsNode.Tensor) {
       data = data.arraySync();
     }
 
-    if (utils.__is_1D_array(data)) {
-      this.series = true;
-
-      this._read_array(data);
+    if (data === undefined || Array.isArray(data) && data.length === 0) {
+      this.loadArrayIntoNdframe({
+        data: [],
+        index: [],
+        columns: [],
+        dtypes: []
+      });
+    } else if (_utils.utils.is1DArray(data)) {
+      this.loadArrayIntoNdframe({
+        data,
+        index,
+        columns,
+        dtypes
+      });
     } else {
-      this.series = false;
-
-      if (utils.__is_object(data[0])) {
-        this._read_object(data, 1);
-      } else if (utils.__is_object(data)) {
-        this._read_object(data, 2);
-      } else if (Array.isArray(data[0]) || utils.__is_number(data[0]) || utils.__is_string(data[0])) {
-        this._read_array(data);
+      if (Array.isArray(data) && _utils.utils.isObject(data[0])) {
+        this.loadObjectIntoNdframe({
+          data,
+          type: 1,
+          index,
+          columns,
+          dtypes
+        });
+      } else if (_utils.utils.isObject(data)) {
+        this.loadObjectIntoNdframe({
+          data,
+          type: 2,
+          index,
+          columns,
+          dtypes
+        });
+      } else if (Array.isArray(data[0]) || _utils.utils.isNumber(data[0]) || _utils.utils.isString(data[0])) {
+        this.loadArrayIntoNdframe({
+          data,
+          index,
+          columns,
+          dtypes
+        });
       } else {
-        throw new Error("File format not supported");
+        throw new Error("File format not supported!");
       }
     }
   }
 
-  _read_array(data) {
-    this.data = utils.__replace_undefined_with_NaN(data, this.series);
-    this.row_data_tensor = tf.tensor(this.data);
+  loadArrayIntoNdframe({
+    data,
+    index,
+    columns,
+    dtypes
+  }) {
+    this.$data = data;
 
-    if (this.series) {
-      this.col_data = [this.values];
-    } else {
-      this.col_data = utils.__get_col_values(this.data);
+    if (!this.$config.isLowMemoryMode) {
+      this.$dataIncolumnFormat = _utils.utils.transposeArray(data);
     }
 
-    this.col_data_tensor = tf.tensor(this.col_data);
-
-    if ("index" in this.kwargs) {
-      this.__set_index(this.kwargs["index"]);
-    } else {
-      this.index_arr = [...Array(this.row_data_tensor.shape[0]).keys()];
-    }
-
-    if (this.ndim == 1) {
-      if ("columns" in this.kwargs) {
-        this.columns = this.kwargs["columns"];
-      } else {
-        this.columns = ["0"];
-      }
-    } else {
-      if ("columns" in this.kwargs) {
-        if (this.kwargs["columns"].length == Number(this.row_data_tensor.shape[1])) {
-          this.columns = this.kwargs["columns"];
-        } else {
-          throw `Column length mismatch. You provided a column of length ${this.kwargs["columns"].length} but data has lenght of ${this.row_data_tensor.shape[1]}`;
-        }
-      } else {
-        this.columns = [...Array(this.row_data_tensor.shape[1]).keys()];
-      }
-    }
-
-    if ("dtypes" in this.kwargs) {
-      this._set_col_types(this.kwargs["dtypes"], false);
-    } else {
-      this._set_col_types(null, true);
-    }
+    this.$setIndex(index);
+    this.$setDtypes(dtypes);
+    this.$setColumnNames(columns);
   }
 
-  _read_object(data, type) {
-    if (type == 2) {
-      let [row_arr, col_names] = utils._get_row_and_col_values(data);
-
-      this.kwargs["columns"] = col_names;
-
-      this._read_array(row_arr);
-    } else {
-      let data_arr = data.map(item => {
+  loadObjectIntoNdframe({
+    data,
+    type,
+    index,
+    columns,
+    dtypes
+  }) {
+    if (type === 1 && Array.isArray(data)) {
+      const _data = data.map(item => {
         return Object.values(item);
       });
-      this.data = utils.__replace_undefined_with_NaN(data_arr, this.series);
-      this.row_data_tensor = tf.tensor(this.data);
-      this.kwargs["columns"] = Object.keys(Object.values(data)[0]);
 
-      if (this.series) {
-        this.col_data = [this.values];
+      let _columnNames;
+
+      if (columns) {
+        _columnNames = columns;
       } else {
-        this.col_data = utils.__get_col_values(this.data);
+        _columnNames = Object.keys(data[0]);
       }
 
-      this.col_data_tensor = tf.tensor(this.col_data);
+      this.loadArrayIntoNdframe({
+        data: _data,
+        index,
+        columns: _columnNames,
+        dtypes
+      });
+    } else {
+      const [_data, _colNames] = _utils.utils.getRowAndColValues(data);
 
-      if ("index" in this.kwargs) {
-        this.__set_index(this.kwargs["index"]);
+      let _columnNames;
+
+      if (columns) {
+        _columnNames = columns;
       } else {
-        this.index_arr = [...Array(this.row_data_tensor.shape[0]).keys()];
+        _columnNames = _colNames;
       }
 
-      if (this.ndim == 1) {
-        if (!this.kwargs["columns"]) {
-          this.columns = ["0"];
-        } else {
-          this.columns = this.kwargs["columns"];
-        }
-      } else {
-        if ("columns" in this.kwargs) {
-          if (this.kwargs["columns"].length == Number(this.row_data_tensor.shape[1])) {
-            this.columns = this.kwargs["columns"];
-          } else {
-            throw `Column length mismatch. You provided a column of length ${this.kwargs["columns"].length} but data has column length of ${this.row_data_tensor.shape[1]}`;
-          }
-        } else {
-          this.columns = [...Array(this.row_data_tensor.shape[1]).keys()];
-        }
-      }
-
-      if ("dtypes" in this.kwargs) {
-        this._set_col_types(this.kwargs["dtypes"], false);
-      } else {
-        this._set_col_types(null, true);
-      }
+      this.loadArrayIntoNdframe({
+        data: _data,
+        index,
+        columns: _columnNames,
+        dtypes
+      });
     }
   }
 
-  _set_col_types(dtypes, infer) {
-    const __supported_dtypes = ["float32", "int32", "string", "boolean"];
-
-    if (infer) {
-      if (this.series) {
-        this.col_types = utils.__get_t(this.values);
-      } else {
-        this.col_types = utils.__get_t(this.col_data);
-      }
+  get tensor() {
+    if (this.$isSeries) {
+      return (0, _tfjsNode.tensor1d)(this.$data);
     } else {
-      if (this.series) {
-        this.col_types = dtypes;
-      } else {
-        if (dtypes.length != this.columns.length) {
-          throw new Error(`length Mixmatch: Length of specified dtypes is ${dtypes.length}, but length of columns is ${this.columns.length}`);
-        }
-
-        if (Array.isArray(dtypes)) {
-          dtypes.forEach((type, indx) => {
-            if (!__supported_dtypes.includes(type)) {
-              throw new Error(`dtype error: dtype specified at index ${indx} is not supported`);
-            }
-          });
-          this.col_types = dtypes;
-        } else {
-          throw new Error(`dtypes must be an Array of types`);
-        }
-      }
+      return (0, _tfjsNode.tensor2d)(this.$data);
     }
   }
 
   get dtypes() {
-    return this.col_types;
+    return this.$dtypes;
+  }
+
+  $setDtypes(dtypes) {
+    if (this.$isSeries) {
+      if (dtypes) {
+        if (this.$data.length != 0 && dtypes.length != 1) {
+          _errors.default.throwDtypesLengthError(this, dtypes);
+        }
+
+        if (!_defaults.DATA_TYPES.includes(`${dtypes[0]}`)) {
+          _errors.default.throwDtypeNotSupportedError(dtypes[0]);
+        }
+
+        this.$dtypes = dtypes;
+      } else {
+        this.$dtypes = _utils.utils.inferDtype(this.$data);
+      }
+    } else {
+      if (dtypes) {
+        if (this.$data.length != 0 && dtypes.length != this.shape[1]) {
+          _errors.default.throwDtypesLengthError(this, dtypes);
+        }
+
+        if (this.$data.length == 0 && dtypes.length == 0) {
+          this.$dtypes = dtypes;
+        } else {
+          dtypes.forEach(dtype => {
+            if (!_defaults.DATA_TYPES.includes(dtype)) {
+              _errors.default.throwDtypeNotSupportedError(dtype);
+            }
+          });
+          this.$dtypes = dtypes;
+        }
+      } else {
+        this.$dtypes = _utils.utils.inferDtype(this.$data);
+      }
+    }
   }
 
   get ndim() {
-    if (this.series) {
+    if (this.$isSeries) {
       return 1;
     } else {
-      return this.row_data_tensor.shape.length;
+      return 2;
     }
   }
 
-  get axes() {
-    let axes = {
-      index: this.index,
-      columns: this.columns
+  get axis() {
+    return {
+      index: this.$index,
+      columns: this.$columns
     };
-    return axes;
+  }
+
+  get config() {
+    return this.$config;
+  }
+
+  $setConfig(config) {
+    this.$config = config;
   }
 
   get index() {
-    return this.index_arr;
+    return this.$index;
   }
 
-  __set_index(labels) {
-    if (!Array.isArray(labels)) {
-      throw Error("Value Error: index must be an array");
-    }
+  $setIndex(index) {
+    if (index) {
+      if (this.$data.length != 0 && index.length != this.shape[0]) {
+        _errors.default.throwIndexLengthError(this, index);
+      }
 
-    if (labels.length > this.shape[0] || labels.length < this.shape[0]) {
-      throw Error("Value Error: length of labels must match row shape of data");
-    }
+      if (Array.from(new Set(index)).length !== this.shape[0]) {
+        _errors.default.throwIndexDuplicateError();
+      }
 
-    this.index_arr = labels;
+      this.$index = index;
+    } else {
+      this.$index = _utils.utils.range(0, this.shape[0] - 1);
+    }
   }
 
-  __reset_index() {
-    let new_idx = [...Array(this.values.length).keys()];
-    this.index_arr = new_idx;
+  $resetIndex() {
+    this.$index = _utils.utils.range(0, this.shape[0] - 1);
+  }
+
+  get columns() {
+    return this.$columns;
+  }
+
+  $setColumnNames(columns) {
+    if (this.$isSeries) {
+      if (columns) {
+        if (this.$data.length != 0 && columns.length != 1 && typeof columns != 'string') {
+          _errors.default.throwColumnNamesLengthError(this, columns);
+        }
+
+        this.$columns = columns;
+      } else {
+        this.$columns = ["0"];
+      }
+    } else {
+      if (columns) {
+        if (this.$data.length != 0 && columns.length != this.shape[1]) {
+          _errors.default.throwColumnNamesLengthError(this, columns);
+        }
+
+        if (Array.from(new Set(columns)).length !== this.shape[1]) {
+          _errors.default.throwColumnDuplicateError();
+        }
+
+        this.$columns = columns;
+      } else {
+        this.$columns = _utils.utils.range(0, this.shape[1] - 1).map(val => `${val}`);
+      }
+    }
   }
 
   get shape() {
-    if (this.series) {
-      return [this.values.length, 1];
+    if (this.$data.length === 0) return [0, 0];
+
+    if (this.$isSeries) {
+      return [this.$data.length, 1];
     } else {
-      return this.row_data_tensor.shape;
+      const rowLen = this.$data.length;
+      const colLen = this.$data[0].length;
+      return [rowLen, colLen];
     }
   }
 
   get values() {
-    return this.data;
+    return this.$data;
   }
 
-  get column_names() {
-    return this.columns;
-  }
+  $setValues(values, checkLength = true, checkColumnLength = true) {
+    if (this.$isSeries) {
+      if (checkLength && values.length != this.shape[0]) {
+        _errors.default.throwRowLengthError(this, values.length);
+      }
 
-  __isna() {
-    let new_arr = [];
+      this.$data = values;
+      this.$dtypes = _utils.utils.inferDtype(values);
 
-    if (this.series) {
-      this.values.map(val => {
-        if (val == NaN) {
-          new_arr.push(true);
-        } else if (isNaN(val) && typeof val != "string") {
-          new_arr.push(true);
-        } else {
-          new_arr.push(false);
-        }
-      });
+      if (!this.$config.isLowMemoryMode) {
+        this.$dataIncolumnFormat = values;
+      }
     } else {
-      let row_data = this.values;
-      row_data.map(arr => {
-        let temp_arr = [];
-        arr.map(val => {
-          if (val == NaN) {
-            temp_arr.push(true);
-          } else if (isNaN(val) && typeof val != "string") {
-            temp_arr.push(true);
-          } else {
-            temp_arr.push(false);
+      if (checkLength && values.length != this.shape[0]) {
+        _errors.default.throwRowLengthError(this, values.length);
+      }
+
+      if (checkColumnLength) {
+        values.forEach(value => {
+          if (value.length != this.shape[1]) {
+            _errors.default.throwColumnLengthError(this, values.length);
           }
         });
-        new_arr.push(temp_arr);
-      });
-    }
+      }
 
-    return new_arr;
+      this.$data = values;
+      this.$dtypes = _utils.utils.inferDtype(values);
+
+      if (!this.$config.isLowMemoryMode) {
+        this.$dataIncolumnFormat = _utils.utils.transposeArray(values);
+      }
+    }
   }
 
   get size() {
-    return this.row_data_tensor.size;
+    return this.shape[0] * this.shape[1];
   }
 
-  async to_csv() {
-    if (this.series) {
-      let csv = this.values.join(",");
-      return csv;
-    } else {
-      let records = this.values;
-      let header = this.column_names.join(",");
-      let csv_str = `${header}\n`;
-      records.forEach(val => {
-        let row = `${val.join(",")}\n`;
-        csv_str += row;
-      });
-      return csv_str;
-    }
+  toCSV(options) {
+    return toCSV(this, options);
   }
 
-  async to_json() {
-    if (this.series) {
-      let obj = {};
-      obj[this.column_names[0]] = this.values;
-      let json = JSON.stringify(obj);
-      return json;
-    } else {
-      let values = this.values;
-      let header = this.column_names;
-      let json_arr = [];
-      values.forEach(val => {
-        let obj = {};
-        header.forEach((h, i) => {
-          obj[h] = val[i];
-        });
-        json_arr.push(obj);
-      });
-      return JSON.stringify(json_arr);
-    }
+  toJSON(options) {
+    return toJSON(this, options);
   }
 
-  toString() {
-    let table_width = config.get_width;
-    let table_truncate = config.get_truncate;
-    let max_row = config.get_max_row;
-    let max_col_in_console = config.get_max_col_in_console;
-    let data_arr = [];
-    let table_config = {};
-    let col_len = this.columns.length;
-    let header = [];
-
-    if (col_len > max_col_in_console) {
-      let first_4_cols = this.columns.slice(0, 4);
-      let last_3_cols = this.columns.slice(col_len - 4);
-      header = [""].concat(first_4_cols).concat(["..."]).concat(last_3_cols);
-      let sub_idx, values_1, value_2;
-
-      if (this.values.length > max_row) {
-        let df_subset_1 = this.iloc({
-          rows: [`0:${max_row}`],
-          columns: ["0:4"]
-        });
-        let df_subset_2 = this.iloc({
-          rows: [`0:${max_row}`],
-          columns: [`${col_len - 4}:`]
-        });
-        sub_idx = this.index.slice(0, max_row);
-        values_1 = df_subset_1.values;
-        value_2 = df_subset_2.values;
-      } else {
-        let df_subset_1 = this.iloc({
-          rows: ["0:"],
-          columns: ["0:4"]
-        });
-        let df_subset_2 = this.iloc({
-          rows: ["0:"],
-          columns: [`${col_len - 4}:`]
-        });
-        sub_idx = this.index.slice(0, max_row);
-        values_1 = df_subset_1.values;
-        value_2 = df_subset_2.values;
-      }
-
-      sub_idx.map((val, i) => {
-        let row = [val].concat(values_1[i]).concat(["..."]).concat(value_2[i]);
-        data_arr.push(row);
-      });
-    } else {
-      header = [""].concat(this.columns);
-      let idx, values;
-
-      if (this.values.length > max_row) {
-        let data = this.loc({
-          rows: [`0:${max_row}`],
-          columns: this.columns
-        });
-        idx = data.index;
-        values = data.values;
-      } else {
-        values = this.values;
-        idx = this.index;
-      }
-
-      idx.forEach((val, i) => {
-        let row = [val].concat(values[i]);
-        data_arr.push(row);
-      });
-    }
-
-    table_config[0] = 10;
-
-    for (let index = 1; index < header.length; index++) {
-      table_config[index] = {
-        width: table_width,
-        truncate: table_truncate
-      };
-    }
-
-    let table_data = [header].concat(data_arr);
-    return (0, _table.table)(table_data, {
-      columns: table_config
-    });
+  toExcel(options) {
+    return toExcel(this, options);
   }
 
   print() {
