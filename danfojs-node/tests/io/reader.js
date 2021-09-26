@@ -23,14 +23,22 @@ describe("read_csv", async function () {
 });
 
 describe("read_json", async function () {
-  this.timeout(10000); // all tests in this suite get 10 seconds before timeout
+  this.timeout(100000); // all tests in this suite get 10 seconds before timeout
   it("reads a json file from source over the internet", async function () {
     const jUrl =
-      "https://raw.githubusercontent.com/risenW/Tensorflowjs_Projects/master/recommender-sys/Python-Model/web_book_data.json";
+      "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/book.json";
 
     const df = await read_json(jUrl);
-    const num_of_columns = df.columns.length;
-    assert.equal(num_of_columns, 4);
+    assert.deepEqual(df.columns, [
+      'book_id',
+      'title',
+      'image_url',
+      'authors'
+    ]);
+    assert.deepEqual(df.dtypes, [
+      'int32', 'string',
+      'string', 'string'
+    ]);
 
   });
 
@@ -47,9 +55,19 @@ describe("read_excel", async function () {
   this.timeout(10000); // all tests in this suite get 10 seconds before timeout
   it("reads an excel file from source over the internet", async function () {
     const remote_url =
-      "https://file-examples-com.github.io/uploads/2017/02/file_example_XLS_100.xls";
-    const df = await read_excel(remote_url, { sheet: 0 });
-    assert(df.columns.length, 8);
+      "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/SampleData.xlsx";
+    const df = await read_excel(remote_url);
+    assert.deepEqual(df.columns, [
+      'Year',
+      'Stocks',
+      'T.Bills',
+      'T.Bonds'
+    ]);
+    assert.deepEqual(df.dtypes, [
+      'int32', 'float32',
+      'float32', 'float32'
+    ]);
+    assert.deepEqual(df.shape, [ 82, 4 ]);
   });
 
   it("reads an excel file from source from local disk", async function () {
