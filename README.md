@@ -88,7 +88,7 @@ See all available versions [here](https://www.jsdelivr.com/package/npm/danfojs)
 
                 df.plot("div2").table() //display csv as table
 
-                new_df = df.set_index({ key: "Date" }) //resets the index to Date column
+                new_df = df.set_index({ column: "Date" }) //resets the index to Date column
                 new_df.plot("div3").line({ columns: ["AAPL.Open", "AAPL.High"] })  //makes a timeseries plot
 
             }).catch(err => {
@@ -119,59 +119,60 @@ npm install danfojs-node
 
 const dfd = require("danfojs-node")
 
+const file_url = "https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/titanic.csv"
+dfd.read_csv(file_url)
+    .then(df => {
+        //prints the first five columns
+        df.head().print()
 
-dfd.read_csv("https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/titanic.csv")
-  .then(df => {
-    //prints the first five columns
-    df.head().print()
+        // Calculate descriptive statistics for all numerical columns
+        df.describe().print()
 
-    //Calculate descriptive statistics for all numerical columns
-    df.describe().print()
+        //prints the shape of the data
+        console.log(df.shape);
 
-    //prints the shape of the data
-    console.log(df.shape);
+        //prints all column names
+        console.log(df.columns);
 
-    //prints all column names
-    console.log(df.column_names);
+        // //prints the inferred dtypes of each column
+        df.ctypes.print()
 
-    //prints the inferred dtypes of each column
-    df.ctypes.print()
+        //selecting a column by subsetting
+        df['Name'].print()
 
-    //selecting a column by subsetting
-    df['Name'].print()
-
-    //drop columns by names
-    cols_2_remove = ['Age', 'Pclass']
-    df_drop = df.drop({ columns: cols_2_remove, axis: 1 })
-    df_drop.print()
-
-
-    //select columns by dtypes
-    let str_cols = df_drop.select_dtypes(["string"])
-    let num_cols = df_drop.select_dtypes(["int32", "float32"])
-    str_cols.print()
-    num_cols.print()
+        //drop columns by names
+        cols_2_remove = ['Age', 'Pclass']
+        df_drop = df.drop({ columns: cols_2_remove, axis: 1 })
+        df_drop.print()
 
 
-    //add new column to Dataframe
-    let new_vals = df['Fare'].round().values
-    df_drop.addColumn({ column: "fare_round", value:  new_vals})
-    df_drop.print()
+        //select columns by dtypes
+        let str_cols = df_drop.select_dtypes(["string"])
+        let num_cols = df_drop.select_dtypes(["int32", "float32"])
+        str_cols.print()
+        num_cols.print()
 
-    df_drop['fare_round'].print(5)
 
-    //prints the number of occurence each value in the column
-    df_drop['Survived'].value_counts().print()
+        //add new column to Dataframe
 
-    //print the last ten elementa of a DataFrame
-    df_drop.tail(10).print()
+        let new_vals = df['Fare'].round(1)
+        df_drop.addColumn({ column: "fare_round", values: new_vals, inplace: true })
+        df_drop.print()
 
-    //prints the number of missing values in a DataFrame
-    df_drop.isna().sum().print()
+        df_drop['fare_round'].round(2).print(5)
 
-  }).catch(err => {
-    console.log(err);
-  })
+        //prints the number of occurence each value in the column
+        df_drop['Survived'].value_counts().print()
+
+        //print the last ten elementa of a DataFrame
+        df_drop.tail(10).print()
+
+        //prints the number of missing values in a DataFrame
+        df_drop.isna().sum().print()
+
+    }).catch(err => {
+        console.log(err);
+    })
 
 ```
 Output in Node Console:
