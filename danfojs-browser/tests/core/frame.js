@@ -965,14 +965,6 @@ describe("DataFrame", function () {
       assert.deepEqual(query_df.values, query_data);
     });
 
-    it("Print Error for column name not in dataframe", function () {
-
-      let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-      let cols = ["A", "B", "C"];
-      let df = new dfd.DataFrame(data, { columns: cols });
-
-      assert.throws(function () { df.query({ condition: df["D"].ge(5) }); }, Error, "Cannot read property 'ge' of undefined");
-    });
     it("Confirms that query index are updated", function () {
 
       let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
