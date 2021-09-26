@@ -24,7 +24,7 @@ import {
     AxisType,
     ArrayType1D,
     ArrayType2D,
-    CsvOutputOptionsNode,
+    CsvOutputOptionsBrowser,
 } from '../shared/types'
 import ErrorThrower from '../shared/errors';
 import { BASE_CONFIG, DATA_TYPES } from '../shared/defaults';
@@ -400,6 +400,18 @@ export default class NDframe implements NDframeInterface {
     }
 
     /**
+     * Returns the underlying data in Array column format.
+     * Similar to this.values, but in column format.
+    */
+    get getColumnData() {
+        if (this.config.isLowMemoryMode) {
+            return utils.transposeArray(this.values);
+        } else {
+            return this.$dataIncolumnFormat;
+        }
+    }
+
+    /**
      * Returns the size of the NDFrame object
      * 
     */
@@ -410,18 +422,20 @@ export default class NDframe implements NDframeInterface {
     /**
      * Converts a DataFrame or Series to CSV. 
      * @param options Configuration object. Supports the following options:
-     * - `filePath`: Local file path to write the CSV file. If not specified, the CSV will be returned as a string.
+     * - `fileName`: Local file path to write the CSV file. If not specified, the CSV will be returned as a string.
      * - `header`: Boolean indicating whether to include a header row in the CSV file.
      * - `sep`: Character to be used as a separator in the CSV file.
+     * - `download`: Boolean indicating whether to automatically save the CSV file.
      */
-    toCSV(options?: CsvOutputOptionsNode): string | void {
+    toCSV(options?: CsvOutputOptionsBrowser): string | void {
         return toCSV(this, options);
     }
 
     /**
      * Converts a DataFrame or Series to JSON. 
      * @param options Configuration object. Supported options:
-     * - `filePath`: The file path to write the JSON to. If not specified, the JSON object is returned.
+     * - `download`: Boolean indicating whether to automatically save the CSV file.
+     * - `fileName`: The file path to write the JSON to. If not specified, the JSON object is returned.
      * - `format`: The format of the JSON. Defaults to `'column'`. E.g for using `column` format:
      * ```
      * [{ "a": 1, "b": 2, "c": 3, "d": 4 },
@@ -434,7 +448,7 @@ export default class NDframe implements NDframeInterface {
      * }
      * ```
      */
-    toJSON(options?: { format?: "row" | "column", filePath?: string }): object | void {
+    toJSON(options?: { format?: "row" | "column", fileName?: string, download: boolean }): object | void {
         return toJSON(this, options);
     }
 
@@ -445,7 +459,7 @@ export default class NDframe implements NDframeInterface {
      * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
      * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`.
      */
-    toExcel(options?: { filePath?: string, sheetName?: string }): void {
+    toExcel(options?: { fileName?: string, sheetName?: string }): void {
         return toExcel(this, options);
     }
 

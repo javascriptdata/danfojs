@@ -400,6 +400,18 @@ export default class NDframe implements NDframeInterface {
     }
 
     /**
+      * Returns the underlying data in Array column format.
+      * Similar to this.values, but in column format.
+    */
+    get getColumnData() {
+        if (this.config.isLowMemoryMode) {
+            return utils.transposeArray(this.values);
+        } else {
+            return this.$dataIncolumnFormat;
+        }
+    }
+
+    /**
      * Returns the size of the NDFrame object
      * 
     */
