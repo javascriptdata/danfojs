@@ -98,7 +98,7 @@ class Utils {
      * @param start The starting number.
      * @param end The ending number.
      */
-  range(start, end){
+  range(start, end) {
     if (end < start) {
       throw new Error("ParamError: end must be greater than start");
     }
@@ -128,7 +128,7 @@ class Utils {
      * @param obj The object to check.
      * @param key The key to find.
      */
-  transposeArray(arr ) { //old name: __get_col_values
+  transposeArray(arr) { //old name: __get_col_values
     if (arr.length === 0) return arr;
 
     const rowLen = arr.length;
@@ -173,7 +173,7 @@ class Utils {
      * Converts a 2D array of array to 1D array for Series Class
      * @param arr The array to convert.
      */
-  convert2DArrayToSeriesArray(arr){
+  convert2DArrayToSeriesArray(arr) {
     const newArr = arr.map((val) => {
       if (this.isObject(val)) {
         return JSON.stringify(val);
@@ -234,7 +234,7 @@ class Utils {
      * Infer data type from an array or array of arrays
      * @param arr An array or array of arrays
     */
-  inferDtype(arr ) {
+  inferDtype(arr) {
     const self = this;
     if (this.is1DArray(arr)) {
       return [this.$typeChecker(arr)];
@@ -251,7 +251,7 @@ class Utils {
      * Private type checker used by inferDtype function
      * @param arr The array
      */
-  $typeChecker(arr ) {
+  $typeChecker(arr) {
     let dtypes;
     let lim;
     let intTracker = [];
@@ -329,11 +329,11 @@ class Utils {
      * Checks if array is 1D
      * @param arr The array
     */
-  is1DArray(arr ) {
+  is1DArray(arr) {
     if (
       typeof arr[0] == "number" ||
-            typeof arr[0] == "string" ||
-            typeof arr[0] == "boolean"
+      typeof arr[0] == "string" ||
+      typeof arr[0] == "boolean"
     ) {
       return true;
     } else {
@@ -345,7 +345,7 @@ class Utils {
      * Converts an array to an object using array index as object keys
      * @param arr The array
     */
-  convertArrayToObject(arr ) {
+  convertArrayToObject(arr) {
     const arrObj = {};
     for (let i = 0; i < arr.length; i++) {
       arrObj[i] = arr[i];
@@ -516,7 +516,7 @@ class Utils {
      * @param arr The array of integers
      * @param dim The dimension of the array
      */
-  mapIntegersToBooleans(arr, dim){
+  mapIntegersToBooleans(arr, dim) {
     if (dim == 2) {
       const newArr = [];
       arr.map((innerArr) => {
@@ -537,7 +537,7 @@ class Utils {
      * @param arr The array of booleans
      * @param dim The dimension of the array
      */
-  mapBooleansToIntegers(arr, dim){
+  mapBooleansToIntegers(arr, dim) {
     if (dim == 2) {
       const newArr = [];
       arr.map((innerArr) => {
@@ -651,7 +651,7 @@ class Utils {
      * Replace NaN with null before tensor operations
      * @param arr
      */
-  replaceNanWithNull(arr ) {
+  replaceNanWithNull(arr) {
     const values = arr.map((val) => {
       if (isNaN(val)) {
         return null;
@@ -772,7 +772,6 @@ class Utils {
     return arr.sort((obj1, obj2) => {
       const a = obj2.value;
       const b = obj1.value;
-
       if (!ascending) {
         if (typeof a === "string" && typeof b === "string") {
           return a.charCodeAt(0) - b.charCodeAt(0);

@@ -35,7 +35,7 @@
     "build": "babel ./src -d ./dist --no-comments && yarn run bundle",
     "build:clean": "rimraf ./dist && rimraf ./lib && yarn run build",
     "lint": "eslint ./src",
-    "bundle": "webpack --mode development",
+    "bundle": "webpack --mode production",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
     "patch": "npm version patch"

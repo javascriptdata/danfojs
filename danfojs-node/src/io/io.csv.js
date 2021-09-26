@@ -48,7 +48,7 @@ import { DataFrame } from '../index';
  */
 const $readCSV = async (filePath, options) => {
   options = { header: true, dynamicTyping: true, ...options };
-  if (filePath.startsWith("http") || filePath.startsWith("https")) {
+  if (filePath.startsWith("http")) {
     return new Promise((resolve) => {
       const dataStream = request.get(filePath);
       const parseStream = Papa.parse(Papa.NODE_STREAM_INPUT, options);

@@ -23,9 +23,6 @@
         "before": false, "after": true
             }
         ],
-    "indent": [ "error",
-            2
-        ],
     "keyword-spacing": [
       "error",
             { "before": true

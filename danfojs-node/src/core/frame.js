@@ -270,24 +270,24 @@ export default class DataFrame extends NDframe {
     let newValues = [];
 
     switch (operation) {
-    case 'gt':
-      newValues = tensors[0].greater(tensors[1]).arraySync();
-      break;
-    case 'lt':
-      newValues = tensors[0].less(tensors[1]).arraySync();
-      break;
-    case 'ge':
-      newValues = tensors[0].greaterEqual(tensors[1]).arraySync();
-      break;
-    case 'le':
-      newValues = tensors[0].lessEqual(tensors[1]).arraySync();
-      break;
-    case 'eq':
-      newValues = tensors[0].equal(tensors[1]).arraySync();
-      break;
-    case 'ne':
-      newValues = tensors[0].notEqual(tensors[1]).arraySync();
-      break;
+      case 'gt':
+        newValues = tensors[0].greater(tensors[1]).arraySync();
+        break;
+      case 'lt':
+        newValues = tensors[0].less(tensors[1]).arraySync();
+        break;
+      case 'ge':
+        newValues = tensors[0].greaterEqual(tensors[1]).arraySync();
+        break;
+      case 'le':
+        newValues = tensors[0].lessEqual(tensors[1]).arraySync();
+        break;
+      case 'eq':
+        newValues = tensors[0].equal(tensors[1]).arraySync();
+        break;
+      case 'ne':
+        newValues = tensors[0].notEqual(tensors[1]).arraySync();
+        break;
 
     }
 
@@ -306,24 +306,24 @@ export default class DataFrame extends NDframe {
     let tensorResult;
 
     switch (operation) {
-    case 'add':
-      tensorResult = tensors[0].add(tensors[1]);
-      break;
-    case 'sub':
-      tensorResult = tensors[0].sub(tensors[1]);
-      break;
-    case 'pow':
-      tensorResult = tensors[0].pow(tensors[1]);
-      break;
-    case 'div':
-      tensorResult = tensors[0].div(tensors[1]);
-      break;
-    case 'mul':
-      tensorResult = tensors[0].mul(tensors[1]);
-      break;
-    case 'mod':
-      tensorResult = tensors[0].mod(tensors[1]);
-      break;
+      case 'add':
+        tensorResult = tensors[0].add(tensors[1]);
+        break;
+      case 'sub':
+        tensorResult = tensors[0].sub(tensors[1]);
+        break;
+      case 'pow':
+        tensorResult = tensors[0].pow(tensors[1]);
+        break;
+      case 'div':
+        tensorResult = tensors[0].div(tensors[1]);
+        break;
+      case 'mul':
+        tensorResult = tensors[0].mul(tensors[1]);
+        break;
+      case 'mod':
+        tensorResult = tensors[0].mod(tensors[1]);
+        break;
     }
 
     if (inplace) {
@@ -1110,30 +1110,30 @@ export default class DataFrame extends NDframe {
       for (let i = 1; i < sData.length; i++) {
         let currVal = sData[i];
         switch (ops) {
-        case "max":
-          if (currVal > tempval) {
-            data.push(currVal);
-            tempval = currVal;
-          } else {
+          case "max":
+            if (currVal > tempval) {
+              data.push(currVal);
+              tempval = currVal;
+            } else {
+              data.push(tempval);
+            }
+            break;
+          case "min":
+            if (currVal < tempval) {
+              data.push(currVal);
+              tempval = currVal;
+            } else {
+              data.push(tempval);
+            }
+            break;
+          case "sum":
+            tempval = (tempval) + (currVal);
             data.push(tempval);
-          }
-          break;
-        case "min":
-          if (currVal < tempval) {
-            data.push(currVal);
-            tempval = currVal;
-          } else {
+            break;
+          case "prod":
+            tempval = (tempval) * (currVal);
             data.push(tempval);
-          }
-          break;
-        case "sum":
-          tempval = (tempval) + (currVal);
-          data.push(tempval);
-          break;
-        case "prod":
-          tempval = (tempval) * (currVal);
-          data.push(tempval);
-          break;
+            break;
 
         }
       }
@@ -2174,28 +2174,89 @@ export default class DataFrame extends NDframe {
 
   /**
      * Queries the DataFrame for rows that meet the boolean criteria.
-     * @param condition An array of boolean mask, one for each row in the DataFrame. Rows where the value are true will be returned.
-     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     * @param options
+     * - `column` A column name to query with.
+     * - `is` A logical operator. Can be one of the following: [">", "<", "<=", ">=", "==", "!="]
+     * - `to` A value to query with.
+     * - `condition` An array of boolean mask, one for each row in the DataFrame. Rows where the value are true will be returned.
+     *  If specified, then other parameters are ignored.
+     * - `inplace` Boolean indicating whether to perform the operation inplace or not. Defaults to false
     **/
-  query(condition, options) {
-    const { inplace } = { inplace: false, ...options };
+  query(options) {
+    const { inplace, condition, column, is, to } = { inplace: false, ...options };
 
-    if (!condition) {
-      throw new Error("ParamError: condition must be specified");
+    if (condition) {
+      const result = _iloc({
+        ndFrame: this,
+        rows: condition
+      });
+
+      if (inplace) {
+        this.$setValues(result.values, false, false);
+        this.$setIndex(result.index);
+        return;
+      } else {
+        return result;
+      }
+
     }
 
-    const result = _iloc({
-      ndFrame: this,
-      rows: condition
-    });
+    const operators = [">", "<", "<=", ">=", "==", "!="];
+
+    let columnIndex, operator, value;
+
+    if (column) {
+      if (this.columns.includes(column)) {
+        columnIndex = this.columns.indexOf(column);
+      } else {
+        throw new Error(`ParamError: column ${column} not found in column names`);
+      }
+    } else {
+      throw new Error(`ParamError: specify a column name to query`);
+    }
+
+    if (is) {
+      if (operators.includes(is)) {
+        operator = is;
+      } else {
+        throw new Error(`ParamError: specified operato ${is} is not a supported. operator must be one of ${operators}`);
+      }
+    } else {
+      throw new Error(`ParamError: specify an operator to apply. operator must be one of ${operators}`);
+    }
+
+    if (to) {
+      value = to;
+    } else {
+      throw new Error("ParamError: specify a value to query by");
+    }
+
+    let data = this.values;
+    let index = this.index;
+    let newData = [];
+    let newIndex = [];
+
+    for (var i = 0; i < data.length; i++) {
+      let dataValue = data[i];
+      let elem = dataValue[columnIndex];
+      //use eval function for easy operation
+      //eval() takes in a string expression e.g eval('2>5')
+      if (eval(`elem${operator}value`)) {
+        newData.push(dataValue);
+        newIndex.push(index[i]);
+      }
+    }
 
     if (inplace) {
-      this.$setValues(result.values, false, false);
-      this.$setIndex(result.index);
+      this.$setValues(newData, false, false);
+      this.$setIndex(newIndex);
+      return;
     } else {
-      return result;
+      return new DataFrame(newData, {
+        index: newIndex,
+        config: { ...this.config }
+      });
     }
-
   }
 
   /**

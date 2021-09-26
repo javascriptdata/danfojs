@@ -252,7 +252,7 @@ describe("DataFrame", function () {
         "Price": [200, 300, 40, 250]
       };
 
-      let df = new DataFrame(data, { index:["a", "b", "c", "d"] });
+      let df = new DataFrame(data, { index: ["a", "b", "c", "d"] });
       let sub_df = df.loc({ rows: ["a"], columns: ["Name", "Count"] });
       let expected = [["Apples", 21]];
       assert.deepEqual(sub_df.values, expected);
@@ -745,15 +745,15 @@ describe("DataFrame", function () {
   describe("describe", function () {
     it("Returns descriptive statistics of columns in a DataFrame created from an array", function () {
       let data = [[0, 2, 4, "a"],
-        [360, 180, 360, "b"],
-        [2, 4, 6, "c"]];
+      [360, 180, 360, "b"],
+      [2, 4, 6, "c"]];
 
       let df = new DataFrame(data);
       let res = [[3, 3, 3], [120.66666666666667, 62, 123.33333333333333],
-        [207.27115895206774, 102.19589032832974, 204.961785055979],
-        [0, 2, 4], [2, 4, 6],
-        [360, 180, 360],
-        [42961.33333333333, 10444, 42009.333333333336]];
+      [207.27115895206774, 102.19589032832974, 204.961785055979],
+      [0, 2, 4], [2, 4, 6],
+      [360, 180, 360],
+      [42961.33333333333, 10444, 42009.333333333336]];
 
       assert.deepEqual(df.describe().values, res);
     });
@@ -768,10 +768,10 @@ describe("DataFrame", function () {
       let df = new DataFrame(data);
 
       let res = [[3, 3, 3], [2, 300, 4],
-        [2, 103.92304845413264, 2],
-        [0, 180, 2], [2, 360, 4],
-        [4, 360, 6],
-        [4, 10800, 4]];
+      [2, 103.92304845413264, 2],
+      [0, 180, 2], [2, 360, 4],
+      [4, 360, 6],
+      [4, 10800, 4]];
 
       assert.deepEqual(df.describe().values, res);
     });
@@ -816,8 +816,8 @@ describe("DataFrame", function () {
   describe("sort_values", function () {
     it("Sort values in DataFrame by specified column in ascending order (Default)", function () {
       let data = [[0, 2, 4, "a"],
-        [360, 180, 360, "b"],
-        [2, 4, 6, "c"]];
+      [360, 180, 360, "b"],
+      [2, 4, 6, "c"]];
 
       let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] });
       df.sort_values({ "by": "col1", inplace: true, ascending: true });
@@ -829,8 +829,8 @@ describe("DataFrame", function () {
 
     it("Sort values in DataFrame by specified column in ascending order (Default)", function () {
       let data = [[0, 2, 4, "a"],
-        [360, 180, 1, "b"],
-        [2, 4, 6, "c"]];
+      [360, 180, 1, "b"],
+      [2, 4, 6, "c"]];
 
       let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] });
       let df_sort = df.sort_values({ "by": "col3" });
@@ -841,8 +841,8 @@ describe("DataFrame", function () {
     });
     it("Sort values in DataFrame by specified column in descending order", function () {
       let data = [[0, 2, 4, "a"],
-        [360, 180, 360, "b"],
-        [2, 4, 6, "c"]];
+      [360, 180, 360, "b"],
+      [2, 4, 6, "c"]];
 
       let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] });
       let expected = [[360, 180, 360, "b"], [2, 4, 6, "c"], [0, 2, 4, "a"]];
@@ -851,8 +851,8 @@ describe("DataFrame", function () {
 
     it("Sort values in DataFrame by specified column in descending order (second col)", function () {
       let data = [[0, 2, 4, "a"],
-        [360, 180, 1, "b"],
-        [2, 4, 6, "c"]];
+      [360, 180, 1, "b"],
+      [2, 4, 6, "c"]];
 
       let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] });
       let expected = [[2, 4, 6, "c"], [0, 2, 4, "a"], [360, 180, 1, "b"]];
@@ -860,8 +860,8 @@ describe("DataFrame", function () {
     });
     it("Sort values in DataFrame by specified column containing alpha(numeric) values", function () {
       let data = [[0, 2, 4, "a"],
-        [360, 180, 1, "b"],
-        [2, 4, 6, "c"]];
+      [360, 180, 1, "b"],
+      [2, 4, 6, "c"]];
 
       let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] });
       let expected = [[2, 4, 6, 'c'], [360, 180, 1, 'b'], [0, 2, 4, 'a']];
@@ -876,17 +876,17 @@ describe("DataFrame", function () {
 
       let df = new DataFrame(data);
       let expected = [[1, 2],
-        [2, 3],
-        [3, 4],
-        [3, 7],
-        [3, 3],
-        [4, 5],
-        [4, 1],
-        [4, 4],
-        [5, 6],
-        [5, 8],
-        [5, 2],
-        [6, 9]];
+      [2, 3],
+      [3, 4],
+      [3, 7],
+      [3, 3],
+      [4, 5],
+      [4, 1],
+      [4, 4],
+      [5, 6],
+      [5, 8],
+      [5, 2],
+      [6, 9]];
       assert.deepEqual(df.sort_values({ "by": "A", "ascending": true }).values, expected);
     });
 
@@ -943,7 +943,7 @@ describe("DataFrame", function () {
       let data = [[0, 2, 4], [360, 180, 360], [0, 2, 4], [360, 180, 360], [0, 2, 4]];
       let df = new DataFrame(data);
       df.set_index({ "index": ["one", "two", "three", "four", "five"], "inplace": true });
-      df.reset_index({ inplace:true });
+      df.reset_index({ inplace: true });
       assert.deepEqual(df.index, [0, 1, 2, 3, 4]);
     });
 
@@ -953,8 +953,8 @@ describe("DataFrame", function () {
   describe("apply_map", function () {
     it("Apply a function to all values of a DataFrame", function () {
       let data = [[0, 2, 4],
-        [360, 180, 360],
-        [0, 2, 4]];
+      [360, 180, 360],
+      [0, 2, 4]];
       let df = new DataFrame(data);
 
       let apply_func = (x) => {
@@ -973,7 +973,7 @@ describe("DataFrame", function () {
       let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
       let cols = ["A", "B", "C"];
       let df = new DataFrame(data, { columns: cols });
-      let query_df = df.query(df["B"].ge(5));
+      let query_df = df.query({ condition: df["B"].ge(5) });
       let query_data = [[4, 5, 6], [20, 30, 40], [39, 89, 78]];
       assert.deepEqual(query_df.values, query_data);
     });
@@ -981,25 +981,17 @@ describe("DataFrame", function () {
       let data = { "Abs": [20, 30, 47], "Count": [34, 4, 5], "country code": ["NG", "FR", "GH"] };
       let cols = ["Abs", "Count", "country code"];
       let df = new DataFrame(data, { columns: cols });
-      let query_df = df.query(df["country code"].eq("NG"));
+      let query_df = df.query({ condition: df["country code"].eq("NG") });
       let query_data = [[20, 34, "NG"]];
       assert.deepEqual(query_df.values, query_data);
     });
 
-    it("Print Error for column name not in dataframe", function () {
-
-      let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-      let cols = ["A", "B", "C"];
-      let df = new DataFrame(data, { columns: cols });
-
-      assert.throws(function () { df.query(df["D"].ge(5)); }, Error, "Cannot read property 'ge' of undefined");
-    });
     it("Confirms that query index are updated", function () {
 
       let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
       let cols = ["A", "B", "C"];
       let df = new DataFrame(data, { columns: cols });
-      let df_query = df.query(df["B"].ge(5));
+      let df_query = df.query({ condition: df["B"].ge(5) });
       assert.deepEqual(df_query.index, [1, 2, 3]);
     });
 
@@ -1008,10 +1000,95 @@ describe("DataFrame", function () {
       let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
       let cols = ["A", "B", "C"];
       let df = new DataFrame(data, { columns: cols });
-      df.query(df["B"].ge(5), { inplace: true });
+      df.query({ condition: df["B"].ge(5), inplace: true });
       let query_data = [[4, 5, 6], [20, 30, 40], [39, 89, 78]];
       assert.deepEqual(df.values, query_data);
     });
+
+    it("Get the DataFrame containing rows with the filtered column (Without Condition)", function () {
+
+      let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+      let cols = ["A", "B", "C"];
+      let df = new DataFrame(data, { columns: cols });
+      let query_df = df.query({ "column": "B", "is": ">=", "to": 5 });
+      let query_data = [[4, 5, 6], [20, 30, 40], [39, 89, 78]];
+      assert.deepEqual(query_df.values, query_data);
+    });
+    it("Get the Dataframe containing rows with the filtered column in String values  (Without Condition)", function () {
+      let data = { "Abs": [20, 30, 47], "Count": [34, 4, 5], "country code": ["NG", "FR", "GH"] };
+      let cols = ["Abs", "Count", "country code"];
+      let df = new DataFrame(data, { columns: cols });
+      let query_df = df.query({ column: "country code", is: "==", to: "NG" });
+      let query_data = [[20, 34, "NG"]];
+      assert.deepEqual(query_df.values, query_data);
+    });
+    it("Print Error for value key not specified  (Without Condition)", function () {
+
+      let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+      let cols = ["A", "B", "C"];
+      let df = new DataFrame(data, { columns: cols });
+
+      assert.throws(function () { df.query({ "column": "B", "is": ">=" }); }, Error, "ParamError: specify a value to query by");
+    });
+    it("Print Error for operator key not specified  (Without Condition)", function () {
+
+      let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+      let cols = ["A", "B", "C"];
+      let df = new DataFrame(data, { columns: cols });
+
+      assert.throws(function () { df.query({ "column": "B", "to": 5 }); }, Error, "ParamError: specify an operator to apply. operator must be one of >,<,<=,>=,==,!=");
+    });
+
+    it("Print Error for column key not specified  (Without Condition)", function () {
+
+      let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+      let cols = ["A", "B", "C"];
+      let df = new DataFrame(data, { columns: cols });
+
+      assert.throws(function () { df.query({ "is": ">=", "to": 5 }); }, Error, "ParamError: specify a column name to query");
+    });
+    it("Print Error for column name not in dataframe  (Without Condition)", function () {
+
+      let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+      let cols = ["A", "B", "C"];
+      let df = new DataFrame(data, { columns: cols });
+
+      assert.throws(function () { df.query({ "column": "D", "is": ">=", "to": 5 }); }, Error, "ParamError: column D not found in column names");
+    });
+    it("Confirms that query index are updated  (Without Condition)", function () {
+
+      let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+      let cols = ["A", "B", "C"];
+      let df = new DataFrame(data, { columns: cols });
+      let df_query = df.query({ "column": "B", "is": ">=", "to": 5 });
+      assert.deepEqual(df_query.index, [1, 2, 3]);
+    });
+    it("Confirms that columns data are updated inplace  (Without Condition)", function () {
+
+      let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+      let cols = ["A", "B", "C"];
+      let df = new DataFrame(data, { columns: cols });
+      df.query({ "column": "B", "is": ">=", "to": 5, inplace: true });
+      assert.deepEqual(df.getColumnData, [[4, 20, 39], [5, 30, 89], [6, 40, 78]]);
+    });
+    it("Confirms that query happens inplace  (Without Condition)", function () {
+
+      let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+      let cols = ["A", "B", "C"];
+      let df = new DataFrame(data, { columns: cols });
+      df.query({ "column": "B", "is": ">=", "to": 5, inplace: true });
+      let query_data = [[4, 5, 6], [20, 30, 40], [39, 89, 78]];
+      assert.deepEqual(df.values, query_data);
+    });
+    it("Confirms that query happens inplace and index are updated  (Without Condition)", function () {
+
+      let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+      let cols = ["A", "B", "C"];
+      let df = new DataFrame(data, { columns: cols });
+      df.query({ "column": "B", "is": ">=", "to": 5, inplace: true });
+      assert.deepEqual(df.index, [1, 2, 3]);
+    });
+
   });
 
   describe("addColumn", function () {
@@ -1280,7 +1357,7 @@ describe("DataFrame", function () {
       let cols = ["A", "B", "C"];
       let df = new DataFrame(data, { columns: cols });
 
-      let result = [ 6, 15, 90, 206 ];
+      let result = [6, 15, 90, 206];
 
       let apply_rslt = df.apply((x) => {
         return x.reduce((a, b) => a + b, 0);
@@ -1296,7 +1373,7 @@ describe("DataFrame", function () {
       let cols = ["A", "B", "C"];
       let df = new DataFrame(data, { columns: cols });
 
-      let result = [ 64, 126, 127 ];
+      let result = [64, 126, 127];
 
       let apply_rslt = df.apply((x) => {
         return x.reduce((a, b) => a + b, 0);
@@ -1395,9 +1472,9 @@ describe("DataFrame", function () {
 
     it("Fills only a specified column", function () {
       let data = [[1, 2, 3],
-        [4, 5, 6],
-        [20, NaN, 40],
-        [39, NaN, 78]];
+      [4, 5, 6],
+      [20, NaN, 40],
+      [39, NaN, 78]];
       let cols = ["A", "B", "C"];
       let df = new DataFrame(data, { columns: cols });
       let new_vals = [[1, 2, 3], [4, 5, 6], [20, 2, 40], [39, 2, 78]];
@@ -1458,8 +1535,8 @@ describe("DataFrame", function () {
 
     it("Returns int columns in a DataFrame", function () {
       let data = [[30, 1, 2, "boy"],
-        [3.2, 4, 30, "girl"],
-        [5.09, 6, 7, "cat"]];
+      [3.2, 4, 30, "girl"],
+      [5.09, 6, 7, "cat"]];
       let column = ["A", "B", "C", "D"];
       let df = new DataFrame(data, { columns: column });
       let df_sub = df.select_dtypes(['int32']);
@@ -1468,8 +1545,8 @@ describe("DataFrame", function () {
 
     it("Returns string columns in a DataFrame", function () {
       let data = [[30, 1, 2, "boy"],
-        [3.2, 4, 30, "girl"],
-        [5.09, 6, 7, "cat"]];
+      [3.2, 4, 30, "girl"],
+      [5.09, 6, 7, "cat"]];
       let column = ["A", "B", "C", "D"];
       let df = new DataFrame(data, { columns: column });
       let df_sub = df.select_dtypes(['string']);
@@ -1478,11 +1555,11 @@ describe("DataFrame", function () {
 
     it("Returns string and float columns in a DataFrame", function () {
       let data = [[30, 1, 2, "boy"],
-        [3.2, 4, 30, "girl"],
-        [5.09, 6, 7, "cat"]];
+      [3.2, 4, 30, "girl"],
+      [5.09, 6, 7, "cat"]];
       let expected = [[30, "boy"],
-        [3.2, "girl"],
-        [5.09, "cat"]];
+      [3.2, "girl"],
+      [5.09, "cat"]];
       let column = ["A", "B", "C", "D"];
       let df = new DataFrame(data, { columns: column });
       let df_sub = df.select_dtypes(['string', 'float32']);
@@ -1491,8 +1568,8 @@ describe("DataFrame", function () {
 
     it("Returns int and float columns in a DataFrame", function () {
       let data = [[30, 1, 2, "boy"],
-        [3.2, 4, 30, "girl"],
-        [5.09, 6, 7, "cat"]];
+      [3.2, 4, 30, "girl"],
+      [5.09, 6, 7, "cat"]];
       let column = ["A", "B", "C", "D"];
       let df = new DataFrame(data, { columns: column });
       let df_sub = df.select_dtypes(['int32', 'float32']);
@@ -1528,7 +1605,7 @@ describe("DataFrame", function () {
       let df = new DataFrame(data1);
       let df2 = new DataFrame(data2);
       let expected = [[true, true, true, false],
-        [false, false, false, false]];
+      [false, false, false, false]];
       assert.deepEqual(df.lt(df2).values, expected);
     });
 
@@ -1536,12 +1613,12 @@ describe("DataFrame", function () {
       let data1 = [[10, 45, 56, 10], [25, 23, 20, 10]];
       let sf = new DataFrame(data1);
       let expected = [[true, false, false, true],
-        [true, true, true, true]];
+      [true, true, true, true]];
       assert.deepEqual(sf.lt(30).values, expected);
     });
     it("Return Less than of series and DataFrame scalar along axis 1 (column)", function () {
       let data1 = [[10, 45, 56, 10],
-        [23, 20, 10, 10]];
+      [23, 20, 10, 10]];
       let sf = new Series([10, 23, 56, 100]);
       let df = new DataFrame(data1);
       let expected = [[false, false, false, true], [false, true, true, true]];
@@ -1667,7 +1744,7 @@ describe("DataFrame", function () {
       let data1 = { "Col1": [10, 45, 56, 10], "Col2": [23, 20, 10, 10] };
       let sf = new Series([10, 23]);
       let df = new DataFrame(data1);
-      let expected = [ [ true, true ], [ false, false ], [ false, false ], [ true, false ] ];
+      let expected = [[true, true], [false, false], [false, false], [true, false]];
       assert.deepEqual(df.eq(sf, { axis: 1 }).values, expected);
     });
 
@@ -1692,25 +1769,25 @@ describe("DataFrame", function () {
 
     it("Replace values in specified two column(s)", function () {
       let data1 = [["A", "A", 1, "girl"],
-        ["B", "A", 2, "woman"],
-        ["A", "B", 3, "man"]];
+      ["B", "A", 2, "woman"],
+      ["A", "B", 3, "man"]];
       let df = new DataFrame(data1, { columns: ["col1", "col2", "col3", "col4"] });
       let expected = [["boy", "boy", 1, "girl"],
-        ["B", "boy", 2, "woman"],
-        ["boy", "B", 3, "man"]];
+      ["B", "boy", 2, "woman"],
+      ["boy", "B", 3, "man"]];
       let df_rep = df.replace("A", "boy", { columns: ["col1", "col2"] });
       assert.deepEqual(df_rep.values, expected);
     });
 
     it("Replace values in specified single column(s)", function () {
       let data1 = [[2, "A", 1, "girl"],
-        [3, "A", 2, "woman"],
-        [4, "B", 3, "man"]];
+      [3, "A", 2, "woman"],
+      [4, "B", 3, "man"]];
       let df = new DataFrame(data1, { columns: ["col1", "col2", "col3", "col4"] });
       let expected = [[2, "A", 1, "girl"],
-        [10, "A", 2, "woman"],
-        [4, "B", 3, "man"]];
-      let df_rep = df.replace( 3, 10, { columns: ["col1"] });
+      [10, "A", 2, "woman"],
+      [4, "B", 3, "man"]];
+      let df_rep = df.replace(3, 10, { columns: ["col1"] });
       assert.deepEqual(df_rep.values, expected);
     });
 
@@ -1720,40 +1797,40 @@ describe("DataFrame", function () {
   describe("sum", function () {
     it("Sum values of a DataFrame by Default axis column (axis=1)", function () {
       let data1 = [[30, 40, 3.1],
-        [5, 5, 5.1],
-        [5, 5, 3.2]];
+      [5, 5, 5.1],
+      [5, 5, 3.2]];
       let sf = new DataFrame(data1);
       let res = [40, 50, 11.399999999999999];
       assert.deepEqual(sf.sum().values, res);
     });
     it("Sum values of a DataFrame along row axis (axis=0)", function () {
       let data1 = [[30, 40, 3.1],
-        [5, 5, 5.1],
-        [5, 5, 3.2]];
+      [5, 5, 5.1],
+      [5, 5, 3.2]];
       let df = new DataFrame(data1);
       let res = [73.1, 15.1, 13.2];
       assert.deepEqual(df.sum({ axis: 0 }).values, res);
     });
     it("Sum values of a mixed DataFrame along row axis (axis=0)", function () {
       let data1 = [[30, 40, 3.1, true],
-        [5, 5, 5.1, true],
-        [5, 5, 3.2, true]];
+      [5, 5, 5.1, true],
+      [5, 5, 3.2, true]];
       let df = new DataFrame(data1);
       let res = [74.1, 16.1, 14.2];
       assert.deepEqual(df.sum({ axis: 0 }).values, res);
     });
     it("Sum values of a boolean DataFrame along row axis (axis=0)", function () {
       let data1 = [[true, true, false, true],
-        [false, false, false, false],
-        [false, true, true, false]];
+      [false, false, false, false],
+      [false, true, true, false]];
       let df = new DataFrame(data1);
       let res = [3, 0, 2];
       assert.deepEqual(df.sum({ axis: 0 }).values, res);
     });
     it("Sum values of a boolean DataFrame along default column axis (axis=1)", function () {
       let data1 = [[true, true, false, true],
-        [false, false, false, false],
-        [false, true, true, false]];
+      [false, false, false, false],
+      [false, true, true, false]];
       let df = new DataFrame(data1);
       let res = [1, 2, 1, 1];
       assert.deepEqual(df.sum().values, res);
@@ -1786,14 +1863,14 @@ describe("DataFrame", function () {
   describe("T", function () {
     it("Returns the Tranpose of a DataFrame", function () {
       let data1 = [[10, 45, 56, 10],
-        [25, 23, 20, 10]];
+      [25, 23, 20, 10]];
 
       let cols = ["a", "b", "c", "d"];
       let df = new DataFrame(data1, { columns: cols });
       let df_trans = df.T;
       let expected_vals = [[10, 25], [45, 23], [56, 20], [10, 10]];
       let expected_index = cols;
-      let expected_col_names = [ '0', '1' ];
+      let expected_col_names = ['0', '1'];
       assert.deepEqual(df_trans.index, expected_index);
       assert.deepEqual(df_trans.values, expected_vals);
       assert.deepEqual(df_trans.columns, expected_col_names);
@@ -1959,8 +2036,8 @@ describe("DataFrame", function () {
 
     it("sort index in ascending order", function () {
       let data = [[0, 2, 4, "b"],
-        [360, 180, 360, "a"],
-        [2, 4, 6, "c"]];
+      [360, 180, 360, "a"],
+      [2, 4, 6, "c"]];
 
       let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"], index: ["b", "a", "c"] });
       let df2 = df.sort_index();
@@ -1970,8 +2047,8 @@ describe("DataFrame", function () {
     });
     it("sort index in descending order", function () {
       let data = [[0, 2, 4, "b"],
-        [360, 180, 360, "a"],
-        [2, 4, 6, "c"]];
+      [360, 180, 360, "a"],
+      [2, 4, 6, "c"]];
 
       let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"], index: ["b", "a", "c"] });
       let df2 = df.sort_index({ ascending: false });
@@ -1981,8 +2058,8 @@ describe("DataFrame", function () {
     });
     it("sort index in descending order with inplace set to true", function () {
       let data = [[0, 2, 4, "b"],
-        [360, 180, 360, "a"],
-        [2, 4, 6, "c"]];
+      [360, 180, 360, "a"],
+      [2, 4, 6, "c"]];
 
       let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"], index: ["b", "a", "c"] });
       df.sort_index({ ascending: false, inplace: true });
@@ -1995,14 +2072,14 @@ describe("DataFrame", function () {
 
     it("Add a new single row (array) to the end of a DataFrame", function () {
       let data = [[0, 2, 4, "b"],
-        [360, 180, 360, "a"],
-        [2, 4, 6, "c"]];
+      [360, 180, 360, "a"],
+      [2, 4, 6, "c"]];
 
       let df = new DataFrame(data);
       let expected_val = [[0, 2, 4, "b"],
-        [360, 180, 360, "a"],
-        [2, 4, 6, "c"],
-        [20, 40, 60, "d"]];
+      [360, 180, 360, "a"],
+      [2, 4, 6, "c"],
+      [20, 40, 60, "d"]];
 
       let rslt_df = df.append([[20, 40, 60, "d"]], [3]);
       assert.deepEqual(rslt_df.values, expected_val);
@@ -2011,16 +2088,16 @@ describe("DataFrame", function () {
 
     it("Add a new single row (object) to the end of a DataFrame", function () {
       let data = [[0, 2, 4, "b"],
-        [360, 180, 360, "a"],
-        [2, 4, 6, "c"]];
+      [360, 180, 360, "a"],
+      [2, 4, 6, "c"]];
 
       let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] });
       let df2 = new DataFrame([[20, 40, 60, "d"]], { "columns": ["col1", "col2", "col3", "col4"] });
 
       let expected_val = [[0, 2, 4, "b"],
-        [360, 180, 360, "a"],
-        [2, 4, 6, "c"],
-        [20, 40, 60, "d"]];
+      [360, 180, 360, "a"],
+      [2, 4, 6, "c"],
+      [20, 40, 60, "d"]];
 
       let rslt_df = df.append(df2, [3]);
       assert.deepEqual(rslt_df.values, expected_val);
@@ -2028,8 +2105,8 @@ describe("DataFrame", function () {
     });
     it("Confirm index Change after append", function () {
       let data = [[0, 2, 4, "b"],
-        [360, 180, 360, "a"],
-        [2, 4, 6, "c"]];
+      [360, 180, 360, "a"],
+      [2, 4, 6, "c"]];
 
       let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] });
       let df2 = new DataFrame([[20, 40, 60, "d"]], { "columns": ["col1", "col2", "col3", "col4"] });
