@@ -116,8 +116,8 @@ function dummyEncode(data, options) {
   } else {
 
     const dfWithSelectedColumnsDropped = data.drop({ columns });
-    let newData = dfWithSelectedColumnsDropped?.values;
-    const newColumnNames = dfWithSelectedColumnsDropped?.columns;
+    let newData = dfWithSelectedColumnsDropped.values;
+    const newColumnNames = dfWithSelectedColumnsDropped.columns;
     for (let i = 0; i < columns.length; i++) {
       const column = columns[i];
       const colData = data.column(column).values;

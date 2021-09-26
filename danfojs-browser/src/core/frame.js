@@ -327,7 +327,7 @@ export default class DataFrame extends NDframe {
     }
 
     if (inplace) {
-      const newData = tensorResult?.arraySync();
+      const newData = tensorResult.arraySync();
       this.$setValues(newData);
     } else {
       return new DataFrame(
@@ -1647,9 +1647,9 @@ export default class DataFrame extends NDframe {
     if (drop) {
       const dfDropped = this.drop({ columns: [column] });
 
-      const newData = dfDropped?.values;
-      const newColumns = dfDropped?.columns;
-      const newDtypes = dfDropped?.dtypes;
+      const newData = dfDropped.values;
+      const newColumns = dfDropped.columns;
+      const newDtypes = dfDropped.dtypes;
 
       if (inplace) {
         this.$setValues(newData, true, false);

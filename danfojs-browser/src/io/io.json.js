@@ -50,7 +50,7 @@ const $readJSON = async (file, options) => {
       const reader = new FileReader();
       reader.readAsText(file);
       reader.onload = (event) => {
-        const jsonObj = JSON.parse(event?.target?.result);
+        const jsonObj = JSON.parse(event.target.result);
         resolve(new DataFrame(jsonObj));
       };
     });

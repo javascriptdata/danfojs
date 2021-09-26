@@ -984,7 +984,7 @@ export default class Series extends NDframe {
      */
   argsort(ascending = true) {
     const sortedIndex = this.sort_values(ascending);
-    const sf = new Series(sortedIndex?.index);
+    const sf = new Series(sortedIndex.index);
     return sf;
   }
 
