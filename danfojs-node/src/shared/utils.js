@@ -410,14 +410,12 @@ class Utils {
      * @param isSeries Whether the array is of type Series or not
      */
   round(arr, dp = 1, isSeries) {
-    if (dp < 0) {
-      dp = 1;
-    }
 
     if (isSeries) {
       const newArr = [];
       for (let i = 0; i < arr.length; i++) {
         const ele = arr[i];
+
         if (typeof ele == "number" && !isNaN(ele) && ele !== undefined && ele !== null) {
           newArr.push(Number((ele).toFixed(dp)));
         } else {

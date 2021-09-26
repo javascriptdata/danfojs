@@ -12,7 +12,7 @@
 * limitations under the License.
 * ==========================================================================
 */
-// import dummyEncode from "../transformers/encoders/dummy.encoder";
+
 import { variance, std, median, mode, mean } from 'mathjs';
 import { DATA_TYPES } from '../shared/defaults';
 import { scalar, tensor2d, data as tfData } from '@tensorflow/tfjs-node';
@@ -24,6 +24,7 @@ import NDframe from "./generic";
 import { table } from "table";
 import Series from './series';
 import { GroupBy } from "./groupby";
+import dummyEncode from "./get_dummies";
 
 
 // const utils = new Utils();
@@ -41,7 +42,7 @@ import { GroupBy } from "./groupby";
 /* @ts-ignore */ //COMMENT OUT WHEN METHODS HAVE BEEN IMPLEMENTED
 export default class DataFrame extends NDframe {
   constructor(data, options) {
-    const { index, columns, dtypes, config } = { index:undefined, columns:undefined, dtypes:undefined, config:undefined, ...options };
+    const { index, columns, dtypes, config } = { index: undefined, columns: undefined, dtypes: undefined, config: undefined, ...options };
     super({ data, index, columns, dtypes, config, isSeries: false });
     this.$setInternalColumnDataProperty();
   }
@@ -160,17 +161,17 @@ export default class DataFrame extends NDframe {
     if (this.$config.isLowMemoryMode) {
       //Update row ($data) array
       for (let i = 0; i < this.$data.length; i++) {
-        (this.$data )[i][columnIndex] = colunmValuesToAdd[i];
+        (this.$data)[i][columnIndex] = colunmValuesToAdd[i];
       }
       //Update the dtypes
       this.$dtypes[columnIndex] = utils.inferDtype(colunmValuesToAdd)[0];
     } else {
       //Update row ($data) array
       for (let i = 0; i < this.values.length; i++) {
-        (this.$data )[i][columnIndex] = colunmValuesToAdd[i];
+        (this.$data)[i][columnIndex] = colunmValuesToAdd[i];
       }
       //Update column ($dataIncolumnFormat) array since it's available in object
-      (this.$dataIncolumnFormat )[columnIndex] = arr;
+      (this.$dataIncolumnFormat)[columnIndex] = arr;
 
       //Update the dtypes
       this.$dtypes[columnIndex] = utils.inferDtype(colunmValuesToAdd)[0];
@@ -182,12 +183,12 @@ export default class DataFrame extends NDframe {
      * Return data with missing values removed from a specified axis
      * @param axis 0 or 1. If 0, column-wise, if 1, row-wise
     */
-  $getDataByAxisWithMissingValuesRemoved(axis){
+  $getDataByAxisWithMissingValuesRemoved(axis) {
     const oldValues = this.$getDataArraysByAxis(axis);
     const cleanValues = [];
     for (let i = 0; i < oldValues.length; i++) {
       const values = oldValues[i];
-      cleanValues.push(utils.removeMissingValuesFromArray(values) );
+      cleanValues.push(utils.removeMissingValuesFromArray(values));
     }
     return cleanValues;
   }
@@ -364,7 +365,7 @@ export default class DataFrame extends NDframe {
     * out-of-bounds.
     */
   iloc(args) {
-    const { rows, columns } = { rows:undefined, columns:undefined, ...args };
+    const { rows, columns } = { rows: undefined, columns: undefined, ...args };
     return _iloc({ ndFrame: this, rows, columns });
   }
 
@@ -675,7 +676,7 @@ export default class DataFrame extends NDframe {
      * Return mean of DataFrame across specified axis.
      * @param options.axis 0 or 1. If 0, compute the mean column-wise, if 1, row-wise. Defaults to 1
     */
-  mean(options){
+  mean(options) {
     const { axis } = { axis: 1, ...options };
 
     if (this.$frameIsNotCompactibleForArithmeticOperation()) {
@@ -695,7 +696,7 @@ export default class DataFrame extends NDframe {
      * Return median of DataFrame across specified axis.
      * @param options.axis 0 or 1. If 0, compute the median column-wise, if 1, row-wise. Defaults to 1
     */
-  median(options){
+  median(options) {
     const { axis } = { axis: 1, ...options };
 
     if (this.$frameIsNotCompactibleForArithmeticOperation()) {
@@ -717,7 +718,7 @@ export default class DataFrame extends NDframe {
      * @param options.axis 0 or 1. If 0, compute the mode column-wise, if 1, row-wise. Defaults to 1
      * @param options.keep If there are more than one modes, returns the mode at position [keep]. Defaults to 0
     */
-  mode(options){
+  mode(options) {
     const { axis, keep } = { axis: 1, keep: 0, ...options };
 
     if (this.$frameIsNotCompactibleForArithmeticOperation()) {
@@ -745,7 +746,7 @@ export default class DataFrame extends NDframe {
      * Return minimum of values in a DataFrame across specified axis.
      * @param options.axis 0 or 1. If 0, compute the minimum value column-wise, if 1, row-wise. Defaults to 1
     */
-  min(options){
+  min(options) {
     const { axis } = { axis: 1, ...options };
 
     if (this.$frameIsNotCompactibleForArithmeticOperation()) {
@@ -773,7 +774,7 @@ export default class DataFrame extends NDframe {
      * Return maximum of values in a DataFrame across specified axis.
      * @param options.axis 0 or 1. If 0, compute the maximum column-wise, if 1, row-wise. Defaults to 1
     */
-  max(options){
+  max(options) {
     const { axis } = { axis: 1, ...options };
 
     if (this.$frameIsNotCompactibleForArithmeticOperation()) {
@@ -801,7 +802,7 @@ export default class DataFrame extends NDframe {
      * Return standard deviation of values in a DataFrame across specified axis.
      * @param options.axis 0 or 1. If 0, compute the standard deviation column-wise, if 1, row-wise. Defaults to 1
     */
-  std(options){
+  std(options) {
     const { axis } = { axis: 1, ...options };
 
     if (this.$frameIsNotCompactibleForArithmeticOperation()) {
@@ -822,7 +823,7 @@ export default class DataFrame extends NDframe {
      * Return variance of values in a DataFrame across specified axis.
      * @param options.axis 0 or 1. If 0, compute the variance column-wise, if 1, add row-wise. Defaults to 1
     */
-  var(options){
+  var(options) {
     const { axis } = { axis: 1, ...options };
 
     if (this.$frameIsNotCompactibleForArithmeticOperation()) {
@@ -963,7 +964,7 @@ export default class DataFrame extends NDframe {
      * Return number of non-null elements in a Series
      * @param options.axis 0 or 1. If 0, count column-wise, if 1, add row-wise. Defaults to 1
     */
-  count(options){
+  count(options) {
     const { axis } = { axis: 1, ...options };
 
     if ([0, 1].indexOf(axis) === -1) {
@@ -980,7 +981,7 @@ export default class DataFrame extends NDframe {
      * Return the sum of values across an axis.
      * @param options.axis 0 or 1. If 0, count column-wise, if 1, add row-wise. Defaults to 1
     */
-  sum(options){
+  sum(options) {
     const { axis } = { axis: 1, ...options };
 
     if ([0, 1].indexOf(axis) === -1) {
@@ -1168,12 +1169,12 @@ export default class DataFrame extends NDframe {
     for (let i = 0; i < numericColumnNames.length; i++) {
       const colName = numericColumnNames[i];
       const $count = (this.$getColumnData(colName)).count();
-      const $mean = mean(this.$getColumnData(colName, false) );
-      const $std = std(this.$getColumnData(colName, false) );
+      const $mean = mean(this.$getColumnData(colName, false));
+      const $std = std(this.$getColumnData(colName, false));
       const $min = (this.$getColumnData(colName)).min();
-      const $median = median(this.$getColumnData(colName, false) );
+      const $median = median(this.$getColumnData(colName, false));
       const $max = (this.$getColumnData(colName)).max();
-      const $variance = variance(this.$getColumnData(colName, false) );
+      const $variance = variance(this.$getColumnData(colName, false));
 
       const stats = [$count, $mean, $std, $min, $median, $max, $variance];
       statsObject[colName] = stats;
@@ -1201,7 +1202,7 @@ export default class DataFrame extends NDframe {
     if (axis == 0) {
       const newData = [];
 
-      const dfValues = this.values ;
+      const dfValues = this.values;
       for (let i = 0; i < dfValues.length; i++) {
         const values = dfValues[i];
         if (!values.includes(NaN)) {
@@ -1404,7 +1405,7 @@ export default class DataFrame extends NDframe {
     if (!columns) {
       //Fill all columns
       for (let i = 0; i < oldValues.length; i++) {
-        const valueArr = [...oldValues[i] ];
+        const valueArr = [...oldValues[i]];
 
         const tempArr = valueArr.map((innerVal) => {
           if (utils.isEmpty(innerVal)) {
@@ -1434,7 +1435,7 @@ export default class DataFrame extends NDframe {
     }
 
     if (inplace) {
-      this.$setValues(newData );
+      this.$setValues(newData);
     } else {
       const df = new DataFrame(newData,
         {
@@ -1577,7 +1578,7 @@ export default class DataFrame extends NDframe {
     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
   sort_values(options) {
-    const { by, ascending, inplace } = { by:undefined, ascending: true, inplace: false, ...options };
+    const { by, ascending, inplace } = { by: undefined, ascending: true, inplace: false, ...options };
 
     if (!by) {
       throw Error(`ParamError: must specify a column to sort by`);
@@ -1785,7 +1786,7 @@ export default class DataFrame extends NDframe {
      * Returns the specified column data as a Series object.
      * @param column The name of the column to return
     */
-  column(column){
+  column(column) {
     return this.$getColumnData(column);
   }
 
@@ -1887,7 +1888,7 @@ export default class DataFrame extends NDframe {
         columnIndex.push(_indx);
       });
 
-      newData = (this.values ).map(([...row]) => {
+      newData = (this.values).map(([...row]) => {
         for (const colIndx of columnIndex) {
           if (row[colIndx] === oldValue) {
             row[colIndx] = newValue;
@@ -1896,7 +1897,7 @@ export default class DataFrame extends NDframe {
         return row;
       });
     } else {
-      newData = (this.values ).map(([...row]) => {
+      newData = (this.values).map(([...row]) => {
         return row.map(((cell) => {
           if (cell === oldValue) {
             return newValue;
@@ -1945,7 +1946,7 @@ export default class DataFrame extends NDframe {
         row[columnIndex] = Number(row[columnIndex]);
         return row;
       } else if (dtype === "int32") {
-        row[columnIndex] = parseInt(row[columnIndex] );
+        row[columnIndex] = parseInt(row[columnIndex]);
         return row;
       } else if (dtype === "string") {
         row[columnIndex] = row[columnIndex].toString();
@@ -1957,7 +1958,7 @@ export default class DataFrame extends NDframe {
     });
 
     if (inplace) {
-      this.$setValues(newData );
+      this.$setValues(newData);
     } else {
       const newDtypes = [...this.dtypes];
       newDtypes[columnIndex] = dtype;
@@ -1976,7 +1977,7 @@ export default class DataFrame extends NDframe {
      * To get the values use `.unique()` instead.
      * @param axis The axis to count unique elements across. Defaults to 1
     */
-  nunique(axis = 1){
+  nunique(axis = 1) {
     if ([0, 1].indexOf(axis) === -1) {
       throw Error(`ParamError: axis must be 0 or 1`);
     }
@@ -2068,7 +2069,7 @@ export default class DataFrame extends NDframe {
 
     const sortedObjectArr = utils.sortObj(objToSort, ascending);
     const sortedIndex = sortedObjectArr.map((obj) => obj.index);
-    const newData = sortedIndex.map((i) => (this.values )[i]);
+    const newData = sortedIndex.map((i) => (this.values)[i]);
 
     if (inplace) {
       this.$setValues(newData);
@@ -2129,7 +2130,7 @@ export default class DataFrame extends NDframe {
         rowsToAdd = newValues;
       }
 
-      if ((rowsToAdd[0] ).length !== this.shape[1]) {
+      if ((rowsToAdd[0]).length !== this.shape[1]) {
         throw Error(`ValueError: length of newValues must be the same as the number of columns.`);
       }
 
@@ -2153,7 +2154,7 @@ export default class DataFrame extends NDframe {
     const newIndex = [...this.index];
 
     rowsToAdd.forEach((row, i) => {
-      newData.push(row );
+      newData.push(row);
       newIndex.push(indexInArrFormat[i]);
     });
 
@@ -2200,7 +2201,7 @@ export default class DataFrame extends NDframe {
   /**
      * Returns the data types for each column as a Series.
      */
-  get ctypes(){
+  get ctypes() {
     return new Series(this.dtypes, { index: this.columns });
   }
 
@@ -2219,18 +2220,18 @@ export default class DataFrame extends NDframe {
      * df.getDummies({ columns: ['a', 'b'], prefix: 'cat', prefixSeparator: '-', inplace: true })
      * df.getDummies({ columns: ['a', 'b'], prefix: ['col1', 'col2'], prefixSeparator: '-', inplace: true })
      */
-  //   get_dummies(options) {
-  //     const { inplace } = { inplace: false, ...options };
+  get_dummies(options) {
+    const { inplace } = { inplace: false, ...options };
 
-  //     const encodedDF = dummyEncode(this, options);
-  //     if (inplace) {
-  //       this.$setValues(encodedDF.values, false, false);
-  //       this.$setColumnNames(encodedDF.columns);
-  //     } else {
-  //       return encodedDF;
-  //     }
+    const encodedDF = dummyEncode(this, options);
+    if (inplace) {
+      this.$setValues(encodedDF.values, false, false);
+      this.$setColumnNames(encodedDF.columns);
+    } else {
+      return encodedDF;
+    }
 
-  //   }
+  }
 
   /**
    *

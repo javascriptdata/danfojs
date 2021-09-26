@@ -22,10 +22,9 @@ import NDframe from "./generic";
 import { table } from "table";
 import Str from './strings';
 import Dt from './datetime';
-// import dummyEncode from "../transformers/encoders/dummy.encoder";
+import dummyEncode from "./get_dummies";
 import { data as tfData } from "@tensorflow/tfjs-node";
 
-// const utils = new Utils();
 
 /**
  * One-dimensional ndarray with axis labels.
@@ -387,9 +386,7 @@ export default class Series extends NDframe {
     */
   round(dp = 1, options) {
     const { inplace } = { inplace: false, ...options };
-
     const newValues = utils.round(this.values, dp, true);
-
     if (inplace) {
       this.$setValues(newValues);
     } else {
@@ -1354,7 +1351,7 @@ export default class Series extends NDframe {
      * sf.getDummies({prefix: 'cat' })
      * sf.getDummies({ prefix: 'cat', prefixSeparator: '-' })
      */
-//   getDummies(options) {
-//     return dummyEncode(this, options);
-//   }
+  get_dummies(options) {
+    return dummyEncode(this, options);
+  }
 }

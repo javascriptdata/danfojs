@@ -20,7 +20,7 @@ import { DataFrame } from '../index';
  * Reads a CSV file from local or remote location into a DataFrame.
  * @param filePath URL or local file path to CSV file. `readCSV` uses PapaParse to parse the CSV file,
  * hence all PapaParse options are supported.
- * @param options Configuration object. Supports all Papaparse parse config options.
+ * @param options Configuration object. Supports all Papaparse parse config options. See https://papaparse.com/docs#config.
  * @returns DataFrame containing the parsed CSV file.
  * @example
  * ```
@@ -45,6 +45,7 @@ import { DataFrame } from '../index';
  * ```
  */
 const $readCSV = async (file, options) => {
+  options = { header: true, dynamicTyping: true, ...options };
   return new Promise((resolve) => {
     Papa.parse(file, {
       ...options,

@@ -805,7 +805,12 @@ describe("DataFrame", function () {
       let expected = [[10.1, 2.1, 4.2], [360.2, 180.0, 36.9]];
       assert.deepEqual(df.round(1).values, expected);
     });
-
+    it("Rounds series in a DataFrame to 1dp", function () {
+      let data = [[10.1, 2.092, 4.23], [360.232244, 180.0190290, 36.902612]];
+      let df = new DataFrame(data);
+      let expected = [10.1, 360.2];
+      assert.deepEqual(df["0"].round(1).values, expected);
+    });
   });
 
   describe("sort_values", function () {

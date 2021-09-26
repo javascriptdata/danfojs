@@ -382,6 +382,17 @@ export default class NDframe {
   }
 
   /**
+    * Returns the underlying data in Array column format.
+  */
+  get getColumnData() {
+    if (this.config.isLowMemoryMode) {
+      return utils.transposeArray(this.values);
+    } else {
+      return this.$dataIncolumnFormat;
+    }
+  }
+
+  /**
      * Returns the size of the NDFrame object
      *
     */

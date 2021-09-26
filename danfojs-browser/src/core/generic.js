@@ -68,8 +68,8 @@ export default class NDframe {
 
       } else if (
         Array.isArray((data)[0]) ||
-                utils.isNumber((data)[0]) ||
-                utils.isString((data)[0])
+        utils.isNumber((data)[0]) ||
+        utils.isString((data)[0])
       ) {
         this.loadArrayIntoNdframe({ data, index, columns, dtypes });
       } else {
@@ -85,7 +85,7 @@ export default class NDframe {
      * @param columns Array of column names.
      * @param dtypes Array of data types for each the column.
     */
-  loadArrayIntoNdframe({ data, index, columns, dtypes }){
+  loadArrayIntoNdframe({ data, index, columns, dtypes }) {
     // this.$data = utils.replaceUndefinedWithNaN(data, this.$isSeries);
     this.$data = data;
     if (!this.$config.isLowMemoryMode) {
@@ -110,7 +110,7 @@ export default class NDframe {
      * @param columns Array of column names.
      * @param dtypes Array of data types for each the column.
     */
-  loadObjectIntoNdframe({ data, type, index, columns, dtypes }){
+  loadObjectIntoNdframe({ data, type, index, columns, dtypes }) {
     if (type === 1 && Array.isArray(data)) {
       const _data = (data).map((item) => {
         return Object.values(item);
@@ -161,7 +161,7 @@ export default class NDframe {
      * Internal function to set the Dtypes of the NDFrame from an array. This function
      * performs the necessary checks.
     */
-  $setDtypes(dtypes){
+  $setDtypes(dtypes) {
     if (this.$isSeries) {
       if (dtypes) {
         if (this.$data.length != 0 && dtypes.length != 1) {
@@ -235,7 +235,7 @@ export default class NDframe {
   /**
      * Internal function to set the configuration of the ndframe
     */
-  $setConfig(config){
+  $setConfig(config) {
     this.$config = config;
   }
 
@@ -252,7 +252,7 @@ export default class NDframe {
      * array of indices. Performs all necessary checks to ensure that the
      * index is valid.
     */
-  $setIndex(index){
+  $setIndex(index) {
     if (index) {
 
       if (this.$data.length != 0 && index.length != this.shape[0]) {
@@ -271,7 +271,7 @@ export default class NDframe {
   /**
      * Internal function to reset the index of the NDFrame using a range of indices.
     */
-  $resetIndex(){
+  $resetIndex() {
     this.$index = utils.range(0, this.shape[0] - 1);
   }
 
@@ -332,8 +332,8 @@ export default class NDframe {
   }
 
   /**
-     * Returns the underlying data in Array format.
-    */
+     * Returns the underlying data in Array row format.
+  */
   get values() {
     return this.$data;
   }
@@ -343,8 +343,8 @@ export default class NDframe {
      * @param values An array of values to set
      * @param checkLength Whether to check the length of the new values and the existing row length
      * @param checkColumnLength Whether to check the length of the new values and the existing column length
-     * */
-  $setValues(values, checkLength = true, checkColumnLength = true){
+  * */
+  $setValues(values, checkLength = true, checkColumnLength = true) {
     if (this.$isSeries) {
       if (checkLength && values.length != this.shape[0]) {
         ErrorThrower.throwRowLengthError(this, values.length);
@@ -379,6 +379,17 @@ export default class NDframe {
 
     }
 
+  }
+
+  /**
+    * Returns the underlying data in Array column format.
+  */
+  get getColumnData() {
+    if (this.config.isLowMemoryMode) {
+      return utils.transposeArray(this.values);
+    } else {
+      return this.$dataIncolumnFormat;
+    }
   }
 
   /**
@@ -427,7 +438,7 @@ export default class NDframe {
      * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
      * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`.
      */
-  to_excel(options){
+  to_excel(options) {
     return toExcel(this, options);
   }
 
