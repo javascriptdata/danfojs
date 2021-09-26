@@ -1,6 +1,5 @@
 import { assert } from "chai";
-import { Str } from '../../src/core/strings';
-import { Series } from "../../src/core/series";
+import { Series, Str } from "../../dist";
 
 
 describe("Str", function () {

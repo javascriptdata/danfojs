@@ -1,8 +1,5 @@
 import { assert } from "chai";
-import { DataFrame } from '../../src/core/frame';
-import { concat } from '../../src/core/concat';
-import { Series } from "../../src/core/series";
-
+import { Series, DataFrame, concat } from "../../dist";
 
 describe("Concatenate", function () {
 

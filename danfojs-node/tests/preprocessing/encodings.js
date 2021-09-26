@@ -1,6 +1,6 @@
 import { assert } from "chai";
-import { LabelEncoder, OneHotEncoder } from "../../src/preprocessing/encodings";
-import { Series } from "../../src/core/series";
+import { Series, LabelEncoder, OneHotEncoder } from '../../dist';
+
 
 describe("Encodings", function () {
 

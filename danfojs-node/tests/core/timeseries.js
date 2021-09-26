@@ -1,90 +1,92 @@
 import { assert } from "chai";
-import { to_datetime } from '../../src/core/timeseries';
+import { Series, toDateTime } from "../../dist";
 
 describe("TimeSeries", function () {
 
-  it("Check date formatting", function () {
-
-    let data = [ "02Sep2019", "03Sep2019", "04Sep2019" ];
-
-    let times = to_datetime({ "data": data, "format": "%d%b%Y%" });
-
-    let new_data = [ new Date("02-Sep-2019"), new Date("03-Sep-2019"), new Date("04-Sep-2019") ];
-
-    assert.deepEqual(times.date_list, new_data);
-
+  it("Returns correct month number", function () {
+    const data = ["02Sep2019", "03Aug2019", "04July2019"];
+    const dateTime = toDateTime(data);
+    const expected = [8, 7, 6];
+    assert.deepEqual(dateTime.month().values, expected);
   });
 
-  it("Check Invalid date Formatting", function () {
-
-    let data = [ "30-06-02019", "29-06-2019", "28-06-2019" ];
-
-    assert.throws(function () { to_datetime({ "data": data }); }, Error, "Invalid date, the date format not recognise");
-
+  it("Returns correct year number", function () {
+    const data = ["02Sep2019", "03Aug2029", "04July2020"];
+    const dateTime = toDateTime(data);
+    const expected = [2019, 2029, 2020];
+    assert.deepEqual(dateTime.year().values, expected);
   });
 
-  it("check month generated", function () {
-
-    let data = [ "02Sep2019", "03Dec2019", "04Jan2019" ];
-
-    let times = to_datetime({ "data": data, "format": "%d%b%Y%" });
-
-    let new_data = [ 8, 11, 0 ];
-
-    assert.deepEqual(times.month().values, new_data);
+  it("Return month name generated", function () {
+    const data = ["06-30-02019", "07-29-2019", "08-28-2019"];
+    const dateTime = toDateTime(data);
+    const expected = ["Jun", "Jul", "Aug"];
+    assert.deepEqual(dateTime.month_name().values, expected);
   });
 
-  it("check month Name generated", function () {
-
-    let data = [ "06-30-02019", "07-29-2019", "08-28-2019" ];
-
-    let times = to_datetime({ "data": data });
-
-    let new_data = [ "Jun", "Jul", "Aug" ];
-
-    assert.deepEqual(times.month_name().values, new_data);
+  it("Return day of the week generated", function () {
+    const data = ["06-30-02019", "07-29-2019", "08-28-2019"];
+    const dateTime = toDateTime(data);
+    const expected = ["Sun", "Mon", "Wed"];
+    assert.deepEqual(dateTime.weekdays().values, expected);
   });
 
-  it("check days of the weeks generated", function () {
-
-    let data = [ "06-30-02019", "07-29-2019", "08-28-2019" ];
-
-    let times = to_datetime({ "data": data });
-
-    let new_data = [ "Sun", "Mon", "Wed" ];
-
-    assert.deepEqual(times.weekdays().values, new_data);
+  it("Return day of the month generated", function () {
+    const data = ["06-30-02019", "07-29-2019", "08-28-2019"];
+    const dateTime = toDateTime(data);
+    const expected = [30, 29, 28];
+    assert.deepEqual(dateTime.monthday().values, expected);
   });
 
-  it("check day of the month generated", function () {
-
-    let data = [ "06-30-02019", "07-29-2019", "08-28-2019" ];
-
-    let times = to_datetime({ "data": data });
-
-    let new_data = [ 30, 29, 28 ];
-
-    assert.deepEqual(times.monthday().values, new_data);
-  });
-  it("check the seconds generated", function () {
-
-    let data = [ "06-30-02019 00:00:12", "07-29-2019 00:30:40", "08-28-2019 00:12:04" ];
-
-    let times = to_datetime({ "data": data });
-
-    let new_data = [ 12, 40, 4 ];
-
-    assert.deepEqual(times.seconds().values, new_data);
-  });
-  it("check the minutes generated", function () {
-
-    let data = [ "06-30-02019 00:00:12", "07-29-2019 00:30:40", "08-28-2019 00:12:04" ];
-
-    let times = to_datetime({ "data": data });
-
-    let new_data = [ 0, 30, 12 ];
-
-    assert.deepEqual(times.minutes().values, new_data);
+  it("Return seconds generated", function () {
+    const data = ["06-30-02019 00:00:12", "07-29-2019 00:30:40", "08-28-2019 00:12:04"];
+    const dateTime = toDateTime(data);
+    const expected = [12, 40, 4];
+    assert.deepEqual(dateTime.seconds().values, expected);
   });
 
+  it("Return minutes generated", function () {
+    const data = ["06-30-02019 00:00:12", "07-29-2019 00:30:40", "08-28-2019 00:12:04"];
+    const dateTime = toDateTime(data);
+    const expected = [0, 30, 12];
+    assert.deepEqual(dateTime.minutes().values, expected);
+  });
+
+  it("Return hours generated", function () {
+    const data = ["06-30-02019 05:00:12", "07-29-2019 01:30:40", "08-28-2019 06:12:04"];
+    const dateTime = toDateTime(data);
+    const expected = [5, 1, 6];
+    assert.deepEqual(dateTime.hours().values, expected);
+  });
+
+  it("Return correct date from Series format 1", function () {
+    const data = new Series(["12/30/19 00:01", "12/29/19 07:03", "11/12/20 18:21"]);
+    const dateTime = toDateTime(data);
+
+    const expectedMonth = [11, 11, 10];
+    const expectedYear = [2019, 2019, 2020];
+    const expectedDayOfMonth = [30, 29, 12];
+    const expectedMonthName = ["Dec", "Dec", "Nov"];
+
+    assert.deepEqual(dateTime.month().values, expectedMonth);
+    assert.deepEqual(dateTime.year().values, expectedYear);
+    assert.deepEqual(dateTime.monthday().values, expectedDayOfMonth);
+    assert.deepEqual(dateTime.month_name().values, expectedMonthName);
+  });
+
+  it("Return correct date from Series format 2", function () {
+    const data = new Series(["12.30.19", "12.22.19", "11.01.20"]);
+    const dateTime = toDateTime(data);
+
+    const expectedMonth = [11, 11, 10];
+    const expectedYear = [2019, 2019, 2020];
+    const expectedDay = [ 'Mon', 'Sun', 'Sun' ];
+    const expectedMonthName = ["Dec", "Dec", "Nov"];
+
+    assert.deepEqual(dateTime.month().values, expectedMonth);
+    assert.deepEqual(dateTime.year().values, expectedYear);
+    assert.deepEqual(dateTime.weekdays().values, expectedDay);
+    assert.deepEqual(dateTime.month_name().values, expectedMonthName);
+
+  });
 });

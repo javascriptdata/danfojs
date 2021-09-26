@@ -2,7 +2,7 @@
   "name": "danfojs",
   "version": "0.2.8",
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
-  "main": "lib/bundle.js",
+  "main": "dist/index.js",
   "types": "types/index.d.ts",
   "directories": {
     "test": "tests"
@@ -17,18 +17,23 @@
   ],
   "files": [
     "lib/",
-    "src/",
+    "dist/",
     "types"
   ],
   "dependencies": {
-    "@tensorflow/tfjs": "3.6.0",
-    "mathjs": "7.5.1",
-    "table": "^5.4.6",
-    "xlsx": "^0.17.0"
+    "@tensorflow/tfjs": "^3.9.0",
+    "mathjs": "9.4.4",
+    "papaparse": "^5.3.1",
+    "request": "^2.88.2",
+    "stream-json": "^1.7.3",
+    "table": "6.7.1",
+    "xlsx": "^0.17.2"
   },
   "scripts": {
-    "test": "yarn run bundle && karma start --single-run --browsers ChromeHeadless karma.conf.js",
-    "build": "babel ./src -d ./dist --no-comments",
+    "test": "karma start --single-run --browsers ChromeHeadless karma.conf.js",
+    "test:clean": "yarn run build:clean && yarn run test",
+    "build": "babel ./src -d ./dist --no-comments && yarn run bundle",
+    "build:clean": "rimraf ./dist && rimraf ./lib && yarn run build",
     "lint": "eslint ./src",
     "bundle": "webpack --mode production",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",

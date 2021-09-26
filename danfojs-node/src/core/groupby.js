@@ -1,8 +1,7 @@
-import { DataFrame } from "./frame";
-import { Utils } from "./utils";
-import { Series } from "./series";
+import DataFrame from "./frame";
+import { utils } from "../shared/utils";
+import Series from "./series";
 import { concat } from "./concat";
-const utils = new Utils;
 
 /**
  * The class performs all groupby operation on a dataframe
@@ -62,9 +61,7 @@ export class GroupBy {
     }
     dfs(this.col_dict, this.data_tensors);
 
-
     return this;
-
   }
 
   /**
@@ -112,15 +109,15 @@ export class GroupBy {
     return gp;
   }
 
+
   /**
      * Basic root of all column arithemetic in groups
      * @param {operation} operation String
      */
   arithemetic(operation){
-
-    let ops_name = [ "mean", "sum", "count", "mode", "std", "var", "cumsum", "cumprod",
+    const ops_name = [ "mean", "sum", "count", "mode", "std", "var", "cumsum", "cumprod",
       "cummax", "cummin" ];
-    let ops_map = {
+    const ops_map = {
       "mean": "mean()",
       "sum": "sum()",
       "mode": "mode()",
@@ -135,6 +132,10 @@ export class GroupBy {
     const is_array_operation = Array.isArray(operation);
     const count_group = {};
 
+    //the local variable to store variables to be used in eval
+    // this seems not to be needed in Node version, since local
+    //variable are easily accessed in the eval function
+    let local = null;
     function dfs(sub_count_group, sub_group_col) {
       for (const [ key, value ] of Object.entries(sub_group_col)){
         if (Array.isArray(value)) {
@@ -146,12 +147,14 @@ export class GroupBy {
               if (!ops_name.includes(op)){
                 throw new Error("operation does not exist");
               }
-              data = eval(`value[i].${ops_map[op]}`);
+              local = value[i];
+              data = eval(`local.${ops_map[op]}`);
               sub_count_group[key].push(data);
             }
           } else {
             value.forEach((v) => {
-              data = eval(`v.${operation}`);
+              local = v;
+              data = eval(`local.${operation}`);
               sub_count_group[key].push(data);
             });
           }
@@ -233,7 +236,7 @@ export class GroupBy {
     if (key.length !== this.key_col.length)
       throw new Error("specify the group by column");
 
-    utils.__is_object(this.data_tensors, key[0], `Key Error: ${key[0]} not in object`);
+    utils.isObject(this.data_tensors, key[0], `Key Error: ${key[0]} not in object`);
     const last_key = key[key.length - 1];
     let sub_data_tensors = this.data_tensors;
     for (const k of key) {
@@ -245,7 +248,7 @@ export class GroupBy {
   }
 
   /**
-     * Map every column to an operaton
+     * Map every column to an operation
      * @param {kwargs} kwargs {column name: math operation}
      * @example .agg({"A": "mean","B": "sum","C":"count"})
      */

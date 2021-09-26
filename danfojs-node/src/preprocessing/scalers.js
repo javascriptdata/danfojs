@@ -1,25 +1,23 @@
-import * as tf from '@tensorflow/tfjs-node';
-import { Series } from "../core/series";
-import { DataFrame } from "../core/frame";
-import { Utils } from "../core/utils";
-
-const utils = new Utils();
+import { tensor, moments } from "@tensorflow/tfjs-node";
+import Series from "../core/series";
+import DataFrame from "../core/frame";
+import { utils } from "../shared/utils";
 
 export class MinMaxScaler {
   /**
    * Fit minmax scaler on data, to obtain their min and max value
-   * @param {data} data [DataRame | Series | Array]
+   * @param {data} data [DataFrame | Series | Array]
    * @returns Array
    */
   fit(data) {
     let tensor_data = null;
     if (Array.isArray(data)) {
-      tensor_data = tf.tensor(data);
+      tensor_data = tensor(data);
     } else if (data instanceof DataFrame || data instanceof Series) {
       if (data.dtypes.includes("string")) {
         throw Error("Dtype Error: Cannot perform operation on string dtypes");
       }
-      tensor_data = tf.tensor(data.values);
+      tensor_data = tensor(data.values);
     } else {
       throw new Error("data must either be an Array, DataFrame or Series");
     }
@@ -49,19 +47,19 @@ export class MinMaxScaler {
       if (data.dtypes.includes("string")) {
         throw Error("Dtype Error: Cannot perform operation on string dtypes");
       }
-      let tensor_data = tf.tensor(data.values);
+      let tensor_data = tensor(data.values);
       let output_data = tensor_data
         .sub(this.min)
         .div(this.max.sub(this.min))
         .arraySync();
       return new Series(output_data);
     } else if (Array.isArray(data)) {
-      let tensor_data = tf.tensor(data);
+      let tensor_data = tensor(data);
       let output_data = tensor_data
         .sub(this.min)
         .div(this.max.sub(this.min))
         .arraySync();
-      if (utils.__is_1D_array(data)) {
+      if (utils.is1DArray(data)) {
         return new Series(output_data);
       } else {
         return new DataFrame(output_data);
@@ -70,17 +68,16 @@ export class MinMaxScaler {
       if (data.dtypes.includes("string")) {
         throw Error("Dtype Error: Cannot perform operation on string dtypes");
       }
-      let tensor_data = tf.tensor(data.values);
+      let tensor_data = tensor(data.values);
       let output_data = tensor_data
         .sub(this.min)
         .div(this.max.sub(this.min))
         .arraySync();
       return new DataFrame(output_data);
     } else {
-      throw Error("Value Error: Data type not supoorted");
+      throw Error("Value Error: Data type not supported");
     }
   }
-
 
   /**
    * Restore a transformed array to their original values,
@@ -93,19 +90,19 @@ export class MinMaxScaler {
       if (data.dtypes.includes("string")) {
         throw Error("Dtype Error: Cannot perform operation on string dtypes");
       }
-      let tensor_data = tf.tensor(data.values);
+      let tensor_data = tensor(data.values);
       let output_data = tensor_data
         .mul(this.max.sub(this.min))
         .add(this.min)
         .arraySync();
       return new Series(output_data);
     } else if (Array.isArray(data)) {
-      let tensor_data = tf.tensor(data);
+      let tensor_data = tensor(data);
       let output_data = tensor_data
         .mul(this.max.sub(this.min))
         .add(this.min)
         .arraySync();
-      if (utils.__is_1D_array(data)) {
+      if (utils.is1DArray(data)) {
         return new Series(output_data);
       } else {
         return new DataFrame(output_data);
@@ -114,14 +111,14 @@ export class MinMaxScaler {
       if (data.dtypes.includes("string")) {
         throw Error("Dtype Error: Cannot perform operation on string dtypes");
       }
-      let tensor_data = tf.tensor(data.values);
+      let tensor_data = tensor(data.values);
       let output_data = tensor_data
         .mul(this.max.sub(this.min))
         .add(this.min)
         .arraySync();
       return new DataFrame(output_data);
     } else {
-      throw Error("Value Error: Data type not supoorted");
+      throw Error("Value Error: Data type not supported");
     }
   }
 }
@@ -129,23 +126,23 @@ export class MinMaxScaler {
 export class StandardScaler {
   /**
    *
-   * @param {data} data [DataRame | Series | Array]
+   * @param {data} data [DataFame | Series | Array]
    * @returns Array
    */
   fit(data) {
     let tensor_data = null;
     if (Array.isArray(data)) {
-      tensor_data = tf.tensor(data);
+      tensor_data = tensor(data);
     } else if (data instanceof DataFrame || data instanceof Series) {
       if (data.dtypes.includes("string")) {
         throw Error("Dtype Error: Cannot perform operation on string dtypes");
       }
-      tensor_data = tf.tensor(data.values);
+      tensor_data = tensor(data.values);
     } else {
       throw new Error("data must either be an Array, DataFrame or Series");
     }
 
-    this.std = tf.moments(tensor_data, 0).variance.sqrt();
+    this.std = moments(tensor_data, 0).variance.sqrt();
     this.mean = tensor_data.mean(0);
     let output_data = tensor_data.sub(this.mean).div(this.std).arraySync();
 
@@ -165,13 +162,13 @@ export class StandardScaler {
       if (data.dtypes.includes("string")) {
         throw Error("Dtype Error: Cannot perform operation on string dtypes");
       }
-      let tensor_data = tf.tensor(data.values);
+      let tensor_data = tensor(data.values);
       let output_data = tensor_data.sub(this.mean).div(this.std).arraySync();
       return new Series(output_data);
     } else if (Array.isArray(data)) {
-      let tensor_data = tf.tensor(data);
+      let tensor_data = tensor(data);
       let output_data = tensor_data.sub(this.mean).div(this.std).arraySync();
-      if (utils.__is_1D_array(data)) {
+      if (utils.is1DArray(data)) {
         return new Series(output_data);
       } else {
         return new DataFrame(output_data);
@@ -180,11 +177,11 @@ export class StandardScaler {
       if (data.dtypes.includes("string")) {
         throw Error("Dtype Error: Cannot perform operation on string dtypes");
       }
-      let tensor_data = tf.tensor(data.values);
+      let tensor_data = tensor(data.values);
       let output_data = tensor_data.sub(this.mean).div(this.std).arraySync();
       return new DataFrame(output_data);
     } else {
-      throw Error("Value Error: Data type not supoorted");
+      throw Error("Value Error: Data type not supported");
     }
   }
 
@@ -199,13 +196,13 @@ export class StandardScaler {
       if (data.dtypes.includes("string")) {
         throw Error("Dtype Error: Cannot perform operation on string dtypes");
       }
-      let tensor_data = tf.tensor(data.values);
+      let tensor_data = tensor(data.values);
       let output_data = tensor_data.mul(this.std).add(this.mean).arraySync();
       return new Series(output_data);
     } else if (Array.isArray(data)) {
-      let tensor_data = tf.tensor(data);
+      let tensor_data = tensor(data);
       let output_data = tensor_data.mul(this.std).add(this.mean).arraySync();
-      if (utils.__is_1D_array(data)) {
+      if (utils.is1DArray(data)) {
         return new Series(output_data);
       } else {
         return new DataFrame(output_data);
@@ -214,11 +211,11 @@ export class StandardScaler {
       if (data.dtypes.includes("string")) {
         throw Error("Dtype Error: Cannot perform operation on string dtypes");
       }
-      let tensor_data = tf.tensor(data.values);
+      let tensor_data = tensor(data.values);
       let output_data = tensor_data.mul(this.std).add(this.mean).arraySync();
       return new DataFrame(output_data);
     } else {
-      throw Error("Value Error: Data type not supoorted");
+      throw Error("Value Error: Data type not supported");
     }
   }
 }
@@ -315,7 +312,7 @@ export class StandardScaler {
 
 //     /**
 //      * Fit robust scalar on data to obtain the first quantile and third quantile
-//      * @param {data} data [DataRame | Series | Array]
+//      * @param {data} data [DataFrame | Series | Array]
 //      * @returns Array
 //      */
 //     fit(data){
@@ -323,21 +320,21 @@ export class StandardScaler {
 //         let tensor_data = null
 //         let isTensor = false;
 //         if(Array.isArray(data)){
-//             tensor_data = tf.tensor(data)
+//             tensor_data = tensor(data)
 //         }
 //         else if((data instanceof DataFrame)){
-//             tensor_data = tf.tensor(data.values)
+//             tensor_data = tensor(data.values)
 //             isTensor = true;
 //         }
 //         else if((data instanceof Series)){
-//             tensor_data = tf.tensor(data.values)
+//             tensor_data = tensor(data.values)
 //         }
 //         else{
 //             throw new Error("data must either be an Array, DataFrame or Series")
 //         }
 
 //         let [q1, q3, median] = this.quantile(data,isTensor)
-//         let q3_tensor = tf.tensor(q3)
+//         let q3_tensor = tensor(q3)
 //         let output_data =  tensor_data.sub(median).div(q3_tensor.sub(q1)).arraySync()
 
 //         return output_data;

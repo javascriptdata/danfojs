@@ -1,6 +1,6 @@
 /**
-* Copyright 2020, JsData.
-* All rights reserved.
+*  @license
+* Copyright 2021, JsData. All rights reserved.
 *
 * This source code is licensed under the MIT license found in the
 * LICENSE file in the root directory of this source tree.
@@ -10,1126 +10,2298 @@
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions and
 * limitations under the License.
+* ==========================================================================
 */
 
-import * as tf from '@tensorflow/tfjs-node';
-import Ndframe from "./generic";
-import { Series } from "./series";
-import { Utils } from "./utils";
+import { variance, std, median, mode, mean } from 'mathjs';
+import { DATA_TYPES } from '../shared/defaults';
+import { scalar, tensor2d, data as tfData } from '@tensorflow/tfjs-node';
+import { _genericMathOp } from "./math.ops";
+import ErrorThrower from "../shared/errors";
+import { _iloc, _loc } from "./indexing";
+import { utils } from "../shared/utils";
+import NDframe from "./generic";
+import { table } from "table";
+import Series from './series';
 import { GroupBy } from "./groupby";
-import { indexLoc } from "./indexing";
-import { concat } from "./concat.js";
+import dummyEncode from "./get_dummies";
 
-const utils = new Utils();
-import { std, variance } from "mathjs";
+
+// const utils = new Utils();
 
 /**
- * A 2D frame object that stores data in structured tabular format
- * @param {data} data, JSON, Array, 2D Tensor
- * @param {kwargs} Object {columns: Array of column names, defaults to ordered numbers when not specified
- *                        dtypes: strings of data types, automatically inferred when not specified
- *                        index: row index for subseting array, defaults to ordered numbers when not specified}
- *
- * @returns DataFrame
+ * Two-dimensional ndarray with axis labels.
+ * The object supports both integer- and label-based indexing and provides a host of methods for performing operations involving the index.
+ * Operations between DataFrame (+, -, /, , *) align values based on their associated index values– they need not be the same length.
+ * @param data 2D Array, JSON, Tensor, Block of data.
+ * @param options.index Array of numeric or string names for subseting array. If not specified, indexes are auto generated.
+ * @param options.columns Array of column names. If not specified, column names are auto generated.
+ * @param options.dtypes Array of data types for each the column. If not specified, dtypes are/is inferred.
+ * @param options.config General configuration object for extending or setting NDframe behavior.
  */
-export class DataFrame extends Ndframe {
-  constructor(data, kwargs) {
-    super(data, kwargs);
-    this._set_column_property(); //set column property on DataFrame Class for easy accessing using the format df['colname']
+/* @ts-ignore */ //COMMENT OUT WHEN METHODS HAVE BEEN IMPLEMENTED
+export default class DataFrame extends NDframe {
+  constructor(data, options) {
+    const { index, columns, dtypes, config } = { index: undefined, columns: undefined, dtypes: undefined, config: undefined, ...options };
+    super({ data, index, columns, dtypes, config, isSeries: false });
+    this.$setInternalColumnDataProperty();
   }
 
-  _set_column_property() {
-    let col_vals = this.col_data;
-    let col_names = this.column_names;
-
-    col_vals.forEach((col, i) => {
-      this[col_names[i]] = null;
-      Object.defineProperty(this, col_names[i], {
+  /**
+     * Maps all column names to their corresponding data, and return them objects.
+     * This makes column subsetting works. E.g this can work ==> `df["col1"]`
+     * @param column Optional, a single column name to map
+     */
+  $setInternalColumnDataProperty(column) {
+    const self = this;
+    if (column && typeof column === "string") {
+      Object.defineProperty(self, column, {
         get() {
-          return new Series(this.col_data[i], {
-            columns: col_names[i],
-            index: this.index
-          });
+          return self.$getColumnData(column);
         },
-        set(value) {
-          this.addColumn({ column: col_names[i], value: value });
+        set(arr) {
+          self.$setColumnData(column, arr);
         }
       });
-    });
-  }
-  /**
-   * Write a CSV file of the DataFrame contents
-   * @param {string} csvFilePath Path to save CSV when in Node.js form
-   * @returns {Promise<String>} CSV representation of Object data
-   *
-   */
-  async to_csv(csvFilePath = "") {
-    const csvContent = await super.to_csv();
-    // behave differently for Node vs Web
-    if (typeof window === "undefined") {
-      // Write CSV on Node.js
-      // eslint-disable-next-line no-undef
-      const fs = require("fs");
-      fs.writeFileSync(
-        csvFilePath,
-        csvContent,
-        (err) => err && console.error(err)
-      );
     } else {
-      // Download CSV on Web
-      const webCSV = "data:text/csv;charset=utf-8," + csvContent;
-      window.open(encodeURI(webCSV));
-    }
-    return csvContent;
-  }
-
-  /**
-   * Drop a list of rows or columns base on the specified axis
-   * @param {Object} kwargs Configuration object
-   *             {columns: [Array(Columns| Index)] array of column names to drop
-   *              axis: row=0, columns=1
-   *             inplace: specify whether to drop the row/column with/without creating a new DataFrame}
-   * @returns null | DataFrame
-   *
-   */
-  drop(kwargs = {}) {
-    let params_needed = ["columns", "index", "inplace", "axis"];
-    utils._throw_wrong_params_error(kwargs, params_needed);
-
-    kwargs["inplace"] = kwargs["inplace"] || false;
-
-    if (!("axis" in kwargs)) {
-      kwargs["axis"] = 1;
-    }
-
-    let to_drop = null;
-    if ("index" in kwargs && kwargs["axis"] == 0) {
-      to_drop = kwargs["index"];
-    } else {
-      to_drop = kwargs["columns"];
-    }
-
-    if (kwargs["axis"] == 1) {
-      if (!("columns" in kwargs)) {
-        throw Error(
-          "No column found. Axis of 1 must be accompanied by an array of column(s) names"
-        );
-      }
-      let self = this;
-      let new_col_data = {};
-      let new_dtype = [];
-
-      const index = to_drop.map((x) => {
-        let col_idx = self.columns.indexOf(x);
-        if (col_idx == -1) {
-          throw new Error(`column "${x}" does not exist`);
-        }
-        return col_idx;
-      });
-
-      this.col_data.forEach((col, idx) => {
-        if (!index.includes(idx)) {
-          new_col_data[self.column_names[idx]] = col;
-          new_dtype.push(self.dtypes[idx]);
-        }
-      });
-
-      if (!kwargs["inplace"]) {
-        let old_cols = self.columns;
-        let new_columns = Object.keys(new_col_data);
-        let df = new DataFrame(new_col_data, {
-          index: self.index,
-          dtypes: new_dtype
-        });
-        df.__set_col_property(df, df.col_data, new_columns, old_cols);
-        return df;
-      } else {
-        let old_cols = self.columns;
-        let new_columns = Object.keys(new_col_data);
-        this.__update_frame_in_place(null, null, new_col_data, null, new_dtype);
-        this.__set_col_property(self, self.col_data, new_columns, old_cols);
-      }
-    } else {
-      if (!utils.__key_in_object(kwargs, "index")) {
-        throw Error(
-          "No index label found. Axis of 0 must be accompanied by an array of index labels"
-        );
-      }
-      to_drop.forEach((x) => {
-        if (!this.index.includes(x))
-          throw new Error(`${x} does not exist in index`);
-      });
-      const values = this.values;
-      let data_idx = [];
-      let new_data, new_index;
-      if (typeof to_drop[0] == "string") {
-        //get index of strings labels in rows
-        this.index.forEach((idx, i) => {
-          if (to_drop.includes(idx)) {
-            data_idx.push(i);
+      const columns = this.columns;
+      for (let i = 0; i < columns.length; i++) {
+        const column = columns[i];
+        Object.defineProperty(this, column, {
+          get() {
+            return self.$getColumnData(column);
+          },
+          set(arr) {
+            self.$setColumnData(column, arr);
           }
         });
-        new_data = utils.__remove_arr(values, data_idx);
-        new_index = utils.__remove_arr(this.index, data_idx);
-      } else {
-        new_data = utils.__remove_arr(values, to_drop);
-        new_index = utils.__remove_arr(this.index, to_drop);
       }
+    }
 
-      if (!kwargs["inplace"]) {
-        return new DataFrame(new_data, {
-          columns: this.columns,
-          index: new_index
+  }
+
+  /**
+     * Returns the column data from the DataFrame by column name.
+     * @param column column name to get the column data
+     * @param returnSeries Whether to return the data in series format or not. Defaults to true
+     */
+  $getColumnData(column, returnSeries = true) {
+    const columnIndex = this.columns.indexOf(column);
+
+    if (columnIndex == -1) {
+      ErrorThrower.throwColumnNotFoundError(this);
+    }
+
+    const dtypes = [this.$dtypes[columnIndex]];
+    const index = [...this.$index];
+    const columns = [column];
+    const config = { ...this.$config };
+
+    if (this.$config.isLowMemoryMode) {
+      const data = [];
+      for (let i = 0; i < this.values.length; i++) {
+        const row = this.values[i];
+        data.push(row[columnIndex]);
+      }
+      if (returnSeries) {
+        return new Series(data, {
+          dtypes,
+          index,
+          columns,
+          config
         });
       } else {
-        this.row_data_tensor = tf.tensor(new_data);
-        this.data = new_data;
-        this.__set_index(new_index);
+        return data;
+      }
+
+    } else {
+      const data = this.$dataIncolumnFormat[columnIndex];
+      if (returnSeries) {
+        return new Series(data, {
+          dtypes,
+          index,
+          columns,
+          config
+        });
+      } else {
+        return data;
       }
     }
+
   }
 
-  /**
-   * Purely label based indexing. Can accept string label names for both rows and columns
-   * @param {kwargs} kwargs object {rows: Array of index, columns: Array of column name(s)}
-   * @return DataFrame data stucture
-   */
-  loc(kwargs = {}) {
-    let params_needed = ["columns", "rows"];
-    utils._throw_wrong_params_error(kwargs, params_needed);
-
-    kwargs["type"] = "loc";
-    let [new_data, columns, rows] = indexLoc(this, kwargs);
-    let df_columns = { columns: columns };
-    let df = new DataFrame(new_data, df_columns);
-    df.__set_index(rows);
-    return df;
-  }
 
   /**
-   * Access a dataframe element using row and column index
-   * @param {*} kwargs object {rows: Array of index, columns: Array of column index}
-   * @return DataFrame data stucture
-   */
-  iloc(kwargs = {}) {
-    let params_needed = ["columns", "rows"];
-    utils._throw_wrong_params_error(kwargs, params_needed);
+     * Updates the internal column data via column name.
+     * @param column The name of the column to update.
+     * @param arr The new column data
+ */
+  $setColumnData(column, arr) {
 
-    kwargs["type"] = "iloc";
+    const columnIndex = this.$columns.indexOf(column);
 
-    let [new_data, columns, rows] = indexLoc(this, kwargs);
-    let df_columns = { columns: columns };
-    let df = new DataFrame(new_data, df_columns);
-    df.__set_index(rows);
-    return df;
-  }
+    if (columnIndex == -1) {
+      throw new Error(`ParamError: column ${column} not found in ${this.$columns}. If you need to add a new column, use the df.addColumn method. `);
+    }
 
-  /**
-   * Prints the first n values in a dataframe
-   * @param {rows}  rows --> int
-   * @returns DataFrame
-   */
-  head(rows = 5) {
-    if (rows > this.values.length || rows < 1) {
-      //return all values
-      return this;
+    let colunmValuesToAdd;
+
+    if (arr instanceof Series) {
+      colunmValuesToAdd = arr.values;
+    } else if (Array.isArray(arr)) {
+      colunmValuesToAdd = arr;
     } else {
-      //Creates a new dataframe with first [rows]
-      let data = this.values.slice(0, rows);
-      let idx = this.index.slice(0, rows);
-      let config = { columns: this.column_names, index: idx };
-      let df = new DataFrame(data, config);
-      return df;
+      throw new Error("ParamError: specified value not supported. It must either be an Array or a Series of the same length");
     }
-  }
 
-  /**
-   * Prints the last n values in a dataframe
-   * @param {rows}  rows --> int
-   * @returns DataFrame
-   */
-  tail(rows = 5) {
-    let row_len = this.values.length;
-    if (rows > row_len || rows < 1) {
-      //return all values
-      return this;
+    if (colunmValuesToAdd.length !== this.shape[0]) {
+      ErrorThrower.throwColumnLengthError(this, colunmValuesToAdd.length);
+    }
+
+    if (this.$config.isLowMemoryMode) {
+      //Update row ($data) array
+      for (let i = 0; i < this.$data.length; i++) {
+        (this.$data)[i][columnIndex] = colunmValuesToAdd[i];
+      }
+      //Update the dtypes
+      this.$dtypes[columnIndex] = utils.inferDtype(colunmValuesToAdd)[0];
     } else {
-      //Creates a new dataframe with last [rows]
-      let data = this.values.slice(row_len - rows);
-      let indx = this.index.slice(row_len - rows);
-      let config = { columns: this.column_names, index: indx };
-      let df = new DataFrame(data, config);
-      return df;
+      //Update row ($data) array
+      for (let i = 0; i < this.values.length; i++) {
+        (this.$data)[i][columnIndex] = colunmValuesToAdd[i];
+      }
+      //Update column ($dataIncolumnFormat) array since it's available in object
+      (this.$dataIncolumnFormat)[columnIndex] = arr;
+
+      //Update the dtypes
+      this.$dtypes[columnIndex] = utils.inferDtype(colunmValuesToAdd)[0];
     }
+
   }
 
   /**
-   * Gets [num] number of random rows in a dataframe
-   * @param {num}  rows --> The number of rows to return
-   * @param {seed}  seed --> (Optional) An integer specifying the random seed that will be used to create the distribution.
-   * @returns {Promise} resolves to a DataFrame object
-   */
-  async sample(num = -1, seed = 1) {
-    if (num > this.shape[0]) {
-      throw new Error("Sample size n cannot be bigger than size of dataset");
+     * Return data with missing values removed from a specified axis
+     * @param axis 0 or 1. If 0, column-wise, if 1, row-wise
+    */
+  $getDataByAxisWithMissingValuesRemoved(axis) {
+    const oldValues = this.$getDataArraysByAxis(axis);
+    const cleanValues = [];
+    for (let i = 0; i < oldValues.length; i++) {
+      const values = oldValues[i];
+      cleanValues.push(utils.removeMissingValuesFromArray(values));
     }
-    if (num < -1 || num == 0) {
-      throw new Error("Sample size cannot be less than -1 or 0");
-    }
-    num = num === -1 ? this.shape[0] : num;
-    const shuffled_index = await tf.data.array(this.index).shuffle(num, seed).take(num).toArray();
-    const df = this.iloc({ rows: shuffled_index });
-    return df;
+    return cleanValues;
   }
 
   /**
-   * Return Addition of DataFrame and other, element-wise (binary operator add).
-   * @param {other} DataFrame, Series, Array or Number to add
-   * @returns {DataFrame}
-   */
-  add(other, axis) {
-    if (this.__frame_is_compactible_for_operation) {
-      //check if all types a numeric
-      let tensors = this.__get_ops_tensors([this, other], axis);
-      let sum_vals = tensors[0].add(tensors[1]);
-      let col_names = this.columns;
-      return this.__get_df_from_tensor(sum_vals, col_names);
+     * Return data aligned to the specified axis. Transposes the array if needed.
+     * @param axis 0 or 1. If 0, column-wise, if 1, row-wise
+    */
+  $getDataArraysByAxis(axis) {
+    axis = axis === 0 ? 1 : 0;
+    if (axis === 1) {
+      return this.values;
     } else {
-      throw Error("TypeError: Dtypes of columns must be Float of Int");
+      let dfValues;
+      if (this.config.isLowMemoryMode) {
+        dfValues = utils.transposeArray(this.values);
+      } else {
+        dfValues = this.$dataIncolumnFormat;
+      }
+      return dfValues;
     }
   }
 
+  /*
+    * checks if DataFrame is compactible for arithmetic operation
+    * compatible Dataframe must have only numerical dtypes
+    **/
+  $frameIsNotCompactibleForArithmeticOperation() {
+    const dtypes = this.dtypes;
+    const str = (element) => element == "string";
+    return dtypes.some(str);
+  }
+
   /**
-   * Return subtraction of DataFrame and other, element-wise (binary operator add).
-   * @param {other} DataFrame, Series, Array or Number to add
-   * @returns {DataFrame}
-   */
-  sub(other, axis) {
-    if (this.__frame_is_compactible_for_operation) {
-      //check if all types are numeric
-      let tensors = this.__get_ops_tensors([this, other], axis);
-      let result = tensors[0].sub(tensors[1]);
-      let col_names = this.columns;
-      return this.__get_df_from_tensor(result, col_names);
+     * Return Tensors in the right axis for math operations.
+     * @param other DataFrame or Series or number or array
+     * @param axis 0 or 1. If 0, column-wise, if 1, row-wise
+     * */
+  $getTensorsForArithmeticOperationByAxis(
+    other,
+    axis
+  ) {
+    axis = axis === 0 ? 1 : 0;
+    if (typeof other === "number") {
+      return [this.tensor, scalar(other)];
+    } else if (other instanceof DataFrame) {
+      return [this.tensor, other.tensor];
+    } else if (other instanceof Series) {
+      if (axis === 1) {
+        return [this.tensor, tensor2d(other.values, [other.shape[0], 1])];
+      } else {
+        return [this.tensor, tensor2d(other.values, [other.shape[0], 1]).transpose()];
+      }
+    } else if (Array.isArray(other)) {
+      if (axis === 1) {
+        return [this.tensor, tensor2d(other, [other.length, 1])];
+      } else {
+        return [this.tensor, tensor2d(other, [other.length, 1]).transpose()];
+      }
     } else {
-      throw Error("TypeError: Dtypes of columns must be Float of Int");
+      throw new Error("ParamError: Invalid type for other parameter. other must be one of Series, DataFrame or number.");
     }
+
   }
 
   /**
-   * Return subtraction of DataFrame and other, element-wise (binary operator add).
-   * @param {other} DataFrame, Series, Array or Number to add
-   * @returns {DataFrame}
-   */
-  mul(other, axis) {
-    if (this.__frame_is_compactible_for_operation) {
-      //check if all types are numeric
-      let tensors = this.__get_ops_tensors([this, other], axis);
-      let result = tensors[0].mul(tensors[1]);
-      let col_names = this.columns;
-      return this.__get_df_from_tensor(result, col_names);
+     * Returns the dtype for a given column name
+     * @param column
+     */
+  $getColumnDtype(column) {
+    const columnIndex = this.columns.indexOf(column);
+    if (columnIndex === -1) {
+      throw Error(`ColumnNameError: Column "${column}" does not exist`);
+    }
+    return this.dtypes[columnIndex];
+  }
+
+  $logicalOps(tensors, operation) {
+    let newValues = [];
+
+    switch (operation) {
+      case 'gt':
+        newValues = tensors[0].greater(tensors[1]).arraySync();
+        break;
+      case 'lt':
+        newValues = tensors[0].less(tensors[1]).arraySync();
+        break;
+      case 'ge':
+        newValues = tensors[0].greaterEqual(tensors[1]).arraySync();
+        break;
+      case 'le':
+        newValues = tensors[0].lessEqual(tensors[1]).arraySync();
+        break;
+      case 'eq':
+        newValues = tensors[0].equal(tensors[1]).arraySync();
+        break;
+      case 'ne':
+        newValues = tensors[0].notEqual(tensors[1]).arraySync();
+        break;
+
+    }
+
+    const newData = utils.mapIntegersToBooleans(newValues, 2);
+    return new DataFrame(
+      newData,
+      {
+        index: [...this.index],
+        columns: [...this.columns],
+        dtypes: [...this.dtypes],
+        config: { ...this.config }
+      });
+  }
+
+  $MathOps(tensors, operation, inplace) {
+    let tensorResult;
+
+    switch (operation) {
+      case 'add':
+        tensorResult = tensors[0].add(tensors[1]);
+        break;
+      case 'sub':
+        tensorResult = tensors[0].sub(tensors[1]);
+        break;
+      case 'pow':
+        tensorResult = tensors[0].pow(tensors[1]);
+        break;
+      case 'div':
+        tensorResult = tensors[0].div(tensors[1]);
+        break;
+      case 'mul':
+        tensorResult = tensors[0].mul(tensors[1]);
+        break;
+      case 'mod':
+        tensorResult = tensors[0].mod(tensors[1]);
+        break;
+    }
+
+    if (inplace) {
+      const newData = tensorResult?.arraySync();
+      this.$setValues(newData);
     } else {
-      throw Error("TypeError: Dtypes of columns must be Float of Int");
+      return new DataFrame(
+        tensorResult,
+        {
+          index: [...this.index],
+          columns: [...this.columns],
+          dtypes: [...this.dtypes],
+          config: { ...this.config }
+        });
+
     }
   }
 
   /**
-   * Return division of DataFrame and other, element-wise (binary operator add).
-   * @param {other} DataFrame, Series, Array or Number to add
-   * @returns {DataFrame}
-   */
-  div(other, axis) {
-    if (this.__frame_is_compactible_for_operation) {
-      //check if all types are numeric
-      let tensors = this.__get_ops_tensors([this, other], axis);
-      let result = tensors[0].div(tensors[1]);
-      let col_names = this.columns;
-      return this.__get_df_from_tensor(result, col_names);
+    * Purely integer-location based indexing for selection by position.
+    * ``.iloc`` is primarily integer position based (from ``0`` to
+    * ``length-1`` of the axis), but may also be used with a boolean array.
+    *
+    * @param rows Array of row indexes
+    * @param columns Array of column indexes
+    *
+    * Allowed inputs are in rows and columns params are:
+    *
+    * - An array of single integer, e.g. ``[5]``.
+    * - A list or array of integers, e.g. ``[4, 3, 0]``.
+    * - A slice array string with ints, e.g. ``["1:7"]``.
+    * - A boolean array.
+    * - A ``callable`` function with one argument (the calling Series or
+    * DataFrame) and that returns valid output for indexing (one of the above).
+    * This is useful in method chains, when you don't have a reference to the
+    * calling object, but would like to base your selection on some value.
+    *
+    * ``.iloc`` will raise ``IndexError`` if a requested indexer is
+    * out-of-bounds.
+    */
+  iloc(args) {
+    const { rows, columns } = { rows: undefined, columns: undefined, ...args };
+    return _iloc({ ndFrame: this, rows, columns });
+  }
+
+
+  /**
+     * Access a group of rows and columns by label(s) or a boolean array.
+     * ``loc`` is primarily label based, but may also be used with a boolean array.
+     *
+     * @param rows Array of row indexes
+     * @param columns Array of column indexes
+     *
+     * Allowed inputs are:
+     *
+     * - A single label, e.g. ``["5"]`` or ``['a']``, (note that ``5`` is interpreted as a
+     *   *label* of the index, and **never** as an integer position along the index).
+     *
+     * - A list or array of labels, e.g. ``['a', 'b', 'c']``.
+     *
+     * - A slice object with labels, e.g. ``["a:f"]``. Note that start and the stop are included
+     *
+     * - A boolean array of the same length as the axis being sliced,
+     * e.g. ``[True, False, True]``.
+     *
+     * - A ``callable`` function with one argument (the calling Series or
+     * DataFrame) and that returns valid output for indexing (one of the above)
+    */
+  loc(args) {
+    const { rows, columns } = args;
+    return _loc({ ndFrame: this, rows, columns });
+  }
+
+  /**
+     * Prints DataFrame to console as a formatted grid of row and columns.
+    */
+  toString() {
+    const maxRow = this.config.getMaxRow;
+    const maxColToDisplayInConsole = this.config.getTableMaxColInConsole;
+
+    // let data;
+    const dataArr = [];
+    const colLen = this.columns.length;
+
+    let header = [];
+
+    if (colLen > maxColToDisplayInConsole) {
+      //truncate displayed columns to fit in the console
+      let firstFourcolNames = this.columns.slice(0, 4);
+      let lastThreecolNames = this.columns.slice(colLen - 4);
+      //join columns with truncate ellipse in the middle
+      header = ["", ...firstFourcolNames, "...", ...lastThreecolNames];
+
+      let subIdx;
+      let firstHalfValues;
+      let lastHalfValueS;
+
+      if (this.values.length > maxRow) {
+        //slice Object to show [max_rows]
+        let dfSubset1 = this.iloc({
+          rows: [`0:${maxRow}`],
+          columns: ["0:4"]
+        });
+
+        let dfSubset2 = this.iloc({
+          rows: [`0:${maxRow}`],
+          columns: [`${colLen - 4}:`]
+        });
+
+        subIdx = this.index.slice(0, maxRow);
+        firstHalfValues = dfSubset1.values;
+        lastHalfValueS = dfSubset2.values;
+
+      } else {
+        let dfSubset1 = this.iloc({ columns: ["0:4"] });
+        let dfSubset2 = this.iloc({ columns: [`${colLen - 4}:`] });
+
+        subIdx = this.index.slice(0, maxRow);
+        firstHalfValues = dfSubset1.values;
+        lastHalfValueS = dfSubset2.values;
+      }
+
+      // merge subset
+      for (let i = 0; i < subIdx.length; i++) {
+        const idx = subIdx[i];
+        const row = [idx, ...firstHalfValues[i], "...", ...lastHalfValueS[i]];
+        dataArr.push(row);
+      }
+
     } else {
-      throw Error("TypeError: Dtypes of columns must be Float of Int");
-    }
-  }
-
-  /**
-   * Return division of DataFrame and other, element-wise (binary operator add).
-   * @param {other} DataFrame, Series, Array or Number to add
-   * @returns {DataFrame}
-   */
-  pow(other, axis) {
-    if (this.__frame_is_compactible_for_operation) {
-      //check if all types are numeric
-      let tensors = this.__get_ops_tensors([this, other], axis);
-      let result = tensors[0].pow(tensors[1]);
-      let col_names = this.columns;
-      return this.__get_df_from_tensor(result, col_names);
-    } else {
-      throw Error("TypeError: Dtypes of columns must be Float of Int");
-    }
-  }
-
-  /**
-   * Return division of DataFrame and other, element-wise (binary operator add).
-   * @param {other} DataFrame, Series, Array or Number to add
-   * @returns {DataFrame}
-   */
-  mod(other, axis) {
-    if (this.__frame_is_compactible_for_operation) {
-      //check if all types are numeric
-      let tensors = this.__get_ops_tensors([this, other], axis);
-      let result = tensors[0].mod(tensors[1]);
-      let col_names = this.columns;
-      return this.__get_df_from_tensor(result, col_names);
-    } else {
-      throw Error("TypeError: Dtypes of columns must be Float of Int");
-    }
-  }
-
-  /**
-   * Return mean of DataFrame across specified axis.
-   * @param {axis} Number {0: row, 1 : column} Axis for the function to be applied on
-   * @returns {Series}
-   */
-  mean(axis = 1) {
-    if (this.__frame_is_compactible_for_operation()) {
+      //display all columns
+      header = ["", ...this.columns];
+      let subIdx;
       let values;
-      let val_mean = [];
-      if (axis == 1) {
-        values = this.col_data;
+      if (this.values.length > maxRow) {
+        //slice Object to show a max of [max_rows]
+        let data = this.iloc({ rows: [`0:${maxRow}`] });
+        subIdx = data.index;
+        values = data.values;
       } else {
         values = this.values;
+        subIdx = this.index;
       }
 
-      values.map((arr) => {
-        let temp = utils._remove_nans(arr);
-        let temp_mean = tf.tensor(temp).mean().arraySync();
-        val_mean.push(Number(temp_mean.toFixed(5)));
+      // merge subset
+      for (let i = 0; i < subIdx.length; i++) {
+        const idx = subIdx[i];
+        const row = [idx, ...values[i]];
+        dataArr.push(row);
+      }
+    }
+
+
+    const columnsConfig = {};
+    columnsConfig[0] = { width: 10 }; //set column width for index column
+
+    for (let index = 1; index < header.length; index++) {
+      columnsConfig[index] = { width: 17, truncate: 16 };
+    }
+
+    const tableData = [header, ...dataArr]; //Adds the column names to values before printing
+
+    return table(tableData, { columns: columnsConfig, ...this.config.getTableDisplayConfig });
+  }
+
+  /**
+      * Returns the first n values in a DataFrame
+      * @param rows The number of rows to return
+    */
+  head(rows = 5) {
+    if (rows > this.shape[0]) {
+      throw new Error("ParamError of rows cannot be greater than available rows in data");
+    }
+    if (rows <= 0) {
+      throw new Error("ParamError of rows cannot be less than 1");
+    }
+
+    return this.iloc({ rows: [`0:${rows}`] });
+  }
+
+  /**
+      * Returns the last n values in a DataFrame
+      * @param rows The number of rows to return
+    */
+  tail(rows = 5) {
+    if (rows > this.shape[0]) {
+      throw new Error("ParamError of rows cannot be greater than available rows in data");
+    }
+    if (rows <= 0) {
+      throw new Error("ParamError of rows cannot be less than 1");
+    }
+    rows = this.shape[0] - rows;
+    return this.iloc({ rows: [`${rows}:`] });
+  }
+
+  /**
+     * Gets n number of random rows in a dataframe. Sample is reproducible if seed is provided.
+     * @param num The number of rows to return. Default to 5.
+     * @param options.seed An integer specifying the random seed that will be used to create the distribution.
+    */
+  async sample(num = 5, options) {
+    const { seed } = { seed: 1, ...options };
+
+    if (num > this.shape[0]) {
+      throw new Error("ParamError: Sample size cannot be bigger than number of rows");
+    }
+    if (num <= 0) {
+      throw new Error("ParamError: Sample size cannot be less than 1");
+    }
+
+    const shuffledIndex = await tfData.array(this.index).shuffle(num, `${seed}`).take(num).toArray();
+    const df = this.iloc({ rows: shuffledIndex });
+    return df;
+  }
+
+  /**
+     * Return Addition of DataFrame and other, element-wise (binary operator add).
+     * @param other DataFrame, Series, Array or Scalar number to add
+     * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+  add(other, options) {
+    const { inplace, axis } = { inplace: false, axis: 1, ...options };
+
+    if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+      throw Error("TypeError: add operation is not supported for string dtypes");
+    }
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+
+    const tensors = this.$getTensorsForArithmeticOperationByAxis(other, axis);
+    return this.$MathOps(tensors, "add", inplace);
+  }
+
+  /**
+     * Return substraction between DataFrame and other.
+     * @param other DataFrame, Series, Array or Scalar number to substract from DataFrame
+     * @param options.axis 0 or 1. If 0, compute the subtraction column-wise, if 1, row-wise
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+  sub(other, options) {
+    const { inplace, axis } = { inplace: false, axis: 1, ...options };
+
+    if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+      throw Error("TypeError: sub operation is not supported for string dtypes");
+    }
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+
+    const tensors = this.$getTensorsForArithmeticOperationByAxis(other, axis);
+    return this.$MathOps(tensors, "sub", inplace);
+
+
+  }
+  /**
+     * Return multiplciation between DataFrame and other.
+     * @param other DataFrame, Series, Array or Scalar number to multiply with.
+     * @param options.axis 0 or 1. If 0, compute the multiplication column-wise, if 1, row-wise
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+  mul(other, options) {
+    const { inplace, axis } = { inplace: false, axis: 1, ...options };
+
+    if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+      throw Error("TypeError: mul operation is not supported for string dtypes");
+    }
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+    const tensors = this.$getTensorsForArithmeticOperationByAxis(other, axis);
+    return this.$MathOps(tensors, "mul", inplace);
+
+
+  }
+
+  /**
+     * Return division of DataFrame with other.
+     * @param other DataFrame, Series, Array or Scalar number to divide with.
+     * @param options.axis 0 or 1. If 0, compute the division column-wise, if 1, row-wise
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+  div(other, options) {
+    const { inplace, axis } = { inplace: false, axis: 1, ...options };
+
+    if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+      throw Error("TypeError: div operation is not supported for string dtypes");
+    }
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+
+    const tensors = this.$getTensorsForArithmeticOperationByAxis(other, axis);
+    return this.$MathOps(tensors, "div", inplace);
+
+
+  }
+
+  /**
+     * Return DataFrame raised to the power of other.
+     * @param other DataFrame, Series, Array or Scalar number to to raise to.
+     * @param options.axis 0 or 1. If 0, compute the power column-wise, if 1, row-wise
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+  pow(other, options) {
+    const { inplace, axis } = { inplace: false, axis: 1, ...options };
+
+    if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+      throw Error("TypeError: pow operation is not supported for string dtypes");
+    }
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+
+    const tensors = this.$getTensorsForArithmeticOperationByAxis(other, axis);
+    return this.$MathOps(tensors, "pow", inplace);
+
+
+  }
+
+  /**
+     * Return modulus between DataFrame and other.
+     * @param other DataFrame, Series, Array or Scalar number to modulus with.
+     * @param options.axis 0 or 1. If 0, compute the mod column-wise, if 1, row-wise
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+  mod(other, options) {
+    const { inplace, axis } = { inplace: false, axis: 1, ...options };
+
+    if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+      throw Error("TypeError: mod operation is not supported for string dtypes");
+    }
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+
+    const tensors = this.$getTensorsForArithmeticOperationByAxis(other, axis);
+    return this.$MathOps(tensors, "mod", inplace);
+
+  }
+
+  /**
+     * Return mean of DataFrame across specified axis.
+     * @param options.axis 0 or 1. If 0, compute the mean column-wise, if 1, row-wise. Defaults to 1
+    */
+  mean(options) {
+    const { axis } = { axis: 1, ...options };
+
+    if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+      throw Error("TypeError: mean operation is not supported for string dtypes");
+    }
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+
+    const newData = this.$getDataByAxisWithMissingValuesRemoved(axis);
+    const meanArr = newData.map((arr) => arr.reduce((a, b) => a + b, 0) / arr.length);
+    return new Series(meanArr);
+  }
+
+  /**
+     * Return median of DataFrame across specified axis.
+     * @param options.axis 0 or 1. If 0, compute the median column-wise, if 1, row-wise. Defaults to 1
+    */
+  median(options) {
+    const { axis } = { axis: 1, ...options };
+
+    if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+      throw Error("TypeError: median operation is not supported for string dtypes");
+    }
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+
+    const newData = this.$getDataByAxisWithMissingValuesRemoved(axis);
+    const meanArr = newData.map((arr) => median(arr));
+    return new Series(meanArr);
+
+  }
+
+  /**
+     * Return mode of DataFrame across specified axis.
+     * @param options.axis 0 or 1. If 0, compute the mode column-wise, if 1, row-wise. Defaults to 1
+     * @param options.keep If there are more than one modes, returns the mode at position [keep]. Defaults to 0
+    */
+  mode(options) {
+    const { axis, keep } = { axis: 1, keep: 0, ...options };
+
+    if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+      throw Error("TypeError: mode operation is not supported for string dtypes");
+    }
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+
+    const newData = this.$getDataByAxisWithMissingValuesRemoved(axis);
+    const meanArr = newData.map((arr) => {
+      const tempMode = mode(arr);
+      if (tempMode.length === 1) {
+        return tempMode[0];
+      } else {
+        return tempMode[keep];
+      }
+    });
+    return new Series(meanArr);
+
+  }
+
+  /**
+     * Return minimum of values in a DataFrame across specified axis.
+     * @param options.axis 0 or 1. If 0, compute the minimum value column-wise, if 1, row-wise. Defaults to 1
+    */
+  min(options) {
+    const { axis } = { axis: 1, ...options };
+
+    if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+      throw Error("TypeError: min operation is not supported for string dtypes");
+    }
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+
+    const newData = this.$getDataByAxisWithMissingValuesRemoved(axis);
+
+    const minArr = newData.map((arr) => {
+      let smallestValue = arr[0];
+      for (let i = 0; i < arr.length; i++) {
+        smallestValue = smallestValue < arr[i] ? smallestValue : arr[i];
+      }
+      return smallestValue;
+    });
+    return new Series(minArr);
+
+  }
+
+  /**
+     * Return maximum of values in a DataFrame across specified axis.
+     * @param options.axis 0 or 1. If 0, compute the maximum column-wise, if 1, row-wise. Defaults to 1
+    */
+  max(options) {
+    const { axis } = { axis: 1, ...options };
+
+    if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+      throw Error("TypeError: max operation is not supported for string dtypes");
+    }
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+
+    const newData = this.$getDataByAxisWithMissingValuesRemoved(axis);
+
+    const maxArr = newData.map((arr) => {
+      let biggestValue = arr[0];
+      for (let i = 0; i < arr.length; i++) {
+        biggestValue = biggestValue > arr[i] ? biggestValue : arr[i];
+      }
+      return biggestValue;
+    });
+    return new Series(maxArr);
+
+  }
+
+  /**
+     * Return standard deviation of values in a DataFrame across specified axis.
+     * @param options.axis 0 or 1. If 0, compute the standard deviation column-wise, if 1, row-wise. Defaults to 1
+    */
+  std(options) {
+    const { axis } = { axis: 1, ...options };
+
+    if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+      throw Error("TypeError: std operation is not supported for string dtypes");
+    }
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+
+    const newData = this.$getDataByAxisWithMissingValuesRemoved(axis);
+    const stdArr = newData.map((arr) => std(arr));
+    return new Series(stdArr);
+
+  }
+
+  /**
+     * Return variance of values in a DataFrame across specified axis.
+     * @param options.axis 0 or 1. If 0, compute the variance column-wise, if 1, add row-wise. Defaults to 1
+    */
+  var(options) {
+    const { axis } = { axis: 1, ...options };
+
+    if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+      throw Error("TypeError: var operation is not supported for string dtypes");
+    }
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+
+    const newData = this.$getDataByAxisWithMissingValuesRemoved(axis);
+    const varArr = newData.map((arr) => variance(arr));
+    return new Series(varArr);
+
+  }
+
+  /**
+     * Get Less than of dataframe and other, element-wise (binary operator lt).
+     * @param other DataFrame, Series, Array or Scalar number to compare with
+     * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
+    */
+  lt(other, options) {
+    const { axis } = { axis: 1, ...options };
+
+    if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+      throw Error("TypeError: lt operation is not supported for string dtypes");
+    }
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+
+    const tensors = this.$getTensorsForArithmeticOperationByAxis(other, axis);
+    return this.$logicalOps(tensors, "lt");
+  }
+
+  /**
+     * Returns "greater than" of dataframe and other.
+     * @param other DataFrame, Series, Array or Scalar number to compare with
+     * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
+    */
+  gt(other, options) {
+    const { axis } = { axis: 1, ...options };
+
+    if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+      throw Error("TypeError: gt operation is not supported for string dtypes");
+    }
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+
+    const tensors = this.$getTensorsForArithmeticOperationByAxis(other, axis);
+    return this.$logicalOps(tensors, "gt");
+  }
+
+  /**
+     * Returns "equals to" of dataframe and other.
+     * @param other DataFrame, Series, Array or Scalar number to compare with
+     * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
+    */
+  eq(other, options) {
+    const { axis } = { axis: 1, ...options };
+
+    if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+      throw Error("TypeError: eq operation is not supported for string dtypes");
+    }
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+
+    const tensors = this.$getTensorsForArithmeticOperationByAxis(other, axis);
+    return this.$logicalOps(tensors, "eq");
+  }
+
+  /**
+     * Returns "not equal to" of dataframe and other.
+     * @param other DataFrame, Series, Array or Scalar number to compare with
+     * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
+    */
+  ne(other, options) {
+    const { axis } = { axis: 1, ...options };
+
+    if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+      throw Error("TypeError: ne operation is not supported for string dtypes");
+    }
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+
+    const tensors = this.$getTensorsForArithmeticOperationByAxis(other, axis);
+    return this.$logicalOps(tensors, "ne");
+  }
+
+  /**
+    * Returns "less than or equal to" of dataframe and other.
+    * @param other DataFrame, Series, Array or Scalar number to compare with
+    * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
+    */
+  le(other, options) {
+    const { axis } = { axis: 1, ...options };
+
+    if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+      throw Error("TypeError: le operation is not supported for string dtypes");
+    }
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+
+    const tensors = this.$getTensorsForArithmeticOperationByAxis(other, axis);
+    return this.$logicalOps(tensors, "le");
+  }
+
+  /**
+    * Returns "greater than or equal to" between dataframe and other.
+    * @param other DataFrame, Series, Array or Scalar number to compare with
+    * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
+    */
+  ge(other, options) {
+    const { axis } = { axis: 1, ...options };
+
+    if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+      throw Error("TypeError: ge operation is not supported for string dtypes");
+    }
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+
+    const tensors = this.$getTensorsForArithmeticOperationByAxis(other, axis);
+    return this.$logicalOps(tensors, "ge");
+  }
+
+  /**
+     * Return number of non-null elements in a Series
+     * @param options.axis 0 or 1. If 0, count column-wise, if 1, add row-wise. Defaults to 1
+    */
+  count(options) {
+    const { axis } = { axis: 1, ...options };
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+
+    const newData = this.$getDataByAxisWithMissingValuesRemoved(axis);
+    const countArr = newData.map((arr) => arr.length);
+    return new Series(countArr);
+
+  }
+
+  /**
+     * Return the sum of values across an axis.
+     * @param options.axis 0 or 1. If 0, count column-wise, if 1, add row-wise. Defaults to 1
+    */
+  sum(options) {
+    const { axis } = { axis: 1, ...options };
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+
+    const result = this.$getDataByAxisWithMissingValuesRemoved(axis);
+    const sumArr = result.map((innerArr) => {
+      return innerArr.reduce((a, b) => Number(a) + Number(b), 0);
+    });
+    if (axis === 1) {
+      return new Series(sumArr, {
+        index: [...this.columns]
       });
-
-      let new_index;
-      if (axis == 1) {
-        new_index = this.column_names;
-      } else {
-        new_index = this.index;
-      }
-      let sf = new Series(val_mean, { columns: "sum", index: new_index });
-      return sf;
     } else {
-      throw Error("Dtype Error: Operation can not be performed on string type");
+      return new Series(sumArr, {
+        index: [...this.index]
+      });
     }
 
   }
 
   /**
-   * Return median of DataFrame across specified axis.
-   * @param {axis} Number {0: row, 1 : column} Axis for the function to be applied on
-   * @returns {Series}
-   */
-  median(axis = 1) {
-    if (this.__frame_is_compactible_for_operation) {
-      //check if all types are numeric
-      let tensor_vals, idx;
-      if (axis == 1) {
-        tensor_vals = this.col_data_tensor.arraySync();
-        idx = this.column_names;
-      } else {
-        tensor_vals = this.row_data_tensor.arraySync();
-        idx = this.index;
-      }
-      let median = utils.__median(tensor_vals, false);
-      let sf = new Series(median, { index: idx });
-      return sf;
+     * Return the absolute value of elements in a DataFrame.
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+  abs(options) {
+    const { inplace } = { inplace: false, ...options };
+
+    const newData = (this.values).map((arr) => arr.map((val) => Math.abs(val)));
+    if (inplace) {
+      this.$setValues(newData);
     } else {
-      throw Error("TypeError: Dtypes of columns must be Float of Int");
+      return new DataFrame(newData, {
+        index: [...this.index],
+        columns: [...this.columns],
+        dtypes: [...this.dtypes],
+        config: { ...this.config }
+      });
     }
   }
 
   /**
-   * Return minimum element in a DataFrame across specified axis.
-   * @param {axis} Number {0: row, 1 : column} Axis for the function to be applied on
-   * @returns {Series}
-   */
-  min(axis = 1) {
-    if (this.__frame_is_compactible_for_operation) {
-      //check if all types are numeric
-      let operands = this.__get_tensor_and_idx(this, axis);
-      let tensor_vals = operands[0];
-      let idx = operands[1];
-      let result = tensor_vals.min(operands[2]);
-      let sf = new Series(result.arraySync(), { index: idx });
-      return sf;
+     * Rounds all element in the DataFrame to specified number of decimal places.
+     * @param dp Number of decimal places to round to. Defaults to 1
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+  round(dp = 1, options) {
+    const { inplace } = { inplace: false, ...options };
+
+    if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+      throw Error("TypeError: round operation is not supported for string dtypes");
+    }
+
+    if (typeof dp !== "number") {
+      throw Error("ParamError: dp must be a number");
+    }
+
+    const newData = utils.round(this.values, dp, false);
+
+    if (inplace) {
+      this.$setValues(newData);
     } else {
-      throw Error("TypeError: Dtypes of columns must be Float of Int");
+      return new DataFrame(
+        newData,
+        {
+          index: [...this.index],
+          columns: [...this.columns],
+          config: { ...this.config }
+        });
     }
   }
 
   /**
-   * Return maximum element of DataFrame across specified axis.
-   * @param {axis} Number {0: row, 1 : column} Axis for the function to be applied on
-   * @returns {Series}
-   */
-  max(axis = 1) {
-    if (this.__frame_is_compactible_for_operation) {
-      //check if all types are numeric
-      let operands = this.__get_tensor_and_idx(this, axis);
-      let tensor_vals = operands[0];
-      let idx = operands[1];
-      let result = tensor_vals.max(operands[2]);
-      let sf = new Series(result.arraySync(), { index: idx });
-      return sf;
-    } else {
-      throw Error("TypeError: Dtypes of columns must be Float of Int");
-    }
+     * Returns cumulative product accross specified axis.
+     * @param options.axis 0 or 1. If 0, count column-wise, if 1, add row-wise. Defaults to 1
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+  cumprod(options) {
+    const { axis, inplace } = { axis: 1, inplace: false, ...options };
+    return this.cumOps("prod", axis, inplace);
   }
 
   /**
-   * Return standard deviation of DataFrame across specified axis.
-   * @param {axis} Number {0: row, 1 : column} Axis for the function to be applied on
-   * @returns {Series}
-   */
-  std(axis = 1) {
-    if (this.__frame_is_compactible_for_operation) {
-      //check if all types are numeric
-      let tensor_vals = this.col_data_tensor.arraySync();
-      let idx;
-      if (axis == 1) {
-        idx = this.column_names;
-      } else {
-        idx = this.index;
-      }
-      let median = std(tensor_vals, axis);
-      let sf = new Series(median, { index: idx });
-      return sf;
-    } else {
-      throw Error("TypeError: Dtypes of columns must be Float of Int");
-    }
+     * Returns cumulative sum accross specified axis.
+     * @param options.axis 0 or 1. If 0, count column-wise, if 1, add row-wise. Defaults to 1
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+  cumsum(options) {
+    const { axis, inplace } = { axis: 1, inplace: false, ...options };
+    return this.cumOps("sum", axis, inplace);
   }
 
   /**
-   * Return variance of DataFrame across specified axis.
-   * @param {axis} Number {0: row, 1 : column} Axis for the function to be applied on
-   * @returns {Series}
-   */
-  var(axis = 1) {
-    if (this.__frame_is_compactible_for_operation) {
-      //check if all types are numeric
-      let tensor_vals = this.col_data_tensor.arraySync();
-      let idx;
-      if (axis == 1) {
-        idx = this.column_names;
-      } else {
-        idx = this.index;
-      }
-      let median = variance(tensor_vals, axis);
-      let sf = new Series(median, { index: idx });
-      return sf;
-    } else {
-      throw Error("TypeError: Dtypes of columns must be Float of Int");
-    }
+     * Returns cumulative minimum accross specified axis.
+     * @param options.axis 0 or 1. If 0, count column-wise, if 1, add row-wise. Defaults to 1
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+  cummin(options) {
+    const { axis, inplace } = { axis: 1, inplace: false, ...options };
+    return this.cumOps("min", axis, inplace);
   }
 
   /**
-   * Return number of non-null elements in a Series
-   *  @returns {Series}, Count of non-null values
-   */
-  count(axis = 1) {
-    if (this.__frame_is_compactible_for_operation) {
-      //check if all types are numeric
-      let tensor_vals, idx;
-      if (axis == 1) {
-        tensor_vals = this.col_data_tensor.arraySync();
-        idx = this.column_names;
-      } else {
-        tensor_vals = this.row_data_tensor.arraySync();
-        idx = this.index;
-      }
-      let counts = utils.__count_nan(tensor_vals, true, false);
-      let sf = new Series(counts, { index: idx });
-      return sf;
-    } else {
-      throw Error("TypeError: Dtypes of columns must be Float of Int");
-    }
+     * Returns cumulative maximum accross specified axis.
+     * @param options.axis 0 or 1. If 0, count column-wise, if 1, add row-wise. Defaults to 1
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+  cummax(options) {
+    const { axis, inplace } = { axis: 1, inplace: false, ...options };
+    return this.cumOps("max", axis, inplace);
   }
 
   /**
-   * Rounds values in  DataFrame to specified number of dp
-   *  @returns {DataFrame}, New DataFrame with rounded values
-   */
-  round(dp = 1) {
-    if (this.__frame_is_compactible_for_operation) {
-      //check if all types are numeric
-      let values = this.values;
-      let idx = this.index;
+     * Internal helper function for cumulative operation on DataFrame
+    */
+  cumOps(ops, axis, inplace) {
+    if (this.dtypes.includes("string")) ErrorThrower.throwStringDtypeOperationError(ops);
 
-      let new_vals = utils.__round(values, dp, false);
-      let options = { columns: this.column_names, index: idx };
-      let df = new DataFrame(new_vals, options);
-      return df;
-    } else {
-      throw Error("TypeError: Dtypes of columns must be Float of Int");
-    }
-  }
+    const result = this.$getDataByAxisWithMissingValuesRemoved(axis);
 
-  /**
-   * Perform Cummulative operations
-   * @param {axis} axis [int] {0 or 1}
-   * @param {ops} ops {String} name of operation
-   * @return {DataFrame}
-   */
-  __cum_ops(axis = 0, ops) {
-    if (!(axis == 0) && !(axis == 1)) {
-      throw new Error("axis must be between 0 or 1");
-    }
+    let newData = result.map((sData) => {
+      let tempval = sData[0];
+      const data = [tempval];
 
-    if (this.__frame_is_compactible_for_operation) {
-      let data = [];
-      let df_data = null;
-
-      if (axis == 0) {
-        df_data = this.col_data;
-      } else {
-        df_data = this.values;
-      }
-
-      for (let i = 0; i < df_data.length; i++) {
-        let value = df_data[i];
-        let temp_val = value[0];
-        let temp_data = [temp_val];
-        for (let j = 1; j < value.length; j++) {
-          let curr_val = value[j];
-          switch (ops) {
+      for (let i = 1; i < sData.length; i++) {
+        let currVal = sData[i];
+        switch (ops) {
           case "max":
-            if (curr_val > temp_val) {
-              temp_val = curr_val;
-              temp_data.push(curr_val);
+            if (currVal > tempval) {
+              data.push(currVal);
+              tempval = currVal;
             } else {
-              temp_data.push(temp_val);
+              data.push(tempval);
             }
             break;
           case "min":
-            if (curr_val < temp_val) {
-              temp_val = curr_val;
-              temp_data.push(curr_val);
+            if (currVal < tempval) {
+              data.push(currVal);
+              tempval = currVal;
             } else {
-              temp_data.push(temp_val);
+              data.push(tempval);
             }
             break;
           case "sum":
-            temp_val = temp_val + curr_val;
-            temp_data.push(temp_val);
-
+            tempval = (tempval) + (currVal);
+            data.push(tempval);
             break;
           case "prod":
-            temp_val = temp_val * curr_val;
-            temp_data.push(temp_val);
-
+            tempval = (tempval) * (currVal);
+            data.push(tempval);
             break;
+
+        }
+      }
+      return data;
+    });
+
+    if (axis === 1) {
+      newData = utils.transposeArray(newData);
+    }
+
+    if (inplace) {
+      this.$setValues(newData);
+    } else {
+      return new DataFrame(newData, {
+        index: [...this.index],
+        columns: [...this.columns],
+        dtypes: [...this.dtypes],
+        config: { ...this.config }
+      });
+    }
+  }
+
+  /**
+     * Generate descriptive statistics for all numeric columns
+     * Descriptive statistics include those that summarize the central tendency,
+     * dispersion and shape of a dataset’s distribution, excluding NaN values.
+     * @returns {Series}
+     */
+  describe() {
+    const numericColumnNames = this.columns.filter((name) => this.$getColumnDtype(name) !== "string");
+    const index = ["count", "mean", "std", "min", "median", "max", "variance"];
+    const statsObject = {};
+    for (let i = 0; i < numericColumnNames.length; i++) {
+      const colName = numericColumnNames[i];
+      const $count = (this.$getColumnData(colName)).count();
+      const $mean = mean(this.$getColumnData(colName, false));
+      const $std = std(this.$getColumnData(colName, false));
+      const $min = (this.$getColumnData(colName)).min();
+      const $median = median(this.$getColumnData(colName, false));
+      const $max = (this.$getColumnData(colName)).max();
+      const $variance = variance(this.$getColumnData(colName, false));
+
+      const stats = [$count, $mean, $std, $min, $median, $max, $variance];
+      statsObject[colName] = stats;
+
+    }
+
+    const df = new DataFrame(statsObject, { index });
+    return df;
+  }
+
+  /**
+     * Drops all rows or columns with missing values (NaN)
+     * @param axis 0 or 1. If 0, drop columns with NaNs, if 1, drop rows with NaNs
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+  dropna(axis = 1, options) {
+    const { inplace } = { inplace: false, ...options };
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error("ParamError: Axis must be 0 or 1");
+    }
+
+    const newIndex = [];
+
+    if (axis == 0) {
+      const newData = [];
+
+      const dfValues = this.values;
+      for (let i = 0; i < dfValues.length; i++) {
+        const values = dfValues[i];
+        if (!values.includes(NaN)) {
+          newData.push(values);
+          newIndex.push(this.index[i]);
+        }
+      }
+
+      if (inplace) {
+        this.$setValues(newData, false);
+        this.$setIndex(newIndex);
+      } else {
+        return new DataFrame(
+          newData,
+          {
+            index: newIndex,
+            columns: [...this.columns],
+            dtypes: [...this.dtypes],
+            config: { ...this.config }
+          });
+      }
+
+    } else {
+      const newColumnNames = [];
+      const newDtypes = [];
+      let dfValues = [];
+
+      if (this.config.isLowMemoryMode) {
+        dfValues = utils.transposeArray(this.values);
+      } else {
+        dfValues = this.$dataIncolumnFormat;
+      }
+      const tempColArr = [];
+
+      for (let i = 0; i < dfValues.length; i++) {
+        const values = dfValues[i];
+        if (!values.includes(NaN)) {
+          tempColArr.push(values);
+          newColumnNames.push(this.columns[i]);
+          newDtypes.push(this.dtypes[i]);
+        }
+      }
+
+      const newData = utils.transposeArray(tempColArr);
+
+      if (inplace) {
+        this.$setValues(newData, false, false);
+        this.$setColumnNames(newColumnNames);
+        this.$setDtypes(newDtypes);
+      } else {
+        return new DataFrame(
+          newData,
+          {
+            index: [...this.index],
+            columns: newColumnNames,
+            dtypes: newDtypes,
+            config: { ...this.config }
+          });
+      }
+    }
+
+  }
+
+  /**
+     * Adds a new column to the DataFrame. If column exists, then the column values is replaced.
+     * @param column The name of the column to add or replace.
+     * @param values An array of values to be inserted into the DataFrame. Must be the same length as the columns
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+  addColumn(options) {
+    const { column, values, inplace } = { inplace: false, ...options };
+
+    if (!column) {
+      throw new Error("ParamError: column must be specified");
+    }
+
+    if (!values) {
+      throw new Error("ParamError: values must be specified");
+    }
+
+    const columnIndex = this.$columns.indexOf(column);
+
+    if (columnIndex === -1) {
+      let colunmValuesToAdd;
+
+      if (values instanceof Series) {
+        colunmValuesToAdd = values.values;
+      } else if (Array.isArray(values)) {
+        colunmValuesToAdd = values;
+      } else {
+        throw new Error("ParamError: specified value not supported. It must either be an Array or a Series of the same length");
+      }
+
+      if (colunmValuesToAdd.length !== this.shape[0]) {
+        ErrorThrower.throwColumnLengthError(this, colunmValuesToAdd.length);
+      }
+
+      const newData = [];
+      const oldValues = this.$data;
+      for (let i = 0; i < oldValues.length; i++) {
+        const innerArr = [...oldValues[i]];
+        innerArr.push(colunmValuesToAdd[i]);
+        newData.push(innerArr);
+      }
+
+      if (inplace) {
+        this.$setValues(newData, true, false);
+        this.$setColumnNames([...this.columns, column]);
+        this.$setInternalColumnDataProperty(column);
+
+      } else {
+        const df = new DataFrame(newData, {
+          index: [...this.index],
+          columns: [...this.columns, column],
+          dtypes: [...this.dtypes, utils.inferDtype(colunmValuesToAdd)[0]],
+          config: { ...this.$config }
+        });
+        return df;
+      }
+    } else {
+      this.$setColumnData(column, values);
+    }
+
+  }
+
+  /**
+     * Makes a new copy of a DataFrame
+     */
+  copy() {
+    let df = new DataFrame([...this.$data], {
+      columns: [...this.columns],
+      index: [...this.index],
+      dtypes: [...this.dtypes],
+      config: { ...this.$config }
+    });
+    return df;
+  }
+
+  /**
+     * Return a boolean same-sized object indicating where elements are empty (NaN, undefined, null).
+     * NaN, undefined and null values gets mapped to true, and everything else gets mapped to false.
+    */
+  isna() {
+    const newData = [];
+    for (let i = 0; i < this.values.length; i++) {
+      const valueArr = this.values[i];
+      const tempData = valueArr.map((value) => {
+        if (utils.isEmpty(value)) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+      newData.push(tempData);
+    }
+
+    const df = new DataFrame(newData,
+      {
+        index: [...this.index],
+        columns: [...this.columns],
+        config: { ...this.config }
+      });
+    return df;
+  }
+
+  /**
+    * Replace all empty elements with a specified value. Replace params expect columns array to map to values array.
+    * @param columns The list of column names to be replaced
+    * @param options.values The list of values to use for replacement.
+    * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+  fillna(values, options) {
+    let { columns, inplace } = { inplace: false, ...options };
+
+    if (!values && typeof values !== "boolean") {
+      throw Error('ParamError: value must be specified');
+    }
+
+    if (Array.isArray(values)) {
+      if (!Array.isArray(columns)) {
+        throw Error('ParamError: value is an array, hence columns must also be an array of same length');
+      }
+
+      if (values.length !== columns.length) {
+        throw Error('ParamError: specified column and values must have the same length');
+      }
+
+      columns.forEach((col) => {
+        if (!this.columns.includes(col)) {
+          throw Error(
+            `ValueError: Specified column "${col}" must be one of ${this.columns}`
+          );
+        }
+      });
+    }
+
+    const newData = [];
+    const oldValues = [...this.values];
+
+    if (!columns) {
+      //Fill all columns
+      for (let i = 0; i < oldValues.length; i++) {
+        const valueArr = [...oldValues[i]];
+
+        const tempArr = valueArr.map((innerVal) => {
+          if (utils.isEmpty(innerVal)) {
+            const replaceWith = Array.isArray(values) ? values[i] : values;
+            return replaceWith;
+          } else {
+            return innerVal;
+          }
+        });
+        newData.push(tempArr);
+      }
+
+    } else {
+      //Fill specific columns
+      const tempData = [...this.values];
+
+      for (let i = 0; i < tempData.length; i++) {
+        const valueArr = tempData[i];
+
+        for (let i = 0; i < columns.length; i++) { //B
+          const columnIndex = this.columns.indexOf(columns[i]);
+          const replaceWith = Array.isArray(values) ? values[i] : values;
+          valueArr[columnIndex] = utils.isEmpty(valueArr[columnIndex]) ? replaceWith : valueArr[columnIndex];
+        }
+        newData.push(valueArr);
+      }
+    }
+
+    if (inplace) {
+      this.$setValues(newData);
+    } else {
+      const df = new DataFrame(newData,
+        {
+          index: [...this.index],
+          columns: [...this.columns],
+          dtypes: [...this.dtypes],
+          config: { ...this.config }
+        });
+      return df;
+    }
+  }
+
+  /**
+    * Drop columns or rows with missing values. Missing values are NaN, undefined or null.
+    * @param options.columns Array of column names to drop
+    * @param options.index Array of index to drop
+    * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+  drop(options) {
+    let { columns, index, inplace } = { inplace: false, ...options };
+
+    if (!columns && !index) {
+      throw Error('ParamError: Must specify one of columns or index');
+    }
+
+    if (columns && index) {
+      throw Error('ParamError: Can only specify one of columns or index');
+    }
+
+    if (columns) {
+      const columnIndices = [];
+
+      if (typeof columns === "string") {
+        columnIndices.push(this.columns.indexOf(columns));
+      } else if (Array.isArray(columns)) {
+        for (let column of columns) {
+          if (this.columns.indexOf(column) === -1) {
+            throw Error(`ParamError: specified column "${column}" not found in columns`);
+          }
+          columnIndices.push(this.columns.indexOf(column));
+        }
+
+      } else {
+        throw Error('ParamError: columns must be an array of column names or a string of column name');
+      }
+
+      let newRowData = [];
+      let newColumnNames = [];
+      let newDtypes = [];
+
+      for (let i = 0; i < this.values.length; i++) {
+        const tempInnerArr = [];
+        const innerArr = this.values[i];
+        for (let j = 0; j < innerArr.length; j++) {
+          if (!(columnIndices.includes(j))) {
+            tempInnerArr.push(innerArr[j]);
           }
         }
-        data.push(temp_data);
+        newRowData.push(tempInnerArr);
       }
 
-      if (axis == 0) {
-        data = utils.__get_col_values(data);
+      for (let i = 0; i < this.columns.length; i++) {
+        const element = this.columns[i];
+        if (!(columns.includes(element))) {
+          newColumnNames.push(element);
+          newDtypes.push(this.dtypes[i]);
+        }
       }
 
-      return new DataFrame(data, { columns: this.columns });
-    } else {
-      throw Error("TypeError: Dtypes of columns must be Float of Int");
+      if (inplace) {
+        this.$setValues(newRowData, true, false);
+        this.$setColumnNames(newColumnNames);
+      } else {
+        const df = new DataFrame(newRowData,
+          {
+            index: [...this.index],
+            columns: newColumnNames,
+            dtypes: newDtypes,
+            config: { ...this.config }
+          });
+        return df;
+      }
+
     }
-  }
-  /**
-   * calculate the cummulative sum along axis
-   * @param {kwargs} {axis: [int]}
-   * @returns {DataFrame}
-   */
-  cumsum(kwargs = {}) {
-    let axis;
-    if (!utils.__key_in_object(kwargs, "axis")) {
-      axis = 0;
-    } else {
-      axis = kwargs["axis"];
+
+    if (index) {
+      const rowIndices = [];
+
+      if (typeof index === "string" || typeof index === "number" || typeof index === "boolean") {
+        rowIndices.push(this.index.indexOf(index));
+      } else if (Array.isArray(index)) {
+        for (let indx of index) {
+          if (this.index.indexOf(indx) === -1) {
+            throw Error(`ParamError: specified index "${indx}" not found in indices`);
+          }
+          rowIndices.push(this.index.indexOf(indx));
+        }
+      } else {
+        throw Error('ParamError: index must be an array of indices or a scalar index');
+      }
+
+      let newRowData = [];
+      let newIndex = [];
+
+      for (let i = 0; i < this.values.length; i++) {
+        const innerArr = this.values[i];
+        if (!(rowIndices.includes(i))) {
+          newRowData.push(innerArr);
+        }
+      }
+
+      for (let i = 0; i < this.index.length; i++) {
+        const indx = this.index[i];
+        if (!(index.includes(indx))) {
+          newIndex.push(indx);
+        }
+      }
+
+      if (inplace) {
+        this.$setValues(newRowData, false);
+        this.$setIndex(newIndex);
+      } else {
+        const df = new DataFrame(newRowData,
+          {
+            index: newIndex,
+            columns: [...this.columns],
+            dtypes: [...this.dtypes],
+            config: { ...this.config }
+          });
+        return df;
+      }
     }
-    // let axis = kwargs["axis"] || 0
-    let data = this.__cum_ops(axis, "sum");
-    return data;
+
   }
 
   /**
-   * calculate the cummulative min
-   * @param {kwargs} {axis: [int]}
-   * @returns {DataFrame}
-   */
-  cummin(kwargs = {}) {
-    let axis;
-    if (!utils.__key_in_object(kwargs, "axis")) {
-      axis = 0;
-    } else {
-      axis = kwargs["axis"];
-    }
-    let data = this.__cum_ops(axis, "min");
-    return data;
-  }
+    * Sorts a Dataframe by a specified column values
+    * @param options.column Column name to sort by
+    * @param options.ascending Whether to sort values in ascending order or not. Defaults to true
+    * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+  sort_values(options) {
+    const { by, ascending, inplace } = { by: undefined, ascending: true, inplace: false, ...options };
 
-  /**
-   * calculate the cummulative max
-   * @param {kwargs} {axis: [int]}
-   * @returns {DataFrame}
-   */
-  cummax(kwargs = {}) {
-    let axis;
-    if (!utils.__key_in_object(kwargs, "axis")) {
-      axis = 0;
-    } else {
-      axis = kwargs["axis"];
+    if (!by) {
+      throw Error(`ParamError: must specify a column to sort by`);
     }
-    let data = this.__cum_ops(axis, "max");
-    return data;
-  }
 
-  /**
-   * calculate the cummulative prod
-   * @param {kwargs} {axis: [int]}
-   * @returns {DataFrame}
-   */
-  cumprod(kwargs = {}) {
-    let axis;
-    if (!utils.__key_in_object(kwargs, "axis")) {
-      axis = 0;
-    } else {
-      axis = kwargs["axis"];
+    if (this.columns.indexOf(by) === -1) {
+      throw Error(`ParamError: specified column "${by}" not found in columns`);
     }
-    let data = this.__cum_ops(axis, "prod");
-    return data;
-  }
 
-  /**
-   * Makes a new copy of a DataFrame
-   * @returns {DataFrame}
-   */
-  copy() {
-    let df = new DataFrame([...this.values], {
-      columns: [...this.column_names],
-      index: this.index,
-      dtypes: this.dtypes
+    const columnValues = this.$getColumnData(by, false);
+    const index = [...this.index];
+
+    const objToSort = columnValues.map((value, i) => {
+      return { index: index[i], value };
     });
-    return df;
-  }
 
-  /**
-   * Generate a new index for the DataFrame.
-   * This is useful when the index is meaningless and needs to be reset to the default before another operation.
-   * @param {inplace} boolean: Modify the original object or return a new one. Default to false
-   */
-  reset_index(inplace = false) {
+    const sortedObjectArr = utils.sortObj(objToSort, ascending);
+    const sortedIndex = sortedObjectArr.map((obj) => obj.index);
+
+    const newDf = _loc({ ndFrame: this, rows: sortedIndex });
+
     if (inplace) {
-      this.__reset_index();
+      this.$setValues(newDf.values);
+      this.$setIndex(newDf.index);
     } else {
-      let df = this.copy();
-      df.__reset_index();
-      return df;
+      return newDf;
     }
+
   }
 
   /**
-   * Set the DataFrame index (row labels) using an array of the same length.
-   * @param {kwargs} {index: Array of new index values}
-   */
-  set_index(kwargs = {}) {
-    let params_needed = ["key", "drop", "inplace"];
-    utils._throw_wrong_params_error(kwargs, params_needed);
+       * Sets the index of the DataFrame to the specified index.
+       * @param options.index An array of index values to set
+       * @param options.column A column name to set the index to
+       * @param options.drop Whether to drop the column whose index was set. Defaults to false
+       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+  set_index(options) {
+    const { index, column, drop, inplace } = { drop: false, inplace: false, ...options };
 
-    if (!utils.__key_in_object(kwargs, "key")) {
-      throw Error("Index ValueError: You must specify an array of index");
+    if (!index && !column) {
+      throw new Error("ParamError: must specify either index or column");
     }
 
-    if (!utils.__key_in_object(kwargs, "inplace")) {
-      kwargs["inplace"] = false;
+    let newIndex = [];
+
+    if (index) {
+      if (!Array.isArray(index)) {
+        throw Error(`ParamError: index must be an array`);
+      }
+
+      if (index.length !== this.values.length) {
+        throw Error(`ParamError: index must be the same length as the number of rows`);
+      }
+      newIndex = index;
     }
 
-    if (!utils.__key_in_object(kwargs, "drop")) {
-      kwargs["drop"] = true;
+    if (column) {
+      if (this.columns.indexOf(column) === -1) {
+        throw Error(`ParamError: column not found in column names`);
+      }
+
+      newIndex = this.$getColumnData(column, false);
     }
 
-    if (
-      Array.isArray(kwargs["key"]) &&
-      kwargs["key"].length != this.index.length
-    ) {
-      throw Error(
-        `Index LengthError: Lenght of new Index array ${kwargs["key"].length} must match lenght of existing index ${this.index.length}`
-      );
-    }
+    if (drop) {
+      const dfDropped = this.drop({ columns: [column] });
 
-    if (
-      typeof kwargs["key"] == "string" &&
-      this.column_names.includes(kwargs["key"])
-    ) {
-      kwargs["key_name"] = kwargs["key"];
-      kwargs["key"] = this[kwargs["key"]].values;
-    }
-    if (kwargs["inplace"]) {
-      // this.index_arr = kwargs['key']
-      this.__set_index(kwargs["key"]);
-      if (kwargs["drop"] && typeof kwargs["key_name"] == "string") {
-        this.drop({ columns: [kwargs["key_name"]], inplace: true, axis: 1 });
+      const newData = dfDropped?.values;
+      const newColumns = dfDropped?.columns;
+      const newDtypes = dfDropped?.dtypes;
+
+      if (inplace) {
+        this.$setValues(newData, true, false);
+        this.$setIndex(newIndex);
+        this.$setColumnNames(newColumns);
+      } else {
+        const df = new DataFrame(newData,
+          {
+            index: newIndex,
+            columns: newColumns,
+            dtypes: newDtypes,
+            config: { ...this.config }
+          });
+        return df;
       }
     } else {
-      let df = this.copy();
-      df.__set_index(kwargs["key"]);
-      if (kwargs["drop"] && typeof kwargs["key_name"] == "string") {
-        df.drop({ columns: [kwargs["key_name"]], axis: 1, inplace: true });
+      if (inplace) {
+        this.$setIndex(newIndex);
+      } else {
+        const df = new DataFrame(this.values,
+          {
+            index: newIndex,
+            columns: [...this.columns],
+            dtypes: [...this.dtypes],
+            config: { ...this.config }
+          });
+        return df;
       }
-      return df;
     }
+
   }
 
   /**
-   * Generate descriptive statistics for all numeric columns
-   * Descriptive statistics include those that summarize the central tendency,
-   * dispersion and shape of a dataset’s distribution, excluding NaN values.
-   * @returns {Series}
-   */
-  describe() {
-    let numeric_df = this.select_dtypes(["float32", "int32"]);
-    let col_names = numeric_df.column_names;
-    let index = ["count", "mean", "std", "min", "median", "max", "variance"];
+       * Resets the index of the DataFrame to the default index.
+       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+  reset_index(options) {
+    const { inplace } = { inplace: false, ...options };
 
-    let stats_arr = {};
-    col_names.forEach((name) => {
-      let col_series = numeric_df[name];
-      let count = col_series.count();
-      let mean = col_series.mean();
-      let std = col_series.std();
-      let min = col_series.min();
-      let median = col_series.median();
-      let max = col_series.max();
-      let variance = col_series.var();
+    if (inplace) {
+      this.$resetIndex();
+    } else {
+      const df = new DataFrame(this.values,
+        {
+          index: this.index.map((_, i) => i),
+          columns: [...this.columns],
+          dtypes: [...this.dtypes],
+          config: { ...this.config }
+        });
+      return df;
+    }
 
-      let _stats = [count, mean, std, min, median, max, variance];
-      stats_arr[name] = _stats;
+  }
+
+  /**
+     * Apply a function along an axis of the DataFrame. To apply a function element-wise, use `applyMap`.
+     * Objects passed to the function are Series values whose
+     * index is either the DataFrame’s index (axis=0) or the DataFrame’s columns (axis=1)
+     * @param callable Function to apply to each column or row
+     * @param options.axis 0 or 1. If 0, compute the power column-wise, if 1, row-wise
+    */
+  apply(callable, options) {
+    const { axis } = { axis: 1, ...options };
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error(`ParamError: axis must be 0 or 1`);
+    }
+
+    const valuesForFunc = this.$getDataByAxisWithMissingValuesRemoved(axis);
+
+    const result = valuesForFunc.map((row) => {
+      return callable(row);
     });
-    let df = new DataFrame(stats_arr, { index: index });
-    return df.round(6);
+
+    if (axis === 1) {
+      if (utils.is1DArray(result)) {
+        return new Series(result, {
+          index: [...this.columns]
+        });
+      } else {
+        return new DataFrame(result, {
+          index: [...this.columns],
+          columns: [...this.columns],
+          dtypes: [...this.dtypes],
+          config: { ...this.config }
+        });
+      }
+    } else {
+      if (utils.is1DArray(result)) {
+        return new Series(result, {
+          index: [...this.index]
+        });
+      } else {
+        return new DataFrame(result, {
+          index: [...this.index],
+          columns: [...this.columns],
+          dtypes: [...this.dtypes],
+          config: { ...this.config }
+        });
+      }
+    }
+
   }
 
   /**
-   * Return a subset of the DataFrame’s columns based on the column dtypes.
-   * @param {include} scalar or array-like. A selection of dtypes or strings to be included. At least one of these parameters must be supplied.
-   * @returns {DataFrame, Series} The subset of the frame including the dtypes.
-   */
+     * Apply a function to a Dataframe values element-wise.
+     * @param callable Function to apply to each column or row
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+  apply_map(callable, options) {
+    const { inplace } = { inplace: false, ...options };
+
+    const newData = this.values.map((row) => {
+      const tempData = row.map((val) => {
+        return callable(val);
+      });
+      return tempData;
+    });
+
+    if (inplace) {
+      this.$setValues(newData);
+    } else {
+      return new DataFrame(newData,
+        {
+          index: [...this.index],
+          columns: [...this.columns],
+          dtypes: [...this.dtypes],
+          config: { ...this.config }
+        });
+    }
+  }
+
+  /**
+     * Returns the specified column data as a Series object.
+     * @param column The name of the column to return
+    */
+  column(column) {
+    return this.$getColumnData(column);
+  }
+
+  /**
+     * Return a subset of the DataFrame’s columns based on the column dtypes.
+     * @param include An array of dtypes or strings to be included.
+    */
   select_dtypes(include) {
-    let dtypes = this.dtypes;
-    let col_names = this.column_names;
-    let col_vals = {};
-    let original_col_vals = this.col_data;
-    const __supported_dtypes = ["float32", "int32", "string", "boolean"];
+    const supportedDtypes = ["float32", "int32", "string", "boolean", 'undefined'];
 
-    if (include == undefined) {
-      //return all
-      let df = this.copy();
-      return df;
-    } else {
-      //check if the right types are included
-      include.forEach((type) => {
-        if (!__supported_dtypes.includes(type)) {
-          throw Error(`Dtype Error: dtype ${type} not supported.`);
-        }
-      });
-
-      dtypes.forEach((dtype, i) => {
-        if (include.includes(dtype)) {
-          col_vals[col_names[i]] = original_col_vals[i];
-        }
-      });
-      let df = new DataFrame(col_vals);
-      return df;
+    if (Array.isArray(include) === false) {
+      throw Error(`ParamError: include must be an array`);
     }
-  }
 
-  /**
-   * Sort a Dataframe in ascending or descending order by a specified column name.
-   *  @param {kwargs} Object, {by: Column name to sort by
-   *                           ascending (Bool): Whether to return sorted values in ascending order or not,
-   *                           inplace (Bool): Whether to perform sorting on the original Series or not}
-   * @returns {Series}
-   */
-  // sort_values(kwargs = {}) {
-  //     if (utils.__key_in_object(kwargs, "by")) {
-  //         let sort_col = this.column(kwargs["by"])
-  //         let sorted_col, sorted_index;
-  //         let new_row_data = []
-
-  //         if (utils.__key_in_object(kwargs, "inplace") && kwargs['inplace'] == true) {
-  //             sort_col.sort_values(kwargs)
-  //             sorted_index = sort_col.index
-
-  //         } else {
-  //             sorted_col = sort_col.sort_values(kwargs)
-  //             sorted_index = sorted_col.index
-  //         }
-
-  //         sorted_index.map(idx => {
-  //             new_row_data.push(this.values[idx])
-  //         })
-
-  //         if (utils.__key_in_object(kwargs, "inplace") && kwargs['inplace'] == true) {
-  //             this.data = new_row_data
-  //             this.index_arr = sorted_index
-  //             return null
-  //         } else {
-  //             let df = new DataFrame(new_row_data, { columns: this.column_names, index: sorted_index, dtype: this.dtypes })
-  //             return df
-  //         }
-
-  //     } else {
-  //         throw Error("Value Error: must specify the column to sort by")
-  //     }
-
-  //         sorted_index.map(idx => {
-  //             new_row_data.push(this.values[idx])
-  //         })
-
-  //         if (utils.__key_in_object(kwargs, "inplace") && kwargs['inplace'] == true) {
-  //             this.__update_frame_in_place(new_row_data, null, null, sorted_index, null)
-
-  //         } else {
-  //             let df = new DataFrame(new_row_data, { columns: this.column_names, index: sorted_index, dtype: this.dtypes })
-  //             return df
-  //         }
-
-  //     } else {
-  //         throw Error("Value Error: must specify the column to sort by")
-  //     }
-
-  // }
-
-  /**
-   * Return the sum of the values in a DataFrame across a specified axis.
-   * @params {kwargs} {axis: 0 for row and 1 for column}
-   * @returns {Series}, Sum of values accross axis
-   */
-  sum(kwargs = { axis: 1 }) {
-    if (this.__frame_is_compactible_for_operation()) {
-      let values;
-      let val_sums = [];
-      if (kwargs["axis"] == 1) {
-        values = this.col_data;
-      } else {
-        values = this.values;
+    include.forEach((dtype) => {
+      if (supportedDtypes.indexOf(dtype) === -1) {
+        throw Error(`ParamError: include must be an array of valid dtypes`);
       }
-
-      values.map((arr) => {
-        let temp = utils._remove_nans(arr);
-        let temp_sum = tf.tensor(temp).sum().arraySync();
-        val_sums.push(Number(temp_sum.toFixed(5)));
-      });
-
-      let new_index;
-      if (kwargs["axis"] == 1) {
-        new_index = this.column_names;
-      } else {
-        new_index = this.index;
-      }
-      let sf = new Series(val_sums, { columns: "sum", index: new_index });
-      return sf;
-    } else {
-      throw Error("Dtype Error: Operation can not be performed on string type");
-    }
-  }
-
-  /**
-   * Returns the absolute values in DataFrame
-   * @return {DataFrame}
-   */
-  abs() {
-    let data = this.values;
-
-    let tensor_data = tf.tensor(data);
-    let abs_data = tensor_data.abs().arraySync();
-    let df = new DataFrame(utils.__round(abs_data, 2, false), {
-      columns: this.column_names,
-      index: this.index
     });
-    return df;
-  }
+    const newColumnNames = [];
 
-  __get_tensor_and_idx(df, axis) {
-    let tensor_vals, idx, t_axis;
-    if (axis == 1) {
-      let temp_tensor_vals = df.row_data_tensor;
-      // Why do we flatten and replace NaNs with Null? See https://github.com/opensource9ja/danfojs/issues/200
-      let flat_tensor_array = tf.util.flatten(temp_tensor_vals.arraySync());
-      const flat_tensor_array_without_nans = utils._replace_nan_with_null(flat_tensor_array);
-      tensor_vals = tf.tensor(flat_tensor_array_without_nans, temp_tensor_vals.shape);
-      idx = df.column_names;
-      //Tensorflow uses 0 for column and 1 for rows,
-      // we use the opposite for consistency with the Pandas API (0 : row, 1: columns)
-      t_axis = 0; //switch the axis
-    } else {
-      tensor_vals = df.row_data_tensor;
-      idx = df.index;
-      t_axis = 1;
+    for (let i = 0; i < this.dtypes.length; i++) {
+      if (include.includes(this.dtypes[i])) {
+        newColumnNames.push(this.columns[i]);
+      }
     }
+    return this.loc({ columns: newColumnNames });
 
-    return [tensor_vals, idx, t_axis];
   }
 
   /**
-   * Filter DataFrame element base on the element in a column
-   * @param {kwargs} kwargs {column : coumn name[string], is: String, to: string| int}
-   * @returns {DataFrame}
-   */
-  query(kwargs) {
-    //define the set of operators to be used
-    let operators = [">", "<", "<=", ">=", "==", "!="];
+     * Returns the transposes the DataFrame.
+     **/
+  transpose(options) {
+    const { inplace } = { inplace: false, ...options };
+    const newData = utils.transposeArray(this.values);
+    const newColNames = [...this.index.map((i) => i.toString())];
 
-    if (!utils.__key_in_object(kwargs, "inplace")) {
-      kwargs["inplace"] = false;
+    if (inplace) {
+      this.$setValues(newData, false, false);
+      this.$setIndex([...this.columns]);
+      this.$setColumnNames(newColNames);
+    } else {
+      return new DataFrame(newData, {
+        index: [...this.columns],
+        columns: newColNames,
+        config: { ...this.config }
+      });
+    }
+  }
+
+  /**
+     * Returns the Transpose of the DataFrame. Similar to `transpose`, but does not change the original DataFrame.
+    **/
+  get T() {
+    const newData = utils.transposeArray(this.values);
+    return new DataFrame(newData, {
+      index: [...this.columns],
+      columns: [...this.index.map((i) => i.toString())],
+      config: { ...this.config }
+    });
+  }
+
+  /**
+      * Replace all occurence of a value with a new value
+      * @param oldValue The value you want to replace
+      * @param newValue The new value you want to replace the old value with
+      * @param options.columns An array of column names you want to replace. If not provided replace accross all columns.
+      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    */
+  replace(
+    oldValue,
+    newValue,
+    options
+  ) {
+    const { columns, inplace } = { inplace: false, ...options };
+
+    if (!oldValue && typeof oldValue !== 'boolean') {
+      throw Error(`Params Error: Must specify param 'oldValue' to replace`);
     }
 
-    let column_index, operator, value;
+    if (!newValue && typeof newValue !== 'boolean') {
+      throw Error(`Params Error: Must specify param 'newValue' to replace with`);
+    }
 
-    if (utils.__key_in_object(kwargs, "column")) {
-      if (this.columns.includes(kwargs["column"])) {
-        column_index = this.columns.indexOf(kwargs["column"]);
+    let newData = [];
+
+    if (columns) {
+      if (!Array.isArray(columns)) {
+        throw Error(`Params Error: column must be an array of column(s)`);
+      }
+      const columnIndex = [];
+
+      columns.forEach((column) => {
+        const _indx = this.columns.indexOf(column);
+        if (_indx === -1) {
+          throw Error(`Params Error: column not found in columns`);
+        }
+        columnIndex.push(_indx);
+      });
+
+      newData = (this.values).map(([...row]) => {
+        for (const colIndx of columnIndex) {
+          if (row[colIndx] === oldValue) {
+            row[colIndx] = newValue;
+          }
+        }
+        return row;
+      });
+    } else {
+      newData = (this.values).map(([...row]) => {
+        return row.map(((cell) => {
+          if (cell === oldValue) {
+            return newValue;
+          } else {
+            return cell;
+          }
+        }));
+      });
+    }
+
+    if (inplace) {
+      this.$setValues(newData);
+    } else {
+      return new DataFrame(newData, {
+        index: [...this.index],
+        columns: [...this.columns],
+        dtypes: [...this.dtypes],
+        config: { ...this.config }
+      });
+    }
+  }
+
+
+  /**
+     * Cast the values of a column to specified data type
+     * @param column The name of the column to cast
+     * @param dtype Data type to cast to. One of [float32, int32, string, boolean]
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     */
+  astype(options) {
+    const { inplace, column, dtype } = { inplace: false, ...options };
+    const columnIndex = this.columns.indexOf(column);
+
+    if (columnIndex === -1) {
+      throw Error(`Params Error: column not found in columns`);
+    }
+
+    if (!(DATA_TYPES.includes(dtype))) {
+      throw Error(`dtype ${dtype} not supported. dtype must be one of ${DATA_TYPES}`);
+    }
+
+    const data = this.values;
+
+    const newData = data.map((row) => {
+      if (dtype === "float32") {
+        row[columnIndex] = Number(row[columnIndex]);
+        return row;
+      } else if (dtype === "int32") {
+        row[columnIndex] = parseInt(row[columnIndex]);
+        return row;
+      } else if (dtype === "string") {
+        row[columnIndex] = row[columnIndex].toString();
+        return row;
+      } else if (dtype === "boolean") {
+        row[columnIndex] = Boolean(row[columnIndex]);
+        return row;
+      }
+    });
+
+    if (inplace) {
+      this.$setValues(newData);
+    } else {
+      const newDtypes = [...this.dtypes];
+      newDtypes[columnIndex] = dtype;
+
+      return new DataFrame(newData, {
+        index: [...this.index],
+        columns: [...this.columns],
+        dtypes: newDtypes,
+        config: { ...this.config }
+      });
+    }
+  }
+
+  /**
+     * Return the number of unique elements in a across the specified axis.
+     * To get the values use `.unique()` instead.
+     * @param axis The axis to count unique elements across. Defaults to 1
+    */
+  nunique(axis = 1) {
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error(`ParamError: axis must be 0 or 1`);
+    }
+    const data = this.$getDataArraysByAxis(axis);
+    const newData = data.map((row) => new Set(row).size);
+
+    if (axis === 0) {
+      return new Series(newData, {
+        index: [...this.columns],
+        dtypes: ["int32"]
+      });
+    } else {
+      return new Series(newData, {
+        index: [...this.index],
+        dtypes: ["int32"]
+      });
+    }
+  }
+
+  /**
+     * Renames a column or index.
+     * @param mapper An object that maps each column or index in the DataFrame to a new value
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     * @param options.axis The axis to perform the operation on. Defaults to 1
+     */
+  rename(options) {
+    const { mapper, axis, inplace } = { axis: 1, inplace: false, ...options };
+
+    if ([0, 1].indexOf(axis) === -1) {
+      throw Error(`ParamError: axis must be 0 or 1`);
+    }
+
+    if (axis === 1) {
+      const newColumns = this.columns.map((col) => {
+        if (mapper[col] !== undefined) {
+          return mapper[col];
+        } else {
+          return col;
+        }
+      });
+
+      if (inplace) {
+        this.$setColumnNames(newColumns);
       } else {
-        throw new Error(`column ${kwargs["column"]} does not exist`);
+        return new DataFrame([...this.values], {
+          index: [...this.index],
+          columns: newColumns,
+          dtypes: [...this.dtypes],
+          config: { ...this.config }
+        });
       }
     } else {
-      throw new Error("specify the column");
+      const newIndex = this.index.map((col) => {
+        if (mapper[col] !== undefined) {
+          return mapper[col];
+        } else {
+          return col;
+        }
+      });
+
+      if (inplace) {
+        this.$setIndex(newIndex);
+      } else {
+        return new DataFrame([...this.values], {
+          index: newIndex,
+          columns: [...this.columns],
+          dtypes: [...this.dtypes],
+          config: { ...this.config }
+        });
+      }
     }
 
-    if (utils.__key_in_object(kwargs, "is")) {
-      if (operators.includes(kwargs["is"])) {
-        operator = kwargs["is"];
+  }
+
+  /**
+    * Sorts the Dataframe by the index.
+    * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    * @param options.ascending Whether to sort values in ascending order or not. Defaults to true
+    */
+  sort_index(options) {
+    const { ascending, inplace } = { ascending: true, inplace: false, ...options };
+
+    const indexPosition = utils.range(0, this.index.length - 1);
+    const index = [...this.index];
+
+    const objToSort = index.map((idx, i) => {
+      return { index: indexPosition[i], value: idx };
+    });
+
+    const sortedObjectArr = utils.sortObj(objToSort, ascending);
+    const sortedIndex = sortedObjectArr.map((obj) => obj.index);
+    const newData = sortedIndex.map((i) => (this.values)[i]);
+
+    if (inplace) {
+      this.$setValues(newData);
+      this.$setIndex(sortedIndex);
+    } else {
+      return new DataFrame(newData, {
+        index: sortedIndex,
+        columns: [...this.columns],
+        dtypes: [...this.dtypes],
+        config: { ...this.config }
+      });
+    }
+
+  }
+
+  /**
+     * Add new rows to the end of the DataFrame.
+     * @param newValues Array, Series or DataFrame to append to the DataFrame
+     * @param index The new index value(s) to append to the Series. Must contain the same number of values as `newValues`
+     * as they map `1 - 1`.
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     */
+  append(
+    newValues,
+    index,
+    options
+  ) {
+    const { inplace } = { inplace: false, ...options };
+
+    if (!newValues) {
+      throw Error(`ParamError: newValues must be a Series, DataFrame or Array`);
+    }
+
+    if (!index) {
+      throw Error(`ParamError: index must be specified`);
+    }
+
+    let rowsToAdd = [];
+    if (newValues instanceof Series) {
+
+      if (newValues.values.length !== this.shape[1]) {
+        throw Error(`ValueError: length of newValues must be the same as the number of columns.`);
+      }
+      rowsToAdd = [newValues.values];
+
+    } else if (newValues instanceof DataFrame) {
+
+      if (newValues.shape[1] !== this.shape[1]) {
+        throw Error(`ValueError: length of newValues must be the same as the number of columns.`);
+      }
+      rowsToAdd = newValues.values;
+
+    } else if (Array.isArray(newValues)) {
+
+      if (utils.is1DArray(newValues)) {
+        rowsToAdd = [newValues];
       } else {
-        throw new Error(` ${kwargs["is"]} is not a supported logical operator`);
+        rowsToAdd = newValues;
+      }
+
+      if ((rowsToAdd[0]).length !== this.shape[1]) {
+        throw Error(`ValueError: length of newValues must be the same as the number of columns.`);
+      }
+
+    } else {
+      throw Error(`ValueError: newValues must be a Series, DataFrame or Array`);
+    }
+
+
+    let indexInArrFormat = [];
+    if (!Array.isArray(index)) {
+      indexInArrFormat = [index];
+    } else {
+      indexInArrFormat = index;
+    }
+
+    if (rowsToAdd.length !== indexInArrFormat.length) {
+      throw Error(`ParamError: index must contain the same number of values as newValues`);
+    }
+
+    const newData = [...this.values];
+    const newIndex = [...this.index];
+
+    rowsToAdd.forEach((row, i) => {
+      newData.push(row);
+      newIndex.push(indexInArrFormat[i]);
+    });
+
+    if (inplace) {
+      this.$setValues(newData);
+      this.$setIndex(newIndex);
+    } else {
+      return new DataFrame(newData, {
+        index: newIndex,
+        columns: [...this.columns],
+        dtypes: [...this.dtypes],
+        config: { ...this.config }
+      });
+    }
+
+  }
+
+  /**
+     * Queries the DataFrame for rows that meet the boolean criteria.
+     * @param options
+     * - `column` A column name to query with.
+     * - `is` A logical operator. Can be one of the following: [">", "<", "<=", ">=", "==", "!="]
+     * - `to` A value to query with.
+     * - `condition` An array of boolean mask, one for each row in the DataFrame. Rows where the value are true will be returned.
+     *  If specified, then other parameters are ignored.
+     * - `inplace` Boolean indicating whether to perform the operation inplace or not. Defaults to false
+    **/
+  query(options) {
+    const { inplace, condition, column, is, to } = { inplace: false, ...options };
+
+    if (condition) {
+      const result = _iloc({
+        ndFrame: this,
+        rows: condition
+      });
+
+      if (inplace) {
+        this.$setValues(result.values, false, false);
+        this.$setIndex(result.index);
+        return;
+      } else {
+        return result;
+      }
+
+    }
+
+    const operators = [">", "<", "<=", ">=", "==", "!="];
+
+    let columnIndex, operator, value;
+
+    if (column) {
+      if (this.columns.includes(column)) {
+        columnIndex = this.columns.indexOf(column);
+      } else {
+        throw new Error(`ParamError: column ${column} not found in column names`);
       }
     } else {
-      throw new Error("specify an operator in param [is]");
+      throw new Error(`ParamError: specify a column name to query`);
     }
 
-    if (utils.__key_in_object(kwargs, "to")) {
-      value = kwargs["to"];
+    if (is) {
+      if (operators.includes(is)) {
+        operator = is;
+      } else {
+        throw new Error(`ParamError: specified operato ${is} is not a supported. operator must be one of ${operators}`);
+      }
     } else {
-      throw new Error("specify a value in param [to]");
+      throw new Error(`ParamError: specify an operator to apply. operator must be one of ${operators}`);
+    }
+
+    if (to) {
+      value = to;
+    } else {
+      throw new Error("ParamError: specify a value to query by");
     }
 
     let data = this.values;
     let index = this.index;
-    let new_data = [];
-    let new_index = [];
+    let newData = [];
+    let newIndex = [];
 
     for (var i = 0; i < data.length; i++) {
-      let data_value = data[i];
-      let elem = data_value[column_index];
+      let dataValue = data[i];
+      let elem = dataValue[columnIndex];
       //use eval function for easy operation
       //eval() takes in a string expression e.g eval('2>5')
       if (eval(`elem${operator}value`)) {
-        new_data.push(data_value);
-        new_index.push(index[i]);
+        newData.push(dataValue);
+        newIndex.push(index[i]);
       }
     }
 
-    if (new_data.length == 0) {
-      throw new Error(
-        `query returned empty data; is either ${value} does not exist in column ${kwargs["column"]}`
-      );
-    }
-    if (kwargs["inplace"]) {
-      this.__update_frame_in_place(
-        new_data,
-        this.columns,
-        null,
-        new_index,
-        null
-      );
+    if (inplace) {
+      this.$setValues(newData, false, false);
+      this.$setIndex(newIndex);
+      return;
     } else {
-      let new_df = new DataFrame(new_data, {
-        columns: this.columns,
-        index: new_index
-      });
-      return new_df;
-    }
-  }
-
-  /**
-   * Add a column with values to the dataframe
-   * @param {kwargs} Object {column :[string] , value:[Array]}
-   *
-   */
-  addColumn(kwargs) {
-    utils.__in_object(kwargs, "column", "column name not specified");
-    utils.__in_object(kwargs, "value", "column value not specified");
-
-    let column_name = kwargs["column"];
-    let data_length = this.shape[0];
-    let value;
-
-    if (kwargs["value"] instanceof Series) {
-      value = kwargs["value"].values;
-    } else {
-      value = kwargs["value"];
-    }
-
-    if (value.length != data_length) {
-      throw new Error(
-        `Array length ${value.length} not equal to ${data_length}`
-      );
-    }
-
-    if (this.columns.includes(column_name)) {
-      let col_idx = this.columns.indexOf(column_name);
-      let new_data = [];
-
-      this.values.map((val, index) => {
-        let new_val = val.slice();
-        new_val[col_idx] = value[index];
-        new_data.push(new_val);
-      });
-      this.__update_frame_in_place(new_data, null, null, null, null);
-    } else {
-      let data = this.values;
-      let new_data = [];
-
-      data.map(function (val, index) {
-        let new_val = val.slice();
-        new_val.push(value[index]);
-        new_data.push(new_val);
-      });
-
-      //add new dtype
-      let new_dtypes = [...this.dtypes];
-      new_dtypes.push(utils.__get_t(value)[0]);
-
-      let new_col_names = [...this.columns];
-      new_col_names.push(column_name);
-
-      this.__update_frame_in_place(
-        new_data,
-        new_col_names,
-        null,
-        null,
-        new_dtypes
-      );
-      Object.defineProperty(this, column_name, {
-        get() {
-          return new Series(value, { columns: column_name, index: this.index });
-        },
-        set(value) {
-          this.addColumn({ column: column_name, value: value });
-        }
+      return new DataFrame(newData, {
+        index: newIndex,
+        config: { ...this.config }
       });
     }
   }
 
   /**
+     * Returns the data types for each column as a Series.
+     */
+  get ctypes() {
+    return new Series(this.dtypes, { index: this.columns });
+  }
+
+  /**
+     * One-hot encode specified columns in the DataFrame. If columns are not specified, all columns of dtype string will be encoded.
+     * @param options Options for the operation. The following options are available:
+     * - `columns`: A single column name or an array of column names to encode. Defaults to all columns of dtype string.
+     * - `prefix`: Prefix to add to the column names. Defaults to unique labels.
+     * - `prefixSeparator`: Separator to use for the prefix. Defaults to '_'.
+     * - `inplace` indicating whether to perform the operation inplace or not. Defaults to false
+     * @returns A DataFrame with the one-hot encoded columns.
+     * @example
+     * df.getDummies({ columns: ['a', 'b'] })
+     * df.getDummies({ columns: ['a', 'b'], prefix: 'cat' })
+     * df.getDummies({ columns: ['a', 'b'], prefix: 'cat', prefixSeparator: '-' })
+     * df.getDummies({ columns: ['a', 'b'], prefix: 'cat', prefixSeparator: '-', inplace: true })
+     * df.getDummies({ columns: ['a', 'b'], prefix: ['col1', 'col2'], prefixSeparator: '-', inplace: true })
+     */
+  get_dummies(options) {
+    const { inplace } = { inplace: false, ...options };
+
+    const encodedDF = dummyEncode(this, options);
+    if (inplace) {
+      this.$setValues(encodedDF.values, false, false);
+      this.$setColumnNames(encodedDF.columns);
+    } else {
+      return encodedDF;
+    }
+
+  }
+
+  /**
    *
-   * @param {col}  col is a list of column with maximum length of two
+   * @param {col}  col is a list of columns
    */
   groupby(col) {
     const len = this.shape[0];
-    const column_names = this.column_names;
-    const col_index = col.map((val) => column_names.indexOf(val));
+    const columns = this.columns;
+    const col_index = col.map((val) => columns.indexOf(val));
     const col_dtype = this.dtypes.filter((val, index) => {
       return col_index.includes(index);
     });
@@ -1137,18 +2309,14 @@ export class DataFrame extends Ndframe {
     const self = this;
     const data = col.map(
       (column_name) => {
-        if (!(column_names.includes(column_name)))
+        if (!(columns.includes(column_name)))
           throw new Error(`column ${column_name} does not exist`);
-        const [column_data, _] = indexLoc(self, {
-          rows: [`0:${len}`],
-          columns: [`${column_name}`],
-          type: "loc"
-        });
+        const column_data = self.column(column_name).values;
         return column_data;
       }
     );
 
-    const unique_columns = data.map((column_data) => utils.__unique(column_data));
+    const unique_columns = data.map((column_data) => utils.unique(column_data));
 
     function getRecursiveDict(uniq_columns) {
       const first_uniq_columns = uniq_columns[0];
@@ -1166,1011 +2334,9 @@ export class DataFrame extends Ndframe {
       col_dict,
       col,
       this.values,
-      column_names,
+      columns,
       col_dtype
     ).group();
   }
 
-  /**
-   * Return a sequence of axis dimension along row and columns
-   * @params col_name: the name of a column in the database.
-   * @returns tensor of shape 1
-   */
-  column(col_name) {
-    if (!this.columns.includes(col_name)) {
-      throw new Error(`column ${col_name} does not exist`);
-    }
-    let col_indx_objs = utils.__arr_to_obj(this.columns);
-    let indx = col_indx_objs[col_name];
-    let data = this.col_data[indx];
-    return new Series(data, { columns: [col_name] });
-  }
-
-  /**
-   * Replace NaN or undefined with a specified value"
-   * @param {kwargs}, {column(s): Array of column name(s) to fill. If undefined fill all columns;
-   *                   value(s): Array | Scalar of value(s) to fill with. If single value is specified, we use it to fill all
-   * @return {DataFrame}
-   */
-  fillna(kwargs = {}) {
-    let params_needed = ["columns", "values", "inplace"];
-    utils._throw_wrong_params_error(kwargs, params_needed);
-
-    if (!utils.__key_in_object(kwargs, "inplace")) {
-      kwargs["inplace"] = false;
-    }
-
-    if (utils.__key_in_object(kwargs, "columns")) {
-      //check if the column(s) exists
-      kwargs["columns"].map((col) => {
-        if (!this.column_names.includes(col)) {
-          throw Error(
-            `Value Error: Specified columns must be one of ${this.column_names}, got ${col}`
-          );
-        }
-      });
-
-      if (kwargs["columns"].length != kwargs["values"].length) {
-        throw Error(`Lenght Error: The lenght of the columns names must be equal to the lenght of the values,
-                 got column of length ${kwargs["columns"].length} but values of length ${kwargs["values"].length}`);
-      }
-      let new_col_data = this.col_data;
-      kwargs["columns"].map((col, i) => {
-        let col_idx = this.column_names.indexOf(col);
-        let col_data = this.col_data[col_idx];
-
-        let __temp = [];
-        col_data.map((val) => {
-          //fill the column
-          if (isNaN(val) && typeof val != "string") {
-            __temp.push(kwargs["values"][i]);
-          } else {
-            __temp.push(val);
-          }
-        });
-        new_col_data[col_idx] = __temp;
-      });
-
-      let final_data = {};
-      new_col_data.map((col, i) => {
-        final_data[this.column_names[i]] = col;
-      });
-
-      if (kwargs["inplace"]) {
-        this.__update_frame_in_place(null, null, final_data, null, null);
-      } else {
-        return new DataFrame(final_data, { index: this.index });
-      }
-    } else {
-      //fill all columns using same value
-      if (!utils.__key_in_object(kwargs, "values")) {
-        throw Error("Value Error: Please specify a fill value");
-      }
-
-      let nan_val;
-      if (Array.isArray(kwargs["values"])) {
-        nan_val = kwargs["values"][0];
-      } else {
-        nan_val = kwargs["values"];
-      }
-      let data = [];
-      let values = this.values;
-      let columns = this.columns;
-
-      for (let i = 0; i < values.length; i++) {
-        let temp_data = [];
-        let row_value = values[i];
-        for (let j = 0; j < row_value.length; j++) {
-          if (isNaN(row_value[j]) && typeof row_value[j] != "string") {
-            temp_data.push(nan_val);
-          } else {
-            temp_data.push(row_value[j]);
-          }
-        }
-        data.push(temp_data);
-      }
-      if (kwargs["inplace"]) {
-        this.__update_frame_in_place(data, null, null, null, null);
-      } else {
-        return new DataFrame(data, { columns: columns, index: this.index });
-      }
-    }
-  }
-
-  /**
-   * Return a boolean same-sized object indicating if the values are NaN. NaN and undefined values,
-   *  gets mapped to True values. Everything else gets mapped to False values.
-   * @return {DataFrame}
-   */
-  isna() {
-    let new_row_data = this.__isna();
-    let columns = this.column_names;
-    return new DataFrame(new_row_data, { columns: columns, index: this.index });
-  }
-
-  /**
-   * Obtain index containing nan values
-   * @return Array list (int)
-   */
-  nanIndex() {
-    let df_values = this.values;
-    let index_data = [];
-
-    for (let i = 0; i < df_values.length; i++) {
-      let row_values = df_values[i];
-
-      if (row_values.includes(NaN)) {
-        index_data.push(i);
-      }
-    }
-    return index_data;
-  }
-
-  /**
-   * Drop all rows containing NaN
-   * @param {kwargs} kwargs [Object] {axis: [int]{o or 1}, inplace:[boolean]}
-   */
-  dropna(kwargs = {}) {
-    let axis = kwargs["axis"] || 0;
-    let inplace = kwargs["inplace"] || false;
-
-    if (axis != 0 && axis != 1) {
-      throw new Error("axis must either be 1 or 0");
-    }
-
-    let df_values = null;
-    let columns = null;
-    if (axis == 0) {
-      df_values = this.values;
-      columns = this.columns;
-    } else {
-      df_values = this.col_data;
-      columns = [];
-    }
-    let data = [];
-
-    for (let i = 0; i < df_values.length; i++) {
-      let values = df_values[i];
-
-      if (!values.includes(NaN)) {
-        if (axis == 0) {
-          data.push(values);
-        } else {
-          columns.push(this.columns[i]);
-          if (data.length == 0) {
-            for (let j = 0; j < values.length; j++) {
-              data.push([values[j]]);
-            }
-          } else {
-            for (let j = 0; j < data.length; j++) {
-              data[j].push(values[j]);
-            }
-          }
-        }
-      }
-    }
-
-    if (inplace == true) {
-      this.data = data;
-      this.__reset_index();
-      this.columns = columns;
-    } else {
-      return new DataFrame(data, { columns: columns });
-    }
-  }
-
-  /**
-   * Apply a function to each element or along a specified axis of the DataFrame. Supports JavaScipt functions
-   * when axis is not specified, and accepts Tensorflow functions when axis is specified.
-   * @param {kwargs} kargs is defined as {axis: undefined, 0 or 1, callable: [FUNCTION]}
-   * @return Array
-   */
-  apply(kwargs) {
-    let is_callable = utils.__is_function(kwargs["callable"]);
-    if (!is_callable) {
-      throw new Error("the argument must be a function");
-    }
-
-    let callable = kwargs["callable"];
-    let data = [];
-
-    if (utils.__key_in_object(kwargs, "axis")) {
-      //This accepts all tensorflow operations
-      let axis = kwargs["axis"];
-      let df_data;
-      if (axis == 0) {
-        df_data = this.values;
-      } else {
-        df_data = this.col_data;
-      }
-
-      for (let i = 0; i < df_data.length; i++) {
-        let value = tf.tensor(df_data[i]);
-        let callable_data;
-        try {
-          callable_data = callable(value).arraySync();
-        } catch (error) {
-          throw Error(
-            `Callable Error: You can only apply JavaScript functions on DataFrames when axis is not specified. This operation is applied on all element, and returns a DataFrame of the same shape.`
-          );
-        }
-
-        data.push(callable_data);
-      }
-    } else {
-      //perform element wise operation. This accepts any JavaScript function
-      let df_data = this.values;
-      let new_data = [];
-      df_data.forEach((row) => {
-        let new_row = [];
-        row.forEach((val) => {
-          new_row.push(callable(val));
-        });
-        new_data.push(new_row);
-      });
-      data = new_data;
-    }
-
-    if (utils.__is_1D_array(data)) {
-      if (kwargs["axis"] == 0) {
-        let sf = new Series(data, { index: this.index });
-        return sf;
-      } else {
-        let sf = new Series(data, { index: this.column_names });
-        return sf;
-      }
-    } else {
-      let df = new DataFrame(data, {
-        columns: this.column_names,
-        index: this.index
-      });
-      return df;
-    }
-  }
-
-  /**
-   * Returns Less than of DataFrame and other. Supports element wise operations
-   * @param {other} DataFrame, Series, Scalar
-   * @param {axis} Number {0 for row, 1 for index} Whether to compare by the index or columns
-   * @return {DataFrame}
-   */
-  lt(other, axis) {
-    if (this.__frame_is_compactible_for_operation()) {
-      if (axis == undefined) {
-        axis = 0;
-      }
-      let df = this.__logical_ops(other, "lt", axis);
-      return df;
-    } else {
-      throw Error("Dtype Error: Operation can not be performed on string type");
-    }
-  }
-
-  /**
-   * Returns Greater than of DataFrame and other. Supports element wise operations
-   * @param {other} DataFrame, Series, Scalar
-   * @param {axis} Number {0 for row, 1 for index} Whether to compare by the index or columns
-   * @return {DataFrame}
-   */
-  gt(other, axis) {
-    if (this.__frame_is_compactible_for_operation()) {
-      if (axis == undefined) {
-        axis = 0;
-      }
-
-      let df = this.__logical_ops(other, "gt", axis);
-      return df;
-    } else {
-      throw Error("Dtype Error: Operation can not be performed on string type");
-    }
-  }
-
-  /**
-   * Returns Less than or Equal to of DataFrame and other. Supports element wise operations
-   * @param {other} DataFrame, Series, Scalar
-   * @param {axis} Number {0 for row, 1 for index} Whether to compare by the index or columns
-   * @return {DataFrame}
-   */
-  le(other, axis) {
-    if (this.__frame_is_compactible_for_operation()) {
-      if (axis == undefined) {
-        axis = 0;
-      }
-      let df = this.__logical_ops(other, "le", axis);
-      return df;
-    } else {
-      throw Error("Dtype Error: Operation can not be performed on string type");
-    }
-  }
-
-  /**
-   * Returns Greater than or Equal to of DataFrame and other. Supports element wise operations
-   * @param {other} DataFrame, Series, Scalar
-   * @param {axis} Number {0 for row, 1 for index} Whether to compare by the index or columns
-   * @return {DataFrame}
-   */
-  ge(other, axis) {
-    if (this.__frame_is_compactible_for_operation()) {
-      if (axis == undefined) {
-        axis = 0;
-      }
-      let df = this.__logical_ops(other, "ge", axis);
-      return df;
-    } else {
-      throw Error("Dtype Error: Operation can not be performed on string type");
-    }
-  }
-
-  /**
-   * Returns Not Equal to of DataFrame and other. Supports element wise operations
-   * @param {other} DataFrame, Series, Scalar
-   * @param {axis} Number {0 for row, 1 for index} Whether to compare by the index or columns
-   * @return {DataFrame}
-   */
-  ne(other, axis) {
-    if (this.__frame_is_compactible_for_operation()) {
-      if (axis == undefined) {
-        axis = 0;
-      }
-      let df = this.__logical_ops(other, "ne", axis);
-      return df;
-    } else {
-      throw Error("Dtype Error: Operation can not be performed on string type");
-    }
-  }
-
-  /**
-   * Returns Greater than or Equal to of DataFrame and other. Supports element wise operations
-   * @param {other} DataFrame, Series, Scalar
-   * @param {axis} Number {0 for row, 1 for index} Whether to compare by the index or columns
-   * @return {DataFrame}
-   */
-  eq(other, axis) {
-    if (this.__frame_is_compactible_for_operation()) {
-      if (axis == undefined) {
-        axis = 0;
-      }
-      let df = this.__logical_ops(other, "eq", axis);
-      return df;
-    } else {
-      throw Error("Dtype Error: Operation can not be performed on string type");
-    }
-  }
-
-  /**
-   * Replace all occurence of a value with a new specified value"
-   * @param {kwargs}, {"replace": the value you want to replace,
-   *                   "with": the new value you want to replace the olde value with
-   *                   "in": Array of column names to replace value in, If not specified, replace all columns}
-   * @return {Series}
-   */
-  replace(kwargs = {}) {
-    let params_needed = ["replace", "with", "in"];
-    utils._throw_wrong_params_error(kwargs, params_needed);
-
-    if (utils.__key_in_object(kwargs, "in")) {
-      //fill specified columns only
-      //check if the column(s) exists
-      kwargs["in"].map((col) => {
-        if (!this.column_names.includes(col)) {
-          throw Error(
-            `Value Error: Specified columns must be one of ${this.column_names}, got ${col}`
-          );
-        }
-      });
-
-      if (
-        utils.__key_in_object(kwargs, "replace") &&
-        utils.__key_in_object(kwargs, "with")
-      ) {
-        let new_col_data_obj = {};
-        this.column_names.map((col, idx) => {
-          if (kwargs["in"].includes(col)) {
-            let temp_col_data = this.col_data[idx]; //retreive the column data
-            let __temp = [];
-            temp_col_data.map((val) => {
-              //replace the values
-              if (val == kwargs["replace"]) {
-                __temp.push(kwargs["with"]);
-              } else {
-                __temp.push(val);
-              }
-            });
-            new_col_data_obj[col] = __temp;
-          } else {
-            new_col_data_obj[col] = this.col_data[idx];
-          }
-        });
-        return new DataFrame(new_col_data_obj, {
-          columns: this.column_names,
-          index: this.index
-        });
-      } else {
-        throw Error(
-          "Params Error: Must specify both 'replace' and 'with' parameters."
-        );
-      }
-    } else {
-      //fill every occurence in all columns and rows
-      if (
-        utils.__key_in_object(kwargs, "replace") &&
-        utils.__key_in_object(kwargs, "with")
-      ) {
-        let replaced_arr = [];
-        let old_arr = this.values;
-
-        old_arr.map((inner_arr) => {
-          let temp = [];
-          inner_arr.map((val) => {
-            if (val == kwargs["replace"]) {
-              temp.push(kwargs["with"]);
-            } else {
-              temp.push(val);
-            }
-          });
-          replaced_arr.push(temp);
-        });
-
-        let df = new DataFrame(replaced_arr, {
-          index: this.index,
-          columns: this.column_names
-        });
-        return df;
-      } else {
-        throw Error(
-          "Params Error: Must specify both 'replace' and 'with' parameters."
-        );
-      }
-    }
-  }
-
-  //performs logical comparisons on DataFrame using Tensorflow.js
-  __logical_ops(val, logical_type, axis) {
-    let int_vals, other;
-    if (utils.__is_number(val)) {
-      other = val;
-    } else {
-      if (val.series) {
-        //series
-        if (axis == 0) {
-          if (val.values.length != this.shape[0]) {
-            throw Error(
-              `Shape Error: Operands could not be broadcast together with shapes ${this.shape} and ${val.values.length}.`
-            );
-          }
-          other = tf.tensor(val.values);
-        } else {
-          if (val.values.length != this.shape[1]) {
-            throw Error(
-              `Shape Error: Operands could not be broadcast together with shapes ${this.shape} and ${val.values.length}.`
-            );
-          }
-          other = tf.tensor(val.values);
-        }
-      } else if (Array.isArray(val)) {
-        //Array of Array
-        other = tf.tensor(val);
-      } else {
-        //DataFrame
-        other = val.row_data_tensor;
-      }
-    }
-
-    switch (logical_type) {
-    case "lt":
-      int_vals = tf.tensor(this.values).less(other).arraySync();
-      break;
-    case "gt":
-      int_vals = tf.tensor(this.values).greater(other).arraySync();
-      break;
-    case "le":
-      int_vals = tf.tensor(this.values).lessEqual(other).arraySync();
-      break;
-    case "ge":
-      int_vals = tf.tensor(this.values).greaterEqual(other).arraySync();
-      break;
-    case "ne":
-      int_vals = tf.tensor(this.values).notEqual(other).arraySync();
-      break;
-    case "eq":
-      int_vals = tf.tensor(this.values).equal(other).arraySync();
-      break;
-    }
-    let bool_vals = utils.__map_int_to_bool(int_vals, 2);
-    let df = new DataFrame(bool_vals, {
-      columns: this.column_names,
-      index: this.index
-    });
-    return df;
-  }
-
-  //slice the corresponding arrays from tensor objects
-  __get_df_from_tensor(val, col_names) {
-    let len = val.shape[0];
-    let new_array = [];
-    for (let i = 0; i < len; i++) {
-      let arr = val.slice([i], [1]).arraySync()[0];
-      new_array.push(arr);
-    }
-    return new DataFrame(new_array, { columns: col_names });
-  }
-
-  //checks if DataFrame is compaticble for arithmetic operation
-  //compatible Dataframe must have only numerical dtypes
-  __frame_is_compactible_for_operation() {
-    let dtypes = this.dtypes;
-    const str = (element) => element == "string";
-
-    if (dtypes.some(str)) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  //retreives the corresponding tensors based on specified axis
-  __get_ops_tensors(tensors, axis) {
-    if (utils.__is_undefined(tensors[1].series)) {
-      //check if add operation is on a series or DataFrame
-      let tensors_arr = [];
-      if (utils.__is_undefined(axis) || axis == 1) {
-        //axis = 1 (column)
-        tensors_arr.push(tensors[0].row_data_tensor);
-        tensors_arr.push(tensors[1]);
-        return tensors_arr;
-      } else {
-        //axis = 0 (rows)
-        tensors_arr.push(tensors[0].col_data_tensor);
-        tensors_arr.push(tensors[1]);
-        return tensors_arr;
-      }
-    } else {
-      //operation is being performed on a Dataframe or Series
-      let tensors_arr = [];
-      if (utils.__is_undefined(axis) || axis == 1) {
-        //axis = 1 (column)
-        let this_tensor, other_tensor;
-
-        this_tensor = tensors[0].row_data_tensor; //tensorflow uses 1 for rows axis and 0 for column axis
-        if (tensors[1].series) {
-          other_tensor = tf.tensor(tensors[1].values, [
-            1,
-            tensors[1].values.length
-          ]);
-        } else {
-          other_tensor = tensors[1].row_data_tensor;
-        }
-
-        tensors_arr.push(this_tensor);
-        tensors_arr.push(other_tensor);
-        return tensors_arr;
-      } else {
-        //axis = 0 (rows)
-        let this_tensor, other_tensor;
-
-        this_tensor = tensors[0].row_data_tensor;
-        if (tensors[1].series) {
-          other_tensor = tf.tensor(tensors[1].values, [
-            tensors[1].values.length,
-            1
-          ]);
-        } else {
-          other_tensor = tensors[1].row_data_tensor;
-        }
-
-        tensors_arr.push(this_tensor);
-        tensors_arr.push(other_tensor);
-        return tensors_arr;
-      }
-    }
-  }
-
-  /**
-   * Transpose index and columns.
-   * Reflect the DataFrame over its main diagonal by writing rows as columns and vice-versa.
-   * The property T is an accessor to the method transpose().
-   */
-  transpose() {
-    let new_values = this.col_data;
-    let new_index = this.column_names;
-    let new_col_names = this.index;
-
-    let df = new DataFrame(new_values, {
-      columns: new_col_names,
-      index: new_index
-    });
-    return df;
-  }
-
-  /**
-   * The property T is an accessor to the method transpose().
-   */
-  get T() {
-    return this.transpose();
-  }
-
-  /**
-   * Returns the data types in the DataFrame
-   * @return {Array} list of data types for each column
-   */
-  get ctypes() {
-    let cols = this.column_names;
-    let d_types = this.col_types;
-    let sf = new Series(d_types, { index: cols });
-    return sf;
-  }
-
-  /**
-   * Make plots of Series or DataFrame.
-   * Uses the Plotly as backend, so supports Plotly's configuration parameters
-   * @param {string} div Name of the div to show the plot
-   * @returns {Class} Plot class that expoese different plot type
-   */
-  plot(div) {
-    const plt = new Plot(this, div);
-    return plt;
-  }
-
-  /**
-   * Returns the Tensorflow tensor backing the DataFrame Object
-   * @returns {2D tensor}
-   */
-  get tensor() {
-    return this.row_data_tensor;
-  }
-
-  /**
-   * Sets the data types of an DataFrame
-   * @param {Object} kwargs {column: Name of the column to cast, dtype: [float32, int32, string] data type to cast to}
-   * @returns {DataFrame}
-   */
-  astype(kwargs = {}) {
-    if (!utils.__key_in_object(kwargs, "column")) {
-      throw Error("Value Error: Please specify a column to cast");
-    }
-
-    if (!utils.__key_in_object(kwargs, "dtype")) {
-      throw Error("Value Error: Please specify dtype to cast to");
-    }
-
-    if (!this.column_names.includes(kwargs["column"])) {
-      throw Error(`'${kwargs["column"]}' not found in columns`);
-    }
-
-    let col_idx = this.column_names.indexOf(kwargs["column"]);
-    let new_types = this.col_types;
-    let col_values = this.col_data;
-
-    new_types[col_idx] = kwargs["dtype"];
-    let new_col_values = [];
-    let temp_col = col_values[col_idx];
-
-    switch (kwargs["dtype"]) {
-    case "float32":
-      temp_col.map((val) => {
-        new_col_values.push(Number(val));
-      });
-      col_values[col_idx] = new_col_values;
-      break;
-    case "int32":
-      temp_col.map((val) => {
-        new_col_values.push(Number(Number(val).toFixed()));
-      });
-      col_values[col_idx] = new_col_values;
-
-      break;
-    case "string":
-      temp_col.map((val) => {
-        new_col_values.push(String(val));
-      });
-      col_values[col_idx] = new_col_values;
-      break;
-    default:
-      break;
-    }
-
-    let new_col_obj = {};
-    this.column_names.forEach((cname, i) => {
-      new_col_obj[cname] = col_values[i];
-    });
-
-    let df = new DataFrame(new_col_obj, {
-      dtypes: new_types,
-      index: this.index
-    });
-    return df;
-  }
-
-  /**
-   * Return the unique values along an axis
-   * @param {axis} Int, 0 for row, and 1 for column. Default to 1
-   * @return {Object}
-   */
-  unique(axis = 1) {
-    if (axis == undefined || axis > 1 || axis < 0) {
-      throw Error(
-        `Axis Error: Please specify a correct axis. Axis must either be '0' or '1', got ${axis}`
-      );
-    }
-    let _unique = {};
-    if (axis == 1) {
-      //column
-      let col_names = this.column_names;
-      col_names.forEach((cname) => {
-        _unique[cname] = this[cname].unique().values;
-      });
-    } else {
-      let rows = this.values;
-      let _index = this.index;
-      rows.forEach((row, i) => {
-        let data_set = new Set(row);
-        _unique[_index[i]] = Array.from(data_set);
-      });
-    }
-
-    return _unique;
-  }
-
-  /**
-   * Return the number of unique value along an axis
-   * @param {axis} Int, 0 for row, and 1 for column. Default to 1
-   * @return {Series}
-   */
-  nunique(axis = 1) {
-    if (axis == undefined || axis > 1 || axis < 0) {
-      throw Error(
-        `Axis Error: Please specify a correct axis. Axis must either be '0' or '1', got ${axis}`
-      );
-    }
-
-    let _nunique = [];
-    if (axis == 1) {
-      //column
-      let col_names = this.column_names;
-      col_names.forEach((cname) => {
-        _nunique.push(this[cname].unique().values.length);
-      });
-      let sf = new Series(_nunique, { index: this.column_names });
-      return sf;
-    } else {
-      let rows = this.values;
-      rows.forEach((row) => {
-        let data_set = new Set(row);
-        _nunique.push(Array.from(data_set).length);
-      });
-    }
-    let sf = new Series(_nunique, { index: this.index });
-    return sf;
-  }
-
-  /**
-   * Change axes labels. Object values must be unique (1-to-1).
-   * Labels not contained in a dict / Series will be left as-is. Extra labels listed don’t throw an error.
-   * @param {Object} kwargs {mapper: Dict-like or functions transformations to apply to that axis’ values,
-   *                          axis: Int, 0 for row, and 1 for column. Default to 1,
-   *                         inplace: Whether to return a new DataFrame. If True then value of copy is ignored.
-   * @returns {DataFrame}
-   */
-  rename(kwargs = {}) {
-    let params_needed = ["mapper", "inplace", "axis"];
-    utils._throw_wrong_params_error(kwargs, params_needed);
-
-    // utils.__in_object(kwargs, "columns", "value not defined")
-    if (!utils.__key_in_object(kwargs, "inplace")) {
-      kwargs["inplace"] = false;
-    }
-    if (!utils.__key_in_object(kwargs, "axis")) {
-      kwargs["axis"] = 1;
-    }
-    if (!utils.__key_in_object(kwargs, "mapper")) {
-      throw Error("Please specify a mapper object");
-    }
-    if (kwargs["axis"] == 1) {
-      //columns
-      let old_col_names = Object.keys(kwargs["mapper"]);
-      let new_col_names = Object.values(kwargs["mapper"]);
-      let col_names = [...this.column_names];
-
-      old_col_names.forEach((cname, i) => {
-        if (!col_names.includes(cname)) {
-          throw Error(
-            `Label Error: Specified column '${cname}' not found in column axis`
-          );
-        }
-        let idx = col_names.indexOf(cname);
-        col_names[idx] = new_col_names[i];
-      });
-      if (kwargs["inplace"]) {
-        this.columns = col_names;
-        this.__set_col_property(this, this.col_data, col_names, old_col_names);
-      } else {
-        let df = this.copy();
-        df.columns = col_names;
-        df.__set_col_property(df, df.col_data, col_names, old_col_names);
-        return df;
-      }
-    } else {
-      //row
-      let old_index = Object.keys(kwargs["mapper"]);
-      let row_index = this.index;
-      let new_index = [];
-
-      row_index.forEach((idx) => {
-        if (old_index.includes(idx)) {
-          new_index.push(kwargs["mapper"][idx]);
-        } else {
-          new_index.push(idx);
-        }
-      });
-
-      if (kwargs["inplace"]) {
-        this.__set_index(new_index);
-      } else {
-        let df = this.copy();
-        df.__set_index(new_index);
-        return df;
-      }
-    }
-  }
-  /**
-   * Sort DataFrame by index
-   * @param {*} kwargs {inplace: Boolean, ascending: Bool}
-   * @returns DataFrame
-   */
-  sort_index(kwargs = {}) {
-    let inplace =
-      typeof kwargs["inplace"] == "undefined" ? false : kwargs["inplace"];
-    let asc =
-      typeof kwargs["ascending"] == "undefined" ? true : kwargs["ascending"];
-
-    let index_val = this.index;
-    let [data, index] = this.__sort_by(index_val, index_val, asc);
-
-    if (inplace) {
-      this.__update_frame_in_place(data, null, null, index, null);
-    } else {
-      let df = this.copy();
-      df.__update_frame_in_place(data, null, null, index, null);
-      return df;
-    }
-  }
-
-  /**
-   * Sort a Dataframe in ascending or descending order by a specified column name.
-   *  @param {kwargs} Object, {by: Column name to sort by
-   *                           ascending (Bool): Whether to return sorted values in ascending order or not,
-   *                           inplace (Bool): Whether to perform sorting on the original Series or not}
-   * @returns {Series}
-   */
-  sort_values(kwargs = {}) {
-    if (!utils.__key_in_object(kwargs, "by")) {
-      throw Error(`use col_name to specify column name`);
-    }
-
-    let inplace =
-      typeof kwargs["inplace"] == "undefined" ? false : kwargs["inplace"];
-    let asc =
-      typeof kwargs["ascending"] == "undefined" ? true : kwargs["ascending"];
-    let index_val = this.index;
-    let column_val = this.column(kwargs["by"]).values;
-    let [data, index] = this.__sort_by(column_val, index_val, asc);
-
-    if (inplace) {
-      this.__update_frame_in_place(data, null, null, index, null);
-    } else {
-      let df = this.copy();
-      df.__update_frame_in_place(data, null, null, index, null);
-      return df;
-    }
-  }
-
-  //set all columns to DataFrame Property. This ensures easy access to columns as Series
-  __set_col_property(self, col_vals, col_names, old_col_names) {
-    //delete old name
-    old_col_names.forEach((name) => {
-      delete self[name];
-    });
-
-    col_vals.forEach((col, i) => {
-      // self[col_names[i]] = new Series(col, { columns: col_names[i], index: self.index })
-      Object.defineProperty(self, col_names[i], {
-        configurable: true,
-        get() {
-          return new Series(col, { columns: col_names[i], index: self.index });
-        },
-        set(value) {
-          this.addColumn({ column: col_names[i], value: value });
-        }
-      });
-    });
-  }
-
-  //update a DataFrame in place
-  __update_frame_in_place(row_data, column_names, col_obj, index, dtypes) {
-    if (row_data != undefined) {
-      this.data = row_data;
-    } else {
-      //check column is available and create row from column
-      if (col_obj != undefined) {
-        let _res = utils._get_row_and_col_values(col_obj);
-        this.data = _res[0];
-        this.columns = _res[1];
-        column_names = _res[1];
-      }
-    }
-
-    if (col_obj != undefined) {
-      this.col_data = Object.values(col_obj);
-      this.columns = Object.keys(col_obj);
-      column_names = Object.keys(col_obj);
-    } else {
-      //check if row data is available and create column data from rows
-      if (row_data != undefined) {
-        this.col_data = utils.__get_col_values(row_data); //get column data from row
-      }
-    }
-
-    if (column_names != undefined) {
-      this.columns = column_names;
-    }
-    if (index != undefined) {
-      this.index_arr = index;
-    }
-    if (dtypes != undefined) {
-      this.col_types = dtypes;
-    }
-  }
-
-  __sort_by(col_value, df_index, asc) {
-    let values = this.values;
-
-    let sorted_val = utils.__sort(col_value, asc);
-    let duplicate_obj = utils.__get_duplicate(col_value);
-
-    let data = [];
-    let indexs = [];
-    for (let row_i = 0; row_i < sorted_val.length; row_i++) {
-      let val = sorted_val[row_i];
-      let index = null;
-
-      if (duplicate_obj.hasOwnProperty(val)) {
-        index = duplicate_obj[val]["index"][0];
-        duplicate_obj[val]["index"].splice(0, 1);
-      } else {
-        index = col_value.indexOf(val);
-      }
-
-      data.push(values[index]);
-      indexs.push(df_index[index]);
-    }
-
-    return [data, indexs];
-  }
-
-  /**
-   * Append rows to a DataFrame
-   * @param {val} val Array | Series to append to the object
-   * @return DataFrame
-   */
-  append(val) {
-    let df2 = null;
-    if (Array.isArray(val)) {
-      if (Array.isArray(val[0])) {
-        if (val[0].length != this.shape[1]) {
-          throw Error(
-            `length Mixmatch: The lenght of provided value (${val.length}) does not match the original DataFrame (${this.shape[1]})`
-          );
-        }
-        df2 = new DataFrame(val, { columns:this.columns });
-      }
-    } else if (utils.__is_object(val)) {
-      df2 = new DataFrame(val);
-    } else if (val instanceof DataFrame) {
-      df2 = val.copy();
-    }
-
-    let concat_df = concat({ df_list: [this, df2], axis: 0 });
-
-    return concat_df;
-  }
 }

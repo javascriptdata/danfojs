@@ -1,6 +1,5 @@
 import { assert } from "chai";
-import { DataFrame } from '../../src/core/frame';
-import { merge } from '../../src/core/merge';
+import { DataFrame, merge } from "../../dist";
 
 describe("Merge", function () {
 

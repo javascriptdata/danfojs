@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 describe("Concatenate", function () {
 
   it("Check the axis 0 concatenation", function () {

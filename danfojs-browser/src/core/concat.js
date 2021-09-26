@@ -1,8 +1,6 @@
-import { DataFrame } from './frame';
-import { Utils } from "./utils";
-import { Series } from './series';
-
-const utils = new Utils();
+import DataFrame from './frame';
+// import { utils } from "../shared/utils";
+import Series from './series';
 
 
 export class Concat {
@@ -10,8 +8,8 @@ export class Concat {
 
 
     // check if keys exist in kwargs
-    utils.__in_object(kwargs, "df_list", "df_list not found: specify the list of dataframe");
-    utils.__in_object(kwargs, "axis", "axis not found: specify the axis");
+    // utils.__in_object(kwargs, "df_list", "df_list not found: specify the list of dataframe");
+    // utils.__in_object(kwargs, "axis", "axis not found: specify the axis");
 
     let df_list = null; //set the df_list to null
     let axis = null; // set axis to null

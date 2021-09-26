@@ -1,6 +1,6 @@
-import { Utils } from "../core/utils";
-import { Series } from "../core/series";
-const utils = new Utils();
+/* eslint-disable no-undef */
+import { utils } from "../shared/utils";
+import Series from "../core/series";
 
 /**
  * Change: Rising Odegua 6th Feb 2021
@@ -45,7 +45,7 @@ export class Plot {
       let y = this.ndframe.values;
 
       params.forEach((param) => {
-        if(!(param == "layout")) {
+        if (!(param == "layout")) {
           trace[param] = config[param];
         }
       });
@@ -53,15 +53,15 @@ export class Plot {
       trace["y"] = y;
       trace['type'] = "line";
 
-      Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
+      Plotly.newPlot(this.div, [trace], this_config['layout'], this_config);
 
     } else {
       //check if plotting two columns against each other
-      if (utils.__key_in_object(this_config, 'x') && utils.__key_in_object(this_config, 'y')) {
-        if (!this.ndframe.column_names.includes(this_config['x'])) {
+      if (utils.keyInObject(this_config, 'x') && utils.keyInObject(this_config, 'y')) {
+        if (!this.ndframe.columns.includes(this_config['x'])) {
           throw Error(`Column Error: ${this_config['x']} not found in columns`);
         }
-        if (!this.ndframe.column_names.includes(this_config['y'])) {
+        if (!this.ndframe.columns.includes(this_config['y'])) {
           throw Error(`Column Error: ${this_config['y']} not found in columns`);
         }
 
@@ -81,18 +81,18 @@ export class Plot {
         this_config['layout']['xaxis'] = xaxis;
         this_config['layout']['yaxis'] = yaxis;
 
-        Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
+        Plotly.newPlot(this.div, [trace], this_config['layout'], this_config);
 
-      } else if (utils.__key_in_object(this_config, 'x') || utils.__key_in_object(this_config, 'y')) {
+      } else if (utils.keyInObject(this_config, 'x') || utils.keyInObject(this_config, 'y')) {
         //plot single column specified in either of param [x | y] against index
         //plot columns against index
         let data = [];
         let cols_to_plot;
 
-        if (utils.__key_in_object(this_config, "columns")) {
+        if (utils.keyInObject(this_config, "columns")) {
           cols_to_plot = this.____check_if_cols_exist(this_config['columns']);
         } else {
-          cols_to_plot = this.ndframe.column_names;
+          cols_to_plot = this.ndframe.columns;
         }
 
         cols_to_plot.forEach((c_name) => {
@@ -101,7 +101,7 @@ export class Plot {
           params.forEach((param) => { //TODO accept individual configuration for traces
             trace[param] = config[param];
           });
-          if (utils.__key_in_object(this_config, 'x')) {
+          if (utils.keyInObject(this_config, 'x')) {
             trace["x"] = this.ndframe[this_config['x']].values;
             trace["y"] = this.ndframe[c_name].values;
             trace['name'] = c_name;
@@ -121,10 +121,10 @@ export class Plot {
         let data = [];
         let cols_to_plot;
 
-        if (utils.__key_in_object(this_config, "columns")) {
+        if (utils.keyInObject(this_config, "columns")) {
           cols_to_plot = this.____check_if_cols_exist(this_config['columns']);
         } else {
-          cols_to_plot = this.ndframe.column_names;
+          cols_to_plot = this.ndframe.columns;
         }
 
         cols_to_plot.forEach((c_name) => {
@@ -175,15 +175,15 @@ export class Plot {
       trace["y"] = y;
       trace['type'] = "bar";
 
-      Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
+      Plotly.newPlot(this.div, [trace], this_config['layout'], this_config);
 
     } else {
       //check if plotting two columns against each other
-      if (utils.__key_in_object(this_config, 'x') && utils.__key_in_object(this_config, 'y')) {
-        if (!this.ndframe.column_names.includes(this_config['x'])) {
+      if (utils.keyInObject(this_config, 'x') && utils.keyInObject(this_config, 'y')) {
+        if (!this.ndframe.columns.includes(this_config['x'])) {
           throw Error(`Column Error: ${this_config['x']} not found in columns`);
         }
-        if (!this.ndframe.column_names.includes(this_config['y'])) {
+        if (!this.ndframe.columns.includes(this_config['y'])) {
           throw Error(`Column Error: ${this_config['y']} not found in columns`);
         }
 
@@ -204,9 +204,9 @@ export class Plot {
         this_config['layout']['xaxis'] = xaxis;
         this_config['layout']['yaxis'] = yaxis;
 
-        Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
+        Plotly.newPlot(this.div, [trace], this_config['layout'], this_config);
 
-      } else if (utils.__key_in_object(this_config, 'x') || utils.__key_in_object(this_config, 'y')) {
+      } else if (utils.keyInObject(this_config, 'x') || utils.keyInObject(this_config, 'y')) {
         //plot single column specified in either of param [x | y] against index
         let trace = {};
 
@@ -216,24 +216,24 @@ export class Plot {
           }
         });
 
-        if (utils.__key_in_object(this_config, 'x')) {
+        if (utils.keyInObject(this_config, 'x')) {
           trace['y'] = this.ndframe[this_config['x']].values;
         } else {
           trace['y'] = this.ndframe[this_config['y']].values;
         }
         trace['type'] = "bar";
 
-        Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
+        Plotly.newPlot(this.div, [trace], this_config['layout'], this_config);
 
       } else {
         //plot columns against index
         let data = [];
         let cols_to_plot;
 
-        if (utils.__key_in_object(this_config, "columns")) {
+        if (utils.keyInObject(this_config, "columns")) {
           cols_to_plot = this.____check_if_cols_exist(this_config['columns']);
         } else {
-          cols_to_plot = this.ndframe.column_names;
+          cols_to_plot = this.ndframe.columns;
         }
 
         cols_to_plot.forEach((c_name) => {
@@ -286,15 +286,15 @@ export class Plot {
       trace['type'] = "scatter";
       trace['mode'] = "markers";
 
-      Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
+      Plotly.newPlot(this.div, [trace], this_config['layout'], this_config);
 
     } else {
       //check if plotting two columns against each other
-      if (utils.__key_in_object(this_config, 'x') && utils.__key_in_object(this_config, 'y')) {
-        if (!this.ndframe.column_names.includes(this_config['x'])) {
+      if (utils.keyInObject(this_config, 'x') && utils.keyInObject(this_config, 'y')) {
+        if (!this.ndframe.columns.includes(this_config['x'])) {
           throw Error(`Column Error: ${this_config['x']} not found in columns`);
         }
-        if (!this.ndframe.column_names.includes(this_config['y'])) {
+        if (!this.ndframe.columns.includes(this_config['y'])) {
           throw Error(`Column Error: ${this_config['y']} not found in columns`);
         }
 
@@ -315,9 +315,9 @@ export class Plot {
         this_config['layout']['xaxis'] = xaxis;
         this_config['layout']['yaxis'] = yaxis;
 
-        Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
+        Plotly.newPlot(this.div, [trace], this_config['layout'], this_config);
 
-      } else if (utils.__key_in_object(this_config, 'x') || utils.__key_in_object(this_config, 'y')) {
+      } else if (utils.keyInObject(this_config, 'x') || utils.keyInObject(this_config, 'y')) {
         //plot single column specified in either of param [x | y] against index
         let trace = {};
 
@@ -327,7 +327,7 @@ export class Plot {
           }
         });
 
-        if (utils.__key_in_object(this_config, 'x')) {
+        if (utils.keyInObject(this_config, 'x')) {
           trace['y'] = this.ndframe.index;
           trace['x'] = this.ndframe[this_config['x']].values;
 
@@ -339,17 +339,17 @@ export class Plot {
         trace['type'] = "scatter";
         trace['mode'] = "markers";
 
-        Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
+        Plotly.newPlot(this.div, [trace], this_config['layout'], this_config);
 
       } else {
         //plot columns against index
         let data = [];
         let cols_to_plot;
 
-        if (utils.__key_in_object(this_config, "columns")) {
+        if (utils.keyInObject(this_config, "columns")) {
           cols_to_plot = this.____check_if_cols_exist(this_config['columns']);
         } else {
-          cols_to_plot = this.ndframe.column_names;
+          cols_to_plot = this.ndframe.columns;
         }
 
         cols_to_plot.forEach((c_name) => {
@@ -400,9 +400,9 @@ export class Plot {
       trace["x"] = this.ndframe.values;
       trace['type'] = "histogram";
 
-      Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
+      Plotly.newPlot(this.div, [trace], this_config['layout'], this_config);
 
-    } else if (utils.__key_in_object(this_config, 'x')) {
+    } else if (utils.keyInObject(this_config, 'x')) {
       //plot as vertical histogram
       let trace = {};
       params.forEach((param) => {
@@ -414,9 +414,9 @@ export class Plot {
       trace['x'] = this.ndframe[this_config['x']].values;
       trace['type'] = "histogram";
 
-      Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
+      Plotly.newPlot(this.div, [trace], this_config['layout'], this_config);
 
-    } else if (utils.__key_in_object(this_config, 'y')) {
+    } else if (utils.keyInObject(this_config, 'y')) {
       //plot as vertical histogram
       let trace = {};
       params.forEach((param) => {
@@ -428,16 +428,16 @@ export class Plot {
       trace['y'] = this.ndframe[this_config['y']].values;
       trace['type'] = "histogram";
 
-      Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
+      Plotly.newPlot(this.div, [trace], this_config['layout'], this_config);
 
     } else {
       let data = [];
       let cols_to_plot;
 
-      if (utils.__key_in_object(this_config, "columns")) {
+      if (utils.keyInObject(this_config, "columns")) {
         cols_to_plot = this.____check_if_cols_exist(this_config['columns']);
       } else {
-        cols_to_plot = this.ndframe.column_names;
+        cols_to_plot = this.ndframe.columns;
       }
 
       cols_to_plot.forEach((c_name) => {
@@ -468,45 +468,45 @@ export class Plot {
 
 
     if (this.ndframe instanceof Series) {
-      let data = [ {
+      let data = [{
         values: this.ndframe.values,
         labels: this.ndframe.index,
         type: 'pie',
         name: this_config['labels'],
         hoverinfo: 'label+percent+name',
         automargin: true
-      } ];
+      }];
 
       Plotly.newPlot(this.div, data, this_config['layout'], this_config);
 
-    } else if (utils.__key_in_object(this_config, 'values') && utils.__key_in_object(this_config, 'labels')) {
-      if (!this.ndframe.column_names.includes(this_config['labels'])) {
-        throw Error(`Column Error: ${this_config['labels']} not found in columns. labels name must be one of [ ${this.ndframe.column_names}]`);
+    } else if (utils.keyInObject(this_config, 'values') && utils.keyInObject(this_config, 'labels')) {
+      if (!this.ndframe.columns.includes(this_config['labels'])) {
+        throw Error(`Column Error: ${this_config['labels']} not found in columns. labels name must be one of [ ${this.ndframe.columns}]`);
       }
-      if (!this.ndframe.column_names.includes(this_config['values'])) {
-        throw Error(`Column Error: ${this_config['values']} not found in columns. value name must be one of [ ${this.ndframe.column_names}]`);
+      if (!this.ndframe.columns.includes(this_config['values'])) {
+        throw Error(`Column Error: ${this_config['values']} not found in columns. value name must be one of [ ${this.ndframe.columns}]`);
       }
-      let data = [ {
+      let data = [{
         values: this.ndframe[this_config['values']].values,
         labels: this.ndframe[this_config['labels']].values,
         type: 'pie',
         name: this_config['labels'],
         hoverinfo: 'label+percent+name',
         automargin: true
-      } ];
+      }];
 
       Plotly.newPlot(this.div, data, this_config['layout'], this_config);
 
     } else {
       let cols_to_plot;
 
-      if (utils.__key_in_object(this_config, "columns")) {
+      if (utils.keyInObject(this_config, "columns")) {
         cols_to_plot = this.____check_if_cols_exist(this_config['columns']);
       } else {
-        cols_to_plot = this.ndframe.column_names;
+        cols_to_plot = this.ndframe.columns;
       }
 
-      if (utils.__key_in_object(this_config, 'row_pos')) {
+      if (utils.keyInObject(this_config, 'row_pos')) {
         if (this_config['row_pos'].length != cols_to_plot.length - 1) {
           throw Error(`Lenght of row_pos array must be equal to number of columns. Got ${this_config['row_pos'].length}, expected ${cols_to_plot.length - 1}`);
         }
@@ -519,7 +519,7 @@ export class Plot {
 
       }
 
-      if (utils.__key_in_object(this_config, 'col_pos')) {
+      if (utils.keyInObject(this_config, 'col_pos')) {
         if (this_config['col_pos'].length != cols_to_plot.length - 1) {
           throw Error(`Lenght of col_pos array must be equal to number of columns. Got ${this_config['col_pos'].length}, expected ${cols_to_plot.length - 1}`);
         }
@@ -547,7 +547,7 @@ export class Plot {
 
       });
 
-      if (!utils.__key_in_object(this_config, "grid")) {
+      if (!utils.keyInObject(this_config, "grid")) {
         //set default grid
         let size = Number((this.ndframe.shape[1] / 2).toFixed()) + 1;
         this_config['grid'] = { rows: size, columns: size };
@@ -585,15 +585,15 @@ export class Plot {
       trace["y"] = y;
       trace['type'] = "box";
 
-      Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
+      Plotly.newPlot(this.div, [trace], this_config['layout'], this_config);
 
     } else {
       //check if plotting two columns against each other
-      if (utils.__key_in_object(this_config, 'x') && utils.__key_in_object(this_config, 'y')) {
-        if (!this.ndframe.column_names.includes(this_config['x'])) {
+      if (utils.keyInObject(this_config, 'x') && utils.keyInObject(this_config, 'y')) {
+        if (!this.ndframe.columns.includes(this_config['x'])) {
           throw Error(`Column Error: ${this_config['x']} not found in columns`);
         }
-        if (!this.ndframe.column_names.includes(this_config['y'])) {
+        if (!this.ndframe.columns.includes(this_config['y'])) {
           throw Error(`Column Error: ${this_config['y']} not found in columns`);
         }
 
@@ -614,9 +614,9 @@ export class Plot {
         this_config['layout']['xaxis'] = xaxis;
         this_config['layout']['yaxis'] = yaxis;
 
-        Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
+        Plotly.newPlot(this.div, [trace], this_config['layout'], this_config);
 
-      } else if (utils.__key_in_object(this_config, 'x') || utils.__key_in_object(this_config, 'y')) {
+      } else if (utils.keyInObject(this_config, 'x') || utils.keyInObject(this_config, 'y')) {
         //plot single column specified in either of param [x | y] against index
         let trace = {};
 
@@ -626,7 +626,7 @@ export class Plot {
           }
         });
 
-        if (utils.__key_in_object(this_config, 'x')) {
+        if (utils.keyInObject(this_config, 'x')) {
           trace['x'] = this.ndframe[this_config['x']].values;
           trace['y'] = this.ndframe.index;
           trace['type'] = 'box';
@@ -636,17 +636,17 @@ export class Plot {
           trace['type'] = 'box';
         }
 
-        Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
+        Plotly.newPlot(this.div, [trace], this_config['layout'], this_config);
 
       } else {
         //plot columns against index
         let data = [];
         let cols_to_plot;
 
-        if (utils.__key_in_object(this_config, "columns")) {
+        if (utils.keyInObject(this_config, "columns")) {
           cols_to_plot = this.____check_if_cols_exist(this_config['columns']);
         } else {
-          cols_to_plot = this.ndframe.column_names;
+          cols_to_plot = this.ndframe.columns;
         }
 
         cols_to_plot.forEach((c_name) => {
@@ -655,7 +655,7 @@ export class Plot {
           params.forEach((param) => { //TODO accept individual configuration for traces
             trace[param] = config[param];
           });
-          trace["x"] = this.ndframe[c_name].values; 
+          trace["x"] = this.ndframe[c_name].values;
           trace["y"] = this.ndframe.index;
           trace['name'] = c_name;
           trace['type'] = 'box';
@@ -696,15 +696,15 @@ export class Plot {
       trace["y"] = y;
       trace['type'] = "violin";
 
-      Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
+      Plotly.newPlot(this.div, [trace], this_config['layout'], this_config);
 
     } else {
       //check if plotting two columns against each other
-      if (utils.__key_in_object(this_config, 'x') && utils.__key_in_object(this_config, 'y')) {
-        if (!this.ndframe.column_names.includes(this_config['x'])) {
+      if (utils.keyInObject(this_config, 'x') && utils.keyInObject(this_config, 'y')) {
+        if (!this.ndframe.columns.includes(this_config['x'])) {
           throw Error(`Column Error: ${this_config['x']} not found in columns`);
         }
-        if (!this.ndframe.column_names.includes(this_config['y'])) {
+        if (!this.ndframe.columns.includes(this_config['y'])) {
           throw Error(`Column Error: ${this_config['y']} not found in columns`);
         }
 
@@ -725,9 +725,9 @@ export class Plot {
         this_config['layout']['xaxis'] = xaxis;
         this_config['layout']['yaxis'] = yaxis;
 
-        Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
+        Plotly.newPlot(this.div, [trace], this_config['layout'], this_config);
 
-      } else if (utils.__key_in_object(this_config, 'x') || utils.__key_in_object(this_config, 'y')) {
+      } else if (utils.keyInObject(this_config, 'x') || utils.keyInObject(this_config, 'y')) {
         //plot single column specified in either of param [x | y] against index
         let trace = {};
 
@@ -737,7 +737,7 @@ export class Plot {
           }
         });
 
-        if (utils.__key_in_object(this_config, 'x')) {
+        if (utils.keyInObject(this_config, 'x')) {
           trace['x'] = this.ndframe[this_config['x']].values;
           trace['y'] = this.ndframe.index;
           trace['type'] = 'violin';
@@ -747,17 +747,17 @@ export class Plot {
           trace['type'] = 'violin';
         }
 
-        Plotly.newPlot(this.div, [ trace ], this_config['layout'], this_config);
+        Plotly.newPlot(this.div, [trace], this_config['layout'], this_config);
 
       } else {
         //plot columns against index
         let data = [];
         let cols_to_plot;
 
-        if (utils.__key_in_object(this_config, "columns")) {
+        if (utils.keyInObject(this_config, "columns")) {
           cols_to_plot = this.____check_if_cols_exist(this_config['columns']);
         } else {
-          cols_to_plot = this.ndframe.column_names;
+          cols_to_plot = this.ndframe.columns;
         }
 
         cols_to_plot.forEach((c_name) => {
@@ -795,25 +795,25 @@ export class Plot {
     let cols_2_show;
 
 
-    if (utils.__key_in_object(this_config, 'columns')) {
+    if (utils.keyInObject(this_config, 'columns')) {
 
       this_config['columns'].forEach((cname) => {
-        if (!this.ndframe.column_names.includes(cname)) {
-          throw Error(`Column Error: ${cname} not found in columns. Columns should be one of [ ${this.ndframe.column_names} ]`);
+        if (!this.ndframe.columns.includes(cname)) {
+          throw Error(`Column Error: ${cname} not found in columns. Columns should be one of [ ${this.ndframe.columns} ]`);
         }
 
-        let idx = this.ndframe.column_names.indexOf(cname);
-        cols_data.push(this.ndframe.col_data[idx]);
+        let idx = this.ndframe.columns.indexOf(cname);
+        cols_data.push(this.ndframe.getColumnData[idx]);
       });
       cols_2_show = this_config['columns'];
     } else {
 
-      cols_2_show = this.ndframe.column_names;
-      cols_data = this.ndframe.col_data;
+      cols_2_show = this.ndframe.columns;
+      cols_data = this.ndframe.getColumnData;
 
     }
 
-    header['values'] = cols_2_show;
+    header['values'] = cols_2_show.map((col) => [col]);
     cells['values'] = cols_data;
 
     if (this_config['header_style']) {
@@ -827,11 +827,11 @@ export class Plot {
         cells[param] = this_config['cell_style'][param];
       });
     }
-    var data = [ {
+    var data = [{
       type: 'table',
       header: header,
       cells: cells
-    } ];
+    }];
     Plotly.newPlot(this.div, data, this_config['layout'], this_config);
 
   }
@@ -845,19 +845,19 @@ export class Plot {
       this_config[param] = config[param];
     });
 
-    if (!utils.__key_in_object(config, "layout")) {
+    if (!utils.keyInObject(config, "layout")) {
       this_config['layout'] = {};
     }
 
 
-    return [ this_config, params ];
+    return [this_config, params];
 
   }
 
   ____check_if_cols_exist(cols) {
     cols.forEach((col) => {
-      if (!this.ndframe.column_names.includes(col)) {
-        throw Error(`Column Error: ${col} not found in columns. Columns should be one of [ ${this.ndframe.column_names} ]`);
+      if (!this.ndframe.columns.includes(col)) {
+        throw Error(`Column Error: ${col} not found in columns. Columns should be one of [ ${this.ndframe.columns} ]`);
       }
     });
     return cols;

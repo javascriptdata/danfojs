@@ -1,6 +1,6 @@
 /**
-* Copyright 2020, JsData.
-* All rights reserved.
+*  @license
+* Copyright 2021, JsData. All rights reserved.
 *
 * This source code is licensed under the MIT license found in the
 * LICENSE file in the root directory of this source tree.
@@ -10,490 +10,441 @@
 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 * See the License for the specific language governing permissions and
 * limitations under the License.
- *
+* ==========================================================================
 */
 
-import * as tf from '@tensorflow/tfjs-node';
-import { table } from "table";
-import { Utils } from "./utils";
-import { Configs } from "../config/config";
+import { utils } from "../shared/utils";
+import Configs from "../shared/config";
+import ErrorThrower from '../shared/errors';
+import { BASE_CONFIG, DATA_TYPES } from '../shared/defaults';
+import { toCSV, toJSON, toExcel } from "../io";
+import { Tensor, tensor1d, tensor2d } from "@tensorflow/tfjs-node";
 
+// const utils = new Utils();
 
-const utils = new Utils();
-const config = new Configs(); //package wide configuration object
+/**
+ * N-Dimension data structure. Stores multi-dimensional
+ * data in a size-mutable, labeled data structure. Analogous to the Python Pandas DataFrame.
+ *
+ * @param  Object
+ *
+ *  data:  1D or 2D Array, JSON, Tensor, Block of data.
+ *
+ *  index: Array of numeric or string names for subseting array. If not specified, indexes are auto generated.
+ *
+ *  columns: Array of column names. If not specified, column names are auto generated.
+ *
+ *  dtypes: Array of data types for each the column. If not specified, dtypes inferred.
+ *
+ *  config: General configuration object for NDframe
+ *
+ * @returns NDframe
+ */
 export default class NDframe {
-  /**
-   * N-Dimensiona data structure. Stores multi-dimensional
-   * data in a size-mutable, labeled data structure. Analogous to the Python Pandas DataFrame.
-   *
-   * @param {data} Array JSON, Tensor. Block of data.
-   * @param {kwargs} Object Optional Configuration Object
-   *                 {columns: Array of column names. If not specified and data is an array of array, use range index.
-   *                  dtypes: Data types of the columns,
-   *                  index: row index for subseting array }
-   *
-   * @returns NDframe
-   */
 
-  constructor(data, kwargs = {}) {
-    this.kwargs = kwargs;
+  constructor({ data, index, columns, dtypes, config, isSeries }) {
+    this.$isSeries = isSeries;
+    if (config) {
+      this.$config = new Configs({ ...BASE_CONFIG, ...config });
+    } else {
+      this.$config = new Configs(BASE_CONFIG);
+    }
 
-    if (data instanceof tf.Tensor) {
+    if (data instanceof Tensor) {
       data = data.arraySync();
     }
 
-    if (utils.__is_1D_array(data)) {
-      this.series = true;
-      this._read_array(data);
+    if (data === undefined || (Array.isArray(data) && data.length === 0)) {
+      this.loadArrayIntoNdframe({ data: [], index: [], columns: [], dtypes: [] });
+    } else if (utils.is1DArray(data)) {
+      this.loadArrayIntoNdframe({ data, index, columns, dtypes });
     } else {
-      this.series = false;
-      if (utils.__is_object(data[0])) {
-        //check the type of the first object in the data
-        this._read_object(data, 1); //type 1 object are of JSON form [{a: 1, b: 2}, {a: 30, b: 20}]
-      } else if (utils.__is_object(data)) {
-        this._read_object(data, 2); //type 2 object are of the form {a: [1,2,3,4], b: [30,20, 30, 20}]
+
+      if (Array.isArray(data) && utils.isObject(data[0])) {
+        this.loadObjectIntoNdframe({ data, type: 1, index, columns, dtypes });
+
+      } else if (utils.isObject(data)) {
+        this.loadObjectIntoNdframe({ data, type: 2, index, columns, dtypes });
+
       } else if (
-        Array.isArray(data[0]) ||
-        utils.__is_number(data[0]) ||
-        utils.__is_string(data[0])
+        Array.isArray((data)[0]) ||
+                utils.isNumber((data)[0]) ||
+                utils.isString((data)[0])
       ) {
-        this._read_array(data);
+        this.loadArrayIntoNdframe({ data, index, columns, dtypes });
       } else {
-        throw new Error("File format not supported");
+        throw new Error("File format not supported!");
       }
     }
   }
 
   /**
-   *
-   * @param {Array} data
-   * Read array of data into NDFrame
-   */
-  _read_array(data) {
-    this.data = utils.__replace_undefined_with_NaN(data, this.series);
-    this.row_data_tensor = tf.tensor(this.data);
-
-    if (this.series) {
-      this.col_data = [ this.values ];
-    } else {
-      this.col_data = utils.__get_col_values(this.data);
+     * Internal function to load array of data into NDFrame
+     * @param data The array of data to load into NDFrame
+     * @param index Array of numeric or string names for subsetting array.
+     * @param columns Array of column names.
+     * @param dtypes Array of data types for each the column.
+    */
+  loadArrayIntoNdframe({ data, index, columns, dtypes }){
+    // this.$data = utils.replaceUndefinedWithNaN(data, this.$isSeries);
+    this.$data = data;
+    if (!this.$config.isLowMemoryMode) {
+      //In NOT low memory mode, we transpose the array and save in column format.
+      //This makes column data retrieval run in constant time
+      this.$dataIncolumnFormat = utils.transposeArray(data);
     }
-
-    this.col_data_tensor = tf.tensor(this.col_data); //data saved as 2D column tensors
-
-    if ("index" in this.kwargs) {
-      this.__set_index(this.kwargs["index"]);
-    } else {
-      this.index_arr = [ ...Array(this.row_data_tensor.shape[0]).keys() ];
-    }
-
-    if (this.ndim == 1) {
-      //series array
-      if ("columns" in this.kwargs) {
-        this.columns = this.kwargs["columns"];
-      } else {
-        this.columns = [ "0" ];
-      }
-    } else {
-      //2D Array
-      if ("columns" in this.kwargs) {
-        if (
-          this.kwargs["columns"].length == Number(this.row_data_tensor.shape[1])
-        ) {
-          this.columns = this.kwargs["columns"];
-        } else {
-          throw `Column length mismatch. You provided a column of length ${this.kwargs["columns"].length} but data has lenght of ${this.row_data_tensor.shape[1]}`;
-        }
-      } else {
-        this.columns = [ ...Array(this.row_data_tensor.shape[1]).keys() ];
-      }
-    }
-
-    if ("dtypes" in this.kwargs) {
-      this._set_col_types(this.kwargs["dtypes"], false);
-    } else {
-      this._set_col_types(null, true); //infer dtypes
-    }
+    this.$setIndex(index);
+    this.$setDtypes(dtypes);
+    this.$setColumnNames(columns);
   }
 
   /**
-   *  Convert Javascript Object of arrays into NDFrame
-   * @param {*} data Object of Arrays
-   * @param {*} type type 1 object are of JSON form [{a: 1, b: 2}, {a: 30, b: 20}],
-   *                 type 2 object are of the form {a: [1,2,3,4], b: [30,20, 30, 20}]
-   */
-  _read_object(data, type) {
-    if (type == 2) {
-      let [ row_arr, col_names ] = utils._get_row_and_col_values(data);
-      this.kwargs["columns"] = col_names;
-      this._read_array(row_arr);
-    } else {
-      let data_arr = data.map((item) => {
+     * Internal function to format and load a Javascript object or object of arrays into NDFrame.
+     * @param data Object or object of arrays.
+     * @param type The type of the object. There are two recognized types:
+     *
+     * - type 1 object are in JSON format `[{a: 1, b: 2}, {a: 30, b: 20}]`.
+     *
+     * - type 2 object are of the form `{a: [1,2,3,4], b: [30,20, 30, 20}]}`
+     * @param index Array of numeric or string names for subsetting array.
+     * @param columns Array of column names.
+     * @param dtypes Array of data types for each the column.
+    */
+  loadObjectIntoNdframe({ data, type, index, columns, dtypes }){
+    if (type === 1 && Array.isArray(data)) {
+      const _data = (data).map((item) => {
         return Object.values(item);
       });
 
-      this.data = utils.__replace_undefined_with_NaN(data_arr, this.series); //Defualt array data in row format
-      this.row_data_tensor = tf.tensor(this.data); //data saved as row tensors
-      this.kwargs["columns"] = Object.keys(Object.values(data)[0]); //get names of the column from the first entry
+      let _columnNames;
 
-      if (this.series) {
-        this.col_data = [ this.values ]; //data saved as 1D column tensors
+      if (columns) {
+        _columnNames = columns;
       } else {
-        this.col_data = utils.__get_col_values(this.data);
+        _columnNames = Object.keys((data)[0]);
       }
 
-      this.col_data_tensor = tf.tensor(this.col_data); //data saved as 2D column tensors
+      this.loadArrayIntoNdframe({ data: _data, index, columns: _columnNames, dtypes });
 
-      if ("index" in this.kwargs) {
-        this.__set_index(this.kwargs["index"]);
-      } else {
-        this.index_arr = [ ...Array(this.row_data_tensor.shape[0]).keys() ];
-      }
+    } else {
+      const [_data, _colNames] = utils.getRowAndColValues(data);
+      let _columnNames;
 
-      if (this.ndim == 1) {
-        //series array
-        if (!this.kwargs["columns"]) {
-          this.columns = [ "0" ];
-        } else {
-          this.columns = this.kwargs["columns"];
-        }
+      if (columns) {
+        _columnNames = columns;
       } else {
-        //2D Array
-        if ("columns" in this.kwargs) {
-          if (
-            this.kwargs["columns"].length ==
-            Number(this.row_data_tensor.shape[1])
-          ) {
-            this.columns = this.kwargs["columns"];
-          } else {
-            throw `Column length mismatch. You provided a column of length ${this.kwargs["columns"].length} but data has column length of ${this.row_data_tensor.shape[1]}`;
-          }
-        } else {
-          this.columns = [ ...Array(this.row_data_tensor.shape[1]).keys() ];
-        }
+        _columnNames = _colNames;
       }
-
-      if ("dtypes" in this.kwargs) {
-        this._set_col_types(this.kwargs["dtypes"], false);
-      } else {
-        this._set_col_types(null, true); //infer dtypes
-      }
+      this.loadArrayIntoNdframe({ data: _data, index, columns: _columnNames, dtypes });
     }
   }
 
   /**
-   * Sets the data type of the NDFrame. Supported types are ['float32', "int32", 'string', 'boolean']
-   * @param {Array<String>} dtypes Array of data types.
-   * @param {Boolean} infer Whether to automatically infer the dtypes from the Object
-   */
-  _set_col_types(dtypes, infer) {
-    const __supported_dtypes = [ "float32", "int32", "string", "boolean" ];
-
-    if (infer) {
-      if (this.series) {
-        this.col_types = utils.__get_t(this.values);
-      } else {
-        this.col_types = utils.__get_t(this.col_data);
-      }
+     * Converts and returns the data in the NDframe as a Tensorflow.js Tensor.
+    */
+  get tensor() {
+    if (this.$isSeries) {
+      return tensor1d(this.$data);
     } else {
-      if (this.series) {
-        this.col_types = dtypes;
-      } else {
-        if (dtypes.length != this.columns.length) {
-          throw new Error(
-            `length Mixmatch: Length of specified dtypes is ${dtypes.length}, but length of columns is ${this.columns.length}`
-          );
+      return tensor2d(this.$data);
+    }
+  }
+
+  /**
+     * Returns the dtypes of the columns
+    */
+  get dtypes() {
+    return this.$dtypes;
+  }
+
+  /**
+     * Internal function to set the Dtypes of the NDFrame from an array. This function
+     * performs the necessary checks.
+    */
+  $setDtypes(dtypes){
+    if (this.$isSeries) {
+      if (dtypes) {
+        if (this.$data.length != 0 && dtypes.length != 1) {
+          ErrorThrower.throwDtypesLengthError(this, dtypes);
         }
-        if (Array.isArray(dtypes)) {
-          dtypes.forEach((type, indx) => {
-            if (!__supported_dtypes.includes(type)) {
-              throw new Error(
-                `dtype error: dtype specified at index ${indx} is not supported`
-              );
+
+        if (!(DATA_TYPES.includes(`${dtypes[0]}`))) {
+          ErrorThrower.throwDtypeNotSupportedError(dtypes[0]);
+        }
+
+        this.$dtypes = dtypes;
+      } else {
+        this.$dtypes = utils.inferDtype(this.$data);
+      }
+
+    } else {
+      if (dtypes) {
+        if (this.$data.length != 0 && dtypes.length != this.shape[1]) {
+          ErrorThrower.throwDtypesLengthError(this, dtypes);
+        }
+
+        if (this.$data.length == 0 && dtypes.length == 0) {
+          this.$dtypes = dtypes;
+        } else {
+          dtypes.forEach((dtype) => {
+            if (!(DATA_TYPES.includes(dtype))) {
+              ErrorThrower.throwDtypeNotSupportedError(dtype);
             }
           });
-          this.col_types = dtypes;
-        } else {
-          throw new Error(`dtypes must be an Array of types`);
+
+          this.$dtypes = dtypes;
+
         }
+
+      } else {
+        this.$dtypes = utils.inferDtype(this.$data);
       }
     }
   }
 
   /**
-   * Returns the data types in the DataFrame
-   * @return {Array} list of data types for each column
-   */
-  get dtypes() {
-    // let col_data = utils.get_col_values(this.data)
-    // this.col_types = utils.__get_t(col_data)
-    // let sf = new Series({dtypes: this.col_types, index: this.column_names})
-    return this.col_types;
-  }
-
-  /**
-   * Gets dimension of the NDFrame
-   * @returns {Integer} dimension of NDFrame
-   */
+     * Returns the dimension of the data. Series have a dimension of 1,
+     * while DataFrames have a dimension of 2.
+    */
   get ndim() {
-    if (this.series) {
+    if (this.$isSeries) {
       return 1;
     } else {
-      return this.row_data_tensor.shape.length;
+      return 2;
     }
   }
 
   /**
-   * Gets values for index and columns
-   * @return {Object} axes configuration for index and columns of NDFrame
-   */
-  get axes() {
-    let axes = {
-      index: this.index,
-      columns: this.columns
+     * Returns the axis labels of the NDFrame.
+    */
+  get axis() {
+    return {
+      index: this.$index,
+      columns: this.$columns
     };
-    return axes;
   }
 
   /**
-   * Gets index of the NDframe
-   * @return {Array} array of index from series
-   */
+     * Returns the configuration object of the NDFrame.
+    */
+  get config() {
+    return this.$config;
+
+  }
+
+  /**
+     * Internal function to set the configuration of the ndframe
+    */
+  $setConfig(config){
+    this.$config = config;
+  }
+
+  /**
+     * Returns the indices of the NDFrame
+    */
   get index() {
-    return this.index_arr;
+    return this.$index;
+
   }
 
   /**
-   * Sets index of the NDFrame
-   */
-  __set_index(labels) {
-    if (!Array.isArray(labels)) {
-      throw Error("Value Error: index must be an array");
-    }
-    if (labels.length > this.shape[0] || labels.length < this.shape[0]) {
-      throw Error("Value Error: length of labels must match row shape of data");
-    }
-    this.index_arr = labels;
-  }
+     * Internal function to set the index of the NDFrame with the specified
+     * array of indices. Performs all necessary checks to ensure that the
+     * index is valid.
+    */
+  $setIndex(index){
+    if (index) {
 
-  /**
-   * Generate a new index for NDFrame.
-   */
-  __reset_index() {
-    let new_idx = [ ...Array(this.values.length).keys() ];
-    this.index_arr = new_idx;
-  }
+      if (this.$data.length != 0 && index.length != this.shape[0]) {
+        ErrorThrower.throwIndexLengthError(this, index);
+      }
+      if (Array.from(new Set(index)).length !== this.shape[0]) {
+        ErrorThrower.throwIndexDuplicateError();
+      }
 
-  /**
-   * Gets a sequence of axis dimension along row and columns
-   * @returns {Array} the shape of the NDFrame
-   */
-  get shape() {
-    if (this.series) {
-      return [ this.values.length, 1 ];
+      this.$index = index;
     } else {
-      return this.row_data_tensor.shape;
+      this.$index = utils.range(0, this.shape[0] - 1); //generate index
     }
   }
 
   /**
-   * Gets the values in the NDFrame in JS array
-   * @returns {Array} Arrays of arrays of data instances
-   */
-  get values() {
-    return this.data;
+     * Internal function to reset the index of the NDFrame using a range of indices.
+    */
+  $resetIndex(){
+    this.$index = utils.range(0, this.shape[0] - 1);
   }
 
   /**
-   * Gets the column names of the data
-   * @returns {Array} strings of column names
-   */
-  get column_names() {
-    return this.columns;
+     * Returns the column names of the NDFrame
+    */
+  get columns() {
+    return this.$columns;
   }
 
   /**
-   * Return a boolean same-sized object indicating if the values are NaN. NaN and undefined values
-   *  gets mapped to True values. Everything else gets mapped to False values.
-   * @return {Array}
-   */
-  __isna() {
-    let new_arr = [];
-    if (this.series) {
-      this.values.map((val) => {
-        // eslint-disable-next-line use-isnan
-        if (val == NaN) {
-          new_arr.push(true);
-        } else if (isNaN(val) && typeof val != "string") {
-          new_arr.push(true);
-        } else {
-          new_arr.push(false);
+     * Internal function to set the column names for the NDFrame. This function
+     * performs a check to ensure that the column names are unique, and same length as the
+     * number of columns in the data.
+    */
+  $setColumnNames(columns) {
+
+    if (this.$isSeries) {
+      if (columns) {
+        if (this.$data.length != 0 && columns.length != 1 && typeof columns != 'string') {
+          ErrorThrower.throwColumnNamesLengthError(this, columns);
         }
-      });
+        this.$columns = columns;
+      } else {
+        this.$columns = ["0"];
+      }
     } else {
-      let row_data = this.values;
-      row_data.map((arr) => {
-        let temp_arr = [];
-        arr.map((val) => {
-          // eslint-disable-next-line use-isnan
-          if (val == NaN) {
-            temp_arr.push(true);
-          } else if (isNaN(val) && typeof val != "string") {
-            temp_arr.push(true);
-          } else {
-            temp_arr.push(false);
+      if (columns) {
+
+        if (this.$data.length != 0 && columns.length != this.shape[1]) {
+
+          ErrorThrower.throwColumnNamesLengthError(this, columns);
+        }
+        if (Array.from(new Set(columns)).length !== this.shape[1]) {
+          ErrorThrower.throwColumnDuplicateError();
+        }
+
+        this.$columns = columns;
+      } else {
+        this.$columns = (utils.range(0, this.shape[1] - 1)).map((val) => `${val}`); //generate columns
+      }
+    }
+  }
+
+  /**
+     * Returns the shape of the NDFrame. Shape is determined by [row lenght, column length]
+    */
+  get shape() {
+    if (this.$data.length === 0) return [0, 0];
+    if (this.$isSeries) {
+      return [this.$data.length, 1];
+    } else {
+      const rowLen = (this.$data).length;
+      const colLen = (this.$data[0]).length;
+      return [rowLen, colLen];
+    }
+
+  }
+
+  /**
+     * Returns the underlying data in Array format.
+    */
+  get values() {
+    return this.$data;
+  }
+
+  /**
+     * Updates the internal $data property to the specified value
+     * @param values An array of values to set
+     * @param checkLength Whether to check the length of the new values and the existing row length
+     * @param checkColumnLength Whether to check the length of the new values and the existing column length
+     * */
+  $setValues(values, checkLength = true, checkColumnLength = true){
+    if (this.$isSeries) {
+      if (checkLength && values.length != this.shape[0]) {
+        ErrorThrower.throwRowLengthError(this, values.length);
+      }
+
+      this.$data = values;
+      this.$dtypes = utils.inferDtype(values); //Dtype may change depeneding on the value set
+
+      if (!this.$config.isLowMemoryMode) {
+        this.$dataIncolumnFormat = values;
+      }
+
+    } else {
+      if (checkLength && values.length != this.shape[0]) {
+        ErrorThrower.throwRowLengthError(this, values.length);
+      }
+
+      if (checkColumnLength) {
+        values.forEach((value) => {
+          if ((value).length != this.shape[1]) {
+            ErrorThrower.throwColumnLengthError(this, values.length);
           }
         });
-        new_arr.push(temp_arr);
-      });
+      }
+
+      this.$data = values;
+      this.$dtypes = utils.inferDtype(values);
+
+      if (!this.$config.isLowMemoryMode) {
+        this.$dataIncolumnFormat = utils.transposeArray(values);
+      }
+
     }
-    return new_arr;
+
   }
 
-  /*
-   * Gets binary size of the NDFrame
-   * @returns {String} size of the NDFrame
-   */
+  /**
+    * Returns the underlying data in Array column format.
+  */
+  get getColumnData() {
+    if (this.config.isLowMemoryMode) {
+      return utils.transposeArray(this.values);
+    } else {
+      return this.$dataIncolumnFormat;
+    }
+  }
+
+  /**
+     * Returns the size of the NDFrame object
+     *
+    */
   get size() {
-    return this.row_data_tensor.size;
+    return this.shape[0] * this.shape[1];
   }
 
   /**
-   * Return object data as comma-separated values (csv).
-   * @returns {Promise<String>} CSV representation of Object data
-   */
-  async to_csv() {
-    if (this.series) {
-      let csv = this.values.join(",");
-      return csv;
-    } else {
-      let records = this.values;
-      let header = this.column_names.join(",");
-
-      let csv_str = `${header}\n`;
-      records.forEach((val) => {
-        let row = `${val.join(",")}\n`;
-        csv_str += row;
-      });
-      return csv_str;
-    }
+     * Converts a DataFrame or Series to CSV.
+     * @param options Configuration object. Supports the following options:
+     * - `filePath`: Local file path to write the CSV file. If not specified, the CSV will be returned as a string.
+     * - `header`: Boolean indicating whether to include a header row in the CSV file.
+     * - `sep`: Character to be used as a separator in the CSV file.
+     */
+  to_csv(options) {
+    return toCSV(this, options);
   }
 
   /**
-   * Return object as JSON string.
-   * @returns {Promise <JSON>} JSON representation of Object data
-   */
-  async to_json() {
-    if (this.series) {
-      let obj = {};
-      obj[this.column_names[0]] = this.values;
-      let json = JSON.stringify(obj);
-      return json;
-    } else {
-      let values = this.values;
-      let header = this.column_names;
-      let json_arr = [];
-      values.forEach((val) => {
-        let obj = {};
-        header.forEach((h, i) => {
-          obj[h] = val[i];
-        });
-        json_arr.push(obj);
-      });
-      return JSON.stringify(json_arr);
-    }
+     * Converts a DataFrame or Series to JSON.
+     * @param options Configuration object. Supported options:
+     * - `filePath`: The file path to write the JSON to. If not specified, the JSON object is returned.
+     * - `format`: The format of the JSON. Defaults to `'column'`. E.g for using `column` format:
+     * ```
+     * [{ "a": 1, "b": 2, "c": 3, "d": 4 },
+     *  { "a": 5, "b": 6, "c": 7, "d": 8 }]
+     * ```
+     * and `row` format:
+     * ```
+     * { "a": [1, 5, 9],
+     *  "b": [2, 6, 10]
+     * }
+     * ```
+     */
+  to_json(options) {
+    return toJSON(this, options);
+  }
+
+
+  /**
+     * Converts a DataFrame or Series to Excel Sheet.
+     * @param options Configuration object. Supported options:
+     * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
+     * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`.
+     */
+  to_excel(options){
+    return toExcel(this, options);
   }
 
   /**
-   * Prints the data in a Series as a grid of row and columns
-   */
-  toString() {
-    let table_width = config.get_width;
-    let table_truncate = config.get_truncate;
-    let max_row = config.get_max_row;
-    let max_col_in_console = config.get_max_col_in_console;
-
-    // let data;
-    let data_arr = [];
-    let table_config = {};
-    // let idx = this.index
-    let col_len = this.columns.length;
-    // let row_len = this.values.length - 1
-    let header = [];
-
-    if (col_len > max_col_in_console) {
-      //truncate displayed columns to fit in the console
-      let first_4_cols = this.columns.slice(0, 4);
-      let last_3_cols = this.columns.slice(col_len - 4);
-      //join columns with truncate ellipse in the middle
-      header = [ "" ].concat(first_4_cols).concat([ "..." ]).concat(last_3_cols);
-
-      let sub_idx, values_1, value_2;
-
-      if (this.values.length > max_row) {
-        //slice Object to show [max_rows]
-        let df_subset_1 = this.iloc({
-          rows: [ `0:${max_row}` ],
-          columns: [ "0:4" ]
-        });
-        let df_subset_2 = this.iloc({
-          rows: [ `0:${max_row}` ],
-          columns: [ `${col_len - 4}:` ]
-        });
-        sub_idx = this.index.slice(0, max_row);
-        values_1 = df_subset_1.values;
-        value_2 = df_subset_2.values;
-      } else {
-        let df_subset_1 = this.iloc({ rows: [ "0:" ], columns: [ "0:4" ] });
-        let df_subset_2 = this.iloc({
-          rows: [ "0:" ],
-          columns: [ `${col_len - 4}:` ]
-        });
-        sub_idx = this.index.slice(0, max_row);
-        values_1 = df_subset_1.values;
-        value_2 = df_subset_2.values;
-      }
-
-      // merge dfs
-      sub_idx.map((val, i) => {
-        let row = [ val ].concat(values_1[i]).concat([ "..." ]).concat(value_2[i]);
-        data_arr.push(row);
-      });
-    } else {
-      //display all columns
-      header = [ "" ].concat(this.columns);
-      let idx, values;
-      if (this.values.length > max_row) {
-        //slice Object to show a max of [max_rows]
-        let data = this.loc({ rows: [ `0:${max_row}` ], columns: this.columns });
-        idx = data.index;
-        values = data.values;
-      } else {
-        values = this.values;
-        idx = this.index;
-      }
-
-      // merge cols
-      idx.forEach((val, i) => {
-        let row = [ val ].concat(values[i]);
-        data_arr.push(row);
-      });
-    }
-
-    //set column width of all columns
-    table_config[0] = 10;
-    for (let index = 1; index < header.length; index++) {
-      table_config[index] = { width: table_width, truncate: table_truncate };
-    }
-
-    let table_data = [ header ].concat(data_arr); //Adds the column names to values before printing
-    return table(table_data, { columns: table_config });
-  }
-
-  /**
-   * Pretty prints n number of rows in a DataFrame or Series in the console
-   * @param {rows} Number of rows to print
-   */
+     * Pretty prints a DataFrame or Series to the console
+     */
   print() {
     console.log(this + "");
   }

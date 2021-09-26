@@ -1,8 +1,6 @@
-import { Series } from "../core/series";
-import { Utils } from "../core/utils";
-import { DataFrame } from "../core/frame";
-
-const utils = new Utils;
+import Series from "../core/series";
+import DataFrame from "../core/frame";
+import { utils } from "../shared/utils";
 
 export class LabelEncoder {
 
@@ -70,7 +68,7 @@ export class OneHotEncoder {
     let data_set = new Set(in_data);
     this.label = Array.from(data_set);
 
-    let onehot_data = utils.__zeros(in_data.length, this.label.length);
+    let onehot_data = utils.zeros(in_data.length, this.label.length);
 
     for (let i = 0; i < in_data.length; i++) {
 
@@ -94,7 +92,7 @@ export class OneHotEncoder {
       throw new Error("data must be an array");
     }
 
-    let onehot_data = utils.__zeros(in_data.length, this.label.length);
+    let onehot_data = utils.zeros(in_data.length, this.label.length);
 
     for (let i = 0; i < in_data.length; i++) {
       let elem = in_data[i];

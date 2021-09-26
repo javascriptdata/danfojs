@@ -23,15 +23,10 @@
         "before": false, "after": true
             }
         ],
-    "indent": [ "error",
-            2
-        ],
     "keyword-spacing": [
       "error",
             { "before": true
             }
-        ],
-    "array-bracket-spacing": [ "error", "always"
         ],
     "space-infix-ops": "error",
     "object-curly-spacing": [ "error", "always"

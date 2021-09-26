@@ -1,7 +1,5 @@
 import { assert } from "chai";
-import { MinMaxScaler, StandardScaler } from "../../src/preprocessing/scalers";
-import { DataFrame } from '../../src/core/frame';
-import { Series } from '../../src/core/series';
+import { Series, DataFrame, MinMaxScaler, StandardScaler } from '../../dist';
 
 
 describe("Preprocessing", function(){
