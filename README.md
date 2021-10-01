@@ -188,6 +188,13 @@ Output in Node Console:
 ## Documentation
 The official documentation can be found [here](https://danfo.jsdata.org)
 
+## Danfo.js Official Book
+
+![image](https://user-images.githubusercontent.com/29900845/134811659-25ff6b05-8e0d-415f-a60c-03ab1d33fd71.jpeg)
+
+
+We recently published a book titled "Building Data Driven Applications with Danfo.js". Read more about it [here](https://danfo.jsdata.org/building-data-driven-applications-with-danfo.js-book)
+
 ## Discussion and Development
 Development discussions take place [here](https://github.com/opensource9ja/danfojs/discussions). 
 
