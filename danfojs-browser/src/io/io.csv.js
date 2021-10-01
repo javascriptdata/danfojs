@@ -44,10 +44,10 @@ import { DataFrame } from '../index';
  * const df = await readCSV("./data/sample.csv")
  * ```
  */
-const $readCSV = async (file, options) => {
+const $readCSV = async (filePath, options) => {
   options = { header: true, dynamicTyping: true, ...options };
   return new Promise((resolve) => {
-    Papa.parse(file, {
+    Papa.parse(filePath, {
       ...options,
       download: true,
       complete: (results) => {

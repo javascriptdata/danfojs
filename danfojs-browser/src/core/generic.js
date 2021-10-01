@@ -414,7 +414,7 @@ export default class NDframe {
   /**
      * Converts a DataFrame or Series to JSON.
      * @param options Configuration object. Supported options:
-     * - `filePath`: The file path to write the JSON to. If not specified, the JSON object is returned.
+     * - `fileName`: The file path to write the JSON to. If not specified, the JSON object is returned.
      * - `format`: The format of the JSON. Defaults to `'column'`. E.g for using `column` format:
      * ```
      * [{ "a": 1, "b": 2, "c": 3, "d": 4 },

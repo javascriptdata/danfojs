@@ -1,3 +1,6 @@
+import Series from "../core/series";
+import { DataFrame } from "../core/frame";
+
 export class LabelEncoder {
     /**
        *
@@ -18,5 +21,3 @@ export class OneHotEncoder {
     label?: any;
     transform(data?: any): DataFrame;
 }
-import { Series } from "../core/series";
-import { DataFrame } from "../core/frame";
