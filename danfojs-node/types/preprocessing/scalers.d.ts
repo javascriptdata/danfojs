@@ -1,3 +1,5 @@
+import Series from "../core/series";
+import { DataFrame } from "../core/frame";
 export class MinMaxScaler {
     /**
     * Fit minmax scaler on data, to obtain their min and max value
@@ -13,6 +15,13 @@ export class MinMaxScaler {
        * @returns array
        */
     transform(data?: any): Series | DataFrame;
+
+    /**
+     * Restore a transformed array to their original values,
+     * using the min and max generated from the fitting on data
+     * @param {Series|Array|DataFrame} data
+     * @returns Series|DataFrame
+     */
     inverse_transform(data?: any): Series | DataFrame;
 }
 export class StandardScaler {
@@ -27,5 +36,4 @@ export class StandardScaler {
     transform(data?: any): Series | DataFrame;
     inverse_transform(data?: any): Series | DataFrame;
 }
-import { Series } from "../core/series";
-import { DataFrame } from "../core/frame";
+

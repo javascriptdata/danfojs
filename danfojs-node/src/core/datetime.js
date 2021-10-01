@@ -74,8 +74,8 @@ export default class TimeSeries {
      * "2019-04-01",
      * ]
      * const df = new Dataframe(data)
-     * const dayOfWeek = df.dt.dayOfWeek()
-     * console.log(dayOfWeek.values)
+     * const dayOfWeek = df.dt.day()
+     * console.log(day.values)
      * ```
     */
   day() {

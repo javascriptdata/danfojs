@@ -980,7 +980,7 @@ export default class Series extends NDframe {
      */
   argsort(ascending = true) {
     const sortedIndex = this.sort_values(ascending);
-    const sf = new Series(sortedIndex?.index);
+    const sf = new Series(sortedIndex.index);
     return sf;
   }
 
@@ -1347,9 +1347,9 @@ export default class Series extends NDframe {
      * - `prefixSeparator`: Separator to use for the prefix. Defaults to '_'.
      * @returns A DataFrame with the one-hot encoded columns.
      * @example
-     * sf.getDummies()
-     * sf.getDummies({prefix: 'cat' })
-     * sf.getDummies({ prefix: 'cat', prefixSeparator: '-' })
+     * sf.get_dummies()
+     * sf.get_dummies({prefix: 'cat' })
+     * sf.get_dummies({ prefix: 'cat', prefixSeparator: '-' })
      */
   get_dummies(options) {
     return dummyEncode(this, options);

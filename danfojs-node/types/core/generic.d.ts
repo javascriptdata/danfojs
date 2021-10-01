@@ -1,112 +1,181 @@
-export default class NDframe {
-  /**
-     * N-Dimensiona data structure. Stores multi-dimensional
-     * data in a size-mutable, labeled data structure. Analogous to the Python Pandas DataFrame.
+/**
+*  @license
+* Copyright 2021, JsData. All rights reserved.
+*
+* This source code is licensed under the MIT license found in the
+* LICENSE file in the root directory of this source tree.
+
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+* ==========================================================================
+*/
+import Configs from "../shared/config";
+import { NDframeInterface, NdframeInputDataType, AxisType, ArrayType1D, ArrayType2D, CsvOutputOptionsNode } from '../shared/types';
+/**
+ * N-Dimension data structure. Stores multi-dimensional
+ * data in a size-mutable, labeled data structure. Analogous to the Python Pandas DataFrame.
+ *
+ * @param  Object
+ *
+ *  data:  1D or 2D Array, JSON, Tensor, Block of data.
+ *
+ *  index: Array of numeric or string names for subseting array. If not specified, indexes are auto generated.
+ *
+ *  columns: Array of column names. If not specified, column names are auto generated.
+ *
+ *  dtypes: Array of data types for each the column. If not specified, dtypes inferred.
+ *
+ *  config: General configuration object for NDframe
+ *
+ * @returns NDframe
+ */
+export default class NDframe implements NDframeInterface {
+    $isSeries: boolean;
+    protected $data: any;
+    protected $dataIncolumnFormat: ArrayType1D | ArrayType2D;
+    protected $index: Array<string | number>;
+    protected $columns: string[];
+    protected $dtypes: Array<string>;
+    protected $config: Configs;
+    constructor({ data, index, columns, dtypes, config, isSeries }: NdframeInputDataType);
+    /**
+     * Internal function to load array of data into NDFrame
+     * @param data The array of data to load into NDFrame
+     * @param index Array of numeric or string names for subsetting array.
+     * @param columns Array of column names.
+     * @param dtypes Array of data types for each the column.
+    */
+    private loadArrayIntoNdframe;
+    /**
+     * Internal function to format and load a Javascript object or object of arrays into NDFrame.
+     * @param data Object or object of arrays.
+     * @param type The type of the object. There are two recognized types:
      *
-     * @param {data} Array JSON, Tensor. Block of data.
-     * @param {kwargs} Object Optional Configuration Object
-     *                 {columns: Array of column names. If not specified and data is an array of array, use range index.
-     *                  dtypes: Data types of the columns,
-     *                  index: row index for subseting array }
+     * - type 1 object are in JSON format `[{a: 1, b: 2}, {a: 30, b: 20}]`.
      *
-     * @returns NDframe
-     */
-  constructor(data?: any, kwargs?: {});
-  kwargs: {};
-  series: boolean;
-  /**
+     * - type 2 object are of the form `{a: [1,2,3,4], b: [30,20, 30, 20}]}`
+     * @param index Array of numeric or string names for subsetting array.
+     * @param columns Array of column names.
+     * @param dtypes Array of data types for each the column.
+    */
+    private loadObjectIntoNdframe;
+    /**
+     * Converts and returns the data in the NDframe as a Tensorflow.js Tensor.
+    */
+    get tensor(): import("@tensorflow/tfjs-node").Tensor1D | import("@tensorflow/tfjs-node").Tensor2D;
+    /**
+     * Returns the dtypes of the columns
+    */
+    get dtypes(): Array<string>;
+    /**
+     * Internal function to set the Dtypes of the NDFrame from an array. This function
+     * performs the necessary checks.
+    */
+    $setDtypes(dtypes: Array<string> | undefined): void;
+    /**
+     * Returns the dimension of the data. Series have a dimension of 1,
+     * while DataFrames have a dimension of 2.
+    */
+    get ndim(): number;
+    /**
+     * Returns the axis labels of the NDFrame.
+    */
+    get axis(): AxisType;
+    /**
+     * Returns the configuration object of the NDFrame.
+    */
+    get config(): Configs;
+    /**
+     * Internal function to set the configuration of the ndframe
+    */
+    $setConfig(config: Configs): void;
+    /**
+     * Returns the indices of the NDFrame
+    */
+    get index(): Array<string | number>;
+    /**
+     * Internal function to set the index of the NDFrame with the specified
+     * array of indices. Performs all necessary checks to ensure that the
+     * index is valid.
+    */
+    $setIndex(index: Array<string | number> | undefined): void;
+    /**
+     * Internal function to reset the index of the NDFrame using a range of indices.
+    */
+    $resetIndex(): void;
+    /**
+     * Returns the column names of the NDFrame
+    */
+    get columns(): string[];
+    /**
+     * Internal function to set the column names for the NDFrame. This function
+     * performs a check to ensure that the column names are unique, and same length as the
+     * number of columns in the data.
+    */
+    $setColumnNames(columns?: string[]): void;
+    /**
+     * Returns the shape of the NDFrame. Shape is determined by [row lenght, column length]
+    */
+    get shape(): Array<number>;
+    /**
+     * Returns the underlying data in Array format.
+    */
+    get values(): ArrayType1D | ArrayType2D;
+    /**
+     * Updates the internal $data property to the specified value
+     * @param values An array of values to set
+     * @param checkLength Whether to check the length of the new values and the existing row length
+     * @param checkColumnLength Whether to check the length of the new values and the existing column length
+     * */
+    $setValues(values: ArrayType1D | ArrayType2D, checkLength?: boolean, checkColumnLength?: boolean): void;
+    /**
+     * Returns the size of the NDFrame object
      *
-     * @param {Array} data
-     * Read array of data into NDFrame
+    */
+    get size(): number;
+    /**
+     * Converts a DataFrame or Series to CSV.
+     * @param options Configuration object. Supports the following options:
+     * - `filePath`: Local file path to write the CSV file. If not specified, the CSV will be returned as a string.
+     * - `header`: Boolean indicating whether to include a header row in the CSV file.
+     * - `sep`: Character to be used as a separator in the CSV file.
      */
-  _read_array(data?: any[]): void;
-  data?: any[];
-  row_data_tensor?: any;
-  col_data?: any[][];
-  col_data_tensor?: any;
-  index_arr?: any[];
-  columns?: any;
-  /**
-     *  Convert Javascript Object of arrays into NDFrame
-     * @param {*} data Object of Arrays
-     * @param {*} type type 1 object are of JSON form [{a: 1, b: 2}, {a: 30, b: 20}],
-     *                 type 2 object are of the form {a: [1,2,3,4], b: [30,20, 30, 20}]
+    to_csv(options?: CsvOutputOptionsNode): string | void;
+    /**
+     * Converts a DataFrame or Series to JSON.
+     * @param options Configuration object. Supported options:
+     * - `filePath`: The file path to write the JSON to. If not specified, the JSON object is returned.
+     * - `format`: The format of the JSON. Defaults to `'column'`. E.g for using `column` format:
+     * ```
+     * [{ "a": 1, "b": 2, "c": 3, "d": 4 },
+     *  { "a": 5, "b": 6, "c": 7, "d": 8 }]
+     * ```
+     * and `row` format:
+     * ```
+     * { "a": [1, 5, 9],
+     *  "b": [2, 6, 10]
+     * }
+     * ```
      */
-  _read_object(data?: any, type?: any): void;
-  /**
-     * Sets the data type of the NDFrame. Supported types are ['float32', "int32", 'string', 'boolean']
-     * @param {Array<String>} dtypes Array of data types.
-     * @param {Boolean} infer Whether to automatically infer the dtypes from the Object
+    to_json(options?: {
+        format?: "row" | "column";
+        filePath?: string;
+    }): object | void;
+    /**
+     * Converts a DataFrame or Series to Excel Sheet.
+     * @param options Configuration object. Supported options:
+     * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
+     * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`.
      */
-  _set_col_types(dtypes: Array<string>, infer: boolean): void;
-  col_types?: any[];
-  /**
-    * Returns the data types in the DataFrame
-    * @return {Array} list of data types for each column
-    */
-  get dtypes(): any[];
-  /**
-     * Gets dimension of the NDFrame
-     * @returns {Integer} dimension of NDFrame
+    to_excel(options?: {
+        filePath?: string;
+        sheetName?: string;
+    }): void;
+    /**
+     * Pretty prints a DataFrame or Series to the console
      */
-  get ndim(): any;
-  /**
-    * Gets values for index and columns
-    * @return {Object} axes configuration for index and columns of NDFrame
-    */
-  get axes(): any;
-  /**
-    * Gets index of the NDframe
-    * @return {Array} array of index from series
-    */
-  get index(): any[];
-  /**
-    * Sets index of the NDFrame
-    */
-  __set_index(labels?: any): void;
-  /**
-    * Generate a new index for NDFrame.
-    */
-  __reset_index(): void;
-  /**
-     * Gets a sequence of axis dimension along row and columns
-     * @returns {Array} the shape of the NDFrame
-     */
-  get shape(): any[];
-  /**
-     * Gets the values in the NDFrame in JS array
-     * @returns {Array} Arrays of arrays of data instances
-     */
-  get values(): any[];
-  /**
-     * Gets the column names of the data
-     * @returns {Array} strings of column names
-     */
-  get column_names(): any[];
-  /**
-    * Return a boolean same-sized object indicating if the values are NaN. NaN and undefined values
-    *  gets mapped to True values. Everything else gets mapped to False values.
-    * @return {Array}
-    */
-  __isna(): any[];
-  get size(): any;
-  /**
-    * Return object data as comma-separated values (csv).
-     * @returns {Promise<String>} CSV representation of Object data
-     */
-  to_csv(): Promise<string>;
-  /**
-    * Return object as JSON string.
-    * @returns {Promise <JSON>} JSON representation of Object data
-    */
-  to_json(): Promise<JSON>;
-  /**
-    * Prints the data in a Series as a grid of row and columns
-    */
-  toString(): any;
-  /**
-    * Pretty prints n number of rows in a DataFrame or Series in the console
-    * @param {rows} Number of rows to print
-    */
-  print(): void;
+    print(): void;
 }
