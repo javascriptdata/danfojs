@@ -15,16 +15,20 @@
 
 import Series from "../core/series"
 import DataFrame from "../core/frame"
-import Utils from "../shared/utils"
 import { ArrayType1D, ArrayType2D } from "shared/types"
 
-function processColumn(dfList: Array<DataFrame | Series>, axis: 1 | 0 ): DataFrame {
+function processColumn(dfList: Array<DataFrame | Series>, axis: number ): DataFrame {
   let allDf: any = {}
   let dublicateColumns: any = {}
   let maxLen = 0
   for(let i=0; i < dfList.length; i++) {
     let df = dfList[i]
-    let columnData = df.getColumnData as ArrayType2D
+    let columnData: ArrayType2D;
+    if ( df instanceof DataFrame) {
+      columnData = df.getColumnData as ArrayType2D
+    } else {
+      columnData = [df.values] as ArrayType2D
+    }
     let columns = df.columns
     for(let j=0; j < columns.length; j++) {
       let column = columns[j]
@@ -55,13 +59,19 @@ function processColumn(dfList: Array<DataFrame | Series>, axis: 1 | 0 ): DataFra
 }
 
 
-function processRow(dfList: Array<DataFrame | Series>, axis: 1 | 0 ): DataFrame {
+function processRow(dfList: Array<DataFrame | Series>, axis: number ): DataFrame | Series {
     let allDf: any = {}
     let maxLen = 0
     for (let i=0; i < dfList.length; i++) {
       let df = dfList[i]
       let columns = df.columns
-      let columnData = df.getColumnData as ArrayType2D
+      let columnData: ArrayType2D;
+      if ( df instanceof DataFrame) {
+        columnData = df.getColumnData as ArrayType2D
+      } else {
+        columnData = [df.values] as ArrayType2D
+      }
+      
 
       if (i ===0) {
         for(let j=0; j < columns.length; j++) {
@@ -97,6 +107,10 @@ function processRow(dfList: Array<DataFrame | Series>, axis: 1 | 0 ): DataFrame 
       }
       maxLen += columnData[0].length
     }
+    
+    if (Object.keys(allDf).length === 1) {
+      return new Series(Object.values(allDf)[0])
+    }
     return new DataFrame(allDf)
 }
 
@@ -110,7 +124,7 @@ function processRow(dfList: Array<DataFrame | Series>, axis: 1 | 0 ): DataFrame 
 function concat({dfList, axis}: {
   dfList : Array<DataFrame | Series>,
   axis: 1 | 0
-}): DataFrame {
+}): DataFrame | Series {
   if (axis === 1) {
     return processColumn(dfList, axis)
   }
