@@ -26,6 +26,7 @@ import StandardScaler from "./transformers/scalers/standard.scaler";
 import LabelEncoder from "./transformers/encoders/label.encoder";
 import OneHotEncoder from "./transformers/encoders/one.hot.encoder";
 import getDummies from "./transformers/encoders/dummy.encoder"
+import concat from "./transformers/concat"
 
 export {
     NDframe,
@@ -49,5 +50,6 @@ export {
     StandardScaler,
     LabelEncoder,
     OneHotEncoder,
-    getDummies
+    getDummies,
+    concat
 }
