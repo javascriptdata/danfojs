@@ -628,6 +628,8 @@ describe("DataFrame", function () {
       let data = [[0, 2, 4], [360, 180, 360]];
       let df = new dfd.DataFrame(data, { columns: ["col1", "col2", "col3"] });
       assert.deepEqual(df.mean().values, [180, 91, 182]);
+      assert.deepEqual(df.mean().index, ["col1", "col2", "col3"]);
+
     });
     it("Return mean of a DataFrame along axis 0 (row)", function () {
       let data = [[0, 2, 4], [360, 180, 360]];

@@ -689,7 +689,11 @@ export default class DataFrame extends NDframe {
 
     const newData = this.$getDataByAxisWithMissingValuesRemoved(axis);
     const meanArr = newData.map((arr) => arr.reduce((a, b) => a + b, 0) / arr.length);
-    return new Series(meanArr);
+    if (axis === 1) {
+      return new Series(meanArr, { index: this.columns });
+    } else {
+      return new Series(meanArr, { index: this.index });
+    }
   }
 
   /**
@@ -708,8 +712,12 @@ export default class DataFrame extends NDframe {
     }
 
     const newData = this.$getDataByAxisWithMissingValuesRemoved(axis);
-    const meanArr = newData.map((arr) => median(arr));
-    return new Series(meanArr);
+    const medianArr = newData.map((arr) => median(arr));
+    if (axis === 1) {
+      return new Series(medianArr, { index: this.columns });
+    } else {
+      return new Series(medianArr, { index: this.index });
+    }
 
   }
 
@@ -730,7 +738,7 @@ export default class DataFrame extends NDframe {
     }
 
     const newData = this.$getDataByAxisWithMissingValuesRemoved(axis);
-    const meanArr = newData.map((arr) => {
+    const modeArr = newData.map((arr) => {
       const tempMode = mode(arr);
       if (tempMode.length === 1) {
         return tempMode[0];
@@ -738,8 +746,11 @@ export default class DataFrame extends NDframe {
         return tempMode[keep];
       }
     });
-    return new Series(meanArr);
-
+    if (axis === 1) {
+      return new Series(modeArr, { index: this.columns });
+    } else {
+      return new Series(modeArr, { index: this.index });
+    }
   }
 
   /**
@@ -766,7 +777,12 @@ export default class DataFrame extends NDframe {
       }
       return smallestValue;
     });
-    return new Series(minArr);
+
+    if (axis === 1) {
+      return new Series(minArr, { index: this.columns });
+    } else {
+      return new Series(minArr, { index: this.index });
+    }
 
   }
 
@@ -794,7 +810,12 @@ export default class DataFrame extends NDframe {
       }
       return biggestValue;
     });
-    return new Series(maxArr);
+
+    if (axis === 1) {
+      return new Series(maxArr, { index: this.columns });
+    } else {
+      return new Series(maxArr, { index: this.index });
+    }
 
   }
 
@@ -815,7 +836,12 @@ export default class DataFrame extends NDframe {
 
     const newData = this.$getDataByAxisWithMissingValuesRemoved(axis);
     const stdArr = newData.map((arr) => std(arr));
-    return new Series(stdArr);
+
+    if (axis === 1) {
+      return new Series(stdArr, { index: this.columns });
+    } else {
+      return new Series(stdArr, { index: this.index });
+    }
 
   }
 
@@ -836,8 +862,11 @@ export default class DataFrame extends NDframe {
 
     const newData = this.$getDataByAxisWithMissingValuesRemoved(axis);
     const varArr = newData.map((arr) => variance(arr));
-    return new Series(varArr);
-
+    if (axis === 1) {
+      return new Series(varArr, { index: this.columns });
+    } else {
+      return new Series(varArr, { index: this.index });
+    }
   }
 
   /**
@@ -973,8 +1002,11 @@ export default class DataFrame extends NDframe {
 
     const newData = this.$getDataByAxisWithMissingValuesRemoved(axis);
     const countArr = newData.map((arr) => arr.length);
-    return new Series(countArr);
-
+    if (axis === 1) {
+      return new Series(countArr, { index: this.columns });
+    } else {
+      return new Series(countArr, { index: this.index });
+    }
   }
 
   /**
@@ -2182,7 +2214,7 @@ export default class DataFrame extends NDframe {
      *  If specified, then other parameters are ignored.
      * - `inplace` Boolean indicating whether to perform the operation inplace or not. Defaults to false
     **/
-   query(options) {
+  query(options) {
     const { inplace, condition, column, is, to } = { inplace: false, ...options };
 
     if (condition) {
@@ -2281,18 +2313,18 @@ export default class DataFrame extends NDframe {
      * df.getDummies({ columns: ['a', 'b'], prefix: 'cat', prefixSeparator: '-', inplace: true })
      * df.getDummies({ columns: ['a', 'b'], prefix: ['col1', 'col2'], prefixSeparator: '-', inplace: true })
      */
-    get_dummies(options) {
-      const { inplace } = { inplace: false, ...options };
+  get_dummies(options) {
+    const { inplace } = { inplace: false, ...options };
 
-      const encodedDF = dummyEncode(this, options);
-      if (inplace) {
-        this.$setValues(encodedDF.values, false, false);
-        this.$setColumnNames(encodedDF.columns);
-      } else {
-        return encodedDF;
-      }
-
+    const encodedDF = dummyEncode(this, options);
+    if (inplace) {
+      this.$setValues(encodedDF.values, false, false);
+      this.$setColumnNames(encodedDF.columns);
+    } else {
+      return encodedDF;
     }
+
+  }
 
   /**
    * Make plots of Series or DataFrame.
