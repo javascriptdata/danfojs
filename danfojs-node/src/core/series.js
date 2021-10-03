@@ -39,7 +39,7 @@ import { data as tfData } from "@tensorflow/tfjs-node";
 export default class Series extends NDframe {
 
   constructor(data = [], options) {
-    const { index, columns, dtypes, config } = { index:undefined, columns:undefined, dtypes:undefined, config:undefined, ...options };
+    const { index, columns, dtypes, config } = { index: undefined, columns: undefined, dtypes: undefined, config: undefined, ...options };
     if (Array.isArray(data[0]) || utils.isObject(data[0])) {
       data = utils.convert2DArrayToSeriesArray(data);
       super({
@@ -134,7 +134,7 @@ export default class Series extends NDframe {
      * @param num The number of rows to return
      * @param options.seed An integer specifying the random seed that will be used to create the distribution.
     */
-  async sample(num = 5, options){
+  async sample(num = 5, options) {
     const { seed } = { seed: 1, ...options };
 
     if (num > this.shape[0]) {
@@ -164,7 +164,7 @@ export default class Series extends NDframe {
     const newData = _genericMathOp({ ndFrame: this, other, operation: "add" });
 
     if (inplace) {
-      this.$setValues(newData );
+      this.$setValues(newData);
     } else {
       return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
     }
@@ -184,7 +184,7 @@ export default class Series extends NDframe {
     const newData = _genericMathOp({ ndFrame: this, other, operation: "sub" });
 
     if (inplace) {
-      this.$setValues(newData );
+      this.$setValues(newData);
     } else {
       return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
     }
@@ -205,7 +205,7 @@ export default class Series extends NDframe {
     const newData = _genericMathOp({ ndFrame: this, other, operation: "mul" });
 
     if (inplace) {
-      this.$setValues(newData );
+      this.$setValues(newData);
     } else {
       return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
     }
@@ -225,7 +225,7 @@ export default class Series extends NDframe {
     const newData = _genericMathOp({ ndFrame: this, other, operation: "div" });
 
     if (inplace) {
-      this.$setValues(newData );
+      this.$setValues(newData);
     } else {
       return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
     }
@@ -245,7 +245,7 @@ export default class Series extends NDframe {
     const newData = _genericMathOp({ ndFrame: this, other, operation: "pow" });
 
     if (inplace) {
-      this.$setValues(newData );
+      this.$setValues(newData);
     } else {
       return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
     }
@@ -265,7 +265,7 @@ export default class Series extends NDframe {
     const newData = _genericMathOp({ ndFrame: this, other, operation: "mod" });
 
     if (inplace) {
-      this.$setValues(newData );
+      this.$setValues(newData);
     } else {
       return utils.createNdframeFromNewDataWithOldProps({ ndFrame: this, newData, isSeries: true });
     }
@@ -280,7 +280,7 @@ export default class Series extends NDframe {
     values = utils.removeMissingValuesFromArray(values);
 
     if (this.dtypes[0] == "boolean") {
-      values = (utils.mapBooleansToIntegers(values, 1) );
+      values = (utils.mapBooleansToIntegers(values, 1));
     }
     return values;
   }
@@ -347,7 +347,7 @@ export default class Series extends NDframe {
        * Return number of non-null elements in a Series
     */
   count() {
-    const values = utils.removeMissingValuesFromArray(this.values );
+    const values = utils.removeMissingValuesFromArray(this.values);
     return values.length;
   }
 
@@ -355,7 +355,7 @@ export default class Series extends NDframe {
       * Return maximum of series and other.
       * @param other Series or number to check against
     */
-  maximum(other ) {
+  maximum(other) {
     if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("maximum");
 
     const newData = _genericMathOp({ ndFrame: this, other, operation: "maximum" });
@@ -369,7 +369,7 @@ export default class Series extends NDframe {
       * Return minimum of series and other.
       * @param other Series, Numbers to check against
     */
-  minimum(other ) {
+  minimum(other) {
     if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("maximum");
 
     const newData = _genericMathOp({ ndFrame: this, other, operation: "minimum" });
@@ -421,7 +421,7 @@ export default class Series extends NDframe {
     */
   isna() {
     const newData = this.values.map((value) => {
-      if (isNaN(value ) && typeof value != "string") {
+      if (isNaN(value) && typeof value != "string") {
         return true;
       } else {
         return false;
@@ -442,15 +442,15 @@ export default class Series extends NDframe {
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
   fillna(options) {
-    const { value, inplace } = { value:undefined, inplace: false, ...options };
+    const { value, inplace } = { value: undefined, inplace: false, ...options };
 
     if (!value && typeof value !== 'boolean') {
       throw Error('Value Error: Must specify value to replace with');
     }
 
     const newValues = [];
-    (this.values ).forEach((val) => {
-      if (isNaN(val ) && typeof val != "string") {
+    (this.values).forEach((val) => {
+      if (isNaN(val) && typeof val != "string") {
         newValues.push(value);
       } else {
         newValues.push(val);
@@ -492,7 +492,7 @@ export default class Series extends NDframe {
     }
 
     if (inplace) {
-      this.$setValues(sortedValues );
+      this.$setValues(sortedValues);
       this.$setIndex(sortedIdx);
     } else {
       const sf = new Series(sortedValues, {
@@ -648,7 +648,7 @@ export default class Series extends NDframe {
      * Returns a Series with only the unique value(s) in the original Series
     */
   unique() {
-    const newValues = new Set(this.values );
+    const newValues = new Set(this.values);
     let series = new Series(Array.from(newValues));
     return series;
   }
@@ -657,7 +657,7 @@ export default class Series extends NDframe {
        * Return the number of unique elements in a Series
     */
   nunique() {
-    return (new Set(this.values )).size;
+    return (new Set(this.values)).size;
   }
 
   /**
@@ -699,10 +699,10 @@ export default class Series extends NDframe {
     newValues = this.values.map((val) => Math.abs(val));
 
     if (inplace) {
-      this.$setValues(newValues );
+      this.$setValues(newValues);
     } else {
       const sf = this.copy();
-      sf.$setValues(newValues );
+      sf.$setValues(newValues);
       return sf;
     }
   }
@@ -754,39 +754,39 @@ export default class Series extends NDframe {
     for (let i = 1; i < sData.length; i++) {
       let currVal = sData[i];
       switch (ops) {
-      case "max":
-        if (currVal > tempval) {
-          data.push(currVal);
-          tempval = currVal;
-        } else {
+        case "max":
+          if (currVal > tempval) {
+            data.push(currVal);
+            tempval = currVal;
+          } else {
+            data.push(tempval);
+          }
+          break;
+        case "min":
+          if (currVal < tempval) {
+            data.push(currVal);
+            tempval = currVal;
+          } else {
+            data.push(tempval);
+          }
+          break;
+        case "sum":
+          tempval = (tempval) + (currVal);
           data.push(tempval);
-        }
-        break;
-      case "min":
-        if (currVal < tempval) {
-          data.push(currVal);
-          tempval = currVal;
-        } else {
+          break;
+        case "prod":
+          tempval = (tempval) * (currVal);
           data.push(tempval);
-        }
-        break;
-      case "sum":
-        tempval = (tempval) + (currVal);
-        data.push(tempval);
-        break;
-      case "prod":
-        tempval = (tempval) * (currVal);
-        data.push(tempval);
-        break;
+          break;
 
       }
     }
 
     if (inplace) {
-      this.$setValues(data );
+      this.$setValues(data);
     } else {
       const sf = this.copy();
-      sf.$setValues(data );
+      sf.$setValues(data);
       return sf;
     }
   }
@@ -796,7 +796,7 @@ export default class Series extends NDframe {
        * Returns less than of series and other. Supports element wise operations
        * @param other Series or number to compare against
     */
-  lt(other ) {
+  lt(other) {
     return this.boolOps(other, "lt");
   }
 
@@ -805,7 +805,7 @@ export default class Series extends NDframe {
        * @param {other} Series, Scalar
        * @return {Series}
        */
-  gt(other ) {
+  gt(other) {
     return this.boolOps(other, "gt");
   }
 
@@ -814,7 +814,7 @@ export default class Series extends NDframe {
        * @param {other} Series, Scalar
        * @return {Series}
        */
-  le(other ) {
+  le(other) {
     return this.boolOps(other, "le");
   }
 
@@ -823,7 +823,7 @@ export default class Series extends NDframe {
        * @param {other} Series, Scalar
        * @return {Series}
        */
-  ge(other ) {
+  ge(other) {
     return this.boolOps(other, "ge");
   }
 
@@ -832,7 +832,7 @@ export default class Series extends NDframe {
         * @param {other} Series, Scalar
         * @return {Series}
         */
-  ne(other ) {
+  ne(other) {
     return this.boolOps(other, "ne");
   }
 
@@ -841,7 +841,7 @@ export default class Series extends NDframe {
        * @param {other} Series, Scalar
        * @return {Series}
        */
-  eq(other ) {
+  eq(other) {
     return this.boolOps(other, "eq");
   }
 
@@ -877,33 +877,36 @@ export default class Series extends NDframe {
       let rVal = rSeries[i];
       let bool = null;
       switch (bOps) {
-      case "lt":
-        bool = lVal < rVal ? true : false;
-        data.push(bool);
-        break;
-      case "gt":
-        bool = lVal > rVal ? true : false;
-        data.push(bool);
-        break;
-      case "le":
-        bool = lVal <= rVal ? true : false;
-        data.push(bool);
-        break;
-      case "ge":
-        bool = lVal >= rVal ? true : false;
-        data.push(bool);
-        break;
-      case "ne":
-        bool = lVal !== rVal ? true : false;
-        data.push(bool);
-        break;
-      case "eq":
-        bool = lVal === rVal ? true : false;
-        data.push(bool);
-        break;
+        case "lt":
+          bool = lVal < rVal ? true : false;
+          data.push(bool);
+          break;
+        case "gt":
+          bool = lVal > rVal ? true : false;
+          data.push(bool);
+          break;
+        case "le":
+          bool = lVal <= rVal ? true : false;
+          data.push(bool);
+          break;
+        case "ge":
+          bool = lVal >= rVal ? true : false;
+          data.push(bool);
+          break;
+        case "ne":
+          bool = lVal !== rVal ? true : false;
+          data.push(bool);
+          break;
+        case "eq":
+          bool = lVal === rVal ? true : false;
+          data.push(bool);
+          break;
       }
     }
-    return new Series(data);
+    return new Series(data, {
+      index: this.index,
+      config: { ...this.config }
+    });
 
   }
 
@@ -914,7 +917,7 @@ export default class Series extends NDframe {
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
   replace(options) {
-    const { oldValue, newValue, inplace } = { oldValue:undefined, newValue:undefined, inplace: false, ...options };
+    const { oldValue, newValue, inplace } = { oldValue: undefined, newValue: undefined, inplace: false, ...options };
 
     if (!oldValue && typeof oldValue !== 'boolean') {
       throw Error(`Params Error: Must specify param 'oldValue' to replace`);
@@ -933,10 +936,10 @@ export default class Series extends NDframe {
     });
 
     if (inplace) {
-      this.$setValues(newArr );
+      this.$setValues(newArr);
     } else {
       const sf = this.copy();
-      sf.$setValues(newArr );
+      sf.$setValues(newArr);
       return sf;
     }
 
@@ -957,7 +960,7 @@ export default class Series extends NDframe {
 
     isNaVals.forEach((val, i) => {
       if (!val) {
-        newValues.push((oldValues )[i]);
+        newValues.push((oldValues)[i]);
         newIndex.push(oldIndex[i]);
       }
     });
@@ -1017,10 +1020,10 @@ export default class Series extends NDframe {
     let newIndex = [];
 
     if (keep === "last") {
-      dataArr = (this.values ).reverse();
+      dataArr = (this.values).reverse();
       oldIndex = this.index.reverse();
     } else {
-      dataArr = (this.values );
+      dataArr = (this.values);
       oldIndex = this.index;
     }
 
@@ -1069,33 +1072,33 @@ export default class Series extends NDframe {
     const newValues = [];
 
     switch (dtype) {
-    case "float32":
-      oldValues.forEach((val) => {
-        newValues.push(Number(val));
-      });
-      break;
-    case "int32":
-      oldValues.forEach((val) => {
-        newValues.push(parseInt(val ));
-      });
-      break;
-    case "string":
-      oldValues.forEach((val) => {
-        newValues.push(String(val));
-      });
-      break;
-    case "boolean":
-      oldValues.forEach((val) => {
-        newValues.push(Boolean(val));
-      });
-      break;
-    case "undefined":
-      oldValues.forEach((_) => {
-        newValues.push(NaN);
-      });
-      break;
-    default:
-      break;
+      case "float32":
+        oldValues.forEach((val) => {
+          newValues.push(Number(val));
+        });
+        break;
+      case "int32":
+        oldValues.forEach((val) => {
+          newValues.push(parseInt(val));
+        });
+        break;
+      case "string":
+        oldValues.forEach((val) => {
+          newValues.push(String(val));
+        });
+        break;
+      case "boolean":
+        oldValues.forEach((val) => {
+          newValues.push(Boolean(val));
+        });
+        break;
+      case "undefined":
+        oldValues.forEach((_) => {
+          newValues.push(NaN);
+        });
+        break;
+      default:
+        break;
     }
 
     if (inplace) {
@@ -1163,7 +1166,7 @@ export default class Series extends NDframe {
       });
     } else {
       newData.push(newValue);
-      newIndx.push(index );
+      newIndx.push(index);
     }
 
     if (inplace) {
@@ -1233,7 +1236,7 @@ export default class Series extends NDframe {
     }
 
     const tabledata = values.map((x, i) => [indx[i], x]);
-    return table(tabledata );
+    return table(tabledata);
   }
 
   /**
@@ -1245,6 +1248,7 @@ export default class Series extends NDframe {
     if (other === undefined) {
       throw new Error("Param Error: other cannot be undefined");
     }
+    const newValues = [];
 
     if (other instanceof Series) {
       if (this.dtypes[0] !== other.dtypes[0]) {
@@ -1255,36 +1259,28 @@ export default class Series extends NDframe {
         throw new Error("Param Error must be of same shape");
       }
 
-      const newValues = [];
-
       this.values.forEach((val, i) => {
         newValues.push(Boolean(val) && Boolean(other.values[i]));
       });
 
-      return new Series(newValues, {
-        config: { ...this.config }
-      });
     } else if (Array.isArray(other)) {
-      const newValues = [];
 
       this.values.forEach((val, i) => {
         newValues.push(Boolean(val) && Boolean(other[i]));
       });
 
-      return new Series(newValues, {
-        config: { ...this.config }
-      });
     } else {
-      const newValues = [];
 
       this.values.forEach((val) => {
         newValues.push(Boolean(val) && Boolean(other));
       });
 
-      return new Series(newValues, {
-        config: { ...this.config }
-      });
     }
+
+    return new Series(newValues, {
+      index: this.index,
+      config: { ...this.config }
+    });
   }
 
   /**
@@ -1296,6 +1292,7 @@ export default class Series extends NDframe {
     if (other === undefined) {
       throw new Error("Param Error: other cannot be undefined");
     }
+    const newValues = [];
 
     if (other instanceof Series) {
       if (this.dtypes[0] !== other.dtypes[0]) {
@@ -1306,38 +1303,30 @@ export default class Series extends NDframe {
         throw new Error("Param Error must be of same shape");
       }
 
-      const newValues = [];
-
       this.values.forEach((val, i) => {
         newValues.push(Boolean(val) || (other.values[i]));
       });
 
-      return new Series(newValues, {
-        config: { ...this.config }
-      });
     } else if (typeof other === "boolean") {
-      const newValues = [];
 
       this.values.forEach((val) => {
         newValues.push(Boolean(val) || (other));
       });
 
-      return new Series(newValues, {
-        config: { ...this.config }
-      });
     } else if (Array.isArray(other)) {
-      const newValues = [];
 
       this.values.forEach((val, i) => {
         newValues.push(Boolean(val) || (other[i]));
       });
 
-      return new Series(newValues, {
-        config: { ...this.config }
-      });
     } else {
       throw new Error("Param Error: other must be a Series, Scalar, or Array of Scalars");
     }
+
+    return new Series(newValues, {
+      index: this.index,
+      config: { ...this.config }
+    });
   }
 
   /**

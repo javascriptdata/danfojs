@@ -907,7 +907,11 @@ export default class Series extends NDframe {
           break;
       }
     }
-    return new Series(data);
+
+    return new Series(data, {
+      index: this.index,
+      config: { ...this.config }
+    });
 
   }
 
@@ -1249,6 +1253,7 @@ export default class Series extends NDframe {
     if (other === undefined) {
       throw new Error("Param Error: other cannot be undefined");
     }
+    const newValues = [];
 
     if (other instanceof Series) {
       if (this.dtypes[0] !== other.dtypes[0]) {
@@ -1258,37 +1263,28 @@ export default class Series extends NDframe {
       if (this.shape[0] !== other.shape[0]) {
         throw new Error("Param Error must be of same shape");
       }
-
-      const newValues = [];
-
       this.values.forEach((val, i) => {
         newValues.push(Boolean(val) && Boolean(other.values[i]));
       });
 
-      return new Series(newValues, {
-        config: { ...this.config }
-      });
     } else if (Array.isArray(other)) {
-      const newValues = [];
 
       this.values.forEach((val, i) => {
         newValues.push(Boolean(val) && Boolean(other[i]));
       });
 
-      return new Series(newValues, {
-        config: { ...this.config }
-      });
     } else {
-      const newValues = [];
 
       this.values.forEach((val) => {
         newValues.push(Boolean(val) && Boolean(other));
       });
 
-      return new Series(newValues, {
-        config: { ...this.config }
-      });
     }
+
+    return new Series(newValues, {
+      index: this.index,
+      config: { ...this.config }
+    });
   }
 
   /**
@@ -1300,6 +1296,7 @@ export default class Series extends NDframe {
     if (other === undefined) {
       throw new Error("Param Error: other cannot be undefined");
     }
+    const newValues = [];
 
     if (other instanceof Series) {
       if (this.dtypes[0] !== other.dtypes[0]) {
@@ -1310,38 +1307,30 @@ export default class Series extends NDframe {
         throw new Error("Param Error must be of same shape");
       }
 
-      const newValues = [];
-
       this.values.forEach((val, i) => {
         newValues.push(Boolean(val) || (other.values[i]));
       });
 
-      return new Series(newValues, {
-        config: { ...this.config }
-      });
     } else if (typeof other === "boolean") {
-      const newValues = [];
 
       this.values.forEach((val) => {
         newValues.push(Boolean(val) || (other));
       });
 
-      return new Series(newValues, {
-        config: { ...this.config }
-      });
     } else if (Array.isArray(other)) {
-      const newValues = [];
 
       this.values.forEach((val, i) => {
         newValues.push(Boolean(val) || (other[i]));
       });
 
-      return new Series(newValues, {
-        config: { ...this.config }
-      });
     } else {
       throw new Error("Param Error: other must be a Series, Scalar, or Array of Scalars");
     }
+
+    return new Series(newValues, {
+      index: this.index,
+      config: { ...this.config }
+    });
   }
 
   /**

@@ -812,6 +812,14 @@ describe("Series", function () {
       let expected = [true, false, false, true, true, true, true];
       assert.deepEqual(sf.lt(30).values, expected);
     });
+    it("Correct index is returned after operation", function () {
+      const data1 = [true, true, true, false, false];
+      const data2 = [true, false, true, true, false];
+      const sf = new dfd.Series(data1, { index: ["one", "two", "three", "four", "five"] });
+
+      const expected = ["one", "two", "three", "four", "five"];
+      assert.deepEqual(sf.lt(data2).index, expected);
+    });
   });
 
   describe("gt", function () {
@@ -1250,6 +1258,14 @@ describe("Series", function () {
       const expected = [true, true, true, true, false];
       assert.deepEqual(sf.or(data2).values, expected);
     });
+    it("Correct index is returned after operation", function () {
+      const data1 = [true, true, true, false, false];
+      const data2 = [true, false, true, true, false];
+      const sf = new dfd.Series(data1, { index: ["one", "two", "three", "four", "five"] });
+
+      const expected = ["one", "two", "three", "four", "five"];
+      assert.deepEqual(sf.and(data2).index, expected);
+    });
   });
 
   describe("and", function () {
@@ -1278,6 +1294,14 @@ describe("Series", function () {
 
       const expected = [true, false, true, false, false];
       assert.deepEqual(sf.and(data2).values, expected);
+    });
+    it("Correct index is returned after operation", function () {
+      const data1 = [true, true, true, false, false];
+      const data2 = [true, false, true, true, false];
+      const sf = new dfd.Series(data1, { index: ["one", "two", "three", "four", "five"] });
+
+      const expected = ["one", "two", "three", "four", "five"];
+      assert.deepEqual(sf.and(data2).index, expected);
     });
 
     it("Chaining works for logical AND of series and other array (element-wise)", function () {
