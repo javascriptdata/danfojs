@@ -1313,7 +1313,7 @@ export default class Series extends NDframe {
       const newValues = [];
 
       this.values.forEach((val, i) => {
-        newValues.push(Boolean(val) | (other.values[i]));
+        newValues.push(Boolean(val) || (other.values[i]));
       });
 
       return new Series(newValues, {
@@ -1323,7 +1323,7 @@ export default class Series extends NDframe {
       const newValues = [];
 
       this.values.forEach((val) => {
-        newValues.push(Boolean(val) | (other));
+        newValues.push(Boolean(val) || (other));
       });
 
       return new Series(newValues, {
@@ -1333,7 +1333,7 @@ export default class Series extends NDframe {
       const newValues = [];
 
       this.values.forEach((val, i) => {
-        newValues.push(Boolean(val) | (other[i]));
+        newValues.push(Boolean(val) || (other[i]));
       });
 
       return new Series(newValues, {
