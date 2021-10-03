@@ -50,8 +50,8 @@ describe("DummyEncoder", function () {
     const df1 = get_dummies(df, { prefixSeparator: ["_", "#"], columns: ["A", "d"], prefix: "test" });
     const expectedColumns = ['B', 'C', 'test_1', 'test_3', 'test_4', 'test#fat', 'test#good', 'test#best'];
     const expected = [['dog', 1.0, 1, 0, 0, 1, 0, 0],
-      ['fog', 2.0, 0, 1, 0, 0, 1, 0],
-      ['gof', 3.0, 0, 0, 1, 0, 0, 1]];
+    ['fog', 2.0, 0, 1, 0, 0, 1, 0],
+    ['gof', 3.0, 0, 0, 1, 0, 0, 1]];
     assert.deepEqual(df1.values, expected);
     assert.deepEqual(df1.columns, expectedColumns);
 
@@ -81,8 +81,8 @@ describe("DummyEncoder", function () {
     ];
 
     const expected = [['dog', 1.0, 1, 0, 0, 1, 0, 0],
-      ['fog', 2.0, 0, 1, 0, 0, 1, 0],
-      ['gof', 3.0, 0, 0, 1, 0, 0, 1]];
+    ['fog', 2.0, 0, 1, 0, 0, 1, 0],
+    ['gof', 3.0, 0, 0, 1, 0, 0, 1]];
 
     assert.deepEqual(df1.values, expected);
     assert.deepEqual(df1.columns, expectedColumns);
@@ -133,6 +133,44 @@ describe("DummyEncoder", function () {
     ];
 
     assert.deepEqual(get_dummies(df, { columns: ["d"] }).values, rslt);
+
+  });
+
+  it("Dummification works for object DF", function () {
+
+    let data = {
+      fruits: ['pear', 'mango', "pawpaw", "mango", "bean"],
+      Count: [20, 30, 89, 12, 30],
+      Country: ["NG", "NG", "GH", "RU", "RU"]
+    };
+
+    let df = new DataFrame(data);
+    const expected = [
+      [
+        20, 1, 0, 0,
+        0, 1, 0, 0
+      ],
+      [
+        30, 0, 1, 0,
+        0, 1, 0, 0
+      ],
+      [
+        89, 0, 0, 1,
+        0, 0, 1, 0
+      ],
+      [
+        12, 0, 1, 0,
+        0, 0, 0, 1
+      ],
+      [
+        30, 0, 0, 0,
+        1, 0, 0, 1
+      ]
+    ];
+
+    let dum_df = get_dummies(df, { prefixSeparator: "_" });
+    dum_df.print();
+    assert.deepEqual(dum_df.values, expected);
 
   });
 });

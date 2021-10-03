@@ -3,75 +3,75 @@
 describe("DummyEncoder", function () {
   it("get_dummies works on Series", function () {
 
-    const data = [ "dog", "male", "female", "male", "female", "male", "dog" ];
+    const data = ["dog", "male", "female", "male", "female", "male", "dog"];
     const series = new dfd.Series(data);
     const df = dfd.get_dummies(series, { prefix: "test", prefixSeparator: "/" });
 
     const dfValues = [
-      [ 1, 0, 0 ],
-      [ 0, 1, 0 ],
-      [ 0, 0, 1 ],
-      [ 0, 1, 0 ],
-      [ 0, 0, 1 ],
-      [ 0, 1, 0 ],
-      [ 1, 0, 0 ]
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1],
+      [0, 1, 0],
+      [0, 0, 1],
+      [0, 1, 0],
+      [1, 0, 0]
     ];
-    const dfColumns = [ 'test/dog', 'test/male', 'test/female' ];
+    const dfColumns = ['test/dog', 'test/male', 'test/female'];
     assert.deepEqual(df.values, dfValues);
     assert.deepEqual(df.columns, dfColumns);
   });
   it("get_dummies works on Series with default prefix and prefixSeperator", function () {
 
-    const data = [ "dog", "male", "female", "male", "female", "male", "dog" ];
+    const data = ["dog", "male", "female", "male", "female", "male", "dog"];
     const series = new dfd.Series(data);
     const df = dfd.get_dummies(series);
 
     const dfValues = [
-      [ 1, 0, 0 ],
-      [ 0, 1, 0 ],
-      [ 0, 0, 1 ],
-      [ 0, 1, 0 ],
-      [ 0, 0, 1 ],
-      [ 0, 1, 0 ],
-      [ 1, 0, 0 ]
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1],
+      [0, 1, 0],
+      [0, 0, 1],
+      [0, 1, 0],
+      [1, 0, 0]
     ];
-    const dfColumns = [ '0_dog', '1_male', '2_female' ];
+    const dfColumns = ['0_dog', '1_male', '2_female'];
     assert.deepEqual(df.values, dfValues);
     assert.deepEqual(df.columns, dfColumns);
   });
 
   it("get_dummies works on DataFrame", function () {
 
-    const data = [ [ 1, "dog", 1.0, "fat" ], [ 3, "fog", 2.0, "good" ], [ 4, "gof", 3.0, "best" ] ];
-    const columns = [ "A", "B", "C", "d" ];
+    const data = [[1, "dog", 1.0, "fat"], [3, "fog", 2.0, "good"], [4, "gof", 3.0, "best"]];
+    const columns = ["A", "B", "C", "d"];
     const df = new dfd.DataFrame(data, { columns: columns });
 
-    const df1 = dfd.get_dummies(df, { prefixSeparator: [ "_", "#" ], columns: [ "A", "d" ], prefix: "test" });
-    const expectedColumns = [ 'B', 'C', 'test_1', 'test_3', 'test_4', 'test#fat', 'test#good', 'test#best' ];
-    const expected = [ [ 'dog', 1.0, 1, 0, 0, 1, 0, 0 ],
-      [ 'fog', 2.0, 0, 1, 0, 0, 1, 0 ],
-      [ 'gof', 3.0, 0, 0, 1, 0, 0, 1 ] ];
+    const df1 = dfd.get_dummies(df, { prefixSeparator: ["_", "#"], columns: ["A", "d"], prefix: "test" });
+    const expectedColumns = ['B', 'C', 'test_1', 'test_3', 'test_4', 'test#fat', 'test#good', 'test#best'];
+    const expected = [['dog', 1.0, 1, 0, 0, 1, 0, 0],
+    ['fog', 2.0, 0, 1, 0, 0, 1, 0],
+    ['gof', 3.0, 0, 0, 1, 0, 0, 1]];
     assert.deepEqual(df1.values, expected);
     assert.deepEqual(df1.columns, expectedColumns);
 
   });
   it("Throw error if the prefix specified is not equal to the column specified", function () {
 
-    const data = [ [ 1, "dog", 1.0, "fat" ], [ 3, "fog", 2.0, "good" ], [ 4, "gof", 3.0, "best" ] ];
-    const columns = [ "A", "B", "C", "d" ];
+    const data = [[1, "dog", 1.0, "fat"], [3, "fog", 2.0, "good"], [4, "gof", 3.0, "best"]];
+    const columns = ["A", "B", "C", "d"];
     const df = new dfd.DataFrame(data, { columns: columns });
 
-    assert.throws(function () { dfd.get_dummies(df, { prefix: [ "fg" ], prefixSeparator: "_", columns: [ "A", "d" ] }); }, Error,
+    assert.throws(function () { dfd.get_dummies(df, { prefix: ["fg"], prefixSeparator: "_", columns: ["A", "d"] }); }, Error,
       `ParamError: prefix and data array must be of the same length. If you need to use the same prefix, then pass a string param instead. e.g {prefix: "fg"}`);
 
   });
   it("replace column sepecified with prefix", function () {
 
-    const data = [ [ 1, "dog", 1.0, "fat" ], [ 3, "fog", 2.0, "good" ], [ 4, "gof", 3.0, "best" ] ];
-    const columns = [ "A", "B", "C", "d" ];
+    const data = [[1, "dog", 1.0, "fat"], [3, "fog", 2.0, "good"], [4, "gof", 3.0, "best"]];
+    const columns = ["A", "B", "C", "d"];
     const df = new dfd.DataFrame(data, { columns: columns });
 
-    const df1 = dfd.get_dummies(df, { prefix: [ "F", "G" ], prefixSeparator: "_", columns: [ "A", "d" ] });
+    const df1 = dfd.get_dummies(df, { prefix: ["F", "G"], prefixSeparator: "_", columns: ["A", "d"] });
     const expectedColumns = [
       'B', 'C',
       'F_1', 'F_3',
@@ -79,9 +79,9 @@ describe("DummyEncoder", function () {
       'G_good', 'G_best'
     ];
 
-    const expected = [ [ 'dog', 1.0, 1, 0, 0, 1, 0, 0 ],
-      [ 'fog', 2.0, 0, 1, 0, 0, 1, 0 ],
-      [ 'gof', 3.0, 0, 0, 1, 0, 0, 1 ] ];
+    const expected = [['dog', 1.0, 1, 0, 0, 1, 0, 0],
+    ['fog', 2.0, 0, 1, 0, 0, 1, 0],
+    ['gof', 3.0, 0, 0, 1, 0, 0, 1]];
 
     assert.deepEqual(df1.values, expected);
     assert.deepEqual(df1.columns, expectedColumns);
@@ -90,8 +90,8 @@ describe("DummyEncoder", function () {
 
   it("get_dummies auto infers and encode columns with string dtype", function () {
 
-    const data = [ [ 1, "dog", 1.0, "fat" ], [ 3, "fog", 2.0, "good" ], [ 4, "gof", 3.0, "best" ] ];
-    const columns = [ "A", "B", "C", "d" ];
+    const data = [[1, "dog", 1.0, "fat"], [3, "fog", 2.0, "good"], [4, "gof", 3.0, "best"]];
+    const columns = ["A", "B", "C", "d"];
     const df = new dfd.DataFrame(data, { columns: columns });
 
     const df1 = dfd.get_dummies(df, { prefixSeparator: "_" });
@@ -122,16 +122,54 @@ describe("DummyEncoder", function () {
 
   it("should one hot encode all other columns", function () {
 
-    const data = [ [ 1, "dog", 1.0, "fat" ], [ 3, "fog", 2.0, "good" ], [ 4, "gof", 3.0, "best" ] ];
-    const columns = [ "A", "B", "C", "d" ];
+    const data = [[1, "dog", 1.0, "fat"], [3, "fog", 2.0, "good"], [4, "gof", 3.0, "best"]];
+    const columns = ["A", "B", "C", "d"];
     const df = new dfd.DataFrame(data, { columns: columns });
     const rslt = [
-      [ 1, 'dog', 1, 1, 0, 0 ],
-      [ 3, 'fog', 2, 0, 1, 0 ],
-      [ 4, 'gof', 3, 0, 0, 1 ]
+      [1, 'dog', 1, 1, 0, 0],
+      [3, 'fog', 2, 0, 1, 0],
+      [4, 'gof', 3, 0, 0, 1]
     ];
 
-    assert.deepEqual(dfd.get_dummies(df, { columns: [ "d" ] }).values, rslt);
+    assert.deepEqual(dfd.get_dummies(df, { columns: ["d"] }).values, rslt);
+
+  });
+
+
+  it("Dummification works for object DF", function () {
+
+    let data = {
+      fruits: ['pear', 'mango', "pawpaw", "mango", "bean"],
+      Count: [20, 30, 89, 12, 30],
+      Country: ["NG", "NG", "GH", "RU", "RU"]
+    };
+
+    let df = new dfd.DataFrame(data);
+    const expected = [
+      [
+        20, 1, 0, 0,
+        0, 1, 0, 0
+      ],
+      [
+        30, 0, 1, 0,
+        0, 1, 0, 0
+      ],
+      [
+        89, 0, 0, 1,
+        0, 0, 1, 0
+      ],
+      [
+        12, 0, 1, 0,
+        0, 0, 0, 1
+      ],
+      [
+        30, 0, 0, 0,
+        1, 0, 0, 1
+      ]
+    ];
+
+    let dum_df = dfd.get_dummies(df, { prefixSeparator: "_" });
+    assert.deepEqual(dum_df.values, expected);
 
   });
 });

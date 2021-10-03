@@ -129,7 +129,11 @@ function dummyEncode(data, options) {
         const index = uniqueValues.indexOf(colData[j]);
         oneHotArr[j][index] = 1;
         const prefixToAdd = prefix ? prefix[i] : column;
-        newColumnNames.push(`${prefixToAdd}${prefixSeparator[i]}${colData[j]}`);
+        const newColName = `${prefixToAdd}${prefixSeparator[i]}${colData[j]}`;
+
+        if (!newColumnNames.includes(newColName)) {
+          newColumnNames.push(newColName);
+        }
       }
 
       for (let k = 0; k < newData.length; k++) {
