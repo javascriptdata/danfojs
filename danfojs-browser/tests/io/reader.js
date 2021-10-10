@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 
 describe("read_csv", async function () {
-  this.timeout(10000); // all tests in this suite get 10 seconds before timeout
+  this.timeout(100000); // all tests in this suite get 10 seconds before timeout
   it("reads a csv file from source over the internet", async function () {
     const csvUrl =
         "https://storage.googleapis.com/tfjs-examples/multivariate-linear-regression/data/boston-housing-train.csv";
@@ -36,7 +36,7 @@ describe("read_json", async function () {
 });
 
 describe("read_excel", async function () {
-  this.timeout(10000); // all tests in this suite get 10 seconds before timeout
+  this.timeout(100000); // all tests in this suite get 10 seconds before timeout
   it("reads an excel file from source over the internet", async function () {
     const remote_url =
       "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/SampleData.xlsx";

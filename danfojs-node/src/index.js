@@ -46,4 +46,4 @@ export {
   get_dummies
 };
 
-export const _version = "0.3.2";
+export const _version = "0.3.3";
