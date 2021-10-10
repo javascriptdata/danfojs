@@ -2047,6 +2047,17 @@ describe("DataFrame", function () {
       let rslt = [[2, 4, 6, 'c'], [0, 2, 4, 'b'], [360, 180, 360, 'a']];
       assert.deepEqual(df.values, rslt);
     });
+    it("sort index in descending order and retains index", function () {
+      let data = [[0, 2, 4, "b"],
+      [360, 180, 360, "a"],
+      [2, 4, 6, "c"]];
+
+      let df = new dfd.DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"], index: ["b", "a", "c"] });
+      let df2 = df.sort_index({ ascending: false });
+      let rslt = ["c", "b", "a"];
+
+      assert.deepEqual(df2.index, rslt);
+    });
   });
 
   describe("append", function () {

@@ -644,7 +644,7 @@ describe("DataFrame", function () {
       let data = [[0, 2, 4], [360, 180, 360]];
       let df = new DataFrame(data, { columns: ["col1", "col2", "col3"] });
       assert.deepEqual(df.mean().values, [180, 91, 182]);
-      assert.deepEqual(df.mean().index, ["col1", "col2", "col3"] );
+      assert.deepEqual(df.mean().index, ["col1", "col2", "col3"]);
 
     });
     it("Return mean of a DataFrame along axis 0 (row)", function () {
@@ -1431,6 +1431,17 @@ describe("DataFrame", function () {
       assert.deepEqual(df.values, df_val);
 
     });
+    it("drop works for undefined values", function () {
+      let data = [[null, 1, 2, 3], [3, 4, undefined, 9], [5, 6, 7, 8]];
+      let column = ["A", "B", "C", "D"];
+      let df = new DataFrame(data, { columns: column });
+
+      let df_val = [[5, 6, 7, 8]];
+
+      df.dropna(0, { inplace: true });
+      assert.deepEqual(df.values, df_val);
+
+    });
   });
 
   describe("isna", function () {
@@ -2067,6 +2078,17 @@ describe("DataFrame", function () {
       df.sort_index({ ascending: false, inplace: true });
       let rslt = [[2, 4, 6, 'c'], [0, 2, 4, 'b'], [360, 180, 360, 'a']];
       assert.deepEqual(df.values, rslt);
+    });
+    it("sort index in descending order and retains index", function () {
+      let data = [[0, 2, 4, "b"],
+      [360, 180, 360, "a"],
+      [2, 4, 6, "c"]];
+
+      let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"], index: ["b", "a", "c"] });
+      let df2 = df.sort_index({ ascending: false });
+      let rslt = ["c", "b", "a"];
+
+      assert.deepEqual(df2.index, rslt);
     });
   });
 

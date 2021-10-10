@@ -785,9 +785,10 @@ export default class Series extends NDframe {
     if (inplace) {
       this.$setValues(data);
     } else {
-      const sf = this.copy();
-      sf.$setValues(data);
-      return sf;
+      return new Series(data, {
+        index: this.index,
+        config: { ...this.config }
+      });
     }
   }
 

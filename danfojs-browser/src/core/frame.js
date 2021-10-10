@@ -1237,7 +1237,7 @@ export default class DataFrame extends NDframe {
       const dfValues = this.values;
       for (let i = 0; i < dfValues.length; i++) {
         const values = dfValues[i];
-        if (!values.includes(NaN)) {
+        if (!values.includes(NaN) && !values.includes(undefined) && !values.includes(null)) {
           newData.push(values);
           newIndex.push(this.index[i]);
         }
@@ -2100,8 +2100,9 @@ export default class DataFrame extends NDframe {
     });
 
     const sortedObjectArr = utils.sortObj(objToSort, ascending);
-    const sortedIndex = sortedObjectArr.map((obj) => obj.index);
+    let sortedIndex = sortedObjectArr.map((obj) => obj.index);
     const newData = sortedIndex.map((i) => (this.values)[i]);
+    sortedIndex = sortedIndex.map((i) => index[i]);
 
     if (inplace) {
       this.$setValues(newData);
