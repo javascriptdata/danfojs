@@ -27,6 +27,7 @@ import LabelEncoder from "./transformers/encoders/label.encoder";
 import OneHotEncoder from "./transformers/encoders/one.hot.encoder";
 import getDummies from "./transformers/encoders/dummy.encoder"
 import concat from "./transformers/concat"
+import merge from "./transformers/merge"
 
 export {
     NDframe,
@@ -51,5 +52,6 @@ export {
     LabelEncoder,
     OneHotEncoder,
     getDummies,
-    concat
+    concat,
+    merge
 }
