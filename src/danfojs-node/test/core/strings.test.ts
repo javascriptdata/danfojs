@@ -1,5 +1,5 @@
 import { assert, expect } from "chai";
-import { Series} from "../../dist";
+import { Series} from "../../dist/danfojs-node/src";
 
 describe("Str", function () {
     it("Converts all characters to lowercase.", function () {

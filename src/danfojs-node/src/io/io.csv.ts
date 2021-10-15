@@ -17,8 +17,8 @@ import Papa from 'papaparse'
 import request from "request"
 import stream from "stream"
 import { DataFrame, NDframe, Series } from '../index'
-import { ArrayType2D, CsvInputOptions, CsvOutputOptionsNode } from "../shared/types"
-
+import { ArrayType2D } from "../../../base/shared/types"
+import { CsvInputOptions, CsvOutputOptionsNode } from "../types"
 
 /**
  * Reads a CSV file from local or remote location into a DataFrame.
@@ -203,7 +203,7 @@ const $toCSV = (df: NDframe | DataFrame | Series, options?: CsvOutputOptionsNode
 const $openCsvInputStream = (filePath: string, options: CsvInputOptions) => {
   const { header } = { header: true, ...options }
   let isFirstChunk = true
-  let ndFrameColumnNames: Array<string> = []
+  let ndFrameColumnNames: any = []
 
   const csvInputStream = new stream.Readable({ objectMode: true });
   csvInputStream._read = () => { };

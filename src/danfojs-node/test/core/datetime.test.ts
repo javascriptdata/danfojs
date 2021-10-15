@@ -1,6 +1,6 @@
 import { assert } from "chai";
-import { Series } from "../../dist";
-import { toDateTime } from '../../dist/core/datetime';
+import { Series } from "../../dist/danfojs-node/src";
+import { toDateTime } from '../../dist/danfojs-node/src';
 
 describe("TimeSeries", function () {
 

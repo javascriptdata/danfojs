@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { Utils } from "../dist";
+import { Utils } from "../dist/danfojs-node/src";
 
 const utils = new Utils();
 

@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { DataFrame, concat , Series } from "../../dist";
+import { DataFrame, concat , Series } from "../../dist/danfojs-node/src";
 
 describe("Concat", ()=>{
   it("Check the axis 0 concatenation", function () {

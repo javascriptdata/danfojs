@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { DataFrame, Series, StandardScaler } from "../../dist";
+import { DataFrame, Series, StandardScaler } from "../../dist/danfojs-node/src";
 
 
 describe("StandardScaler", function () {

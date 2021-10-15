@@ -1,6 +1,6 @@
 import path from "path"
 import { assert } from "chai";
-import { DataFrame, readCSV, Series, streamCSV, toCSV } from "../../dist";
+import { DataFrame, readCSV, Series, streamCSV, toCSV } from "../../dist/danfojs-node/src";
 
 describe("readCSV", function () {
     this.timeout(10000);
@@ -120,6 +120,11 @@ describe("toCSV", function () {
         const data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
         let df: any = new Series(data);
         assert.deepEqual(toCSV(df, { sep: "+" }), `1+2+3+4+5+6+7+8+9+10+11+12`);
+    });
+    it("calling df.toCSV works", async function () {
+        const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
+        let df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
+        assert.deepEqual(df.toCSV(), `a,b,c,d\n1,2,3,4\n5,6,7,8\n9,10,11,12\n`);
     });
 
 })

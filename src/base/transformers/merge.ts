@@ -14,7 +14,7 @@
 */
 
 import DataFrame from "../core/frame"
-import { ArrayType1D, ArrayType2D } from "shared/types"
+import { ArrayType1D, ArrayType2D } from "../shared/types"
 import Utils from "../shared/utils";
 const utils = new Utils();
 

@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { DataFrame, Series, LabelEncoder } from "../../dist";
+import { DataFrame, Series, LabelEncoder } from "../../dist/danfojs-node/src";
 
 describe("LabelEncoder", function () {
 

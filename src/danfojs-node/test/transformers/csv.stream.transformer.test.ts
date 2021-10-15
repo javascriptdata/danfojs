@@ -1,4 +1,4 @@
-import { DataFrame, Series, streamCsvTransformer } from "../../dist";
+import { DataFrame, Series, streamCsvTransformer } from "../../dist/danfojs-node/src";
 import stream from "stream"
 import path from "path"
 

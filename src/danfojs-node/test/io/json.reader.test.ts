@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path"
 import { assert } from "chai";
-import { DataFrame, Series, readJSON, toJSON, streamJSON } from "../../dist";
+import { DataFrame, Series, readJSON, toJSON, streamJSON } from "../../dist/danfojs-node/src";
 
 describe("readJSON", function () {
     this.timeout(100000);
@@ -124,6 +124,18 @@ describe("toJSON", function () {
         const data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
         const df: any = new Series(data);
         assert.deepEqual(toJSON(df, {}), { "0": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] });
+    });
+    it("df.toJSON works", async function () {
+        const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
+        const df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
+        const expected: any = {
+            "a": [1, 5, 9],
+            "b": [2, 6, 10],
+            "c": [3, 7, 11],
+            "d": [4, 8, 12],
+        }
+        const json = df.toJSON({ format: "row" })
+        assert.deepEqual(json, expected);
     });
 
 })

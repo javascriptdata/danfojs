@@ -1,7 +1,7 @@
 import { assert, expect } from "chai";
 import fs from "fs";
 import path from "path";
-import { DataFrame, readExcel, Series } from '../../dist';
+import { DataFrame, readExcel, Series } from '../../dist/danfojs-node/src';
 
 
 describe("DataFrame", function () {

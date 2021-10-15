@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path"
 import { assert } from "chai";
-import { DataFrame, readExcel, Series, toExcel } from "../../dist";
+import { DataFrame, readExcel, Series, toExcel } from "../../dist/danfojs-node/src";
 
 describe("readExcel", function () {
     this.timeout(100000);
@@ -72,6 +72,13 @@ describe("toExcel", function () {
         const df: any = new Series(data);
         const filePath = path.join(process.cwd(), "test", "samples", "testSeries.xlsx");
         toExcel(df, { filePath })
+        assert.equal(fs.existsSync(filePath), true)
+    });
+    it("calling df.toExcel works", async function () {
+        const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
+        const df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
+        const filePath = path.join(process.cwd(), "test", "samples", "sampleOut.xlsx");
+        df.toExcel({ filePath })
         assert.equal(fs.existsSync(filePath), true)
     });
 

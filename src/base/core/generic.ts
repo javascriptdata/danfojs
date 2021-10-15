@@ -23,12 +23,10 @@ import {
     LoadObjectDataType,
     AxisType,
     ArrayType1D,
-    ArrayType2D,
-    CsvOutputOptionsNode,
+    ArrayType2D
 } from '../shared/types'
 import ErrorThrower from '../shared/errors';
 import { BASE_CONFIG, DATA_TYPES } from '../shared/defaults';
-import { toCSV, toJSON, toExcel } from "../io"
 import { Tensor, tensor1d, tensor2d } from "@tensorflow/tfjs-node"
 
 const utils = new Utils();
@@ -426,10 +424,10 @@ export default class NDframe implements NDframeInterface {
      * - `header`: Boolean indicating whether to include a header row in the CSV file.
      * - `sep`: Character to be used as a separator in the CSV file.
      */
-    toCSV(options?: CsvOutputOptionsNode): string
-    toCSV(options?: CsvOutputOptionsNode): string | void {
-        return toCSV(this, options);
-    }
+    // toCSV(options?: CsvOutputOptionsNode): string
+    // toCSV(options?: CsvOutputOptionsNode): string | void {
+    //     return toCSV(this, options);
+    // }
 
     /**
      * Converts a DataFrame or Series to JSON. 
@@ -447,10 +445,10 @@ export default class NDframe implements NDframeInterface {
      * }
      * ```
      */
-    toJSON(options?: { format?: "row" | "column", filePath?: string }): object
-    toJSON(options?: { format?: "row" | "column", filePath?: string }): object | void {
-        return toJSON(this, options);
-    }
+    // toJSON(options?: { format?: "row" | "column", filePath?: string }): object
+    // toJSON(options?: { format?: "row" | "column", filePath?: string }): object | void {
+    //     return toJSON(this, options);
+    // }
 
 
     /**
@@ -459,9 +457,9 @@ export default class NDframe implements NDframeInterface {
      * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
      * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`.
      */
-    toExcel(options?: { filePath?: string, sheetName?: string }): void {
-        return toExcel(this, options);
-    }
+    // toExcel(options?: { filePath?: string, sheetName?: string }): void {
+    //     return toExcel(this, options);
+    // }
 
     /**
      * Pretty prints a DataFrame or Series to the console

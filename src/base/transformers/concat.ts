@@ -15,7 +15,7 @@
 
 import Series from "../core/series"
 import DataFrame from "../core/frame"
-import { ArrayType1D, ArrayType2D } from "shared/types"
+import { ArrayType1D, ArrayType2D } from "../shared/types"
 
 function processColumn(dfList: Array<DataFrame | Series>, axis: number ): DataFrame {
   let allDf: any = {}

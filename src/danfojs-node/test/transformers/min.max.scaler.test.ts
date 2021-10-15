@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { DataFrame, Series, MinMaxScaler } from "../../dist";
+import { DataFrame, Series, MinMaxScaler } from "../../dist/danfojs-node/src";
 
 describe("MinMaxscaler", function () {
 

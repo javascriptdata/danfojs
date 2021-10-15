@@ -4,7 +4,7 @@ import { parser } from "stream-json"
 import fetch, { HeadersInit } from "node-fetch";
 import { DataFrame, NDframe, Series } from '../index'
 import { streamArray } from "stream-json/streamers/StreamArray"
-import { ArrayType1D, ArrayType2D } from '../shared/types';
+import { ArrayType1D, ArrayType2D } from '../../../base/shared/types';
 
 /**
  * Reads a JSON file from local or remote location into a DataFrame.

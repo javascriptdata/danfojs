@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { Series, OneHotEncoder, DataFrame } from "../../dist";
+import { Series, OneHotEncoder, DataFrame } from "../../dist/danfojs-node/src";
 
 describe("OneHotEncoder", function () {
     it("OneHotEncoder works on array", function () {

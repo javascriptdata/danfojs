@@ -12,10 +12,10 @@
 * limitations under the License.
 * ==========================================================================
 */
-import { CsvInputOptions, CsvOutputOptionsNode } from "../../shared/types"
-import DataFrame from "../../core/frame"
+import { CsvInputOptions, CsvOutputOptionsNode } from "../types"
+import DataFrame from "../core/frame"
 import stream from "stream"
-import { writeCsvOutputStream, openCsvInputStream } from "../../io"
+import { writeCsvOutputStream, openCsvInputStream } from "../io"
 
 /**
  * Converts a function to a pipe transformer. 

@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { NDframe } from '../../dist';
+import { NDframe } from '../../dist/danfojs-node/src';
 import { tensor } from '@tensorflow/tfjs-node';
 
 

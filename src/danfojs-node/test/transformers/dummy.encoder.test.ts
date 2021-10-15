@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { DataFrame, Series, getDummies } from "../../dist";
+import { DataFrame, Series, getDummies } from "../../dist/danfojs-node/src";
 
 describe("DummyEncoder", function () {
     it("getDummies works on Series", function () {
