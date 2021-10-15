@@ -985,6 +985,15 @@ describe("Series Functions", () => {
       const expected = [ true, false, false, true, true, true, true ];
       assert.deepEqual(sf.lt(30).values, expected);
     });
+
+    it("Correct index is returned after operation", function () {
+      const data1 = [ true, true, true, false, false ];
+      const data2 = [ true, false, true, true, false ];
+      const sf = new dfd.Series(data1, { index: [ "one", "two", "three", "four", "five" ] });
+
+      const expected = [ "one", "two", "three", "four", "five" ];
+      assert.deepEqual(sf.lt(data2).index, expected);
+    });
   });
 
   describe("gt", function () {
@@ -1003,6 +1012,15 @@ describe("Series Functions", () => {
       const sf = new dfd.Series(data1);
       const expected = [ false, true, true, false, false, false, false ];
       assert.deepEqual(sf.gt(30).values, expected);
+    });
+
+    it("Correct index is returned after operation", function () {
+      const data1 = [ true, true, true, false, false ];
+      const data2 = [ true, false, true, true, false ];
+      const sf = new dfd.Series(data1, { index: [ "one", "two", "three", "four", "five" ] });
+
+      const expected = [ "one", "two", "three", "four", "five" ];
+      assert.deepEqual(sf.and(data2).index, expected);
     });
   });
 
@@ -1151,7 +1169,7 @@ describe("Series Functions", () => {
   });
 
   describe("dropNa", function () {
-    it("Return a new Series with missing values removed (Int)", function () {
+    it("Return a new dfd.Series with missing values removed (Int)", function () {
       const data1 = [ 10, 45, undefined, 10, 23, 20, undefined, 10 ];
       const sf = new dfd.Series(data1);
       const expected = [ 10, 45, 10, 23, 20, 10 ];
@@ -1162,7 +1180,7 @@ describe("Series Functions", () => {
       assert.deepEqual(sfDrop.shape, [ 6, 1 ]);
     });
 
-    it("Return a new Series with missing values removed (String)", function () {
+    it("Return a new dfd.Series with missing values removed (String)", function () {
       const data1 = [ "A", NaN, "A", "B", "B", NaN, "C", undefined ];
       const sf = new dfd.Series(data1);
       const expected = [ "A", "A", "B", "B", "C" ];
@@ -1467,6 +1485,14 @@ describe("Series Functions", () => {
       const sf = new dfd.Series(data1);
       const expected = [ true, false, true, true, false ];
       assert.deepEqual(sf.and(data2).or(data3).values, expected);
+    });
+    it("Correct index is returned after operation", function () {
+      const data1 = [ true, true, true, false, false ];
+      const data2 = [ true, false, true, true, false ];
+      const sf = new dfd.Series(data1, { index: [ "one", "two", "three", "four", "five" ] });
+
+      const expected = [ "one", "two", "three", "four", "five" ];
+      assert.deepEqual(sf.and(data2).index, expected);
     });
   });
 

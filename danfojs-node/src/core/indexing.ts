@@ -213,7 +213,7 @@ export function _loc({ ndFrame, rows, columns }: {
     ndFrame: NDframeInterface
     rows?: Array<string | number | boolean> | Series
     columns?: Array<string>
-}): Series | DataFrame | void {
+}): Series | DataFrame {
 
     let _rowIndexes: Array<number>
     let _columnIndexes: Array<number>

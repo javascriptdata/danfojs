@@ -1005,8 +1005,9 @@ describe("DataFrame", function () {
     it("Returns the mean of a DataFrame (Default axis is [1:column])", function () {
       const data = [ [ 0, 2, 4 ],
         [ 360, 180, 360 ] ];
-      const df = new dfd.DataFrame(data, { columns: [ "col1", "col2", "col3" ] });
+      const df = new dfd.DataFrame(data, { columns: [ "col1", "col2", "col3" ], index: [ "row1", "row2" ] });
       assert.deepEqual(df.mean().values, [ 2, 300 ]);
+      assert.deepEqual(df.mean().index, [ "row1", "row2" ]);
     });
     it("Return mean of a DataFrame along axis 1 (column)", function () {
       const data = [ [ 0, 2, 4 ], [ 360, 180, 360 ] ];
@@ -1585,6 +1586,18 @@ describe("DataFrame", function () {
       const df = new dfd.DataFrame(data, { columns: column });
 
       const df_val = [ [ 5, 6, 7, 8 ] ];
+
+      df.dropNa(0, { inplace: true });
+      assert.deepEqual(df.values, df_val);
+
+    });
+
+    it("drop works for undefined values", function () {
+      let data = [ [ null, 1, 2, 3 ], [ 3, 4, undefined, 9 ], [ 5, 6, 7, 8 ] ];
+      let column = [ "A", "B", "C", "D" ];
+      let df = new dfd.DataFrame(data, { columns: column });
+
+      let df_val = [ [ 5, 6, 7, 8 ] ];
 
       df.dropNa(0, { inplace: true });
       assert.deepEqual(df.values, df_val);
@@ -2313,6 +2326,18 @@ describe("DataFrame", function () {
       df.sortIndex({ ascending: false, inplace: true });
       const rslt = [ [ 2, 4, 6, 'c' ], [ 0, 2, 4, 'b' ], [ 360, 180, 360, 'a' ] ];
       assert.deepEqual(df.values, rslt);
+    });
+
+    it("sort index in descending order and retains index", function () {
+      let data = [ [ 0, 2, 4, "b" ],
+        [ 360, 180, 360, "a" ],
+        [ 2, 4, 6, "c" ] ];
+
+      let df = new dfd.DataFrame(data, { "columns": [ "col1", "col2", "col3", "col4" ], index: [ "b", "a", "c" ] });
+      let df2 = df.sortIndex({ ascending: false });
+      let rslt = [ "c", "b", "a" ];
+
+      assert.deepEqual(df2.index, rslt);
     });
   });
 

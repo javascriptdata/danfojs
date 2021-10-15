@@ -113,7 +113,7 @@ export interface CsvInputOptions extends ParseConfig { }
 
 //Start of Series class types
 export interface SeriesInterface extends NDframeInterface {
-    iloc(rows: Array<string | number>): Series;
+    iloc(rows: Array<string | number> | boolean[]): Series;
     head(rows: number): Series
     tail(rows: number): Series
     sample(num: number, options?: { seed?: number }): Promise<Series>;
@@ -157,12 +157,12 @@ export interface SeriesInterface extends NDframeInterface {
     cumMin(options?: { inplace?: boolean }): Series | void
     cumMax(options?: { inplace?: boolean }): Series | void
     cumProd(options?: { inplace?: boolean }): Series | void
-    lt(other: Series | number | Array<number>): Series
-    gt(other: Series | number | Array<number>): Series
-    le(other: Series | number | Array<number>): Series
-    ge(other: Series | number | Array<number>): Series
-    ne(other: Series | number | Array<number>): Series
-    eq(other: Series | number | Array<number>): Series
+    lt(other: Series | number | Array<number> | boolean[]): Series
+    gt(other: Series | number | Array<number>| boolean[]): Series
+    le(other: Series | number | Array<number>| boolean[]): Series
+    ge(other: Series | number | Array<number>| boolean[]): Series
+    ne(other: Series | number | Array<number>| boolean[]): Series
+    eq(other: Series | number | Array<number>| boolean[]): Series
     replace(oldValue: string | number | boolean, newValue: string | number | boolean, options?: { inplace?: boolean }): Series | void
     dropNa(options?: { inplace?: boolean }): Series | void
     argSort(): Series

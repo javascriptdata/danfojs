@@ -40,8 +40,9 @@ export default class Str {
      * // ["good", "bad", "crazy"]
      * ```
     */
-    toLowerCase(options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    toLowerCase(options?: { inplace?: boolean }): Series
+    toLowerCase(options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
             if (isNaN(val as number) && typeof val != "string") {
@@ -76,8 +77,9 @@ export default class Str {
      * // ["GOOD", "BAD", "CRAZY"]
      * ```
     */
-    toUpperCase(options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    toUpperCase(options?: { inplace?: boolean }): Series
+    toUpperCase(options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
             if (isNaN(val as number) && typeof val != "string") {
@@ -111,8 +113,9 @@ export default class Str {
      * // ["Good", "Bad", "Crazy"]
      * ```
     */
-    capitalize(options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    capitalize(options?: { inplace?: boolean }): Series
+    capitalize(options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
             if (isNaN(val as number) && typeof val != "string") {
@@ -151,8 +154,9 @@ export default class Str {
      * // ["o", "a", "r"]
      * ```
     */
-    charAt(index = 0, options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    charAt(index: number, options?: { inplace?: boolean }): Series
+    charAt(index = 0, options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
             if (isNaN(val as number) && typeof val != "string") {
@@ -186,8 +190,9 @@ export default class Str {
      * // ["Good_new", "bad_new", "crazy_new"
      * ```
     */
-    concat(other: Array<string> | string, position = 1, options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    concat(other: Array<string> | string, position: number, options?: { inplace?: boolean }): Series
+    concat(other: Array<string> | string, position = 1, options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
 
         if (Array.isArray(other)) {
@@ -246,8 +251,9 @@ export default class Str {
      * // [true, false, false]
      * ```
     */
-    startsWith(str = "", options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    startsWith(str: string, options?: { inplace?: boolean }): Series
+    startsWith(str = "", options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
         const newArr: Array<boolean | number> = [];
         this.values.forEach((val) => {
             if (isNaN(val as number) && typeof val != "string") {
@@ -280,8 +286,9 @@ export default class Str {
      * // [true, true, false]
      * ```
     */
-    endsWith(str = "", options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    endsWith(str: string, options?: { inplace?: boolean }): Series
+    endsWith(str = "", options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
         const newArr: Array<boolean | number> = [];
         this.values.map((val) => {
             if (isNaN(val as number) && typeof val != "string") {
@@ -314,8 +321,9 @@ export default class Str {
      * // [true, true, false]
      * ```
     */
-    includes(str = "", options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    includes(str: string, options?: { inplace?: boolean }): Series
+    includes(str = "", options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
         const newArr: Array<boolean | number> = [];
         this.values.map((val) => {
             if (isNaN(val as number) && typeof val != "string") {
@@ -348,8 +356,9 @@ export default class Str {
      * // [3, 2, -1]
      * ```
     */
-    indexOf(str = "", options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    indexOf(str: string, options?: { inplace?: boolean }): Series
+    indexOf(str = "", options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
         const newArr: Array<number> = [];
         this.values.map((val) => {
             if (isNaN(val as number) && typeof val != "string") {
@@ -382,8 +391,9 @@ export default class Str {
      * // [3, 2, -1]
      * ```
     */
-    lastIndexOf(str = "", options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    lastIndexOf(str: string, options?: { inplace?: boolean }): Series
+    lastIndexOf(str = "", options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
             if (isNaN(val as number) && typeof val != "string") {
@@ -418,8 +428,9 @@ export default class Str {
      * // ["Goo7", "o77", "crazy"]
      * ```
     */
-    replace(searchValue = "", replaceValue = "", options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    replace(searchValue: string, replaceValue: string, options?: { inplace?: boolean }): Series
+    replace(searchValue = "", replaceValue = "", options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
             if (isNaN(val as number) && typeof val != "string") {
@@ -452,8 +463,9 @@ export default class Str {
      * // ["GoodGood", "oddodd", "crazycrazy"]
      * ```
     */
-    repeat(num = 1, options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    repeat(num: number, options?: { inplace?: boolean }): Series
+    repeat(num = 1, options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
             if (isNaN(val as number) && typeof val != "string") {
@@ -486,8 +498,9 @@ export default class Str {
      * console.log(newSf.values)
      * ```
     */
-    search(str = "", options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    search(str: string, options?: { inplace?: boolean }): Series
+    search(str = "", options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
             if (isNaN(val as number) && typeof val != "string") {
@@ -521,8 +534,9 @@ export default class Str {
      * // ["G", "o", "c"]
      * ```
     */
-    slice(startIndex = 0, endIndex = 1, options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    slice(startIndex: number, endIndex: number, options?: { inplace?: boolean }): Series
+    slice(startIndex = 0, endIndex = 1, options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
             if (isNaN(val as number) && typeof val != "string") {
@@ -554,8 +568,9 @@ export default class Str {
      * console.log(newSf.values)
      * ```
     */
-    split(splitVal = " ", options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    split(splitVal: string, options?: { inplace?: boolean }): Series
+    split(splitVal = " ", options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
             if (isNaN(val as number) && typeof val != "string") {
@@ -587,8 +602,9 @@ export default class Str {
      * const newSf = sf.str.substr(d)
      * ```
     */
-    substr(startIndex = 0, num = 1, options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    substr(startIndex: number, num: number, options?: { inplace?: boolean }): Series
+    substr(startIndex = 0, num = 1, options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
             if (isNaN(val as number) && typeof val != "string") {
@@ -620,8 +636,9 @@ export default class Str {
      * const newSf = sf.str.substring(d)
      * ```
     */
-    substring(startIndex = 0, endIndex = 1, options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    substring(startIndex: number, endIndex: number, options?: { inplace?: boolean }): Series
+    substring(startIndex = 0, endIndex = 1, options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
             if (isNaN(val as number) && typeof val != "string") {
@@ -652,8 +669,9 @@ export default class Str {
      * ["Good", "odd", "grade"]
      * ```
     */
-    trim(options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    trim(options?: { inplace?: boolean }): Series
+    trim(options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
             if (isNaN(val as number) && typeof val != "string") {
@@ -686,8 +704,9 @@ export default class Str {
      * // ["Good_new", "odd_new", "grade_new"]
      * ```
     */
-    join(valToJoin = "", joinChar = " ", options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    join(valToJoin: string, joinChar: string, options?: { inplace?: boolean }): Series
+    join(valToJoin = "", joinChar = " ", options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
             if (isNaN(val as number) && typeof val != "string") {
@@ -721,8 +740,9 @@ export default class Str {
      * // [4,3,5]
      * ```
     */
-    len(options: { inplace: boolean } = { inplace: false }): Series | void {
-        const { inplace = false } = options;
+    len(options?: { inplace?: boolean }): Series
+    len(options?: { inplace?: boolean }): Series | void {
+        const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
             if (isNaN(val as number) && typeof val != "string") {

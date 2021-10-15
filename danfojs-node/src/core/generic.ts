@@ -426,6 +426,7 @@ export default class NDframe implements NDframeInterface {
      * - `header`: Boolean indicating whether to include a header row in the CSV file.
      * - `sep`: Character to be used as a separator in the CSV file.
      */
+    toCSV(options?: CsvOutputOptionsNode): string
     toCSV(options?: CsvOutputOptionsNode): string | void {
         return toCSV(this, options);
     }
@@ -446,6 +447,7 @@ export default class NDframe implements NDframeInterface {
      * }
      * ```
      */
+    toJSON(options?: { format?: "row" | "column", filePath?: string }): object
     toJSON(options?: { format?: "row" | "column", filePath?: string }): object | void {
         return toJSON(this, options);
     }
