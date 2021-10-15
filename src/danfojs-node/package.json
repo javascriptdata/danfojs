@@ -1,0 +1,95 @@
+{
+  "name": "danfojs-node",
+  "version": "1.0.0",
+  "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "directories": {
+    "test": "test"
+  },
+  "contributors": [
+    {
+      "name": "Rising Odegua"
+    },
+    {
+      "name": "Stephen Oni"
+    }
+  ],
+  "files": [
+    "dist/"
+  ],
+  "dependencies": {
+    "@tensorflow/tfjs-node": "3.6.1",
+    "mathjs": "^9.4.4",
+    "node-fetch": "^2.6.1",
+    "papaparse": "^5.3.1",
+    "request": "^2.88.2",
+    "stream-json": "^1.7.3",
+    "table": "6.7.1",
+    "xlsx": "^0.17.2"
+  },
+  "scripts": {
+    "test": "nyc mocha --require ts-node/register test/**/*.test.ts",
+    "test:clean": "yarn build:clean && yarn test",
+    "dev": "nodemon",
+    "build": "tsc",
+    "build:clean": "rimraf ./build && tsc",
+    "lint": "eslint ./src",
+    "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
+    "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
+    "patch": "npm version patch"
+  },
+  "publishConfig": {
+    "access": "public",
+    "branches": [
+      "master"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/opensource9ja/danfojs.git"
+  },
+  "keywords": [
+    "pandas",
+    "data-analysis",
+    "data-manipulation",
+    "analysis"
+  ],
+  "author": "Rising Odegua <risingodegua@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/opensource9ja/danfojs/issues"
+  },
+  "homepage": "https://github.com/opensource9ja/danfojs#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.10.5",
+    "@babel/plugin-transform-runtime": "^7.12.10",
+    "@babel/preset-env": "^7.10.4",
+    "@babel/register": "^7.10.1",
+    "@types/chai": "^4.2.19",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "^16.9.6",
+    "@types/papaparse": "^5.2.6",
+    "@types/request": "^2.48.7",
+    "@types/stream-json": "^1.7.1",
+    "@types/table": "^6.3.2",
+    "chai": "^4.2.0",
+    "coveralls": "^3.1.0",
+    "dts-bundle-generator": "^5.9.0",
+    "eslint": "^7.1.0",
+    "mocha": "^7.2.0",
+    "nodemon": "^2.0.7",
+    "nyc": "^15.1.0",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.0.0",
+    "typescript": "^4.4.2",
+    "yarn": "^1.22.10"
+  },
+  "nyc": {
+    "reporter": [
+      "lcov",
+      "text"
+    ]
+  }
+}
