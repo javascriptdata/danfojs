@@ -135,4 +135,42 @@ describe("DummyEncoder", function () {
         assert.deepEqual(getDummies(df, { columns: ["d"] }).values, rslt)
 
     });
+
+
+    it("Dummification works for object DF", function () {
+
+        let data = {
+            fruits: ['pear', 'mango', "pawpaw", "mango", "bean"],
+            Count: [20, 30, 89, 12, 30],
+            Country: ["NG", "NG", "GH", "RU", "RU"]
+        };
+
+        let df = new DataFrame(data);
+        const expected = [
+            [
+                20, 1, 0, 0,
+                0, 1, 0, 0
+            ],
+            [
+                30, 0, 1, 0,
+                0, 1, 0, 0
+            ],
+            [
+                89, 0, 0, 1,
+                0, 0, 1, 0
+            ],
+            [
+                12, 0, 1, 0,
+                0, 0, 0, 1
+            ],
+            [
+                30, 0, 0, 0,
+                1, 0, 0, 1
+            ]
+        ];
+
+        let dum_df = getDummies(df, { prefixSeparator: "_" });
+        assert.deepEqual(dum_df.values, expected);
+
+    });
 });

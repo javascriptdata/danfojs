@@ -2,7 +2,6 @@ import { assert, expect } from "chai";
 import fs from "fs";
 import path from "path";
 import { DataFrame, readExcel, Series } from '../../dist';
-import { ArrayType1D } from "../../dist/shared/types";
 
 
 describe("DataFrame", function () {
@@ -786,7 +785,7 @@ describe("DataFrame", function () {
         it("Return Addition of DataFrame with a single Number", function () {
             const data = [[0, 2, 4], [360, 180, 360]];
             const df = new DataFrame(data)
-            assert.deepEqual((df.add(2) as DataFrame).values, [[2, 4, 6], [362, 182, 362]]);
+            assert.deepEqual(df.add(2).values, [[2, 4, 6], [362, 182, 362]]);
         });
         it("Return addition of a DataFrame with a Series along default axis 1", function () {
             const data = [[0, 2, 4], [360, 180, 360]];
@@ -1010,8 +1009,9 @@ describe("DataFrame", function () {
         it("Returns the mean of a DataFrame (Default axis is [1:column])", function () {
             const data = [[0, 2, 4],
             [360, 180, 360]];
-            const df = new DataFrame(data, { columns: ["col1", "col2", "col3"] });
+            const df = new DataFrame(data, { columns: ["col1", "col2", "col3"], index: ["row1", "row2"] });
             assert.deepEqual(df.mean().values, [2, 300]);
+            assert.deepEqual(df.mean().index, ["row1", "row2"]);
         });
         it("Return mean of a DataFrame along axis 1 (column)", function () {
             const data = [[0, 2, 4], [360, 180, 360]];
@@ -1028,8 +1028,10 @@ describe("DataFrame", function () {
         });
         it("Return mean of a DataFrame along axis 0 (column)", function () {
             const data = [[0, 2, 4], [360, 180, 360]];
-            const df = new DataFrame(data);
+            const df = new DataFrame(data, { columns: ["col1", "col2", "col3"] });
             assert.deepEqual(df.mean({ "axis": 0 }).values, [180, 91, 182]);
+            assert.deepEqual(df.mean({ "axis": 0 }).index, ["col1", "col2", "col3"]);
+
         });
         it("Removes NaN before calculating mean of a DataFrame along axis 0 (column)", function () {
             const data = [[11, 20, 3],
@@ -1299,6 +1301,17 @@ describe("DataFrame", function () {
             [5, 2],
             [6, 9]];
             assert.deepEqual((df.sortValues("A", { "ascending": true }) as DataFrame).values, expected);
+        });
+        it("sort index in descending order and retains index", function () {
+            let data = [[0, 2, 4, "b"],
+            [360, 180, 360, "a"],
+            [2, 4, 6, "c"]];
+
+            let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"], index: ["b", "a", "c"] });
+            let df2 = df.sortIndex({ ascending: false });
+            let rslt = ["c", "b", "a"];
+
+            assert.deepEqual(df2.index, rslt);
         });
     });
 
@@ -1586,6 +1599,17 @@ describe("DataFrame", function () {
             const df = new DataFrame(data, { columns: column });
 
             const df_val = [[5, 6, 7, 8]];
+
+            df.dropNa(0, { inplace: true });
+            assert.deepEqual(df.values, df_val);
+
+        });
+        it("drop works for undefined values", function () {
+            let data = [[null, 1, 2, 3], [3, 4, undefined, 9], [5, 6, 7, 8]];
+            let column = ["A", "B", "C", "D"];
+            let df = new DataFrame(data, { columns: column });
+
+            let df_val = [[5, 6, 7, 8]];
 
             df.dropNa(0, { inplace: true });
             assert.deepEqual(df.values, df_val);

@@ -984,6 +984,15 @@ describe("Series Functions", () => {
             const expected = [true, false, false, true, true, true, true];
             assert.deepEqual(sf.lt(30).values, expected);
         });
+
+        it("Correct index is returned after operation", function () {
+            const data1 = [true, true, true, false, false];
+            const data2 = [true, false, true, true, false];
+            const sf = new Series(data1, { index: ["one", "two", "three", "four", "five"] });
+
+            const expected = ["one", "two", "three", "four", "five"];
+            assert.deepEqual(sf.lt(data2).index, expected);
+        });
     });
 
     describe("gt", function () {
@@ -1002,6 +1011,15 @@ describe("Series Functions", () => {
             const sf = new Series(data1);
             const expected = [false, true, true, false, false, false, false];
             assert.deepEqual(sf.gt(30).values, expected);
+        });
+
+        it("Correct index is returned after operation", function () {
+            const data1 = [true, true, true, false, false];
+            const data2 = [true, false, true, true, false];
+            const sf = new Series(data1, { index: ["one", "two", "three", "four", "five"] });
+
+            const expected = ["one", "two", "three", "four", "five"];
+            assert.deepEqual(sf.and(data2).index, expected);
         });
     });
 
@@ -1167,7 +1185,7 @@ describe("Series Functions", () => {
             const expected = ["A", "A", "B", "B", "C"];
             const expectedIndex = [0, 2, 3, 4, 6];
 
-            sf.dropNa({ inplace: true })as Series
+            sf.dropNa({ inplace: true }) as Series
             assert.deepEqual(sf.values, expected);
             assert.deepEqual(sf.index, expectedIndex);
             assert.deepEqual(sf.shape, [5, 1]);
@@ -1304,7 +1322,7 @@ describe("Series Functions", () => {
         it("set type of float column to int", function () {
             const data = [-20.1, 30, 47.3, -20];
             const ndframe = new Series(data);
-            const df = ndframe.asType("int32")  as Series
+            const df = ndframe.asType("int32") as Series
 
             assert.deepEqual(df.dtypes[0], "int32");
             assert.deepEqual(df.values, [-20, 30, 47, -20]);
@@ -1498,45 +1516,61 @@ describe("Series Functions", () => {
         });
     });
 
-    describe("getDummies", function () {
-        it("getDummies works on Series", function () {
+    describe("and", function () {
+        it("Return logical AND of series and other series (element-wise)", function () {
+            const data1 = [true, true, true, false, false];
+            const data2 = [true, false, true, true, false];
+            const sf = new Series(data1);
+            const sf2 = new Series(data2);
 
-            const data = ["dog", "male", "female", "male", "female", "male", "dog"];
-            const sf = new Series(data);
-            const df = sf.getDummies({ prefix: "test", prefixSeparator: "/" });
-
-            const dfValues = [
-                [1, 0, 0],
-                [0, 1, 0],
-                [0, 0, 1],
-                [0, 1, 0],
-                [0, 0, 1],
-                [0, 1, 0],
-                [1, 0, 0]
-            ];
-            const dfColumns = ['test/dog', 'test/male', 'test/female'];
-            assert.deepEqual(df.values, dfValues);
-            assert.deepEqual(df.columns, dfColumns);
-        });
-        it("getDummies works on Series with default prefix and prefixSeperator", function () {
-
-            const data = ["dog", "male", "female", "male", "female", "male", "dog"];
-            const sf = new Series(data);
-            const df = sf.getDummies();
-
-            const dfValues = [
-                [1, 0, 0],
-                [0, 1, 0],
-                [0, 0, 1],
-                [0, 1, 0],
-                [0, 0, 1],
-                [0, 1, 0],
-                [1, 0, 0]
-            ];
-            const dfColumns = ['0_dog', '1_male', '2_female'];
-            assert.deepEqual(df.values, dfValues);
-            assert.deepEqual(df.columns, dfColumns);
+            const expected = [true, false, true, false, false];
+            assert.deepEqual(sf.and(sf2).values, expected);
         });
 
-    })
+        it("Return logical AND of series and other scalar", function () {
+            const data1 = [true, true, true, false, false];
+            const sf = new Series(data1);
+
+            const expected = [true, true, true, false, false];
+            assert.deepEqual(sf.and(true).values, expected);
+        });
+
+        it("Return logical AND of series and other array (element-wise)", function () {
+            const data1 = [true, true, true, false, false];
+            const data2 = [true, false, true, true, false];
+            const sf = new Series(data1);
+
+            const expected = [true, false, true, false, false];
+            assert.deepEqual(sf.and(data2).values, expected);
+        });
+
+        it("Chaining works for logical AND of series and other array (element-wise)", function () {
+            const data1 = [true, true, true, false, false];
+            const data2 = [true, false, true, true, false];
+            const data3 = [true, false, false, true, false];
+
+            const sf = new Series(data1);
+            const expected = [true, false, false, false, false];
+            assert.deepEqual(sf.and(data2).and(data3).values, expected);
+        });
+
+        it("Chaining works for logical AND and OR combined", function () {
+            const data1 = [true, true, true, false, false];
+            const data2 = [true, false, true, true, false];
+            const data3 = [true, false, false, true, false];
+
+            const sf = new Series(data1);
+            const expected = [true, false, true, true, false];
+            assert.deepEqual(sf.and(data2).or(data3).values, expected);
+        });
+
+        it("Correct index is returned after operation", function () {
+            const data1 = [true, true, true, false, false];
+            const data2 = [true, false, true, true, false];
+            const sf = new Series(data1, { index: ["one", "two", "three", "four", "five"] });
+
+            const expected = ["one", "two", "three", "four", "five"];
+            assert.deepEqual(sf.and(data2).index, expected);
+        });
+    });
 })

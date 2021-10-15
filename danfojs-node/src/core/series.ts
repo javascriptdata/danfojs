@@ -790,9 +790,10 @@ export default class Series extends NDframe implements SeriesInterface {
         if (inplace) {
             this.$setValues(data as ArrayType1D)
         } else {
-            const sf = this.copy();
-            sf.$setValues(data as ArrayType1D)
-            return sf;
+            return new Series(data, {
+                index: this.index,
+                config: { ...this.config }
+            });
         }
     }
 
@@ -801,7 +802,7 @@ export default class Series extends NDframe implements SeriesInterface {
        * Returns less than of series and other. Supports element wise operations
        * @param other Series or number to compare against
     */
-    lt(other: Series | number): Series {
+    lt(other: Series | number | Array<number> | boolean[]): Series {
         return this.boolOps(other, "lt");
     }
 
@@ -810,7 +811,7 @@ export default class Series extends NDframe implements SeriesInterface {
        * @param {other} Series, Scalar
        * @return {Series}
        */
-    gt(other: Series | number | Array<number>): Series {
+    gt(other: Series | number | Array<number> | boolean[]): Series {
         return this.boolOps(other, "gt");
     }
 
@@ -819,7 +820,7 @@ export default class Series extends NDframe implements SeriesInterface {
        * @param {other} Series, Scalar
        * @return {Series}
        */
-    le(other: Series | number | Array<number>): Series {
+    le(other: Series | number | Array<number> | boolean[]): Series {
         return this.boolOps(other, "le");
     }
 
@@ -828,7 +829,7 @@ export default class Series extends NDframe implements SeriesInterface {
        * @param {other} Series, Scalar
        * @return {Series}
        */
-    ge(other: Series | number | Array<number>): Series {
+    ge(other: Series | number | Array<number> | boolean[]): Series {
         return this.boolOps(other, "ge");
     }
 
@@ -837,7 +838,7 @@ export default class Series extends NDframe implements SeriesInterface {
         * @param {other} Series, Scalar
         * @return {Series}
         */
-    ne(other: Series | number | Array<number>): Series {
+    ne(other: Series | number | Array<number> | boolean[]): Series {
         return this.boolOps(other, "ne");
     }
 
@@ -846,7 +847,7 @@ export default class Series extends NDframe implements SeriesInterface {
        * @param {other} Series, Scalar
        * @return {Series}
        */
-    eq(other: Series | number | Array<number>): Series {
+    eq(other: Series | number | Array<number> | boolean[]): Series {
         return this.boolOps(other, "eq");
     }
 
@@ -855,7 +856,7 @@ export default class Series extends NDframe implements SeriesInterface {
      * @param other Other Series or number to compare with
      * @param bOps Name of operation to perform [ne, ge, le, gt, lt, eq]
      */
-    private boolOps(other: Series | number | Array<number>, bOps: string) {
+    private boolOps(other: Series | number | Array<number> | boolean[], bOps: string) {
         const data = [];
         const lSeries = this.values;
         let rSeries;
@@ -908,8 +909,10 @@ export default class Series extends NDframe implements SeriesInterface {
                     break;
             }
         }
-        return new Series(data);
-
+        return new Series(data, {
+            index: this.index,
+            config: { ...this.config }
+        });
     }
 
     /**
@@ -1254,6 +1257,7 @@ export default class Series extends NDframe implements SeriesInterface {
         if (other === undefined) {
             throw new Error("Param Error: other cannot be undefined");
         }
+        const newValues: ArrayType1D = [];
 
         if (other instanceof Series) {
             if (this.dtypes[0] !== other.dtypes[0]) {
@@ -1264,36 +1268,29 @@ export default class Series extends NDframe implements SeriesInterface {
                 throw new Error("Param Error: Series must be of same shape");
             }
 
-            const newValues: ArrayType1D = [];
-
             this.values.forEach((val, i) => {
                 newValues.push(Boolean(val) && Boolean(other.values[i]));
             });
 
-            return new Series(newValues, {
-                config: { ...this.config }
-            })
-        } else if (Array.isArray(other)) {
-            const newValues: ArrayType1D = [];
-
-            this.values.forEach((val, i) => {
-                newValues.push(Boolean(val) && Boolean(other[i]));
-            });
-
-            return new Series(newValues, {
-                config: { ...this.config }
-            })
-        } else {
-            const newValues: ArrayType1D = [];
+        } else if (typeof other === "boolean") {
 
             this.values.forEach((val) => {
                 newValues.push(Boolean(val) && Boolean(other));
             });
 
-            return new Series(newValues, {
-                config: { ...this.config }
-            })
+        } else if (Array.isArray(other)) {
+
+            this.values.forEach((val, i) => {
+                newValues.push(Boolean(val) && Boolean(other[i]));
+            });
+
+        } else {
+            throw new Error("Param Error: other must be a Series, Scalar, or Array of Scalars");
         }
+        return new Series(newValues, {
+            index: this.index,
+            config: { ...this.config }
+        });
     }
 
     /**
@@ -1305,6 +1302,7 @@ export default class Series extends NDframe implements SeriesInterface {
         if (other === undefined) {
             throw new Error("Param Error: other cannot be undefined");
         }
+        const newValues: ArrayType1D = [];
 
         if (other instanceof Series) {
             if (this.dtypes[0] !== other.dtypes[0]) {
@@ -1315,38 +1313,30 @@ export default class Series extends NDframe implements SeriesInterface {
                 throw new Error("Param Error: Series must be of same shape");
             }
 
-            const newValues: ArrayType1D = [];
-
             this.values.forEach((val, i) => {
                 newValues.push(Boolean(val) || Boolean(other.values[i]));
             });
 
-            return new Series(newValues, {
-                config: { ...this.config }
-            })
         } else if (typeof other === "boolean") {
-            const newValues: ArrayType1D = [];
 
             this.values.forEach((val) => {
                 newValues.push(Boolean(val) || Boolean(other));
             });
 
-            return new Series(newValues, {
-                config: { ...this.config }
-            })
         } else if (Array.isArray(other)) {
-            const newValues: ArrayType1D = [];
 
             this.values.forEach((val, i) => {
                 newValues.push(Boolean(val) || Boolean(other[i]));
             });
 
-            return new Series(newValues, {
-                config: { ...this.config }
-            })
         } else {
             throw new Error("Param Error: other must be a Series, Scalar, or Array of Scalars");
         }
+
+        return new Series(newValues, {
+            index: this.index,
+            config: { ...this.config }
+        });
     }
 
     /**
