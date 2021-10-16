@@ -1,0 +1,107 @@
+{
+  "name": "danfojs-browser",
+  "version": "1.0.0",
+  "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
+  "main": "dist/danfojs-browser/src/index.js",
+  "types": "dist/danfojs-browser/src/index.d.ts",
+  "directories": {
+    "test": "tests"
+  },
+  "contributors": [
+    {
+      "name": "Rising Odegua"
+    },
+    {
+      "name": "Stephen Oni"
+    }
+  ],
+  "files": [
+    "lib/",
+    "dist/"
+  ],
+  "dependencies": {
+    "@tensorflow/tfjs": "^3.9.0",
+    "mathjs": "9.4.4",
+    "papaparse": "^5.3.1",
+    "request": "^2.88.2",
+    "stream-json": "^1.7.3",
+    "table": "6.7.1",
+    "xlsx": "^0.17.2"
+  },
+  "scripts": {
+    "test": "karma start --single-run --browsers ChromeHeadless karma.conf.js",
+    "test:clean": "yarn build:clean && yarn run test",
+    "build": "node ./scripts/prebuild.js && tsc && yarn run bundle",
+    "build:clean": "rimraf ./dist && rimraf ./lib && node ./scripts/prebuild.js && yarn run build",
+    "dev": "nodemon",
+    "lint": "eslint ./src",
+    "bundle": "webpack --mode development",
+    "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
+    "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
+    "patch": "npm version patch"
+  },
+  "publishConfig": {
+    "access": "public",
+    "branches": [
+      "master"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/opensource9ja/danfojs.git"
+  },
+  "keywords": [
+    "pandas",
+    "data-analysis",
+    "data-manipulation",
+    "analysis"
+  ],
+  "author": "Rising Odegua <risingodegua@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/opensource9ja/danfojs/issues"
+  },
+  "homepage": "https://github.com/opensource9ja/danfojs#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.10.5",
+    "@babel/plugin-transform-runtime": "^7.12.10",
+    "@babel/preset-env": "^7.10.4",
+    "@types/chai": "^4.2.19",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "^15.12.5",
+    "@types/papaparse": "^5.2.6",
+    "@types/request": "^2.48.7",
+    "@types/stream-json": "^1.7.1",
+    "@types/table": "^6.3.2",
+    "@typescript-eslint/eslint-plugin": "^4.30.0",
+    "@typescript-eslint/parser": "^4.30.0",
+    "awesome-typescript-loader": "^5.2.1",
+    "babel-loader": "^8.1.0",
+    "browserify": "16.5.2",
+    "chai": "^4.2.0",
+    "coveralls": "^3.1.0",
+    "dotenv": "^10.0.0",
+    "eslint": "^7.1.0",
+    "karma": "5.2.3",
+    "karma-browserify": "7.0.0",
+    "karma-chai": "^0.1.0",
+    "karma-chrome-launcher": "^3.1.0",
+    "karma-mocha": "^2.0.1",
+    "mocha": "^8.3.0",
+    "nyc": "^15.1.0",
+    "source-map-loader": "^3.0.0",
+    "ts-loader": "^9.2.6",
+    "typescript": "^4.4.2",
+    "webpack": "5.21.2",
+    "webpack-cli": "4.5.0",
+    "yarn": "^1.22.10"
+  },
+  "nyc": {
+    "reporter": [
+      "lcov",
+      "text"
+    ]
+  },
+  "sideEffects": false
+}

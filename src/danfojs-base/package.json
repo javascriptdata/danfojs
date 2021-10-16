@@ -1,0 +1,17 @@
+{
+  "name": "danfojs-base",
+  "version": "0.3.3",
+  "description": "Base package used in danfojs-node and danfojs-browser",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "dotenv": "^10.0.0"
+  },
+  "dependencies": {
+    "@tensorflow/tfjs-node": "3.6.1"
+  }
+}
