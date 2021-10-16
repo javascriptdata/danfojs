@@ -15,7 +15,7 @@
 import fetch, { HeadersInit } from "node-fetch";
 import { DataFrame, NDframe, Series } from '../index'
 import XLSX from 'xlsx';
-import { ArrayType1D, ArrayType2D } from '../../../base/shared/types';
+import { ArrayType1D, ArrayType2D } from '../../../danfojs-base/shared/types';
 
 /**
  * Reads a JSON file from local or remote location into a DataFrame.

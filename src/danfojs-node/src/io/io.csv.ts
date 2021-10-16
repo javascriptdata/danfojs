@@ -17,7 +17,7 @@ import Papa from 'papaparse'
 import request from "request"
 import stream from "stream"
 import { DataFrame, NDframe, Series } from '../index'
-import { ArrayType2D } from "../../../base/shared/types"
+import { ArrayType2D } from "../../../danfojs-base/shared/types"
 import { CsvInputOptions, CsvOutputOptionsNode } from "../types"
 
 /**

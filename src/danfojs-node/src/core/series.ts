@@ -14,8 +14,8 @@
 */
 import { toCSV, toExcel, toJSON } from "../io";
 import { CsvOutputOptionsNode } from "types";
-import BaseSeries from "../../../base/core/series"
-import { BaseDataOptionType } from "../../../base/shared/types";
+import BaseSeries from "../../../danfojs-base/core/series"
+import { BaseDataOptionType } from "../../../danfojs-base/shared/types";
 
 
 /**
