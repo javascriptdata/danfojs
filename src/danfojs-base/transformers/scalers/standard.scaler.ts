@@ -13,7 +13,7 @@
 * ==========================================================================
 */
 
-import { tensor1d, Tensor, tensor2d, moments } from "@tensorflow/tfjs-node"
+import tensorflow from '../../shared/tensorflowlib'
 import Series from "../../core/series"
 import DataFrame from "../../core/frame"
 import Utils from "../../shared/utils"
@@ -26,28 +26,28 @@ const utils = new Utils()
  * where `u` is the mean of the training samples, and `s` is the standard deviation of the training samples.
  */
 export default class StandardScaler {
-    private $std: Tensor
-    private $mean: Tensor
+    private $std: typeof tensorflow.Tensor
+    private $mean: typeof tensorflow.Tensor
 
     constructor() {
-        this.$std = tensor1d([])
-        this.$mean = tensor1d([])
+        this.$std = tensorflow.tensor1d([])
+        this.$mean = tensorflow.tensor1d([])
     }
 
-    private $getTensor(data: number[] | number[][] | Tensor | DataFrame | Series) {
-        let $tensorArray;
+    private $getTensor(data: number[] | number[][] | typeof tensorflow.Tensor | DataFrame | Series) {
+        let $tensorArray
 
         if (data instanceof Array) {
             if (utils.is1DArray(data)) {
-                $tensorArray = tensor1d(data as number[])
+                $tensorArray = tensorflow.tensor1d(data as number[])
             } else {
-                $tensorArray = tensor2d(data)
+                $tensorArray = tensorflow.tensor2d(data)
             }
         } else if (data instanceof DataFrame) {
-            $tensorArray = tensor2d(data.values as number[][])
+            $tensorArray = tensorflow.tensor2d(data.values as number[][])
         } else if (data instanceof Series) {
-            $tensorArray = tensor1d(data.values as number[])
-        } else if (data instanceof Tensor) {
+            $tensorArray = tensorflow.tensor1d(data.values as number[])
+        } else if (data instanceof tensorflow.Tensor) {
             $tensorArray = data
         } else {
             throw new Error("ParamError: data must be one of Array, DataFrame or Series")
@@ -62,9 +62,9 @@ export default class StandardScaler {
      * const scaler = new StandardScaler()
      * scaler.fit([1, 2, 3, 4, 5])
      */
-    public fit(data: number[] | number[][] | Tensor | DataFrame | Series) {
+    public fit(data: number[] | number[][] | typeof tensorflow.Tensor | DataFrame | Series) {
         const tensorArray = this.$getTensor(data)
-        this.$std = moments(tensorArray, 0).variance.sqrt();
+        this.$std = tensorflow.moments(tensorArray, 0).variance.sqrt();
         this.$mean = tensorArray.mean(0);
         return this
     }
@@ -79,7 +79,7 @@ export default class StandardScaler {
      * scaler.transform([1, 2, 3, 4, 5])
      * // [0.0, 0.0, 0.0, 0.0, 0.0]
      * */
-    public transform(data: number[] | number[][] | Tensor | DataFrame | Series) {
+    public transform(data: number[] | number[][] | typeof tensorflow.Tensor | DataFrame | Series) {
         const tensorArray = this.$getTensor(data)
         const outputData = tensorArray.sub(this.$mean).div(this.$std)
 
@@ -112,7 +112,7 @@ export default class StandardScaler {
      * scaler.fitTransform([1, 2, 3, 4, 5])
      * // [0.0, 0.0, 0.0, 0.0, 0.0]
      * */
-    public fitTransform(data: number[] | number[][] | Tensor | DataFrame | Series) {
+    public fitTransform(data: number[] | number[][] | typeof tensorflow.Tensor | DataFrame | Series) {
         this.fit(data)
         return this.transform(data)
     }
@@ -129,7 +129,7 @@ export default class StandardScaler {
      * scaler.inverseTransform([0.0, 0.0, 0.0, 0.0, 0.0])
      * // [1, 2, 3, 4, 5]
      * */
-    public inverseTransform(data:number[] | number[][] | Tensor | DataFrame | Series) {
+    public inverseTransform(data: number[] | number[][] | typeof tensorflow.Tensor | DataFrame | Series) {
         const tensorArray = this.$getTensor(data)
         const outputData = tensorArray.mul(this.$std).add(this.$mean)
 

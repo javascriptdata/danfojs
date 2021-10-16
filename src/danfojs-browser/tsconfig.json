@@ -16,11 +16,6 @@
     "forceConsistentCasingInFileNames": true,  /* Disallow inconsistently-cased references to the same file. */
     "declaration": true,
     "baseUrl": "./src",
-    "paths": {
-      "@base/*": ["./*"],
-      "@io/*": ["./io*"],
-      "@preprocessing/*": ["./preprocessing*"]
-    }
   },
   "include": [
     "./src/**/*"

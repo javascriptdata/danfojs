@@ -23,5 +23,4 @@ export const BASE_CONFIG = {
     lowMemoryMode: false,
 }
 
-
 export const DATA_TYPES = ["float32", "int32", "string", "boolean", 'undefined'];

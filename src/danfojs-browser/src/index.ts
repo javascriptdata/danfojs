@@ -12,21 +12,26 @@
 * limitations under the License.
 * ==========================================================================
 */
-import NDframe from "./core/generic";
-import Config from './shared/config';
-import Utils from './shared/utils';
-import Series from "./core/series";
-import DataFrame from "./core/frame";
-import Str from "./core/strings"
-import Dt, { toDateTime } from "./core/datetime"
-import { readCSV, toCSV, streamCSV, readExcel, toExcel, readJSON, toJSON, } from "./io"
-// import { streamCsvTransformer, convertFunctionTotransformer } from "./transformers/streams/csv.stream.transformer"
-import MinMaxScaler from "./transformers/scalers/min.max.scaler";
-import StandardScaler from "./transformers/scalers/standard.scaler";
-import LabelEncoder from "./transformers/encoders/label.encoder";
-import OneHotEncoder from "./transformers/encoders/one.hot.encoder";
-import getDummies from "./transformers/encoders/dummy.encoder"
-import concat from "./transformers/concat"
+import {
+    NDframe,
+    Config,
+    Utils,
+    Str,
+    Dt,
+    MinMaxScaler,
+    StandardScaler,
+    LabelEncoder,
+    OneHotEncoder,
+    getDummies,
+    concat,
+    merge,
+    toDateTime,
+} from "../../danfojs-base";
+
+import { readCSV, streamCSV, toCSV, readJSON, toJSON, readExcel, toExcel } from "./io"
+
+import DataFrame from "./core/frame"
+import Series from "./core/series"
 
 export {
     NDframe,
@@ -40,8 +45,6 @@ export {
     readCSV,
     streamCSV,
     toCSV,
-    // streamCsvTransformer,
-    // convertFunctionTotransformer,
     readJSON,
     toJSON,
     readExcel,
@@ -51,5 +54,6 @@ export {
     LabelEncoder,
     OneHotEncoder,
     getDummies,
-    concat
+    concat,
+    merge
 }

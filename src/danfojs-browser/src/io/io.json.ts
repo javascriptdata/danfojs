@@ -1,6 +1,6 @@
 import { DataFrame, NDframe, Series } from '../index'
-import { ArrayType1D, ArrayType2D } from '../shared/types';
-
+import { ArrayType1D, ArrayType2D } from '../../../danfojs-base/shared/types'
+import { JsonInputOptions, JsonOutputOptionsBrowser } from '../types'
 /**
  * Reads a JSON file from local or remote location into a DataFrame.
  * @param fileName URL or local file path to JSON file.
@@ -28,7 +28,7 @@ import { ArrayType1D, ArrayType2D } from '../shared/types';
  * const df = await readJSON("./data/sample.json")
  * ```
  */
-const $readJSON = async (file: any, options: { method?: string, headers?: HeadersInit } = {}) => {
+const $readJSON = async (file: any, options?: JsonInputOptions) => {
     const { method, headers } = { method: "GET", headers: {}, ...options }
 
     if (typeof file === "string" && file.startsWith("http")) {
@@ -93,7 +93,7 @@ const $readJSON = async (file: any, options: { method?: string, headers?: Header
  *   })
  * ```
  */
-const $toJSON = (df: NDframe | DataFrame | Series, options?: { format?: "row" | "column", download?: boolean, fileName?: string }): object | void => {
+const $toJSON = (df: NDframe | DataFrame | Series, options?: JsonOutputOptionsBrowser): object | void => {
     let { fileName, format, download } = { fileName: "output.json", download: true, format: "column", ...options }
 
     if (df.$isSeries) {

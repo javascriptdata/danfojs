@@ -25,7 +25,7 @@ import Str from './strings';
 import Dt from './datetime';
 import dummyEncode from "../transformers/encoders/dummy.encoder";
 import DataFrame from "./frame";
-import { data as tfData } from "@tensorflow/tfjs-node"
+import tensorflow from '../shared/tensorflowlib'
 
 const utils = new Utils();
 
@@ -148,7 +148,7 @@ export default class Series extends NDframe implements SeriesInterface {
         }
         num = num === -1 ? this.shape[0] : num;
 
-        const shuffledIndex = await tfData.array(this.index).shuffle(num, `${seed}`).take(num).toArray();
+        const shuffledIndex = await tensorflow.data.array(this.index).shuffle(num, `${seed}`).take(num).toArray();
         const sf = this.iloc(shuffledIndex);
         return sf;
     }
@@ -480,6 +480,7 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param ascending Whether to return sorted values in ascending order or not. Defaults to true
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
     */
+    sortValues(ascending?: boolean, options?: { inplace?: boolean }): Series
     sortValues(ascending = true, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
@@ -992,7 +993,7 @@ export default class Series extends NDframe implements SeriesInterface {
      */
     argSort(ascending = true): Series {
         const sortedIndex = this.sortValues(ascending);
-        const sf = new Series(sortedIndex?.index);
+        const sf = new Series(sortedIndex.index);
         return sf;
     }
 

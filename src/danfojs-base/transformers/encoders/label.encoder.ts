@@ -12,7 +12,8 @@
 * limitations under the License.
 * ==========================================================================
 */
-import { Tensor, tensor1d } from "@tensorflow/tfjs-node"
+
+import tensorflow from '../../shared/tensorflowlib'
 import Series from "../../core/series"
 import Utils from "../../shared/utils"
 
@@ -28,7 +29,7 @@ export default class LabelEncoder {
         this.$labels = {}
     }
 
-    private $getData(data: Array<string | number> | Tensor | Series) {
+    private $getData(data: Array<string | number> | typeof tensorflow.Tensor | Series) {
         let $data: Array<string | number>
 
         if (data instanceof Array) {
@@ -39,7 +40,7 @@ export default class LabelEncoder {
             }
         } else if (data instanceof Series) {
             $data = data.values as Array<string | number>
-        } else if (data instanceof Tensor) {
+        } else if (data instanceof tensorflow.Tensor) {
             $data = data.arraySync() as Array<string | number>
         } else {
             throw new Error("ParamError: data must be one of Array, 1d Tensor or Series.")
@@ -56,7 +57,7 @@ export default class LabelEncoder {
      * encoder.fit(["a", "b", "c", "d"])
      * ```
     */
-    fit(data: Array<string | number> | Tensor | Series) {
+    fit(data: Array<string | number> | typeof tensorflow.Tensor | Series) {
         const $data = this.$getData(data)
         const dataSet = Array.from(new Set($data))
         const tempObj: { [key: string | number]: number } = {}
@@ -78,7 +79,7 @@ export default class LabelEncoder {
      * // [0, 1, 2, 3]
      * ```
     */
-    transform(data: Array<string | number> | Tensor | Series) {
+    transform(data: Array<string | number> | typeof tensorflow.Tensor | Series) {
         const $data = this.$getData(data)
         const encodedData: Array<number> = $data.map(value => {
             return this.$labels[value]
@@ -88,8 +89,8 @@ export default class LabelEncoder {
             return encodedData
         } else if (data instanceof Series) {
             return new Series(encodedData)
-        } else  {
-            return tensor1d(encodedData)
+        } else {
+            return tensorflow.tensor1d(encodedData)
         }
     }
 
@@ -103,7 +104,7 @@ export default class LabelEncoder {
      * // [0, 1, 2, 3]
      * ```
      */
-    fitTransform(data: Array<string | number> | Tensor | Series) {
+    fitTransform(data: Array<string | number> | typeof tensorflow.Tensor | Series) {
         this.fit(data)
         return this.transform(data)
     }
@@ -119,7 +120,7 @@ export default class LabelEncoder {
      * // ["a", "b", "c", "d"]
      * ```
     */
-    inverseTransform(data: Array<number> | Tensor | Series) {
+    inverseTransform(data: Array<number> | typeof tensorflow.Tensor | Series) {
         const $data = this.$getData(data)
         const tempData = $data.map(value => {
             return Object.keys(this.$labels).find(key => this.$labels[key] === value)
@@ -138,7 +139,7 @@ export default class LabelEncoder {
         } else if (data instanceof Series) {
             return new Series(decodedData)
         } else {
-            return tensor1d(decodedData as any)
+            return tensorflow.tensor1d(decodedData as any)
         }
     }
 

@@ -14,7 +14,8 @@
 */
 import Papa from 'papaparse'
 import { DataFrame, NDframe, Series } from '../index'
-import { ArrayType2D, CsvInputOptions, CsvOutputOptionsBrowser } from "../shared/types"
+import { ArrayType2D } from "../../../danfojs-base/shared/types"
+import { CsvInputOptions, CsvOutputOptionsBrowser } from "../types"
 
 
 /**
@@ -161,154 +162,8 @@ const $downloadFileInBrowser = (content: any, fileName: string) => {
 }
 
 
-// /**
-//  * Opens a CSV file from local or remote location as a Stream. Intermediate row is returned as a DataFrame object.
-//  * @param filePath URL or local file path to CSV file.
-//  * @param options Configuration object. Supports all Papaparse config options.
-//  * @example
-//  * ```
-//  * import { openCsvInputStream } from "danfojs-node"
-//  * const csvStream = openCsvInputStream("./data/sample.csv")
-//  * ```
-//  */
-// const $openCsvInputStream = (filePath: string, options: CsvInputOptions) => {
-//   const { header } = { header: true, ...options }
-//   let isFirstChunk = true
-//   let ndFrameColumnNames: Array<string> = []
-
-//   const csvInputStream = new stream.Readable({ objectMode: true });
-//   csvInputStream._read = () => { };
-
-//   if (filePath.startsWith("http") || filePath.startsWith("https")) {
-//     const dataStream = request.get(filePath);
-//     const parseStream: any = Papa.parse(Papa.NODE_STREAM_INPUT, { header, ...options });
-//     dataStream.pipe(parseStream);
-//     let count = -1
-
-//     parseStream.on("data", (chunk: any) => {
-//       if (isFirstChunk) {
-//         if (header === true) {
-//           ndFrameColumnNames = Object.keys(chunk)
-//         } else {
-//           ndFrameColumnNames = chunk
-//         }
-//         isFirstChunk = false
-//         return
-//       }
-
-//       const df = new DataFrame([Object.values(chunk)], {
-//         columns: ndFrameColumnNames,
-//         index: [count++]
-//       })
-//       csvInputStream.push(df);
-//     });
-
-//     parseStream.on("finish", () => {
-//       csvInputStream.push(null);
-//       return (null);
-//     });
-
-//     return csvInputStream;
-//   } else {
-//     const fileStream = fs.createReadStream(filePath)
-//     let count = -1
-//     Papa.parse(fileStream, {
-//       ...{ header, ...options },
-//       step: results => {
-//         if (isFirstChunk) {
-//           if (header === true) {
-//             ndFrameColumnNames = results.meta.fields || []
-//           } else {
-//             ndFrameColumnNames = results.data
-//           }
-//           isFirstChunk = false
-//           return
-//         }
-
-//         const df = new DataFrame([results.data], {
-//           columns: ndFrameColumnNames,
-//           index: [count++]
-//         })
-
-//         csvInputStream.push(df);
-//       },
-//       complete: (result: any) => {
-//         csvInputStream.push(null);
-//         return null
-//       },
-//       error: (err) => {
-//         csvInputStream.emit("error", err);
-//       }
-//     });
-
-//     return csvInputStream;
-//   }
-// };
-
-
-// /**
-//  * Writes a file stream to local storage. Stream objects must be a Series or DataFrame.
-//  * @param filePath URL or local file path to write to.
-//  * @param options Configuration object. Supports all `toCSV` options.
-//  * @example
-//  * ```
-//  * import { openCsvInputStream,
-//  *         writeCsvOutputStream,
-//  *         convertFunctionTotransformer } from "danfojs-node"
-//  * 
-//  * const csvStream = openCsvInputStream("./data/sample.csv")
-//  * const outStream = writeCsvOutputStream("./data/sampleOut.csv")
-//  * 
-//  * const transformer = (dfRow) =>  {
-//  *     const dfModified = dfRow["Names"].map((name) => name.split(",")[0])
-//  *     return dfModified
-//  * }
-//  * csvStream.pipe(convertFunctionTotransformer(transformer)).pipe(outStream)
-//  * ```
-//  */
-// const $writeCsvOutputStream = (filePath: string, options: CsvInputOptions) => {
-//   let isFirstRow = true
-//   const fileOutputStream = fs.createWriteStream(filePath)
-//   const csvOutputStream = new stream.Writable({ objectMode: true })
-
-//   csvOutputStream._write = (chunk: DataFrame | Series, encoding, callback) => {
-
-//     if (chunk instanceof DataFrame) {
-
-//       if (isFirstRow) {
-//         isFirstRow = false
-//         fileOutputStream.write($toCSV(chunk, { header: true, ...options }));
-//         callback();
-//       } else {
-//         fileOutputStream.write($toCSV(chunk, { header: false, ...options }));
-//         callback();
-//       }
-
-//     } else if (chunk instanceof Series) {
-
-//       fileOutputStream.write($toCSV(chunk));
-//       callback();
-
-//     } else {
-//       csvOutputStream.emit("error", new Error("ValueError: Intermediate chunk must be either a Series or DataFrame"))
-//     }
-
-//   }
-
-//   csvOutputStream.on("finish", () => {
-//     fileOutputStream.end()
-//   })
-
-//   return csvOutputStream
-// }
-
-
-
-
 export {
   $readCSV,
   $streamCSV,
   $toCSV,
-  // $writeCsvOutputStream,
-  // $openCsvInputStream,
 }

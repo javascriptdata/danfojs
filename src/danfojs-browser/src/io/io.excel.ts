@@ -12,9 +12,10 @@
 * limitations under the License.
 * ==========================================================================
 */
-import { DataFrame, NDframe, Series } from '../index'
 import XLSX from 'xlsx';
-import { ArrayType1D, ArrayType2D } from '../shared/types';
+import { DataFrame, NDframe, Series } from '../index'
+import { ArrayType1D, ArrayType2D } from '../../../danfojs-base/shared/types'
+import { ExcelOutputOptionsBrowser, ExcelInputOptions } from "../types"
 
 /**
  * Reads a JSON file from local or remote location into a DataFrame.
@@ -39,7 +40,7 @@ import { ArrayType1D, ArrayType2D } from '../shared/types';
  * })
  * ```
  */
-const $readExcel = async (file: any, options?: { sheet?: number, method?: string, headers?: HeadersInit }) => {
+const $readExcel = async (file: any, options?: ExcelInputOptions) => {
     const { sheet, method, headers } = { sheet: 0, method: "GET", headers: {}, ...options }
 
     if (typeof file === "string" && file.startsWith("http")) {
@@ -91,7 +92,7 @@ const $readExcel = async (file: any, options?: { sheet?: number, method?: string
  *   })
  * ```
  */
-const $toExcel = (df: NDframe | DataFrame | Series, options?: { fileName?: string, sheetName?: string }) => {
+const $toExcel = (df: NDframe | DataFrame | Series, options?: ExcelOutputOptionsBrowser) => {
     let { fileName, sheetName } = { fileName: "./output.xlsx", sheetName: "Sheet1", ...options }
 
     if (!(fileName.endsWith(".xlsx"))) {

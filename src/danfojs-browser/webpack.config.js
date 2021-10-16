@@ -7,7 +7,7 @@ const createConfig = (target) => {
     devtool: "source-map",
     context: path.resolve(__dirname),
     entry: {
-      index: `./dist/index.js`
+      index: `./src/index.ts`
     },
     target: target,
     output: {
@@ -18,18 +18,19 @@ const createConfig = (target) => {
     module: {
       rules: [
         {
-          // use: {
-          //   loader: "babel-loader",
-          //   options: { presets: [ "@babel/preset-env" ] }
-          // },
-          test: /\.(js|jsx)$/,
+          test: /\.tsx?$/,
+          use: 'ts-loader',
           exclude: /node_modules/
         }
       ]
     },
     resolve: {
+      extensions: [ '.tsx', '.ts', '.js' ],
       fallback: {
-        fs: false
+        "fs": false,
+        "path": require.resolve("path-browserify"),
+        "dotenv": require.resolve('dotenv'),
+        "os": require.resolve('os-browserify/browser')
       }
     }
   };

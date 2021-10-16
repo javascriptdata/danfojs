@@ -27,7 +27,8 @@ import {
 } from '../shared/types'
 import ErrorThrower from '../shared/errors';
 import { BASE_CONFIG, DATA_TYPES } from '../shared/defaults';
-import { Tensor, tensor1d, tensor2d } from "@tensorflow/tfjs-node"
+import tensorflow from '../shared/tensorflowlib'
+
 
 const utils = new Utils();
 
@@ -66,7 +67,7 @@ export default class NDframe implements NDframeInterface {
             this.$config = new Configs(BASE_CONFIG);
         }
 
-        if (data instanceof Tensor) {
+        if (data instanceof tensorflow.Tensor) {
             data = data.arraySync();
         }
 
@@ -160,9 +161,9 @@ export default class NDframe implements NDframeInterface {
     */
     get tensor() {
         if (this.$isSeries) {
-            return tensor1d(this.$data)
+            return tensorflow.tensor1d(this.$data)
         } else {
-            return tensor2d(this.$data)
+            return tensorflow.tensor2d(this.$data)
         }
     }
 

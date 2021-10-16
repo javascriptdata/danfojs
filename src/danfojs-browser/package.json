@@ -2,8 +2,8 @@
   "name": "danfojs-browser",
   "version": "1.0.0",
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/danfojs-browser/src/index.js",
+  "types": "dist/danfojs-browser/src/index.d.ts",
   "directories": {
     "test": "tests"
   },
@@ -35,7 +35,7 @@
     "build:clean": "rimraf ./dist && rimraf ./lib && yarn run build",
     "dev": "nodemon",
     "lint": "eslint ./src",
-    "bundle": "webpack --mode production",
+    "bundle": "webpack --mode development",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
     "patch": "npm version patch"
@@ -81,6 +81,7 @@
     "browserify": "16.5.2",
     "chai": "^4.2.0",
     "coveralls": "^3.1.0",
+    "dotenv": "^10.0.0",
     "eslint": "^7.1.0",
     "karma": "5.2.3",
     "karma-browserify": "7.0.0",
@@ -90,6 +91,7 @@
     "mocha": "^8.3.0",
     "nyc": "^15.1.0",
     "source-map-loader": "^3.0.0",
+    "ts-loader": "^9.2.6",
     "typescript": "^4.4.2",
     "webpack": "5.21.2",
     "webpack-cli": "4.5.0",

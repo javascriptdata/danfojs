@@ -6,6 +6,6 @@ danfojs/data
 .DS_Store
 .idea/
 
-dist/*
-build/*
-lib/*
+dist
+build
+lib

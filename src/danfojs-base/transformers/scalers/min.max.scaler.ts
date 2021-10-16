@@ -13,10 +13,10 @@
 * ==========================================================================
 */
 
-import { tensor1d, Tensor, tensor2d } from "@tensorflow/tfjs-node"
 import Series from "../../core/series"
 import DataFrame from "../../core/frame"
 import Utils from "../../shared/utils"
+import tensorflow from '../../shared/tensorflowlib'
 
 const utils = new Utils()
 
@@ -26,28 +26,28 @@ const utils = new Utils()
  * that it is in the given range on the training set, e.g. between the maximum and minimum value.
 */
 export default class MinMaxScaler {
-    private $max: Tensor
-    private $min: Tensor
+    private $max: typeof tensorflow.Tensor
+    private $min: typeof tensorflow.Tensor
 
     constructor() {
-        this.$max = tensor1d([])
-        this.$min = tensor1d([])
+        this.$max = tensorflow.tensor1d([])
+        this.$min = tensorflow.tensor1d([])
     }
 
-    private $getTensor(data: number[] | number[][] | Tensor | DataFrame | Series) {
-        let $tensorArray;
+    private $getTensor(data: number[] | number[][] | typeof tensorflow.Tensor | DataFrame | Series) {
+        let $tensorArray: typeof tensorflow.Tensor
 
         if (data instanceof Array) {
             if (utils.is1DArray(data)) {
-                $tensorArray = tensor1d(data as number[])
+                $tensorArray = tensorflow.tensor1d(data as number[])
             } else {
-                $tensorArray = tensor2d(data)
+                $tensorArray = tensorflow.tensor2d(data)
             }
         } else if (data instanceof DataFrame) {
-            $tensorArray = tensor2d(data.values as number[][])
+            $tensorArray = tensorflow.tensor2d(data.values as number[][])
         } else if (data instanceof Series) {
-            $tensorArray = tensor1d(data.values as number[])
-        } else if (data instanceof Tensor) {
+            $tensorArray = tensorflow.tensor1d(data.values as number[])
+        } else if (data instanceof tensorflow.Tensor) {
             $tensorArray = data
         } else {
             throw new Error("ParamError: data must be one of Array, DataFrame or Series")
@@ -68,7 +68,7 @@ export default class MinMaxScaler {
      * // }
      *
      */
-    public fit(data: number[] | number[][] | Tensor | DataFrame | Series) {
+    public fit(data: number[] | number[][] | typeof tensorflow.Tensor | DataFrame | Series) {
         const tensorArray = this.$getTensor(data)
         this.$max = tensorArray.max(0)
         this.$min = tensorArray.min(0)
@@ -85,7 +85,7 @@ export default class MinMaxScaler {
      * scaler.transform([1, 2, 3, 4, 5])
      * // [0, 0.25, 0.5, 0.75, 1]
      * */
-    public transform(data: number[] | number[][] | Tensor | DataFrame | Series) {
+    public transform(data: number[] | number[][] | typeof tensorflow.Tensor | DataFrame | Series) {
         const tensorArray = this.$getTensor(data)
         const outputData = tensorArray
             .sub(this.$min)
@@ -119,7 +119,7 @@ export default class MinMaxScaler {
      * scaler.fitTransform([1, 2, 3, 4, 5])
      * // [0, 0.25, 0.5, 0.75, 1]
      * */
-    public fitTransform(data: number[] | number[][] | Tensor | DataFrame | Series) {
+    public fitTransform(data: number[] | number[][] | typeof tensorflow.Tensor | DataFrame | Series) {
         this.fit(data)
         return this.transform(data)
     }
@@ -134,7 +134,7 @@ export default class MinMaxScaler {
      * scaler.inverseTransform([0, 0.25, 0.5, 0.75, 1])
      * // [1, 2, 3, 4, 5]
      * */
-    public inverseTransform(data: number[] | number[][] | Tensor | DataFrame | Series) {
+    public inverseTransform(data: number[] | number[][] | typeof tensorflow.Tensor | DataFrame | Series) {
         const tensorArray = this.$getTensor(data)
         const outputData = tensorArray
             .mul(this.$max.sub(this.$min))

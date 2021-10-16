@@ -14,7 +14,7 @@
 */
 
 import DataFrame from "../../core/frame";
-import { Tensor, tensor1d } from "@tensorflow/tfjs-node"
+import tensorflow from '../../shared/tensorflowlib'
 import Series from "../../core/series"
 import Utils from "../../shared/utils"
 
@@ -35,7 +35,7 @@ export default class OneHotEncoder {
         this.$labels = []
     }
 
-    private $getData(data: Array<string | number> | Tensor | Series) {
+    private $getData(data: Array<string | number> | typeof tensorflow.Tensor | Series) {
         let $data: Array<string | number>
 
         if (data instanceof Array) {
@@ -46,7 +46,7 @@ export default class OneHotEncoder {
             }
         } else if (data instanceof Series) {
             $data = data.values as Array<string | number>
-        } else if (data instanceof Tensor) {
+        } else if (data instanceof tensorflow.Tensor) {
             $data = data.arraySync() as Array<string | number>
         } else {
             throw new Error("ParamError: data must be one of Array, 1d Tensor or Series.")
@@ -64,7 +64,7 @@ export default class OneHotEncoder {
      * encoder.fit(["a", "b", "c"])
      * ```
     */
-    public fit(data: Array<string | number> | Tensor | Series) {
+    public fit(data: Array<string | number> | typeof tensorflow.Tensor | Series) {
         const $data = this.$getData(data)
         const dataSet = Array.from(new Set($data))
         this.$labels = dataSet
@@ -81,7 +81,7 @@ export default class OneHotEncoder {
      * encoder.transform(["a", "b", "c"])
      * ```
      */
-    public transform(data: Array<string | number> | Tensor | Series): DataFrame | Tensor | number[][] {
+    public transform(data: Array<string | number> | typeof tensorflow.Tensor | Series): DataFrame | typeof tensorflow.Tensor | number[][] {
         const $data = this.$getData(data)
         const oneHotArr: any = utils.zeros($data.length, this.$labels.length)
 
@@ -97,7 +97,7 @@ export default class OneHotEncoder {
                 index: data.index,
             })
         } else {
-            return tensor1d(oneHotArr)
+            return tensorflow.tensor1d(oneHotArr)
         }
     }
 
@@ -110,7 +110,7 @@ export default class OneHotEncoder {
      * encoder.fitTransform(["a", "b", "c"])
      * ```
      */
-    public fitTransform(data: Array<string | number> | Tensor | Series): DataFrame | Tensor | number[][] {
+    public fitTransform(data: Array<string | number> | typeof tensorflow.Tensor | Series): DataFrame | typeof tensorflow.Tensor | number[][] {
         this.fit(data)
         return this.transform(data)
     }

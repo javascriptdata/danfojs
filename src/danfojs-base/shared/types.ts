@@ -13,12 +13,10 @@
 * ==========================================================================
 */
 import DataFrame from '../core/frame';
-import { Tensor } from '@tensorflow/tfjs-node';
 import Series from '../core/series';
 import { BaseUserConfig, TableUserConfig, } from "table"
 import Str from '../core/strings';
 import Dt from '../core/datetime';
-// import { ParseConfig } from 'papaparse';
 
 export type DTYPES = "float32" | "int32" | "string" | "boolean" | "undefined"
 
@@ -97,7 +95,7 @@ export interface NDframeInterface {
     get columns(): string[]
     get shape(): Array<number>;
     get values(): ArrayType1D | ArrayType2D
-    get tensor(): Tensor;
+    get tensor(): any
     get size(): number;
     // toCSV(options?: CsvOutputOptionsNode): string | void
     // toJSON(options?: { format?: "row" | "column", filePath?: string }): object | void
