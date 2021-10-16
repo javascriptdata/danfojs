@@ -33,7 +33,7 @@
     "test:clean": "yarn build:clean && yarn test",
     "dev": "nodemon",
     "build": "tsc",
-    "build:clean": "rimraf ./build && tsc",
+    "build:clean": "rimraf ./build && node ./scripts/prebuild.js && tsc",
     "lint": "eslint ./src",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",

@@ -31,8 +31,8 @@
   "scripts": {
     "test": "karma start --single-run --browsers ChromeHeadless karma.conf.js",
     "test:clean": "yarn build:clean && yarn run test",
-    "build": "tsc && yarn run bundle",
-    "build:clean": "rimraf ./dist && rimraf ./lib && yarn run build",
+    "build": "node ./scripts/prebuild.js && tsc && yarn run bundle",
+    "build:clean": "rimraf ./dist && rimraf ./lib && node ./scripts/prebuild.js && yarn run build",
     "dev": "nodemon",
     "lint": "eslint ./src",
     "bundle": "webpack --mode development",

@@ -53,6 +53,11 @@ To use Danfo.js via script tags, copy and paste the CDN below to the body of you
 ```html
     <script src="https://cdn.jsdelivr.net/npm/danfojs@0.2.7/lib/bundle.min.js"></script> 
 ```
+### Example Usage in the Client Side Frameworks like React, Angular, Vue.js, etc.
+
+> If you want to use Danfo in frontend frameworks like React/Vue, read this [guide](https://danfo.jsdata.org/examples/using-danfojs-in-react)
+
+TODO:
 
 ### Example Usage in the Browser
 
@@ -108,76 +113,11 @@ Output in Browser:
 Danfo.js is hosted on NPM, and can installed via package managers like npm and yarn
 
 ```sh
-npm install danfojs-node
+npm install danfojs
 ```
 
-### Example usage in Nodejs
-
-```javascript
-
-const dfd = require("danfojs-node")
-
-
-dfd.read_csv("https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/titanic.csv")
-  .then(df => {
-    //prints the first five columns
-    df.head().print()
-
-    //Calculate descriptive statistics for all numerical columns
-    df.describe().print()
-
-    //prints the shape of the data
-    console.log(df.shape);
-
-    //prints all column names
-    console.log(df.column_names);
-
-    //prints the inferred dtypes of each column
-    df.ctypes.print()
-
-    //selecting a column by subsetting
-    df['Name'].print()
-
-    //drop columns by names
-    cols_2_remove = ['Age', 'Pclass']
-    df_drop = df.drop({ columns: cols_2_remove, axis: 1 })
-    df_drop.print()
-
-
-    //select columns by dtypes
-    let str_cols = df_drop.select_dtypes(["string"])
-    let num_cols = df_drop.select_dtypes(["int32", "float32"])
-    str_cols.print()
-    num_cols.print()
-
-
-    //add new column to Dataframe
-    let new_vals = df['Fare'].round().values
-    df_drop.addColumn({ column: "fare_round", value:  new_vals})
-    df_drop.print()
-
-    df_drop['fare_round'].print(5)
-
-    //prints the number of occurence each value in the column
-    df_drop['Survived'].value_counts().print()
-
-    //print the last ten elementa of a DataFrame
-    df_drop.tail(10).print()
-
-    //prints the number of missing values in a DataFrame
-    df_drop.isna().sum().print()
-
-  }).catch(err => {
-    console.log(err);
-  })
-
-```
-Output in Node Console:
-
-![](assets/node-rec.gif)
-
-> If you want to use Danfo in frontend frameworks like React/Vue, read this [guide](https://danfo.jsdata.org/examples/using-danfojs-in-react)
-
+### Danfo-js in Node.js
+To use Danfo.js in Node.js, you need to install the nodejs version (danfojs-node) via NPM/Yarn. See more information here. 
 #### You can play with Danfo.js on Dnotebooks playground [here](https://playnotebook.jsdata.org/demo)
 
 #### [See the Official Getting Started Guide](https://danfo.jsdata.org/getting-started)
