@@ -46,9 +46,11 @@ export class date_range {
         throw new Error(`invalid freq ${this.freq}`);
       }
     } else {
-      let freq_split = this.freq.split("");
-      this.offset = parseInt(freq_split[0]);
-      this.freq = freq_split[1];
+      this.offset = parseInt(this.freq.slice(0, -1));
+      if (!Number.isFinite(this.offset)){
+        throw new Error(`invalid freq offset ${this.freq.slice(0, -1)}`);
+      }
+      this.freq = this.freq.slice(-1);
       if (!this.freq_list.includes(this.freq)){
         throw new Error(`invalid freq ${this.freq}`);
       }
