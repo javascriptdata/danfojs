@@ -20,7 +20,7 @@
     "dist/"
   ],
   "dependencies": {
-    "@tensorflow/tfjs": "^3.9.0",
+    "@tensorflow/tfjs": "^3.11.0",
     "mathjs": "9.4.4",
     "papaparse": "^5.3.1",
     "request": "^2.88.2",
