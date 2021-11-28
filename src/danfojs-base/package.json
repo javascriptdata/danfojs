@@ -12,6 +12,9 @@
     "dotenv": "^10.0.0"
   },
   "dependencies": {
-    "@tensorflow/tfjs-node": "3.6.1"
+    "@tensorflow/tfjs-node": "3.6.1",
+    "@tensorflow/tfjs": "3.6.0",
+    "mathjs": "^10.0.0",
+    "table": "^6.7.3"
   }
 }
