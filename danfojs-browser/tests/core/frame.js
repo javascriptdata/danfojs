@@ -2029,7 +2029,6 @@ describe("DataFrame", function () {
       };
       let df = new dfd.DataFrame(data);
       df.rename({ mapper: { "A": "new_name" }, inplace: true });
-      df["new_name"].print();
       assert.deepEqual(df["new_name"].values, data["A"]);
     });
 
