@@ -2289,6 +2289,7 @@ export default class DataFrame extends NDframe {
     } else {
       return new DataFrame(newData, {
         index: newIndex,
+        columns: this.columns,
         config: { ...this.config }
       });
     }

@@ -1139,6 +1139,15 @@ describe("DataFrame", function () {
 
       assert.deepEqual(newdf.dtypes, dtype);
     });
+    it("Confirms that column names are not changed", function () {
+
+      let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+      let cols = ["A", "B", "C"];
+      let df = new dfd.DataFrame(data, { columns: cols });
+      let df_query = df.query({ "column": "B", "is": ">=", "to": 5 });
+      assert.deepEqual(df_query.index, [1, 2, 3]);
+      assert.deepEqual(df_query.columns, ["A", "B", "C"]);
+    });
 
   });
 
