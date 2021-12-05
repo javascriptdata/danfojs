@@ -20,7 +20,7 @@ easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org
 
 ## Main Features
 
-  - Danfo.js is fast. It is built on Tensorflow.js, and supports tensors out of the box. This means you can [convert Danfo data structure](https://danfo.jsdata.org/api-reference/dataframe/dataframe.tensor) to Tensors.
+  - Danfo.js is fast and supports Tensorflow.js tensors out of the box. This means you can [convert Danfo data structure](https://danfo.jsdata.org/api-reference/dataframe/dataframe.tensor) to Tensors.
   - Easy handling of [missing-data](https://danfo.jsdata.org/getting-started#missing-data) (represented as
     `NaN`) in floating point as well as non-floating point data
   - Size mutability: columns can be [inserted/deleted](https://danfo.jsdata.org/api-reference/dataframe#combining-comparing-joining-merging) from DataFrame
@@ -39,7 +39,7 @@ easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org
   - Intuitive [merging](https://danfo.jsdata.org/api-reference/general-functions/danfo.merge) and [joining](https://danfo.jsdata.org/api-reference/general-functions/danfo.concat) data
     sets
   - Robust IO tools for loading data from [flat-files](https://danfo.jsdata.org/api-reference/input-output)
-    (CSV, Json, Excel, Data package).
+    (CSV, Json, Excel).
   - Powerful, flexible and intutive API for [plotting](https://danfo.jsdata.org/api-reference/plotting) DataFrames and Series interactively.
   - [Timeseries](https://danfo.jsdata.org/api-reference/series#accessors)-specific functionality: date range
     generation and date and time properties. 
