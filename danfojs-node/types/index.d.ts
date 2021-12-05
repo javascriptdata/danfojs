@@ -23,7 +23,7 @@ import { MinMaxScaler, StandardScaler } from "./preprocessing/scalers";
 import { date_range } from "./core/date_range";
 import get_dummies from "./core/get_dummies";
 import Str from "./core/strings";
-import Dt, { toDateTime as to_datetime } from "./core/datetime";
+import Dt, { toDateTime } from "./core/datetime";
 import {
   readCSV as read_csv,
   toCSV as to_csv,
@@ -36,7 +36,7 @@ import {
 
 export {
   date_range,
-  to_datetime,
+  toDateTime,
   concat,
   merge,
   NDframe,
