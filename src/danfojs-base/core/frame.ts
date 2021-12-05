@@ -24,7 +24,7 @@ import Utils from "../shared/utils"
 import NDframe from "./generic";
 import { table } from "table";
 import Series from './series';
-
+import Groupby from '../aggregators/groupby'
 const utils = new Utils();
 
 /**
@@ -2417,5 +2417,26 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             return encodedDF
         }
 
+    }
+
+    /**
+     * Groupby
+     * @params col a list of column
+     */
+    groupby(col: Array<string>): Groupby {
+        const columns = this.columns
+        const colIndex = col.map((val) => columns.indexOf(val))
+        const colDtype = this.dtypes.filter((val, index) => {
+            return colIndex.includes(index)
+        })
+
+        return new Groupby(
+            col,
+            this.values as ArrayType2D,
+            columns,
+            colDtype,
+            colIndex    
+        ).group()
+        
     }
 }
