@@ -1139,6 +1139,15 @@ describe("DataFrame", function () {
 
       assert.deepEqual(newdf.dtypes, dtype);
     });
+    it("Confirms that column names are not changed", function () {
+
+      let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+      let cols = ["A", "B", "C"];
+      let df = new dfd.DataFrame(data, { columns: cols });
+      let df_query = df.query({ "column": "B", "is": ">=", "to": 5 });
+      assert.deepEqual(df_query.index, [1, 2, 3]);
+      assert.deepEqual(df_query.columns, ["A", "B", "C"]);
+    });
 
   });
 
@@ -2010,6 +2019,28 @@ describe("DataFrame", function () {
       let res = [0, 1, "c", "d"];
       assert.deepEqual(df.index, res);
 
+    });
+
+    it("Get new column via subseting works after rename (inplace)", function () {
+      let data = {
+        "A": [-20, 30, 47.3],
+        "B": [34, -4, 5],
+        "C": [20, 2, 30]
+      };
+      let df = new dfd.DataFrame(data);
+      df.rename({ mapper: { "A": "new_name" }, inplace: true });
+      assert.deepEqual(df["new_name"].values, data["A"]);
+    });
+
+    it("Get new column via subseting works after rename (not-inplace)", function () {
+      let data = {
+        "A": [-20, 30, 47.3],
+        "B": [34, -4, 5],
+        "C": [20, 2, 30]
+      };
+      let df = new dfd.DataFrame(data);
+      let new_df = df.rename({ mapper: { "A": "new_name" } });
+      assert.deepEqual(new_df["new_name"].values, data["A"]);
     });
   });
 

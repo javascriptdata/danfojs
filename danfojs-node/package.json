@@ -20,7 +20,7 @@
     "types"
   ],
   "dependencies": {
-    "@tensorflow/tfjs-node": "3.6.1",
+    "@tensorflow/tfjs-node": "3.11.0",
     "mathjs": "^9.4.4",
     "node-fetch": "^2.6.1",
     "papaparse": "^5.3.1",
