@@ -2052,6 +2052,28 @@ describe("DataFrame", function () {
       assert.deepEqual(df.index, res);
 
     });
+    it("Get new column via subseting works after rename (inplace)", function () {
+      let data = {
+        "A": [-20, 30, 47.3],
+        "B": [34, -4, 5],
+        "C": [20, 2, 30]
+      };
+      let df = new DataFrame(data);
+      df.rename({ mapper: { "A": "new_name" }, inplace: true });
+      df["new_name"].print();
+      assert.deepEqual(df["new_name"].values, data["A"]);
+    });
+
+    it("Get new column via subseting works after rename (not-inplace)", function () {
+      let data = {
+        "A": [-20, 30, 47.3],
+        "B": [34, -4, 5],
+        "C": [20, 2, 30]
+      };
+      let df = new DataFrame(data);
+      let new_df = df.rename({ mapper: { "A": "new_name" } });
+      assert.deepEqual(new_df["new_name"].values, data["A"]);
+    });
   });
 
   describe("sort_index", function () {

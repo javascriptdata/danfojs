@@ -2045,8 +2045,10 @@ export default class DataFrame extends NDframe {
     }
 
     if (axis === 1) {
+      const colsAdded = [];
       const newColumns = this.columns.map((col) => {
         if (mapper[col] !== undefined) {
+          colsAdded.push(mapper[col]);
           return mapper[col];
         } else {
           return col;
@@ -2055,6 +2057,9 @@ export default class DataFrame extends NDframe {
 
       if (inplace) {
         this.$setColumnNames(newColumns);
+        for (const col of colsAdded) {
+          this.$setInternalColumnDataProperty(col);
+        }
       } else {
         return new DataFrame([...this.values], {
           index: [...this.index],
