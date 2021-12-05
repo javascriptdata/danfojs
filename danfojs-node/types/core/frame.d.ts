@@ -551,5 +551,5 @@ export class DataFrame extends NDframe implements DataFrameInterface {
       inplace?: boolean;
    }): DataFrame | void;
 
-   groupby(column: string): GroupBy;
+   groupby(column: Array<string>): GroupBy;
 }
