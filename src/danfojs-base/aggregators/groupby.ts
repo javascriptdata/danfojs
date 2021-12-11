@@ -17,13 +17,14 @@ import  concat from "../transformers/concat"
 export default class Groupby {
   colDict?: { [key: string ]: {} }
   keyCol: ArrayType1D
-  data?: ArrayType2D
+  data?: ArrayType2D | null
   columnName: ArrayType1D
   colDtype: ArrayType1D
   colIndex: ArrayType1D
   groupDict?: any
+  groupColNames?: ArrayType1D
   
-  constructor(keyCol: ArrayType1D, data: ArrayType2D, columnName: ArrayType1D, colDtype:ArrayType1D, colIndex: ArrayType1D) {
+  constructor(keyCol: ArrayType1D, data: ArrayType2D | null, columnName: ArrayType1D, colDtype:ArrayType1D, colIndex: ArrayType1D) {
 
     this.keyCol = keyCol;
     this.data = data;
@@ -34,7 +35,7 @@ export default class Groupby {
 
   }
 
-  group(): Groupby{
+  group2(): Groupby{
     this.groupDict = this.data?.reduce((prev, current)=>{
       function dfs(arr: ArrayType1D, value: ArrayType1D, obj: any) {
         let firstIndex = arr[0]
@@ -75,4 +76,73 @@ export default class Groupby {
     delete this.data
     return this
   }
+
+  group():  Groupby{
+    const self = this
+    const group = this.data?.reduce((prev: any, current)=>{
+      let indexes= []
+      for(let i in self.colIndex) {
+        let index = self.colIndex[i] as number
+        indexes.push(current[index])
+      }
+      let index = indexes.join('-') 
+      
+      if(prev[index]) {
+        let data = prev[index]
+        for (let i in self.columnName) {
+          let colName = self.columnName[i] as string
+          data[colName].push(current[i])
+        }
+      } else {
+        prev[index] = {}
+        for (let i in self.columnName) {
+          let colName = self.columnName[i] as string
+          prev[index][colName] = [current[i]]
+        }
+      }
+      return prev
+
+    }, {})
+    this.colDict = group
+    return this
+  }
+
+  col(colNames: ArrayType1D | undefined): Groupby {
+    type f = {
+      [key: string]: []
+    }
+    if (typeof colNames === "undefined") {
+      colNames = this.columnName.filter((_, index)=>{
+        return !this.colIndex.includes(index)
+      })
+    }
+    let self = this
+    colNames.forEach((val) => {
+      if (!self.columnName.includes(val)) 
+        throw new Error(`Column ${val} does not exist in groups`)
+    })
+    let colDict: { [key: string ]: {} } = {...this.colDict}
+    for(let [key, values] of Object.entries(colDict)) {
+      let c: { [key: string ]: [] } = {}
+      let keyVal: any = {...values}
+      for(let colKey in colNames) {
+        let colName = colNames[colKey] as string
+        c[colName] = keyVal[colName] 
+      }
+      colDict[key] = c
+    }
+    const gp = new Groupby(
+      this.keyCol,
+      null,
+      this.columnName,
+      this.colDtype,
+      this.colIndex
+    )
+    gp.colDict = colDict
+    gp.groupColNames = colNames
+
+    return gp
+  }
+
+  
 }
