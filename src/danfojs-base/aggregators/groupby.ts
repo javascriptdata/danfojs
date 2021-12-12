@@ -1,6 +1,7 @@
 import { Console } from "console";
 import DataFrame from "../core/frame"
 import { ArrayType1D, ArrayType2D } from "../shared/types"
+import { variance, std, median, mode, mean } from 'mathjs';
 import Utils from "../shared/utils";
 import  concat from "../transformers/concat"
 
@@ -108,9 +109,7 @@ export default class Groupby {
   }
 
   col(colNames: ArrayType1D | undefined): Groupby {
-    type f = {
-      [key: string]: []
-    }
+    
     if (typeof colNames === "undefined") {
       colNames = this.columnName.filter((_, index)=>{
         return !this.colIndex.includes(index)
@@ -144,5 +143,129 @@ export default class Groupby {
     return gp
   }
 
-  
+  arithemetic(operation: {[key: string] : string} | string): { [key: string ]: {} } {
+
+    const opsName = [ "mean", "sum", "count", "mode", "std", "var", "cumsum", "cumprod",
+    "cummax", "cummin", "median" ];
+    if (typeof operation === "string" ) {
+      if (!opsName.includes(operation)) {
+        throw new Error(`group operation: ${operation} is not valid`)
+      }
+    } else {
+      Object.keys(operation).forEach((key)=>{
+        let ops = operation[key]
+        if (!opsName.includes(ops)) {
+          throw new Error(`group operation: ${ops} for column ${key} is not valid`)
+        }
+      })
+    }
+    let colDict: { [key: string ]: {} } = {...this.colDict}
+    for(const [key, values] of Object.entries(this.colDict)) {
+      let colVal: { [key: string ]: Array<number> } = {}
+      let keyVal: any = {...values}
+      for(let colKey in this.groupColNames) {
+        let colName = this.groupColNames[colKey] as string
+        let colIndex = this.columnName.indexOf(colName)
+        let colDtype = this.colDtype[colIndex]
+        if (colDtype === "string") throw new Error(`Can't perform math operation on column ${colName}`)
+
+        if (typeof operation === "string") {
+          colVal[key] = this.groupMathLog(keyVal[colName], operation)
+        }
+        else {
+          colVal[key] = this.groupMathLog(keyVal[colName], operation[colName])
+        }
+      }
+      colDict[key] = colVal
+    }
+    return colDict
+  }
+
+  groupMathLog(colVal: Array<number>, ops: string): Array<number>{
+    let data = []
+    switch(ops) {
+      case "max":
+        let max = colVal.reduce((prev, curr)=> {
+          if (prev > curr) {
+            return prev
+          }
+          return curr
+        })
+        data.push(max)
+        break;
+      case "min":
+        let min = colVal.reduce((prev, curr)=> {
+          if (prev < curr) {
+            return prev
+          }
+          return curr
+        })
+        data.push(min)
+        break;
+      case "sum":
+        let sum = colVal.reduce((prev, curr)=> {
+          return prev + curr
+        })
+        data.push(sum)
+        break;
+      case "count":
+        data.push(colVal.length)
+        break;
+      case "mean":
+        let sumMean = colVal.reduce((prev, curr)=> {
+          return prev + curr
+        })
+        data.push(sumMean / colVal.length)
+        break;
+      case "std":
+        data.push(std(colVal))
+        break;
+      case "var":
+        data.push(variance(colVal))
+        break;
+      case "median":
+        data.push(median(colVal))
+        break;
+      case "mode":
+        data.push(mode(colVal))
+        break;
+      case "cumsum":
+        colVal.reduce((prev, curr) => {
+          let sum = prev + curr
+          data.push(sum)
+          return sum
+        }, 0)
+        break;
+      case "cummin":
+        data = [colVal[0]]
+        colVal.slice(1,).reduce((prev, curr)=>{
+          if (prev < curr) {
+            data.push(prev)
+            return prev
+          }
+          data.push(curr)
+          return curr
+        }, data[0])
+        break;
+      case "cummax":
+        data = [colVal[0]]
+        colVal.slice(1,).reduce((prev, curr)=> {
+          if (prev > curr) {
+            data.push(prev)
+            return prev
+          }
+          data.push(curr)
+          return curr
+        }, data[0])
+        break;
+      case "cumprod":
+        colVal.reduce((prev, curr) => {
+          let sum = prev * curr
+          data.push(sum)
+          return sum
+        }, 1)
+        break;
+    }
+    return data
+  }
 }
