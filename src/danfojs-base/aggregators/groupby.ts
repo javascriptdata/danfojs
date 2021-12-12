@@ -23,7 +23,7 @@ export default class Groupby {
   colDtype: ArrayType1D
   colIndex: ArrayType1D
   groupDict?: any
-  groupColNames?: ArrayType1D
+  groupColNames?: Array<string>
   
   constructor(keyCol: ArrayType1D, data: ArrayType2D | null, columnName: ArrayType1D, colDtype:ArrayType1D, colIndex: ArrayType1D) {
 
@@ -138,7 +138,7 @@ export default class Groupby {
       this.colIndex
     )
     gp.colDict = colDict
-    gp.groupColNames = colNames
+    gp.groupColNames = colNames as Array<string>
 
     return gp
   }
@@ -146,7 +146,7 @@ export default class Groupby {
   arithemetic(operation: {[key: string] : string} | string): { [key: string ]: {} } {
 
     const opsName = [ "mean", "sum", "count", "mode", "std", "var", "cumsum", "cumprod",
-    "cummax", "cummin", "median" ];
+    "cummax", "cummin", "median" , "min"];
     if (typeof operation === "string" ) {
       if (!opsName.includes(operation)) {
         throw new Error(`group operation: ${operation} is not valid`)
@@ -160,20 +160,21 @@ export default class Groupby {
       })
     }
     let colDict: { [key: string ]: {} } = {...this.colDict}
-    for(const [key, values] of Object.entries(this.colDict)) {
+    for(const [key, values] of Object.entries(colDict)) {
       let colVal: { [key: string ]: Array<number> } = {}
       let keyVal: any = {...values}
-      for(let colKey in this.groupColNames) {
-        let colName = this.groupColNames[colKey] as string
+      let groupColNames: Array<string> = this.groupColNames as Array<string>
+      for(let colKey=0; colKey < groupColNames.length; colKey++) {
+        let colName = groupColNames[colKey]
         let colIndex = this.columnName.indexOf(colName)
         let colDtype = this.colDtype[colIndex]
         if (colDtype === "string") throw new Error(`Can't perform math operation on column ${colName}`)
 
         if (typeof operation === "string") {
-          colVal[key] = this.groupMathLog(keyVal[colName], operation)
+          colVal[colName] = this.groupMathLog(keyVal[colName], operation)
         }
         else {
-          colVal[key] = this.groupMathLog(keyVal[colName], operation[colName])
+          colVal[colName] = this.groupMathLog(keyVal[colName], operation[colName])
         }
       }
       colDict[key] = colVal
