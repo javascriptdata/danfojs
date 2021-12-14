@@ -9,12 +9,15 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/plotly.js-dist-min": "^2.3.0",
     "dotenv": "^10.0.0"
   },
   "dependencies": {
-    "@tensorflow/tfjs-node": "3.6.1",
+    "plotly.js-dist-min": "^2.8.0",
     "@tensorflow/tfjs": "3.6.0",
+    "@tensorflow/tfjs-node": "3.6.1",
     "mathjs": "^10.0.0",
+    "seedrandom": "^2.4.3",
     "table": "^6.7.3"
   }
 }

@@ -89,6 +89,11 @@
     regenerator-runtime "^0.13.5"
     yargs "^16.0.3"
 
+"@types/d3@^3":
+  version "3.5.46"
+  resolved "https://registry.yarnpkg.com/@types/d3/-/d3-3.5.46.tgz#8b890138ea035b703ef4cdd2de0d86f8619c1c69"
+  integrity sha512-jNHfiGd41+JUV43LTMzQNidyp4Hn0XfhoSmy8baE0d/N5pGYpD+yX03JacY/MH+smFxYOQGXlz4HxkRZOuRNOQ==
+
 "@types/node-fetch@^2.1.2":
   version "2.5.12"
   resolved "https://registry.yarnpkg.com/@types/node-fetch/-/node-fetch-2.5.12.tgz#8a6f779b1d4e60b7a57fb6fd48d84fb545b9cc66"
@@ -106,6 +111,20 @@
   version "2019.3.0"
   resolved "https://registry.yarnpkg.com/@types/offscreencanvas/-/offscreencanvas-2019.3.0.tgz#3336428ec7e9180cf4566dfea5da04eb586a6553"
   integrity sha512-esIJx9bQg+QYF0ra8GnvfianIY8qWB0GBx54PK5Eps6m+xTj86KLavHv6qDhzKcu5UUOgNfJ2pWaIIV7TRUd9Q==
+
+"@types/plotly.js-dist-min@^2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@types/plotly.js-dist-min/-/plotly.js-dist-min-2.3.0.tgz#b1b86b94b86e4628d97beca95cc7dd26c2f30758"
+  integrity sha512-MPvZbG2RA3zuU+AYgsVysJvNLyf3bvi1nt3ywHARwMW2TB38VQuYhQFD1pTRzBuqiV5ieYif7mLY5bHWGUVZqw==
+  dependencies:
+    "@types/plotly.js" "*"
+
+"@types/plotly.js@*":
+  version "1.54.17"
+  resolved "https://registry.yarnpkg.com/@types/plotly.js/-/plotly.js-1.54.17.tgz#346844049bed5675907122f83e29640ada4cf411"
+  integrity sha512-2nk1jEDQ85Ix6SQsC7M7Otl5M8OoYwTl7V/x2ptyX373slUJAj+vQ3njYGy/h9p/rxTq7W0fn3JvXjuxXuA0Qg==
+  dependencies:
+    "@types/d3" "^3"
 
 "@types/seedrandom@2.4.27":
   version "2.4.27"
@@ -670,6 +689,11 @@ path-is-absolute@^1.0.0:
   resolved "https://registry.yarnpkg.com/path-is-absolute/-/path-is-absolute-1.0.1.tgz#174b9268735534ffbc7ace6bf53a5a9e1b5c5f5f"
   integrity sha1-F0uSaHNVNP+8es5r9TpanhtcX18=
 
+plotly.js-dist-min@^2.8.0:
+  version "2.8.0"
+  resolved "https://registry.yarnpkg.com/plotly.js-dist-min/-/plotly.js-dist-min-2.8.0.tgz#e489069fd6c4338832a2270c5d82c0e325135d58"
+  integrity sha512-6OOg/D7OEffYq1WJt4XKNHzJAd9uN3kCuKZcCr0RGvnSB3wvP7fDmfsUpxZR2q0M+3j7SKejJ8qv1HGkarnObg==
+
 process-nextick-args@~2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/process-nextick-args/-/process-nextick-args-2.0.1.tgz#7820d9b16120cc55ca9ae7792680ae7dba6d7fe2"
@@ -754,6 +778,11 @@ seedrandom@2.4.3:
   version "2.4.3"
   resolved "https://registry.yarnpkg.com/seedrandom/-/seedrandom-2.4.3.tgz#2438504dad33917314bff18ac4d794f16d6aaecc"
   integrity sha1-JDhQTa0zkXMUv/GKxNeU8W1qrsw=
+
+seedrandom@^2.4.3:
+  version "2.4.4"
+  resolved "https://registry.yarnpkg.com/seedrandom/-/seedrandom-2.4.4.tgz#b25ea98632c73e45f58b77cfaa931678df01f9ba"
+  integrity sha512-9A+PDmgm+2du77B5i0Ip2cxOqqHjgNxnBgglxLcX78A2D6c2rTo61z4jnVABpF4cKeDMDG+cmXXvdnqse2VqMA==
 
 seedrandom@^3.0.5:
   version "3.0.5"
