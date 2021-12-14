@@ -26,6 +26,7 @@ import Dt from './datetime';
 import dummyEncode from "../transformers/encoders/dummy.encoder";
 import DataFrame from "./frame";
 import tensorflow from '../shared/tensorflowlib'
+import Plot from "../plotting/plotly";
 
 const utils = new Utils();
 
@@ -1357,5 +1358,17 @@ export default class Series extends NDframe implements SeriesInterface {
         prefixSeparator?: string,
     }): DataFrame {
         return dummyEncode(this, options)
+    }
+
+
+    /**
+     * Make plots of Series or DataFrame.
+     * Uses the Plotly as backend, so supports Plotly's configuration parameters
+     * @param divId Name of the div to show the plot
+     * @returns Plotly class that expoese different plot type
+    */
+    plot(divId: string) {
+        const plt = new Plot(this, divId);
+        return plt;
     }
 }
