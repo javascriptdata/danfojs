@@ -19,7 +19,7 @@ const createConfig = (target) => {
       rules: [
         {
           test: /\.tsx?$/,
-          use: 'ts-loader',
+          use: [ 'ts-loader', 'ify-loader' ],
           exclude: /node_modules/
         }
       ]

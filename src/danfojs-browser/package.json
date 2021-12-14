@@ -1,5 +1,5 @@
 {
-  "name": "danfojs-browser",
+  "name": "danfojs",
   "version": "1.0.0",
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
   "main": "dist/danfojs-browser/src/index.js",
@@ -27,6 +27,9 @@
     "stream-json": "^1.7.3",
     "table": "6.7.1",
     "xlsx": "^0.17.2"
+  },
+  "peerDependencies": {
+    "plotly.js-dist-min": "^2.8.0"
   },
   "scripts": {
     "test": "karma start --single-run --browsers ChromeHeadless karma.conf.js",
@@ -71,6 +74,7 @@
     "@types/mocha": "^8.2.2",
     "@types/node": "^15.12.5",
     "@types/papaparse": "^5.2.6",
+    "@types/plotly.js-dist-min": "^2.3.0",
     "@types/request": "^2.48.7",
     "@types/stream-json": "^1.7.1",
     "@types/table": "^6.3.2",
@@ -83,6 +87,8 @@
     "coveralls": "^3.1.0",
     "dotenv": "^10.0.0",
     "eslint": "^7.1.0",
+    "ify-loader": "^1.1.0",
+    "install-peers": "^1.0.3",
     "karma": "5.2.3",
     "karma-browserify": "7.0.0",
     "karma-chai": "^0.1.0",
