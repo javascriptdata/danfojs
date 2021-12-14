@@ -46,7 +46,7 @@ import { CsvInputOptions, CsvOutputOptionsBrowser } from "../types"
  * const df = await readCSV("./data/sample.csv")
  * ```
  */
-const $readCSV = async (file: any, options: CsvInputOptions): Promise<DataFrame> => {
+const $readCSV = async (file: any, options?: CsvInputOptions): Promise<DataFrame> => {
   return new Promise(resolve => {
     Papa.parse(file, {
       ...options,
