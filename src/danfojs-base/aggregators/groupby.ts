@@ -24,6 +24,9 @@ export default class Groupby {
   colIndex: ArrayType1D
   groupDict?: any
   groupColNames?: Array<string>
+  keyToValue: {
+    [key: string] : ArrayType1D
+  } = {}
   
   constructor(keyCol: ArrayType1D, data: ArrayType2D | null, columnName: ArrayType1D, colDtype:ArrayType1D, colIndex: ArrayType1D) {
 
@@ -80,6 +83,9 @@ export default class Groupby {
 
   group():  Groupby{
     const self = this
+    let keyToValue:{
+      [key: string] : ArrayType1D
+    } = {}
     const group = this.data?.reduce((prev: any, current)=>{
       let indexes= []
       for(let i in self.colIndex) {
@@ -88,6 +94,10 @@ export default class Groupby {
       }
       let index = indexes.join('-') 
       
+      if(!keyToValue[index]) {
+        keyToValue[index] = indexes
+      }
+
       if(prev[index]) {
         let data = prev[index]
         for (let i in self.columnName) {
@@ -105,6 +115,7 @@ export default class Groupby {
 
     }, {})
     this.colDict = group
+    this.keyToValue = keyToValue
     return this
   }
 
@@ -139,11 +150,12 @@ export default class Groupby {
     )
     gp.colDict = colDict
     gp.groupColNames = colNames as Array<string>
+    gp.keyToValue = this.keyToValue
 
     return gp
   }
 
-  arithemetic(operation: {[key: string] : string} | string): { [key: string ]: {} } {
+  arithemetic(operation: {[key: string] : Array<string> | string} | string): { [key: string ]: {} } {
 
     const opsName = [ "mean", "sum", "count", "mode", "std", "var", "cumsum", "cumprod",
     "cummax", "cummin", "median" , "min"];
@@ -154,9 +166,18 @@ export default class Groupby {
     } else {
       Object.keys(operation).forEach((key)=>{
         let ops = operation[key]
-        if (!opsName.includes(ops)) {
-          throw new Error(`group operation: ${ops} for column ${key} is not valid`)
+        if(Array.isArray(ops)) {
+          for(let op of ops) {
+            if (!opsName.includes(op)) {
+              throw new Error(`group operation: ${op} for column ${key} is not valid`)
+            }
+          }
+        } else {
+          if (!opsName.includes(ops)) {
+            throw new Error(`group operation: ${ops} for column ${key} is not valid`)
+          }
         }
+        
       })
     }
     let colDict: { [key: string ]: {} } = {...this.colDict}
@@ -171,10 +192,19 @@ export default class Groupby {
         if (colDtype === "string") throw new Error(`Can't perform math operation on column ${colName}`)
 
         if (typeof operation === "string") {
-          colVal[colName] = this.groupMathLog(keyVal[colName], operation)
+          let colName2 = `${colName}_${operation}`
+          colVal[colName2] = this.groupMathLog(keyVal[colName], operation)
         }
         else {
-          colVal[colName] = this.groupMathLog(keyVal[colName], operation[colName])
+          if(Array.isArray(operation[colName])) {
+            for(let ops of operation[colName]) {
+              colVal[colName] = this.groupMathLog(keyVal[colName],ops)
+            }
+          } else {
+            let ops: string = operation[colName] as string
+            colVal[colName] = this.groupMathLog(keyVal[colName], ops)
+          }
+          
         }
       }
       colDict[key] = colVal
@@ -268,5 +298,83 @@ export default class Groupby {
         break;
     }
     return data
+  }
+
+  toDataFrame(colDict: { [key: string ]: {} }): DataFrame {
+    let data:  { [key: string ]: ArrayType1D } = {}
+
+    for(let key of Object.keys(colDict)) {
+      let value = colDict[key]
+      let keyDict: { [key: string ]: ArrayType1D } = {}
+      let oneValue = Object.values(value)[0] as ArrayType1D
+      let valueLen = oneValue.length
+      for(let key1 in this.keyCol) {
+        let keyName = this.keyCol[key1] as string
+        let keyValue = this.keyToValue[key][key1]
+        keyDict[keyName] = Array(valueLen).fill(keyValue)
+      }
+      let combine: { [key: string ]: ArrayType1D } = {...keyDict, ...value}
+      if(Object.keys(data).length < 1) {
+        data = combine
+      } else {
+        for(let dataKey of Object.keys(data)) {
+          let dataValue = combine[dataKey] as ArrayType1D
+          data[dataKey] = [...data[dataKey], ...dataValue]
+        }
+      }
+    }
+    return new DataFrame(data)
+  }
+
+  operations(ops: string): DataFrame {
+    if (!this.groupColNames) {
+      let colGroup = this.col(undefined)
+      let colDict = colGroup.arithemetic(ops)
+      let df = colGroup.toDataFrame(colDict)
+      return df
+    }
+    let colDict = this.arithemetic(ops)
+    let df = this.toDataFrame(colDict)
+    return df
+  }
+
+  count() {
+    return this.operations("count")
+  }
+
+  sum(){
+    return this.operations("sum")
+  }
+
+  var(){
+    return this.operations("var")
+  }
+
+  mean(){
+    return this.operations("mean")
+  }
+
+  cumsum(){
+    return this.operations("cumsum")
+  }
+
+  cummax(){
+    return this.operations("cummax")
+  }
+
+  cumprod(){
+    return this.operations("cumprod")
+  }
+
+  cummin(){
+    return this.operations("cummin")
+  }
+
+  max(){
+    return this.operations("max")
+  }
+
+  min(){
+    return this.operations("min")
   }
 }
