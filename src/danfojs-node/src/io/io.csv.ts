@@ -48,7 +48,7 @@ import { CsvInputOptions, CsvOutputOptionsNode } from "../types"
  * const df = await readCSV("./data/sample.csv")
  * ```
  */
-const $readCSV = async (filePath: string, options: CsvInputOptions): Promise<DataFrame> => {
+const $readCSV = async (filePath: string, options?: CsvInputOptions): Promise<DataFrame> => {
   if (filePath.startsWith("http") || filePath.startsWith("https")) {
     return new Promise(resolve => {
       const dataStream = request.get(filePath);

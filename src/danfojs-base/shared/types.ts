@@ -152,11 +152,11 @@ export interface SeriesInterface extends NDframeInterface {
     cumMax(options?: { inplace?: boolean }): Series | void
     cumProd(options?: { inplace?: boolean }): Series | void
     lt(other: Series | number | Array<number> | boolean[]): Series
-    gt(other: Series | number | Array<number>| boolean[]): Series
-    le(other: Series | number | Array<number>| boolean[]): Series
-    ge(other: Series | number | Array<number>| boolean[]): Series
-    ne(other: Series | number | Array<number>| boolean[]): Series
-    eq(other: Series | number | Array<number>| boolean[]): Series
+    gt(other: Series | number | Array<number> | boolean[]): Series
+    le(other: Series | number | Array<number> | boolean[]): Series
+    ge(other: Series | number | Array<number> | boolean[]): Series
+    ne(other: Series | number | Array<number> | boolean[]): Series
+    eq(other: Series | number | Array<number> | boolean[]): Series
     replace(oldValue: string | number | boolean, newValue: string | number | boolean, options?: { inplace?: boolean }): Series | void
     dropNa(options?: { inplace?: boolean }): Series | void
     argSort(): Series
