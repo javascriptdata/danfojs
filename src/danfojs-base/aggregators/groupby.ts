@@ -198,11 +198,13 @@ export default class Groupby {
         else {
           if(Array.isArray(operation[colName])) {
             for(let ops of operation[colName]) {
-              colVal[colName] = this.groupMathLog(keyVal[colName],ops)
+              let colName2 = `${colName}_${ops}`
+              colVal[colName2] = this.groupMathLog(keyVal[colName],ops)
             }
           } else {
             let ops: string = operation[colName] as string
-            colVal[colName] = this.groupMathLog(keyVal[colName], ops)
+            let colName2 = `${colName}_${ops}`
+            colVal[colName2] = this.groupMathLog(keyVal[colName], ops)
           }
           
         }
