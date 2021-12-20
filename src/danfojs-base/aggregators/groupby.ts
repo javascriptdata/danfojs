@@ -4,6 +4,7 @@ import { ArrayType1D, ArrayType2D } from "../shared/types"
 import { variance, std, median, mode, mean } from 'mathjs';
 import Utils from "../shared/utils";
 import  concat from "../transformers/concat"
+import Series from "../core/series";
 
 
 /**
@@ -16,7 +17,7 @@ import  concat from "../transformers/concat"
  * @param {colDtype} Array columns dtype
  */
 export default class Groupby {
-  colDict?: { [key: string ]: {} }
+  colDict: { [key: string ]: {} } = {}
   keyCol: ArrayType1D
   data?: ArrayType2D | null
   columnName: ArrayType1D
@@ -378,5 +379,29 @@ export default class Groupby {
 
   min(){
     return this.operations("min")
+  }
+
+  get_groups(keys: Array<string>): DataFrame {
+    let dictKey = keys.join("_")
+    let colDict: { [key: string ]: {} }  = {}
+    colDict[dictKey] = {...this.colDict[dictKey]}
+    return this.toDataFrame(colDict)
+  }
+
+  agg(ops: { [key: string ]: Array<string> | string }) {
+    let columns = Object.keys(ops);
+    let col_gp = this.col(columns);
+    let data = col_gp.arithemetic(ops);
+    let df = col_gp.toDataFrame(data);
+    return df;
+  }
+
+  apply(callable: (x: DataFrame)=> DataFrame | Series ) {
+    let colDict: { [key: string ]: DataFrame | Series } = {}
+    for(const [key, values] of Object.entries(this.colDict)) {
+      let valDataframe = new DataFrame(values)
+      colDict[key] = callable(valDataframe)
+    }
+
   }
 }
