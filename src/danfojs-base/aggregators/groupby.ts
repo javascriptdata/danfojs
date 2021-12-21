@@ -400,6 +400,7 @@ export default class Groupby {
     let colDict: { [key: string ]: DataFrame | Series } = {}
     for(const [key, values] of Object.entries(this.colDict)) {
       let valDataframe = new DataFrame(values)
+      valDataframe.print()
       colDict[key] = callable(valDataframe)
     }
     return this.concatGroups(colDict)
@@ -427,5 +428,20 @@ export default class Groupby {
       }
     }
     return concat({dfList: data, axis:0}) as DataFrame
+  }
+  
+  get ngroups(): number{
+    let keys = Object.keys(this.colDict)
+    return keys.length
+  }
+
+  get groups(): {[keys: string]: {}}{
+    return this.colDict
+  }
+
+  ngroup(nth: number) {
+    const values = Object.values(this.colDict)
+    const nvalue = values[nth]
+    return new DataFrame(nvalue)
   }
 }
