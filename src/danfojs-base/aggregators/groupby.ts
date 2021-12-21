@@ -381,8 +381,8 @@ export default class Groupby {
     return this.operations("min")
   }
 
-  get_groups(keys: Array<string>): DataFrame {
-    let dictKey = keys.join("_")
+  get_group(keys: Array<string>): DataFrame {
+    let dictKey = keys.join("-")
     let colDict: { [key: string ]: {} }  = {}
     colDict[dictKey] = {...this.colDict[dictKey]}
     return this.toDataFrame(colDict)
@@ -396,12 +396,36 @@ export default class Groupby {
     return df;
   }
 
-  apply(callable: (x: DataFrame)=> DataFrame | Series ) {
+  apply(callable: (x: DataFrame)=> DataFrame | Series ): DataFrame {
     let colDict: { [key: string ]: DataFrame | Series } = {}
     for(const [key, values] of Object.entries(this.colDict)) {
       let valDataframe = new DataFrame(values)
       colDict[key] = callable(valDataframe)
     }
+    return this.concatGroups(colDict)
+  }
 
+  concatGroups(colDict: {[key: string]: DataFrame | Series}): DataFrame {
+    let data: Array<DataFrame | Series> = []
+    for(const [key, values] of Object.entries(colDict)) {
+      let copyDf: DataFrame;
+      if (values instanceof DataFrame) {
+        copyDf = values.copy()
+      } 
+      else {
+        values.print()
+        console.log(values.values)
+        copyDf = new DataFrame([values.values], {columns: ['applyops']})
+      }
+      let len = copyDf.shape[0]
+      for(let key1 in this.keyCol){
+        let keyName = this.keyCol[key1] as string
+        let keyValue = this.keyToValue[key][key1]
+        let dfValue = Array(len).fill(keyValue)
+        copyDf.addColumn(keyName, dfValue, {inplace: true})
+        data.push(copyDf)
+      }
+    }
+    return concat({dfList: data, axis:0}) as DataFrame
   }
 }
