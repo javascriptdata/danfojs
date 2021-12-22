@@ -402,7 +402,6 @@ export default class Groupby {
       let valDataframe = new DataFrame(values)
       colDict[key] = callable(valDataframe)
     }
-    console.log(colDict)
     return this.concatGroups(colDict)
   }
 
