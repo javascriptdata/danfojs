@@ -400,9 +400,9 @@ export default class Groupby {
     let colDict: { [key: string ]: DataFrame | Series } = {}
     for(const [key, values] of Object.entries(this.colDict)) {
       let valDataframe = new DataFrame(values)
-      valDataframe.print()
       colDict[key] = callable(valDataframe)
     }
+    console.log(colDict)
     return this.concatGroups(colDict)
   }
 
@@ -414,8 +414,6 @@ export default class Groupby {
         copyDf = values.copy()
       } 
       else {
-        values.print()
-        console.log(values.values)
         copyDf = new DataFrame([values.values], {columns: ['applyops']})
       }
       let len = copyDf.shape[0]
@@ -424,8 +422,8 @@ export default class Groupby {
         let keyValue = this.keyToValue[key][key1]
         let dfValue = Array(len).fill(keyValue)
         copyDf.addColumn(keyName, dfValue, {inplace: true})
-        data.push(copyDf)
       }
+      data.push(copyDf)
     }
     return concat({dfList: data, axis:0}) as DataFrame
   }
@@ -439,9 +437,21 @@ export default class Groupby {
     return this.colDict
   }
 
-  ngroup(nth: number) {
-    const values = Object.values(this.colDict)
-    const nvalue = values[nth]
-    return new DataFrame(nvalue)
+  first(): DataFrame{
+    return this.apply((x)=>{
+      return x.head(1)
+    })
+  }
+
+  last(): DataFrame {
+    return this.apply((x)=>{
+      return x.tail(1)
+    })
+  }
+
+  size(): DataFrame {
+    return this.apply((x)=>{
+      return new Series([x.shape[0]])
+    })
   }
 }
