@@ -40,48 +40,6 @@ export default class Groupby {
 
   }
 
-  group2(): Groupby{
-    this.groupDict = this.data?.reduce((prev, current)=>{
-      function dfs(arr: ArrayType1D, value: ArrayType1D, obj: any) {
-        let firstIndex = arr[0]
-        let remainingndex = arr.slice(1)
-  
-        if(!remainingndex.length) {
-          value.forEach((el, i) => {
-            el = String(el)
-            if (i == firstIndex) {
-              if (el in Object.keys(obj)) {
-                obj[el].push(value)
-              } else {
-                obj[el] = [value]
-              }
-            }
-          });
-        } else {
-          value.forEach((el, i) => {
-            if (i == firstIndex) {
-              el = String(el)
-              if (el as string in obj) {
-                obj[el]  = dfs(remainingndex, value, obj[el])
-              }
-              else {
-                obj[el] = dfs(remainingndex,  value, {})
-              }
-            }
-          })
-        }
-        return obj
-      }
-      
-      prev = dfs(this.colIndex, current, prev)
-      return prev
-
-    }, {})
-
-    delete this.data
-    return this
-  }
-
   group():  Groupby{
     const self = this
     let keyToValue:{
@@ -306,7 +264,7 @@ export default class Groupby {
   toDataFrame(colDict: { [key: string ]: {} }): DataFrame {
     let data:  { [key: string ]: ArrayType1D } = {}
 
-    for(let key of Object.keys(colDict)) {
+    for(let key of this.colKeyDict(colDict)) {
       let value = colDict[key]
       let keyDict: { [key: string ]: ArrayType1D } = {}
       let oneValue = Object.values(value)[0] as ArrayType1D
@@ -398,8 +356,8 @@ export default class Groupby {
 
   apply(callable: (x: DataFrame)=> DataFrame | Series ): DataFrame {
     let colDict: { [key: string ]: DataFrame | Series } = {}
-    for(const [key, values] of Object.entries(this.colDict)) {
-      let valDataframe = new DataFrame(values)
+    for(const key of this.colKeyDict(this.colDict)) {
+      let valDataframe = new DataFrame(this.colDict[key])
       colDict[key] = callable(valDataframe)
     }
     return this.concatGroups(colDict)
@@ -413,14 +371,22 @@ export default class Groupby {
         copyDf = values.copy()
       } 
       else {
-        copyDf = new DataFrame([values.values], {columns: ['applyops']})
+        let columns = values.index as string[]
+        columns = columns.length > 1 ? columns : ['applyOps']
+        copyDf = new DataFrame([values.values], {columns: columns })
       }
       let len = copyDf.shape[0]
       for(let key1 in this.keyCol){
         let keyName = this.keyCol[key1] as string
         let keyValue = this.keyToValue[key][key1]
         let dfValue = Array(len).fill(keyValue)
-        copyDf.addColumn(keyName, dfValue, {inplace: true})
+        if (this.groupColNames) {
+          copyDf.addColumn(keyName, dfValue, {inplace: true})
+        }
+        else {
+          copyDf.addColumn(`${keyName}_Group`, dfValue, {inplace: true})
+        }
+        
       }
       data.push(copyDf)
     }
@@ -453,4 +419,24 @@ export default class Groupby {
       return new Series([x.shape[0]])
     })
   }
+
+  private colKeyDict(colDict: { [key: string ]: {} }): string[]{
+    let keyDict :{ [key: string ]: string[] } = {}
+
+    for(let key of Object.keys(colDict)) {
+      let firstKey = key.split("-")[0]
+      if (firstKey in keyDict) {
+        keyDict[firstKey].push(key)
+      }
+      else {
+        keyDict[firstKey] = [key]
+      }
+    }
+    let keys = []
+    for(let key of Object.keys(keyDict)) {
+      keys.push(...keyDict[key])
+    }
+    return keys
+  }
+
 }
