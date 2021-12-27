@@ -76,7 +76,8 @@ export class date_range {
       //check if the end year is greater than start year
       let start_year = start_date.getFullYear();
       let end_year = end_date.getFullYear();
-      if ((start_year < end_year)){
+      if ((start_year <= end_year) && (start_date.getMonth() !== end_date.getMonth())){
+        
         // end_range = start_range + end_range
         if (this.freq == "M"){
           end_range = this.month_end(start_date, end_date);
