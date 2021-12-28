@@ -29,6 +29,7 @@
     "table": "6.7.1",
     "xlsx": "^0.17.2",
     "seedrandom": "^2.4.3"
+
   },
   "scripts": {
     "test": "nyc mocha --require @babel/register tests/**/*.js",
