@@ -27,7 +27,9 @@
     "request": "^2.88.2",
     "stream-json": "^1.7.3",
     "table": "6.7.1",
-    "xlsx": "^0.17.2"
+    "xlsx": "^0.17.2",
+    "seedrandom": "^2.4.3"
+
   },
   "scripts": {
     "test": "nyc mocha --require @babel/register tests/**/*.js",
