@@ -63,7 +63,7 @@ class Utils {
      * @returns
      */
   isObject(value) {
-    return typeof value === "object" && value.constructor && value.constructor.name === "Object";
+    return value && typeof value === "object" && value.constructor && value.constructor.name === "Object";
   }
 
   /**
