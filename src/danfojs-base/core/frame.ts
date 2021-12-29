@@ -1322,14 +1322,15 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     addColumn(
         column: string,
         values: Series | ArrayType1D,
-        options?: { inplace?: boolean }
+        options?: { inplace?: boolean, atIndex?: number }
     ): DataFrame
     addColumn(
         column: string,
         values: Series | ArrayType1D,
-        options?: { inplace?: boolean }
+        options?: { inplace?: boolean, atIndex?: number }
     ): DataFrame | void {
         const { inplace } = { inplace: false, ...options };
+        const atIndex = typeof options?.atIndex !== "undefined" ? options.atIndex : this.columns.length
 
         if (!column) {
             throw new Error("ParamError: column must be specified")
@@ -1360,19 +1361,24 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             const oldValues = this.$data
             for (let i = 0; i < oldValues.length; i++) {
                 const innerArr = [...oldValues[i]] as ArrayType1D
-                innerArr.push(colunmValuesToAdd[i])
+                innerArr.splice(atIndex, 0, colunmValuesToAdd[i])
                 newData.push(innerArr)
             }
 
             if (inplace) {
                 this.$setValues(newData, true, false)
-                this.$setColumnNames([...this.columns, column]);
+                let columns = [...this.columns]
+                columns.splice(atIndex, 0, column)
+                this.$setColumnNames(columns)
                 this.$setInternalColumnDataProperty(column);
 
             } else {
+                let columns = [...this.columns]
+                columns.splice(atIndex, 0, column)
+                
                 const df = new DataFrame(newData, {
                     index: [...this.index],
-                    columns: [...this.columns, column],
+                    columns: columns,
                     dtypes: [...this.dtypes, utils.inferDtype(colunmValuesToAdd)[0]],
                     config: { ...this.$config }
                 })
