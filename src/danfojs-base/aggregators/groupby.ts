@@ -376,15 +376,17 @@ export default class Groupby {
         copyDf = new DataFrame([values.values], {columns: columns })
       }
       let len = copyDf.shape[0]
-      for(let key1 in this.keyCol){
+      let key1: any;
+      for(key1 in this.keyCol){
+        
         let keyName = this.keyCol[key1] as string
         let keyValue = this.keyToValue[key][key1]
         let dfValue = Array(len).fill(keyValue)
         if (this.groupColNames) {
-          copyDf.addColumn(keyName, dfValue, {inplace: true})
+          copyDf.addColumn(keyName, dfValue, {inplace: true, atIndex: key1 as number })
         }
         else {
-          copyDf.addColumn(`${keyName}_Group`, dfValue, {inplace: true})
+          copyDf.addColumn(`${keyName}_Group`, dfValue, {inplace: true, atIndex: key1 as number })
         }
         
       }
