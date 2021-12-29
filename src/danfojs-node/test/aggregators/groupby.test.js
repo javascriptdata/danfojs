@@ -217,14 +217,14 @@ describe("groupby", function () {
     let df = new DataFrame(data);
     let group_df = df.groupby([ "A"]);
     let rslt = [
-      [ 5, 3, 'foo' ],
-      [ 6, 4, 'foo' ],
-      [ 7, 7, 'foo' ],
-      [ 9, 8, 'foo' ],
-      [ 10, 9, 'foo' ],
-      [ 4, 5, 'bar' ],
-      [ 3, 6, 'bar' ],
-      [ 8, 4, 'bar' ]
+      [ 'foo', 5, 3 ],
+      [ 'foo', 6, 4 ],
+      [ 'foo', 7, 7 ],
+      [ 'foo', 9, 8 ],
+      [ 'foo', 10, 9 ],
+      [ 'bar', 4, 5 ],
+      [ 'bar', 3, 6 ],
+      [ 'bar', 8, 4 ]
     ]
     assert.deepEqual(group_df.col(['D', 'C']).apply((x) => x.add(2)).values, rslt);
   });
@@ -240,13 +240,120 @@ describe("groupby", function () {
     let df = new DataFrame(data);
     let group_df = df.groupby([ "A", "B"]);
     let rslt = [
-      [ 2, 2, 2, 2, 'foo', 'one' ],
-      [ 2, 2, 2, 2, 'foo', 'two' ],
-      [ 1, 1, 1, 1, 'foo', 'three' ],
-      [ 1, 1, 1, 1, 'bar', 'one' ],
-      [ 1, 1, 1, 1, 'bar', 'three' ],
-      [ 1, 1, 1, 1, 'bar', 'two' ]
-    ];
+      [ 'foo', 'one', 2, 2, 2, 2 ],
+      [ 'foo', 'two', 2, 2, 2, 2 ],
+      [ 'foo', 'three', 1, 1, 1, 1 ],
+      [ 'bar', 'one', 1, 1, 1, 1 ],
+      [ 'bar', 'three', 1, 1, 1, 1 ],
+      [ 'bar', 'two', 1, 1, 1, 1 ]
+    ]
     assert.deepEqual(group_df.apply((x) => x.count({axis:0})).values, rslt);
+  });
+
+  it("should obtain the number of groups", function () {
+    let data = { 'A': [ 'foo', 'bar', 'foo', 'bar',
+                        'foo', 'bar', 'foo', 'foo' ],
+                  'B': [ 'one', 'one', 'two', 'three',
+                          'two', 'two', 'one', 'three' ],
+                  'C': [ 1, 3, 2, 4, 5, 2, 6, 7 ],
+                  'D': [ 3, 2, 4, 1, 5, 6, 7, 8 ]
+     };
+    let df = new DataFrame(data);
+    let group_df = df.groupby([ "A", "B"]);
+    let rslt = 6
+    assert.equal(group_df.ngroups, rslt);
+  });
+  it("should obtain all groups", function () {
+    let data = { 'A': [ 'foo', 'bar', 'foo', 'bar',
+                        'foo', 'bar', 'foo', 'foo' ],
+                  'B': [ 'one', 'one', 'two', 'three',
+                          'two', 'two', 'one', 'three' ],
+                  'C': [ 1, 3, 2, 4, 5, 2, 6, 7 ],
+                  'D': [ 3, 2, 4, 1, 5, 6, 7, 8 ]
+     };
+    let df = new DataFrame(data);
+    let group_df = df.groupby([ "A", "B"]);
+    let rslt = {
+      'foo-one': {
+        A: [ 'foo', 'foo' ],
+        B: [ 'one', 'one' ],
+        C: [ 1, 6 ],
+        D: [ 3, 7 ]
+      },
+      'bar-one': { A: [ 'bar' ], B: [ 'one' ], C: [ 3 ], D: [ 2 ] },
+      'foo-two': {
+        A: [ 'foo', 'foo' ],
+        B: [ 'two', 'two' ],
+        C: [ 2, 5 ],
+        D: [ 4, 5 ]
+      },
+      'bar-three': { A: [ 'bar' ], B: [ 'three' ], C: [ 4 ], D: [ 1 ] },
+      'bar-two': { A: [ 'bar' ], B: [ 'two' ], C: [ 2 ], D: [ 6 ] },
+      'foo-three': { A: [ 'foo' ], B: [ 'three' ], C: [ 7 ], D: [ 8 ] }
+    }
+    assert.deepEqual(group_df.groups, rslt);
+  });
+
+  it("should obtain the first row of all groups", function () {
+    let data = { 'A': [ 'foo', 'bar', 'foo', 'bar',
+                        'foo', 'bar', 'foo', 'foo' ],
+                  'B': [ 'one', 'one', 'one', 'three',
+                          'two', 'two', 'one', 'three' ],
+                  'C': [ 1, 3, 2, 4, 5, 2, 6, 7 ],
+                  'D': [ 3, 2, 4, 1, 5, 6, 7, 8 ]
+     };
+    let df = new DataFrame(data);
+    let group_df = df.groupby([ "A", "B"]);
+    let rslt = [
+      [ 'foo', 'one', 'foo', 'one', 1, 3 ],
+      [ 'foo', 'two', 'foo', 'two', 5, 5 ],
+      [ 'foo', 'three', 'foo', 'three', 7, 8 ],
+      [ 'bar', 'one', 'bar', 'one', 3, 2 ],
+      [ 'bar', 'three', 'bar', 'three', 4, 1 ],
+      [ 'bar', 'two', 'bar', 'two', 2, 6 ]
+    ]
+    assert.deepEqual(group_df.first().values, rslt);
+  });
+
+  it("should obtain the last row of all groups", function () {
+    let data = { 'A': [ 'foo', 'bar', 'foo', 'bar',
+                        'foo', 'bar', 'foo', 'foo' ],
+                  'B': [ 'one', 'one', 'one', 'three',
+                          'two', 'two', 'one', 'three' ],
+                  'C': [ 1, 3, 2, 4, 5, 2, 6, 7 ],
+                  'D': [ 3, 2, 4, 1, 5, 6, 7, 8 ]
+     };
+    let df = new DataFrame(data);
+    let group_df = df.groupby([ "A", "B"]);
+    let rslt = [
+      [ 'foo', 'one', 'foo', 'one', 6, 7 ],
+      [ 'foo', 'two', 'foo', 'two', 5, 5 ],
+      [ 'foo', 'three', 'foo', 'three', 7, 8 ],
+      [ 'bar', 'one', 'bar', 'one', 3, 2 ],
+      [ 'bar', 'three', 'bar', 'three', 4, 1 ],
+      [ 'bar', 'two', 'bar', 'two', 2, 6 ]
+    ]
+    assert.deepEqual(group_df.last().values, rslt);
+  });
+
+  it("should obtain the number of  rows of each groups", function () {
+    let data = { 'A': [ 'foo', 'bar', 'foo', 'bar',
+                        'foo', 'bar', 'foo', 'foo' ],
+                  'B': [ 'one', 'one', 'one', 'three',
+                          'two', 'two', 'one', 'three' ],
+                  'C': [ 1, 3, 2, 4, 5, 2, 6, 7 ],
+                  'D': [ 3, 2, 4, 1, 5, 6, 7, 8 ]
+     };
+    let df = new DataFrame(data);
+    let group_df = df.groupby([ "A", "B"]);
+    let rslt = [
+      [ 'foo', 'one', 3 ],
+      [ 'foo', 'two', 1 ],
+      [ 'foo', 'three', 1 ],
+      [ 'bar', 'one', 1 ],
+      [ 'bar', 'three', 1 ],
+      [ 'bar', 'two', 1 ]
+    ]
+    assert.deepEqual(group_df.size().values, rslt);
   });
 })
