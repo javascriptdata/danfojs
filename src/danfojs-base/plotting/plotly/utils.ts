@@ -14,8 +14,9 @@
 */
 
 import DataFrame from "../../core/frame";
+import Series from "../../core/series";
 
-export const checkIfColsExist = (ndframe: DataFrame, cols: string[]) => {
+export const checkIfColsExist = (ndframe: DataFrame | Series, cols: string[]) => {
     cols.forEach((col) => {
         if (!ndframe.columns.includes(col)) {
             throw Error(`Column Error: ${col} not found in columns. Columns should be one of [ ${ndframe.columns} ]`);

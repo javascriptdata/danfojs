@@ -20,68 +20,43 @@ import { checkIfColsExist, throwErrorOnWrongColName } from "./utils"
 
 
 /**
-* Plot Series or DataFrame as lines.
+* Plot Series or DataFrame as histogram.
 * Uses the Plotly as backend, so supoorts Plotly's configuration parameters,
 * Line plot supports different types of parameters, and the behavior will depend on data specified.
 * The precedence of columns to plot is: (x and y => x => y => columns). 
 * @param ndframe Series or DataFrame to plot
 * @param divId HTML div id to plot in.
 * @param plotConfig configuration options for making Plots, supports Plotly.js Config and Layout parameters.
-* @param Plotly Plotly package passed from the class.
 */
-export const linePlot = (ndframe: DataFrame | Series, divId: string, plotConfig: PlotConfigObject, Plotly: any) => {
+export const histPlot = (ndframe: DataFrame | Series, divId: string, plotConfig: PlotConfigObject, Plotly: any) => {
     const config = plotConfig["config"]
     const layout = plotConfig["layout"]
 
     if (ndframe instanceof Series) {
-        const y = ndframe.values as any;
         let trace: Data = {
-            x: ndframe.index as any,
-            y,
-            type: 'scatter',
-            mode: 'lines',
+            x: ndframe.values as any,
+            type: 'histogram',
         };
 
         Plotly.newPlot(divId, [trace], layout, config);
 
     } else {
 
-        if (config["x"] && config["y"]) {
-            //Plotting two columns against each other, when user specifies x and y column names in configuration
-            throwErrorOnWrongColName(ndframe, config["x"]);
-            throwErrorOnWrongColName(ndframe, config["y"]);
-
-            const x = ndframe[config.x].values;
-            const y = ndframe[config.y].values;
-
-            const trace: Data = { x, y };
-            const _layout = {
-                xaxis: {
-                    title: config.x,
-                },
-                yaxis: {
-                    title: config.y,
-                },
-                ...layout,
-            };
-
-            Plotly.newPlot(divId, [trace], _layout, config);
-
-        } else if (config["x"] || config["y"]) {
+       if (config["x"] || config["y"]) {
             //plot single column specified in either of param [x | y] against index
             if (config["x"]) {
                 throwErrorOnWrongColName(ndframe, config.x);
 
                 const x = ndframe[config.x].values;
-                const y = ndframe.index;
 
-                const trace: Data = { x, y };
+                const trace: Data = {
+                    x,
+                    type: 'histogram',
+                };
+
                 const _layout = {
                     xaxis: {
                         title: config.x,
-                    },
-                    yaxis: {
-                        title: "Index",
                     },
                     ...layout,
                 };
@@ -92,14 +67,13 @@ export const linePlot = (ndframe: DataFrame | Series, divId: string, plotConfig:
             if (config["y"]) {
                 throwErrorOnWrongColName(ndframe, config.y);
 
-                const x = ndframe.index
                 const y = ndframe[config.y].values;
 
-                const trace: Data = { x, y };
+                const trace: Data = {
+                    y,
+                    type: 'histogram',
+                };
                 const _layout = {
-                    xaxis: {
-                        title: "Index",
-                    },
                     yaxis: {
                         title: config.y,
                     },
@@ -119,7 +93,7 @@ export const linePlot = (ndframe: DataFrame | Series, divId: string, plotConfig:
                 const y = ndframe.index;
                 const x = (ndframe as DataFrame)[col].values;
 
-                const trace: Data = { x, y, name: col };
+                const trace: Data = { x, y, name: col, type: 'histogram' };
                 traces.push(trace);
             });
 

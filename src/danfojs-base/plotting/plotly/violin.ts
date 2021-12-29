@@ -20,26 +20,22 @@ import { checkIfColsExist, throwErrorOnWrongColName } from "./utils"
 
 
 /**
-* Plot Series or DataFrame as lines.
+* Plot Series or DataFrame as violin chart.
 * Uses the Plotly as backend, so supoorts Plotly's configuration parameters,
 * Line plot supports different types of parameters, and the behavior will depend on data specified.
 * The precedence of columns to plot is: (x and y => x => y => columns). 
 * @param ndframe Series or DataFrame to plot
 * @param divId HTML div id to plot in.
 * @param plotConfig configuration options for making Plots, supports Plotly.js Config and Layout parameters.
-* @param Plotly Plotly package passed from the class.
 */
-export const linePlot = (ndframe: DataFrame | Series, divId: string, plotConfig: PlotConfigObject, Plotly: any) => {
+export const violinPlot = (ndframe: DataFrame | Series, divId: string, plotConfig: PlotConfigObject, Plotly: any) => {
     const config = plotConfig["config"]
     const layout = plotConfig["layout"]
 
     if (ndframe instanceof Series) {
-        const y = ndframe.values as any;
         let trace: Data = {
-            x: ndframe.index as any,
-            y,
-            type: 'scatter',
-            mode: 'lines',
+            y: ndframe.values as any,
+            type: 'violin',
         };
 
         Plotly.newPlot(divId, [trace], layout, config);
@@ -54,7 +50,11 @@ export const linePlot = (ndframe: DataFrame | Series, divId: string, plotConfig:
             const x = ndframe[config.x].values;
             const y = ndframe[config.y].values;
 
-            const trace: Data = { x, y };
+            const trace: Data = {
+                x,
+                y,
+                type: 'violin',
+            };
             const _layout = {
                 xaxis: {
                     title: config.x,
@@ -75,7 +75,11 @@ export const linePlot = (ndframe: DataFrame | Series, divId: string, plotConfig:
                 const x = ndframe[config.x].values;
                 const y = ndframe.index;
 
-                const trace: Data = { x, y };
+                const trace: Data = {
+                    x,
+                    y,
+                    type: 'violin',
+                };
                 const _layout = {
                     xaxis: {
                         title: config.x,
@@ -95,7 +99,11 @@ export const linePlot = (ndframe: DataFrame | Series, divId: string, plotConfig:
                 const x = ndframe.index
                 const y = ndframe[config.y].values;
 
-                const trace: Data = { x, y };
+                const trace: Data = {
+                    x,
+                    y,
+                    type: 'violin',
+                };
                 const _layout = {
                     xaxis: {
                         title: "Index",
@@ -116,10 +124,13 @@ export const linePlot = (ndframe: DataFrame | Series, divId: string, plotConfig:
 
             const traces: Data[] = [];
             cols.forEach((col) => {
-                const y = ndframe.index;
-                const x = (ndframe as DataFrame)[col].values;
+                const y = (ndframe as DataFrame)[col].values;
 
-                const trace: Data = { x, y, name: col };
+                const trace: Data = {
+                    y,
+                    name: col,
+                    type: 'violin',
+                };
                 traces.push(trace);
             });
 

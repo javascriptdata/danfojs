@@ -25,7 +25,7 @@ import NDframe from "./generic";
 import { table } from "table";
 import Series from './series';
 import Groupby from '../aggregators/groupby'
-import { Plotly } from "../plotting";
+import { PlotlyLib } from "../plotting";
 
 const utils = new Utils();
 
@@ -2457,7 +2457,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     plot(divId: string) {
         //TODO: Add support for check plot library to use
         // So we can support other plot library like d3, vega, etc
-        const plt = new Plotly(this, divId);
+        const plt = new PlotlyLib(this, divId);
         return plt;
     }
 }
