@@ -13,4 +13,13 @@
 * ==========================================================================
 */
 
+import { boxPlot } from "./box";
+
 export { linePlot } from "./line";
+export { barPlot } from "./bar";
+export { scatterPlot } from "./scatter";
+export { histPlot } from "./hist";
+export { piePlot } from "./pie";
+export { boxPlot } from "./box";
+export { violinPlot } from "./violin";
+export { tablePlot } from "./table";

@@ -26,7 +26,7 @@ import Dt from './datetime';
 import dummyEncode from "../transformers/encoders/dummy.encoder";
 import DataFrame from "./frame";
 import tensorflow from '../shared/tensorflowlib'
-import { Plotly } from "../plotting";
+import { PlotlyLib } from "../plotting";
 
 const utils = new Utils();
 
@@ -1363,14 +1363,14 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
      * Make plots of Series or DataFrame.
-     * Uses the Plotly as backend, so supports Plotly's configuration parameters
+     * Uses the PlotlyLib as backend, so supports PlotlyLib's configuration parameters
      * @param divId Name of the div to show the plot
-     * @returns Plotly class that expoese different plot type
+     * @returns PlotlyLib class that expoese different plot type
     */
     plot(divId: string) {
         //TODO: Add support for check plot library to use
         // So we can support other plot library like d3, vega, etc
-        const plt = new Plotly(this, divId);
+        const plt = new PlotlyLib(this, divId);
         return plt;
     }
 }

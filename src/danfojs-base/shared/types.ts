@@ -18,7 +18,7 @@ import Dt from '../core/datetime';
 import DataFrame from '../core/frame';
 import Series from '../core/series';
 import { BaseUserConfig, TableUserConfig, } from "table"
-import { Config, Layout } from "plotly.js-dist-min"
+import { Config, Layout  } from "plotly.js-dist-min"
 
 export type DTYPES = "float32" | "int32" | "string" | "boolean" | "undefined"
 
@@ -334,8 +334,15 @@ export interface DateTime {
 }
 
 interface CustomConfig extends Config {
-    x: string 
-    y: string 
+    x: string
+    y: string,
+    values: string,
+    labels: string,
+    rowPositions: number[],
+    columnPositions: number[],
+    grid: { rows: number, columns: number },
+    tableHeaderStyle: any,
+    tableCellStyle: any,
     columns: string[];
 }
 
