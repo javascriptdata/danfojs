@@ -1,4 +1,5 @@
 import { assert } from "chai";
+import { describe, it } from "mocha";
 import { Utils } from "../dist/danfojs-node/src";
 
 const utils = new Utils();

@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path"
 import { assert } from "chai";
+import { describe, it } from "mocha";
 import { DataFrame, Series, readJSON, toJSON, streamJSON } from "../../dist/danfojs-node/src";
 
 describe("readJSON", function () {

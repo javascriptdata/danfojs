@@ -16,6 +16,7 @@ import { toCSV, toExcel, toJSON } from "../io";
 import BaseSeries from "../../../danfojs-base/core/series"
 import { BaseDataOptionType } from "../../../danfojs-base/shared/types";
 import { CsvOutputOptionsBrowser, ExcelOutputOptionsBrowser, JsonOutputOptionsBrowser } from "types";
+import { PlotlyLib } from "../plotting";
 
 
 /**
@@ -33,6 +34,19 @@ export default class Series extends BaseSeries {
     [key: string]: any
     constructor(data?: any, options: BaseDataOptionType = {}) {
         super(data, options)
+    }
+
+    /**
+     * Make plots of Series or DataFrame.
+     * Uses the PlotlyLib as backend, so supports PlotlyLib's configuration parameters
+     * @param divId Name of the div to show the plot
+     * @returns PlotlyLib class that expoese different plot type
+    */
+    plot(divId: string) {
+        //TODO: Add support for check plot library to use
+        // So we can support other plot library like d3, vega, etc
+        const plt = new PlotlyLib(this, divId);
+        return plt;
     }
 
     /**

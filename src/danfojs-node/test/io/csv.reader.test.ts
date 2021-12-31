@@ -1,5 +1,6 @@
 import path from "path"
 import { assert } from "chai";
+import { describe, it } from "mocha";
 import { DataFrame, readCSV, Series, streamCSV, toCSV } from "../../dist/danfojs-node/src";
 
 describe("readCSV", function () {

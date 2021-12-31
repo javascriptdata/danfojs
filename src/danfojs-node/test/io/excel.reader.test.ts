@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path"
 import { assert } from "chai";
+import { describe, it } from "mocha";
 import { DataFrame, readExcel, Series, toExcel } from "../../dist/danfojs-node/src";
 
 describe("readExcel", function () {

@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 describe("Merge", function () {
 
   it("test outer merge", function () {
@@ -97,4 +99,4 @@ describe("Merge", function () {
 
     assert.deepEqual(merge_df.values, output_data);
   });
-})
+});

@@ -450,7 +450,7 @@ export default class Groupby {
     return this.operations("min")
   }
 
-  get_group(keys: Array<string>): DataFrame {
+  getGroup(keys: Array<string | number>): DataFrame {
     let dictKey = keys.join("-")
     let colDict: { [key: string ]: {} }  = {}
     colDict[dictKey] = {...this.colDict[dictKey]}

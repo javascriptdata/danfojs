@@ -1,4 +1,6 @@
-describe("Concat", ()=>{
+/* eslint-disable no-undef */
+
+describe("Concat", () => {
   it("Check the axis 0 concatenation", function () {
     let data = [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 20, 30, 40 ], [ 39, 89, 78 ] ];
     let cols = [ "A", "B", "C" ];
@@ -55,11 +57,11 @@ describe("Concat", ()=>{
     let rslt = [
       [ NaN, 1, 2, 3 ],
       [ NaN, 4, 5, 6 ],
-      [ NaN, 20, 30, 40],
+      [ NaN, 20, 30, 40 ],
       [ NaN, 39, 89, 78 ],
       [ 1, NaN, NaN, NaN ],
       [ 2, NaN, NaN, NaN ],
-      [ 3, NaN, NaN, NaN],
+      [ 3, NaN, NaN, NaN ],
       [ 4, NaN, NaN, NaN ]
     ];
 
@@ -81,7 +83,7 @@ describe("Concat", ()=>{
       [ 1, 1, 2, 3 ],
       [ 2, 4, 5, 6 ],
       [ 3, 20, 30, 40 ],
-      [ 4, 39, 89, 78]
+      [ 4, 39, 89, 78 ]
     ];
 
 
@@ -123,4 +125,4 @@ describe("Concat", ()=>{
 
   });
 
-})
+});
