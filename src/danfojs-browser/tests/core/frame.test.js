@@ -927,10 +927,6 @@ describe("DataFrame", function () {
       const df2 = new dfd.DataFrame([ [ 1, 2, 4 ], [ 10, 5, 0 ] ]);
       assert.deepEqual(df1.div(df2).values, [ [ 0, 1, 1 ], [ 36, 36, Infinity ] ]);
     });
-    it("Return division of same DataFrame along axis 0", function () {
-      const df1 = new dfd.DataFrame([ [ 0, 2, 4 ], [ 360, 180, 360 ] ]);
-      assert.deepEqual(df1.div(df1).values, [ [ NaN, 1, 1 ], [ 1, 1, 1 ] ]);
-    });
     it("Return division of a DataFrame with a DataFrame along axis 0", function () {
       const df1 = new dfd.DataFrame([ [ 0, 2, 4 ], [ 360, 180, 360 ] ]);
       const df2 = new dfd.DataFrame([ [ 1, 2, 4 ], [ 10, 5, 0 ] ]);
