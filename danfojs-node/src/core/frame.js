@@ -1411,7 +1411,7 @@ export default class DataFrame extends NDframe {
   fillna(values, options) {
     let { columns, inplace } = { inplace: false, ...options };
 
-    if (!values && typeof values !== "boolean") {
+    if (values === [] || typeof values === "undefined") {
       throw Error('ParamError: value must be specified');
     }
 
