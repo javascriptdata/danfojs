@@ -12,6 +12,7 @@
 * limitations under the License.
 * ==========================================================================
 */
+import * as tf from '@tensorflow/tfjs-node'
 import NDframe from "./core/generic";
 import Utils from './shared/utils';
 import Series from "./core/series";
@@ -35,6 +36,7 @@ import {
 
 
 export {
+  tf,
   date_range,
   toDateTime,
   concat,
