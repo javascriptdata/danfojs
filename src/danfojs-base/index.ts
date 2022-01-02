@@ -27,6 +27,8 @@ import getDummies from "./transformers/encoders/dummy.encoder"
 import concat from "./transformers/concat"
 import merge from "./transformers/merge"
 
+const __version = "1.0.0"
+
 export {
     NDframe,
     Config,
@@ -42,5 +44,6 @@ export {
     OneHotEncoder,
     getDummies,
     concat,
-    merge
+    merge,
+    __version,
 }

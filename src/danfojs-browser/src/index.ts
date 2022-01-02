@@ -26,6 +26,7 @@ import {
     concat,
     merge,
     toDateTime,
+    __version,
 } from "../../danfojs-base";
 
 import { readCSV, streamCSV, toCSV, readJSON, toJSON, readExcel, toExcel } from "./io"
@@ -55,5 +56,6 @@ export {
     OneHotEncoder,
     getDummies,
     concat,
-    merge
+    merge,
+    __version,
 }
