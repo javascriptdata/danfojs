@@ -415,7 +415,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         if (colLen > maxColToDisplayInConsole) {
             //truncate displayed columns to fit in the console
             let firstFourcolNames = this.columns.slice(0, 4);
-            let lastThreecolNames = this.columns.slice(colLen - 4);
+            let lastThreecolNames = this.columns.slice(colLen - 3);
             //join columns with truncate ellipse in the middle
             header = ["", ...firstFourcolNames, "...", ...lastThreecolNames];
 
@@ -432,7 +432,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
                 let dfSubset2 = this.iloc({
                     rows: [`0:${maxRow}`],
-                    columns: [`${colLen - 4}:`]
+                    columns: [`${colLen - 3}:`]
                 });
 
                 subIdx = this.index.slice(0, maxRow);
@@ -441,7 +441,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
             } else {
                 let dfSubset1 = this.iloc({ columns: ["0:4"] });
-                let dfSubset2 = this.iloc({ columns: [`${colLen - 4}:`] });
+                let dfSubset2 = this.iloc({ columns: [`${colLen - 3}:`] });
 
                 subIdx = this.index.slice(0, maxRow);
                 firstHalfValues = dfSubset1.values as ArrayType2D
