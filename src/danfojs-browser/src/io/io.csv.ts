@@ -49,6 +49,7 @@ import { CsvInputOptions, CsvOutputOptionsBrowser } from "../types"
 const $readCSV = async (file: any, options?: CsvInputOptions): Promise<DataFrame> => {
   return new Promise(resolve => {
     Papa.parse(file, {
+      header: true,
       ...options,
       download: true,
       complete: results => {
@@ -79,6 +80,7 @@ const $streamCSV = async (file: string, callback: (df: DataFrame) => void, optio
     let count = -1
     Papa.parse(file, {
       ...options,
+      header: true,
       download: true,
       step: results => {
         const df = new DataFrame([results.data], { index: [count++] });

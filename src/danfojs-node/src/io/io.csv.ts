@@ -51,8 +51,13 @@ import { CsvInputOptions, CsvOutputOptionsNode } from "../types"
 const $readCSV = async (filePath: string, options?: CsvInputOptions): Promise<DataFrame> => {
   if (filePath.startsWith("http") || filePath.startsWith("https")) {
     return new Promise(resolve => {
+      const optionsWithDefaults = {
+        header: true,
+        ...options,
+      }
+
       const dataStream = request.get(filePath);
-      const parseStream: any = Papa.parse(Papa.NODE_STREAM_INPUT, options);
+      const parseStream: any = Papa.parse(Papa.NODE_STREAM_INPUT, optionsWithDefaults);
       dataStream.pipe(parseStream);
 
       const data: any = [];
@@ -69,6 +74,7 @@ const $readCSV = async (filePath: string, options?: CsvInputOptions): Promise<Da
     return new Promise(resolve => {
       const fileStream = fs.createReadStream(filePath)
       Papa.parse(fileStream, {
+        header: true,
         ...options,
         complete: results => {
           const df = new DataFrame(results.data);
@@ -97,10 +103,14 @@ const $readCSV = async (filePath: string, options?: CsvInputOptions): Promise<Da
 const $streamCSV = async (filePath: string, callback: (df: DataFrame) => void, options?: CsvInputOptions): Promise<null> => {
 
   if (filePath.startsWith("http") || filePath.startsWith("https")) {
+    const optionsWithDefaults = {
+      header: true,
+      ...options,
+    }
     return new Promise(resolve => {
       let count = -1
       const dataStream = request.get(filePath);
-      const parseStream: any = Papa.parse(Papa.NODE_STREAM_INPUT, options);
+      const parseStream: any = Papa.parse(Papa.NODE_STREAM_INPUT, optionsWithDefaults);
       dataStream.pipe(parseStream);
 
       parseStream.on("data", (chunk: any) => {
@@ -119,6 +129,7 @@ const $streamCSV = async (filePath: string, callback: (df: DataFrame) => void, o
     return new Promise(resolve => {
       let count = -1
       Papa.parse(fileStream, {
+        header: true,
         ...options,
         step: results => {
           const df = new DataFrame([results.data], { index: [count++] });
