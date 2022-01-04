@@ -1246,7 +1246,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
         const newIndex: Array<number | string> = [];
 
-        if (axis == 0) {
+        if (axis == 1) {
             const newData = [];
 
             const dfValues = this.values as ArrayType2D;

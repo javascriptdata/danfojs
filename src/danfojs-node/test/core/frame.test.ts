@@ -1552,7 +1552,7 @@ describe("DataFrame", function () {
 
 
     describe("dropNa", function () {
-        it("drop NaNs along axis 1", function () {
+        it("drop NaNs along axis 0", function () {
             const data = [[0, 2, 4],
             [360, 180, 360],
             [NaN, 180, 360]]
@@ -1561,10 +1561,10 @@ describe("DataFrame", function () {
             const df_val = [[2, 4],
             [180, 360],
             [180, 360]]
-            assert.deepEqual((df.dropNa(1) as DataFrame).values, df_val);
+            assert.deepEqual((df.dropNa(0) as DataFrame).values, df_val);
 
         });
-        it("drop NaNs along axis 0", function () {
+        it("drop NaNs along axis 1", function () {
             const data = [[0, 2, 4],
             [360, 180, 360],
             [NaN, 180, 360]]
@@ -1572,45 +1572,45 @@ describe("DataFrame", function () {
             const df = new DataFrame(data, { columns: column });
             const df_val = [[0, 2, 4],
             [360, 180, 360]]
-            assert.deepEqual((df.dropNa(0) as DataFrame).values, df_val);
-
-        });
-        it("drop NaNs along axis 0", function () {
-            const data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]];
-            const column = ["A", "B", "C", "D"];
-            const df = new DataFrame(data, { columns: column });
-            const df_val = [[5, 6, 7, 8]];
-            assert.deepEqual((df.dropNa(0) as DataFrame).values, df_val);
-
-        });
-        it("drop inplace at axis 1, inplace false ", function () {
-            const data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]];
-            const column = ["A", "B", "C", "D"];
-            const df = new DataFrame(data, { columns: column });
-
-            const df_val = [[1, 3], [4, 9], [6, 8]];
-
             assert.deepEqual((df.dropNa(1) as DataFrame).values, df_val);
 
         });
-        it("drop inplace at axis 1, inplace true ", function () {
+        it("drop NaNs along axis 1", function () {
+            const data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columns: column });
+            const df_val = [[5, 6, 7, 8]];
+            assert.deepEqual((df.dropNa(1) as DataFrame).values, df_val);
+
+        });
+        it("drop inplace at axis 0, inplace false ", function () {
             const data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]];
             const column = ["A", "B", "C", "D"];
             const df = new DataFrame(data, { columns: column });
 
             const df_val = [[1, 3], [4, 9], [6, 8]];
-            df.dropNa(1, { inplace: true });
+
+            assert.deepEqual((df.dropNa(0) as DataFrame).values, df_val);
+
+        });
+        it("drop inplace at axis 0, inplace true ", function () {
+            const data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]];
+            const column = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columns: column });
+
+            const df_val = [[1, 3], [4, 9], [6, 8]];
+            df.dropNa(0, { inplace: true });
             assert.deepEqual(df.values, df_val);
 
         });
-        it("drop inplace at axis 0 at inplace true", function () {
+        it("drop inplace at axis 1 at inplace true", function () {
             const data = [[NaN, 1, 2, 3], [3, 4, NaN, 9], [5, 6, 7, 8]];
             const column = ["A", "B", "C", "D"];
             const df = new DataFrame(data, { columns: column });
 
             const df_val = [[5, 6, 7, 8]];
 
-            df.dropNa(0, { inplace: true });
+            df.dropNa(1, { inplace: true });
             assert.deepEqual(df.values, df_val);
 
         });
@@ -1621,7 +1621,7 @@ describe("DataFrame", function () {
 
             let df_val = [[5, 6, 7, 8]];
 
-            df.dropNa(0, { inplace: true });
+            df.dropNa(1, { inplace: true });
             assert.deepEqual(df.values, df_val);
 
         });
