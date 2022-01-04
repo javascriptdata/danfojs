@@ -86,7 +86,7 @@ export default class Series extends NDframe implements SeriesInterface {
     * ``.iloc`` will raise ``IndexError`` if a requested indexer is
     * out-of-bounds.
     */
-    iloc(rows: Array<string | number | boolean>) {
+    iloc(rows: Array<string | number | boolean>): Series {
         return _iloc({ ndFrame: this, rows }) as Series
     }
 
@@ -111,7 +111,7 @@ export default class Series extends NDframe implements SeriesInterface {
      * - A ``callable`` function with one argument (the calling Series or
      * DataFrame) and that returns valid output for indexing (one of the above)
     */
-    loc(rows: Array<string | number | boolean>) {
+    loc(rows: Array<string | number | boolean>): Series {
         return _loc({ ndFrame: this, rows }) as Series
     }
 

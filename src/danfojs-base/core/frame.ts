@@ -12,7 +12,12 @@
 * limitations under the License.
 * ==========================================================================
 */
-import { ArrayType1D, ArrayType2D, DataFrameInterface, BaseDataOptionType } from "../shared/types";
+import {
+    ArrayType1D,
+    ArrayType2D,
+    DataFrameInterface,
+    BaseDataOptionType
+} from "../shared/types";
 import dummyEncode from "../transformers/encoders/dummy.encoder"
 import { variance, std, median, mode, mean } from 'mathjs';
 import { DATA_TYPES } from '../shared/defaults'
@@ -38,7 +43,6 @@ const utils = new Utils();
  * @param options.dtypes Array of data types for each the column. If not specified, dtypes are/is inferred.
  * @param options.config General configuration object for extending or setting NDframe behavior.      
  */
-/* @ts-ignore */ //COMMENT OUT WHEN METHODS HAVE BEEN IMPLEMENTED
 export default class DataFrame extends NDframe implements DataFrameInterface {
     [key: string]: any
     constructor(data: any, options: BaseDataOptionType = {}) {
@@ -1376,7 +1380,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             } else {
                 let columns = [...this.columns]
                 columns.splice(atIndex, 0, column)
-                
+
                 const df = new DataFrame(newData, {
                     index: [...this.index],
                     columns: columns,

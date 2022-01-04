@@ -13,7 +13,7 @@
 * ==========================================================================
 */
 import { toCSV, toExcel, toJSON } from "../io";
-import { CsvOutputOptionsNode } from "types";
+import { CsvOutputOptionsNode, ExcelOutputOptionsNode, JsonOutputOptionsNode } from "types";
 import  BaseDataFrame from "../../../danfojs-base/core/frame"
 import { BaseDataOptionType } from "../../../danfojs-base/shared/types";
 
@@ -63,8 +63,8 @@ export default class DataFrame extends BaseDataFrame {
      * }
      * ```
      */
-    toJSON(options?: { format?: "row" | "column", filePath?: string }): object
-    toJSON(options?: { format?: "row" | "column", filePath?: string }): object | void {
+    toJSON(options?: JsonOutputOptionsNode): object
+    toJSON(options?: JsonOutputOptionsNode): object | void {
         return toJSON(this, options);
     }
 
@@ -75,7 +75,7 @@ export default class DataFrame extends BaseDataFrame {
      * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
      * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`.
      */
-    toExcel(options?: { filePath?: string, sheetName?: string }): void {
+    toExcel(options?: ExcelOutputOptionsNode): void {
         return toExcel(this, options);
     }
 }
