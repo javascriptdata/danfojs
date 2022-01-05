@@ -1,4 +1,3 @@
-import { ArrayType1D, ArrayType2D } from "../shared/types"
 import Utils from "../shared/utils";
 
 const utils = new Utils();
@@ -10,20 +9,20 @@ interface Params  {
   freq?: string;
   period?: number
 }
-export default class DateRange {
-  private offset: number | undefined = null
-  private start: string | undefined
-  private end: string | undefined
-  private freq: string | undefined
-  private period: number | undefined
+class DateRange {
+  private offset?: number
+  private start?: string
+  private end?: string
+  private freq: string
+  private period?: number
   private freqList: string[]
 
-  constructor(params: Params) {
-    this.start = params.start
-    this.end = params.end
-    this.offset = params.offset
-    this.freq = params.freq
-    this.period = params.period
+  constructor({start, end, offset, freq, period}: Params){
+    this.start = start
+    this.end = end
+    this.offset = offset
+    this.freq = freq ? freq : "D"
+    this.period = period
     this.freqList  = [ "M", "D", "s", "H", "m", "Y" ]
 
     if (this.freq.length == 1){
@@ -40,11 +39,14 @@ export default class DateRange {
         throw new Error(`invalid freq ${this.freq}`);
       }
     }
-
-
+    
   }
 
-  range({start, end, period, offset}: Params) {
+  range(): string[] {
+    let start = this.start
+    let period = this.period
+    let end = this.end
+    let offset = this.offset
     let startDate: Date
     let endDate: Date
     let startRange: number
@@ -79,6 +81,7 @@ export default class DateRange {
     else if ( start && !(end) ) {
       startDate = new Date(start)
       startRange = this.freqType(startDate, this.freq)
+      period = period as number
       endRange = offset ? ((period * offset) - 1) : period -1;
 
       if ( startRange > endRange ) {
@@ -96,25 +99,25 @@ export default class DateRange {
       let dateString = this.toLocalString(dateRange)
       return dateString
     }
-    else if (end && !(start)) {
-      endDate = new Date(end)
-      endRange = this.freqType(endDate, this.freq)
-      startRange = (endRange - period) + 1
-      let rangeArray = utils.range(startRange, endRange)
+    // if end and not start given
+    endDate = new Date(end as string)
+    endRange = this.freqType(endDate, this.freq)
+    period = period as number
+    startRange = (endRange - period) + 1
+    let rangeArray = utils.range(startRange, endRange)
 
-      if ( offset ) {
-        rangeArray = this.offsetCount(rangeArray, offset)
-      }
-      let dateRange = rangeArray.map((x) => {
-        return this.setDateProps(endDate, this.freq, x)
-      })
-      let dateString = this.toLocalString(dateRange)
-      return dateString
+    if ( offset ) {
+      rangeArray = this.offsetCount(rangeArray, offset)
     }
+    let dateRange = rangeArray.map((x) => {
+      return this.setDateProps(endDate, this.freq, x)
+    })
+    let dateString = this.toLocalString(dateRange)
+    return dateString
   }
 
   private freqType(date: Date, ftype: string): number{
-    let rslt: number = null;
+    let rslt: number = 0;
     switch (ftype){
 
     case "M":
@@ -154,14 +157,14 @@ export default class DateRange {
       case "M":
         if (Array.isArray(val)){
   
-          newDate.setYear(newDate.getFullYear() + val[0]);
+          newDate.setFullYear(newDate.getFullYear() + val[0]);
           newDate.setMonth(val[1]);
         } else {
           newDate.setMonth(val);
         }
         break;
       case "Y":
-        newDate.setYear(val as number);
+        newDate.setFullYear(val as number);
         break;
       case "s":
         newDate.setSeconds(val as number);
@@ -232,4 +235,18 @@ export default class DateRange {
     }
     return sum
   }
+}
+
+/**
+ * 
+ * @param start : signify the date to start with
+ * @param end : signify the date to end with
+ * @param period :  the total number of date to generate
+ * @param offset : set the date range offset
+ * @param freq: set the date range frequency and offset
+ * @return string[]
+ */
+export default function date_range(param: Params): string[] {
+  const dateRange = new DateRange(param)
+  return dateRange.range()
 }
