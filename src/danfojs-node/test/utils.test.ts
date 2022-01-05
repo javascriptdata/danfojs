@@ -1,9 +1,17 @@
 import { assert } from "chai";
-import { Utils } from "../dist/danfojs-node/src";
+import { describe, it } from "mocha";
+import { Utils, __version } from "../dist/danfojs-node/src";
+import packagejson from "../package.json";
+
+const pversion = packagejson.version;
 
 const utils = new Utils();
 
 describe("Utils", function () {
+    it("should have a version", function () {
+        assert.equal(__version, pversion);
+    });
+
     it("removes an element from an array", function () {
         let arr = [1, 2, 3, 4];
         assert.deepEqual(utils.removeElementFromArray(arr, 2), [1, 2, 4]);

@@ -12,30 +12,34 @@
 * limitations under the License.
 * ==========================================================================
 */
-import Series from "../../core/series";
-import DataFrame from "../../core/frame";
+import Series from "../../../../danfojs-base/core/series";
+import DataFrame from "../../../../danfojs-base/core/frame";
 import { Data } from "plotly.js-dist-min"
-import { PlotConfigObject } from "../../shared/types"
+import { PlotConfigObject } from "../../types"
 import { checkIfColsExist, throwErrorOnWrongColName } from "./utils"
 
 
 /**
-* Plot Series or DataFrame as box chart.
+* Plot Series or DataFrame as lines.
 * Uses the Plotly as backend, so supoorts Plotly's configuration parameters,
 * Line plot supports different types of parameters, and the behavior will depend on data specified.
 * The precedence of columns to plot is: (x and y => x => y => columns). 
 * @param ndframe Series or DataFrame to plot
 * @param divId HTML div id to plot in.
 * @param plotConfig configuration options for making Plots, supports Plotly.js Config and Layout parameters.
+* @param Plotly Plotly package passed from the class.
 */
-export const boxPlot = (ndframe: DataFrame | Series, divId: string, plotConfig: PlotConfigObject, Plotly: any) => {
+export const linePlot = (ndframe: DataFrame | Series, divId: string, plotConfig: PlotConfigObject, Plotly: any) => {
     const config = plotConfig["config"]
     const layout = plotConfig["layout"]
 
     if (ndframe instanceof Series) {
+        const y = ndframe.values as any;
         let trace: Data = {
-            y: ndframe.values as any,
-            type: 'box',
+            x: ndframe.index as any,
+            y,
+            type: 'scatter',
+            mode: 'lines',
         };
 
         Plotly.newPlot(divId, [trace], layout, config);
@@ -50,11 +54,7 @@ export const boxPlot = (ndframe: DataFrame | Series, divId: string, plotConfig: 
             const x = ndframe[config.x].values;
             const y = ndframe[config.y].values;
 
-            const trace: Data = {
-                x,
-                y,
-                type: 'box',
-            };
+            const trace: Data = { x, y };
             const _layout = {
                 xaxis: {
                     title: config.x,
@@ -75,11 +75,7 @@ export const boxPlot = (ndframe: DataFrame | Series, divId: string, plotConfig: 
                 const x = ndframe[config.x].values;
                 const y = ndframe.index;
 
-                const trace: Data = {
-                    x,
-                    y,
-                    type: 'box',
-                };
+                const trace: Data = { x, y };
                 const _layout = {
                     xaxis: {
                         title: config.x,
@@ -99,11 +95,7 @@ export const boxPlot = (ndframe: DataFrame | Series, divId: string, plotConfig: 
                 const x = ndframe.index
                 const y = ndframe[config.y].values;
 
-                const trace: Data = {
-                    x,
-                    y,
-                    type: 'box',
-                };
+                const trace: Data = { x, y };
                 const _layout = {
                     xaxis: {
                         title: "Index",
@@ -124,13 +116,10 @@ export const boxPlot = (ndframe: DataFrame | Series, divId: string, plotConfig: 
 
             const traces: Data[] = [];
             cols.forEach((col) => {
-                const y = (ndframe as DataFrame)[col].values;
+                const y = ndframe.index;
+                const x = (ndframe as DataFrame)[col].values;
 
-                const trace: Data = {
-                    y,
-                    name: col,
-                    type: 'box',
-                };
+                const trace: Data = { x, y, name: col };
                 traces.push(trace);
             });
 

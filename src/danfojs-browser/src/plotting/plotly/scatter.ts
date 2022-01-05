@@ -12,15 +12,14 @@
 * limitations under the License.
 * ==========================================================================
 */
-import Series from "../../core/series";
-import DataFrame from "../../core/frame";
+import Series from "../../../../danfojs-base/core/series";
+import DataFrame from "../../../../danfojs-base/core/frame";
 import { Data } from "plotly.js-dist-min"
-import { PlotConfigObject } from "../../shared/types"
+import { PlotConfigObject } from "../../types"
 import { checkIfColsExist, throwErrorOnWrongColName } from "./utils"
 
-
 /**
-* Plot Series or DataFrame as bar.
+* Plot Series or DataFrame as scatter points.
 * Uses the Plotly as backend, so supoorts Plotly's configuration parameters,
 * Line plot supports different types of parameters, and the behavior will depend on data specified.
 * The precedence of columns to plot is: (x and y => x => y => columns). 
@@ -28,15 +27,17 @@ import { checkIfColsExist, throwErrorOnWrongColName } from "./utils"
 * @param divId HTML div id to plot in.
 * @param plotConfig configuration options for making Plots, supports Plotly.js Config and Layout parameters.
 */
-export const barPlot = (ndframe: DataFrame | Series, divId: string, plotConfig: PlotConfigObject, Plotly: any) => {
+export const scatterPlot = (ndframe: DataFrame | Series, divId: string, plotConfig: PlotConfigObject, Plotly: any) => {
     const config = plotConfig["config"]
     const layout = plotConfig["layout"]
 
     if (ndframe instanceof Series) {
+        const y = ndframe.values as any;
         let trace: Data = {
             x: ndframe.index as any,
-            y: ndframe.values as any,
-            type: 'bar',
+            y,
+            type: 'scatter',
+            mode: 'markers',
         };
 
         Plotly.newPlot(divId, [trace], layout, config);
@@ -54,9 +55,9 @@ export const barPlot = (ndframe: DataFrame | Series, divId: string, plotConfig: 
             const trace: Data = {
                 x,
                 y,
-                type: 'bar',
+                type: 'scatter',
+                mode: 'markers',
             };
-
             const _layout = {
                 xaxis: {
                     title: config.x,
@@ -80,7 +81,8 @@ export const barPlot = (ndframe: DataFrame | Series, divId: string, plotConfig: 
                 const trace: Data = {
                     x,
                     y,
-                    type: 'bar',
+                    type: 'scatter',
+                    mode: 'markers',
                 };
                 const _layout = {
                     xaxis: {
@@ -104,7 +106,8 @@ export const barPlot = (ndframe: DataFrame | Series, divId: string, plotConfig: 
                 const trace: Data = {
                     x,
                     y,
-                    type: 'bar',
+                    type: 'scatter',
+                    mode: 'markers',
                 };
                 const _layout = {
                     xaxis: {
@@ -129,7 +132,13 @@ export const barPlot = (ndframe: DataFrame | Series, divId: string, plotConfig: 
                 const y = ndframe.index;
                 const x = (ndframe as DataFrame)[col].values;
 
-                const trace: Data = { x, y, name: col, type: 'bar' };
+                const trace: Data = {
+                    x,
+                    y,
+                    name: col,
+                    type: 'scatter',
+                    mode: 'markers',
+                };
                 traces.push(trace);
             });
 

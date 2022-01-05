@@ -1,4 +1,5 @@
 import { assert } from "chai";
+import { describe, it } from "mocha";
 import { DataFrame, Series, LabelEncoder } from "../../dist/danfojs-node/src";
 
 describe("LabelEncoder", function () {

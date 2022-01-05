@@ -27,10 +27,9 @@
     "stream-json": "^1.7.3",
     "table": "6.7.1",
     "xlsx": "^0.17.2",
-    "seedrandom": "^2.4.3"
-  },
-  "peerDependencies": {
+    "seedrandom": "^2.4.3",
     "plotly.js-dist-min": "^2.8.0"
+
   },
   "scripts": {
     "test": "karma start --single-run --browsers ChromeHeadless karma.conf.js",

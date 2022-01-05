@@ -13,8 +13,8 @@
 * ==========================================================================
 */
 
-import DataFrame from "../../core/frame";
-import Series from "../../core/series";
+import DataFrame from "../../../../danfojs-base/core/frame";
+import Series from "../../../../danfojs-base/core/series";
 
 export const checkIfColsExist = (ndframe: DataFrame | Series, cols: string[]) => {
     cols.forEach((col) => {

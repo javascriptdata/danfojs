@@ -25,7 +25,6 @@ import NDframe from "./generic";
 import { table } from "table";
 import Series from './series';
 import Groupby from '../aggregators/groupby'
-import { PlotlyLib } from "../plotting";
 
 const utils = new Utils();
 
@@ -416,7 +415,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         if (colLen > maxColToDisplayInConsole) {
             //truncate displayed columns to fit in the console
             let firstFourcolNames = this.columns.slice(0, 4);
-            let lastThreecolNames = this.columns.slice(colLen - 4);
+            let lastThreecolNames = this.columns.slice(colLen - 3);
             //join columns with truncate ellipse in the middle
             header = ["", ...firstFourcolNames, "...", ...lastThreecolNames];
 
@@ -433,7 +432,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
                 let dfSubset2 = this.iloc({
                     rows: [`0:${maxRow}`],
-                    columns: [`${colLen - 4}:`]
+                    columns: [`${colLen - 3}:`]
                 });
 
                 subIdx = this.index.slice(0, maxRow);
@@ -442,7 +441,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
             } else {
                 let dfSubset1 = this.iloc({ columns: ["0:4"] });
-                let dfSubset2 = this.iloc({ columns: [`${colLen - 4}:`] });
+                let dfSubset2 = this.iloc({ columns: [`${colLen - 3}:`] });
 
                 subIdx = this.index.slice(0, maxRow);
                 firstHalfValues = dfSubset1.values as ArrayType2D
@@ -2446,18 +2445,5 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             colIndex
         ).group()
 
-    }
-
-    /**
-     * Make plots of Series or DataFrame.
-     * Uses the Plotly as backend, so supports Plotly's configuration parameters
-     * @param divId Name of the div to show the plot
-     * @returns Plotly class that expoese different plot type
-    */
-    plot(divId: string) {
-        //TODO: Add support for check plot library to use
-        // So we can support other plot library like d3, vega, etc
-        const plt = new PlotlyLib(this, divId);
-        return plt;
     }
 }

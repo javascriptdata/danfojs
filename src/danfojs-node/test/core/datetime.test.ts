@@ -1,4 +1,5 @@
 import { assert } from "chai";
+import { describe, it } from "mocha";
 import { Series } from "../../dist/danfojs-node/src";
 import { toDateTime } from '../../dist/danfojs-node/src';
 

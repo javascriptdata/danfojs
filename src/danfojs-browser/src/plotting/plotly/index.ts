@@ -13,8 +13,6 @@
 * ==========================================================================
 */
 
-import { boxPlot } from "./box";
-
 export { linePlot } from "./line";
 export { barPlot } from "./bar";
 export { scatterPlot } from "./scatter";

@@ -28,6 +28,8 @@ import concat from "./transformers/concat"
 import merge from "./transformers/merge"
 import date_range from "./core/daterange"
 
+const __version = "1.0.0"
+
 export {
     NDframe,
     Config,
@@ -45,4 +47,5 @@ export {
     concat,
     merge,
     date_range,
+    __version,
 }

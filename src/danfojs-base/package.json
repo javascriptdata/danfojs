@@ -1,6 +1,6 @@
 {
   "name": "danfojs-base",
-  "version": "0.3.3",
+  "version": "1.0.0",
   "description": "Base package used in danfojs-node and danfojs-browser",
   "main": "index.ts",
   "scripts": {
@@ -9,11 +9,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/plotly.js-dist-min": "^2.3.0",
     "dotenv": "^10.0.0"
   },
   "dependencies": {
-    "plotly.js-dist-min": "^2.8.0",
     "@tensorflow/tfjs": "3.6.0",
     "@tensorflow/tfjs-node": "3.6.1",
     "mathjs": "^10.0.0",

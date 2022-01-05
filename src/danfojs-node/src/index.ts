@@ -26,7 +26,8 @@ import {
     concat,
     merge,
     toDateTime,
-    date_range
+    date_range,
+    __version
 } from "../../danfojs-base";
 import { streamCsvTransformer, convertFunctionTotransformer } from "./streams/csv.stream.transformer"
 import { readCSV, streamCSV, toCSV, readJSON, toJSON, streamJSON, readExcel, toExcel } from "./io"
@@ -60,5 +61,6 @@ export {
     getDummies,
     concat,
     merge,
-    date_range
+    date_range,
+    __version
 }

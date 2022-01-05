@@ -24,12 +24,13 @@
     "node-fetch": "^2.6.1",
     "papaparse": "^5.3.1",
     "request": "^2.88.2",
+    "seedrandom": "^2.4.3",
     "stream-json": "^1.7.3",
     "table": "6.7.1",
     "xlsx": "^0.17.2"
   },
   "scripts": {
-    "test": "nyc mocha --require ts-node/register test/**/merge.test.ts",
+    "test": "nyc mocha --require ts-node/register test/**/*.test.ts",
     "test:clean": "yarn build:clean && yarn test",
     "dev": "nodemon",
     "build": "tsc",
@@ -68,7 +69,7 @@
     "@babel/preset-env": "^7.10.4",
     "@babel/register": "^7.10.1",
     "@types/chai": "^4.2.19",
-    "@types/mocha": "^8.2.2",
+    "@types/mocha": "^9.0.0",
     "@types/node": "^16.9.6",
     "@types/papaparse": "^5.2.6",
     "@types/request": "^2.48.7",

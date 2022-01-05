@@ -1,6 +1,7 @@
 import { DataFrame, Series, streamCsvTransformer } from "../../dist/danfojs-node/src";
 import stream from "stream"
 import path from "path"
+import { describe, it } from "mocha";
 
 describe("pipeCsvTransform", function () {
     it("streamCsvTransformer works for local files", async function () {

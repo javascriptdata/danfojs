@@ -12,9 +12,9 @@
 * limitations under the License.
 * ==========================================================================
 */
-import Series from "../../core/series";
-import DataFrame from "../../core/frame";
-import { PlotConfigObject } from "../../shared/types"
+import Series from "../../../../danfojs-base/core/series";
+import DataFrame from "../../../../danfojs-base/core/frame";
+import { PlotConfigObject } from "../../types"
 
 
 /**
