@@ -26,6 +26,7 @@ import OneHotEncoder from "./transformers/encoders/one.hot.encoder";
 import getDummies from "./transformers/encoders/dummy.encoder"
 import concat from "./transformers/concat"
 import merge from "./transformers/merge"
+import date_range from "./core/daterange"
 
 export {
     NDframe,
@@ -42,5 +43,6 @@ export {
     OneHotEncoder,
     getDummies,
     concat,
-    merge
+    merge,
+    date_range,
 }
