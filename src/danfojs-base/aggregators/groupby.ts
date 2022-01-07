@@ -1,8 +1,6 @@
-import { Console } from "console";
 import DataFrame from "../core/frame"
 import { ArrayType1D, ArrayType2D } from "../shared/types"
 import { variance, std, median, mode, mean } from 'mathjs';
-import Utils from "../shared/utils";
 import  concat from "../transformers/concat"
 import Series from "../core/series";
 

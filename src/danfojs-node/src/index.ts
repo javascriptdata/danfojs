@@ -26,6 +26,7 @@ import {
     concat,
     merge,
     toDateTime,
+    date_range,
     __version
 } from "../../danfojs-base";
 import {
@@ -72,5 +73,6 @@ export {
     getDummies,
     concat,
     merge,
+    date_range,
     __version
 }
