@@ -47,12 +47,85 @@ easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org
   - Robust data preprocessing functions like [OneHotEncoders](https://danfo.jsdata.org/api-reference/general-functions/danfo.onehotencoder), [LabelEncoders](https://danfo.jsdata.org/api-reference/general-functions/danfo.labelencoder), and scalers like [StandardScaler](https://danfo.jsdata.org/api-reference/general-functions/danfo.standardscaler) and [MinMaxScaler](https://danfo.jsdata.org/api-reference/general-functions/danfo.minmaxscaler) are supported on DataFrame and Series
 
 
-## How to install
-Danfo.js is hosted on NPM, and can installed via package managers like npm and yarn
+## Installation
+There are three ways to install and use Danfo.js in your application
+* For Nodejs applications, you can install the [__danfojs-node__]() version via package managers like yarn and/or npm:
 
-```sh
+```bash
 npm install danfojs-node
+
+or
+
+yarn add danfojs-node
 ```
+For client-side applications built with frameworks like React, Vue, Next.js, etc, you can install the [__danfojs__]() version:
+
+```bash
+npm install danfojs
+
+or
+
+yarn add danfojs
+```
+
+For use directly in HTML files, you can add the latest script tag from [JsDelivr](https://www.jsdelivr.com/package/npm/danfojs) to your HTML file:
+<script src="https://cdn.jsdelivr.net/npm/danfojs@0.3.3/lib/bundle.min.js"></script>
+
+```html
+    <script src="https://cdn.jsdelivr.net/npm/danfojs@0.2.7/lib/bundle.min.js"></script> 
+```
+See all available versions [here](https://www.jsdelivr.com/package/npm/danfojs)
+
+### Example Usage in the Browser
+
+> Run in [Code Sandbox](https://codepen.io/risingodegua/pen/bGwPGMG)
+
+```html
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="/Users/mac/Documents/Opensource/danfojs/src/danfojs-browser/lib/bundle.js"></script>
+
+    <title>Document</title>
+  </head>
+
+  <body>
+    <div id="div1"></div>
+    <div id="div2"></div>
+    <div id="div3"></div>
+
+    <script>
+
+      dfd.readCSV("https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv")
+          .then(df => {
+
+              df['AAPL.Open'].plot("div1").box() //makes a box plot
+
+              df.plot("div2").table() //display csv as table
+
+              new_df = df.setIndex({ column: "Date", drop: true }); //resets the index to Date column
+              new_df.head().print() //
+              new_df.plot("div3").line({
+                  config: {
+                      columns: ["AAPL.Open", "AAPL.High"]
+                  }
+              })  //makes a timeseries plot
+
+          }).catch(err => {
+              console.log(err);
+          })
+    </script>
+  </body>
+</html>
+
+```
+
+Output in Browser:
+
+![](assets/browser-out.gif)
 
 ### Example usage in Nodejs
 
@@ -60,76 +133,84 @@ npm install danfojs-node
 
 const dfd = require("danfojs-node")
 
+const file_url = "https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/titanic.csv"
+dfd.readCSV(file_url)
+    .then(df => {
+        //prints the first five columns
+        df.head().print()
 
-dfd.read_csv("https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/titanic.csv")
-  .then(df => {
-    //prints the first five columns
-    df.head().print()
+        // Calculate descriptive statistics for all numerical columns
+        df.describe().print()
 
-    //Calculate descriptive statistics for all numerical columns
-    df.describe().print()
+        //prints the shape of the data
+        console.log(df.shape);
 
-    //prints the shape of the data
-    console.log(df.shape);
+        //prints all column names
+        console.log(df.columns);
 
-    //prints all column names
-    console.log(df.column_names);
+        // //prints the inferred dtypes of each column
+        df.ctypes.print()
 
-    //prints the inferred dtypes of each column
-    df.ctypes.print()
+        //selecting a column by subsetting
+        df['Name'].print()
 
-    //selecting a column by subsetting
-    df['Name'].print()
-
-    //drop columns by names
-    cols_2_remove = ['Age', 'Pclass']
-    df_drop = df.drop({ columns: cols_2_remove, axis: 1 })
-    df_drop.print()
-
-
-    //select columns by dtypes
-    let str_cols = df_drop.select_dtypes(["string"])
-    let num_cols = df_drop.select_dtypes(["int32", "float32"])
-    str_cols.print()
-    num_cols.print()
+        //drop columns by names
+        cols_2_remove = ['Age', 'Pclass']
+        df_drop = df.drop({ columns: cols_2_remove, axis: 1 })
+        df_drop.print()
 
 
-    //add new column to Dataframe
-    let new_vals = df['Fare'].round().values
-    df_drop.addColumn({ column: "fare_round", value:  new_vals})
-    df_drop.print()
+        //select columns by dtypes
+        let str_cols = df_drop.selectDtypes(["string"])
+        let num_cols = df_drop.selectDtypes(["int32", "float32"])
+        str_cols.print()
+        num_cols.print()
 
-    df_drop['fare_round'].print(5)
 
-    //prints the number of occurence each value in the column
-    df_drop['Survived'].value_counts().print()
+        //add new column to Dataframe
 
-    //print the last ten elementa of a DataFrame
-    df_drop.tail(10).print()
+        let new_vals = df['Fare'].round(1)
+        df_drop.addColumn("fare_round", new_vals, { inplace: true })
+        df_drop.print()
 
-    //prints the number of missing values in a DataFrame
-    df_drop.isna().sum().print()
+        df_drop['fare_round'].round(2).print(5)
 
-  }).catch(err => {
-    console.log(err);
-  })
+        //prints the number of occurence each value in the column
+        df_drop['Survived'].valueCounts().print()
+
+        //print the last ten elementa of a DataFrame
+        df_drop.tail(10).print()
+
+        //prints the number of missing values in a DataFrame
+        df_drop.isNa().sum().print()
+
+    }).catch(err => {
+        console.log(err);
+    })
+
 
 ```
 Output in Node Console:
 
 ![](assets/node-rec.gif)
-
-> If you want to use Danfo in frontend frameworks like React/Vue, read this [guide](https://danfo.jsdata.org/examples/using-danfojs-in-react)
-
-#### You can play with Danfo.js on Dnotebooks playground [here](https://playnotebook.jsdata.org/demo)
+## Notebook support
+* You can use Danfo.js on Dnotebooks playground [here](https://playnotebook.jsdata.org/demo)
+* VsCode nodejs notebook extension now supports Danfo.js. See guide [here](https://marketplace.visualstudio.com/items?itemName=donjayamanne.typescript-notebook)
 
 #### [See the Official Getting Started Guide](https://danfo.jsdata.org/getting-started)
 
 ## Documentation
 The official documentation can be found [here](https://danfo.jsdata.org)
 
+## Danfo.js Official Book
+
+![image](https://user-images.githubusercontent.com/29900845/134811659-25ff6b05-8e0d-415f-a60c-03ab1d33fd71.jpeg)
+
+
+We recently published a book titled "Building Data Driven Applications with Danfo.js". Read more about it [here](https://danfo.jsdata.org/building-data-driven-applications-with-danfo.js-book)
+
 ## Discussion and Development
-Development discussions take place on our [issues](https://github.com/opensource9ja/danfojs/issues) tab. 
+Development discussions take place [here](https://github.com/opensource9ja/danfojs/discussions). 
 
 ## Contributing to Danfo
 All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome. A detailed overview on how to contribute can be found in the [contributing guide](https://danfo.jsdata.org/contributing-guide).
