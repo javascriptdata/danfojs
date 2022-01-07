@@ -16,9 +16,8 @@ import fs from 'fs'
 import Papa from 'papaparse'
 import request from "request"
 import stream from "stream"
-import { DataFrame, NDframe, Series } from '../index'
-import { ArrayType2D } from "../../../danfojs-base/shared/types"
-import { CsvInputOptions, CsvOutputOptionsNode } from "../types"
+import { DataFrame, NDframe, Series } from '../../'
+import { CsvInputOptionsNode, CsvOutputOptionsNode, ArrayType2D } from "../../shared/types"
 
 /**
  * Reads a CSV file from local or remote location into a DataFrame.
@@ -48,7 +47,7 @@ import { CsvInputOptions, CsvOutputOptionsNode } from "../types"
  * const df = await readCSV("./data/sample.csv")
  * ```
  */
-const $readCSV = async (filePath: string, options?: CsvInputOptions): Promise<DataFrame> => {
+const $readCSV = async (filePath: string, options?: CsvInputOptionsNode): Promise<DataFrame> => {
   if (filePath.startsWith("http") || filePath.startsWith("https")) {
     return new Promise(resolve => {
       const optionsWithDefaults = {
@@ -100,7 +99,7 @@ const $readCSV = async (filePath: string, options?: CsvInputOptions): Promise<Da
  * })
  * ```
  */
-const $streamCSV = async (filePath: string, callback: (df: DataFrame) => void, options?: CsvInputOptions): Promise<null> => {
+const $streamCSV = async (filePath: string, callback: (df: DataFrame) => void, options?: CsvInputOptionsNode): Promise<null> => {
 
   if (filePath.startsWith("http") || filePath.startsWith("https")) {
     const optionsWithDefaults = {
@@ -211,7 +210,7 @@ const $toCSV = (df: NDframe | DataFrame | Series, options?: CsvOutputOptionsNode
  * const csvStream = openCsvInputStream("./data/sample.csv")
  * ```
  */
-const $openCsvInputStream = (filePath: string, options: CsvInputOptions) => {
+const $openCsvInputStream = (filePath: string, options: CsvInputOptionsNode) => {
   const { header } = { header: true, ...options }
   let isFirstChunk = true
   let ndFrameColumnNames: any = []
@@ -306,7 +305,7 @@ const $openCsvInputStream = (filePath: string, options: CsvInputOptions) => {
  * csvStream.pipe(convertFunctionTotransformer(transformer)).pipe(outStream)
  * ```
  */
-const $writeCsvOutputStream = (filePath: string, options: CsvInputOptions) => {
+const $writeCsvOutputStream = (filePath: string, options: CsvInputOptionsNode) => {
   let isFirstRow = true
   const fileOutputStream = fs.createWriteStream(filePath)
   const csvOutputStream = new stream.Writable({ objectMode: true })

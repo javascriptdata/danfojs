@@ -23,13 +23,12 @@
     "@tensorflow/tfjs": "^3.11.0",
     "mathjs": "9.4.4",
     "papaparse": "^5.3.1",
+    "plotly.js-dist-min": "^2.8.0",
     "request": "^2.88.2",
+    "seedrandom": "^2.4.3",
     "stream-json": "^1.7.3",
     "table": "6.7.1",
-    "xlsx": "^0.17.2",
-    "seedrandom": "^2.4.3",
-    "plotly.js-dist-min": "^2.8.0"
-
+    "xlsx": "^0.17.2"
   },
   "scripts": {
     "test": "karma start --single-run --browsers ChromeHeadless karma.conf.js",
@@ -89,6 +88,7 @@
     "eslint": "^7.1.0",
     "ify-loader": "^1.1.0",
     "install-peers": "^1.0.3",
+    "json-loader": "^0.5.7",
     "karma": "5.2.3",
     "karma-browserify": "7.0.0",
     "karma-chai": "^0.1.0",

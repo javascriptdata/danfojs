@@ -14,11 +14,11 @@
 * limitations under the License.
 * ==========================================================================
 */
-import Series from "../../../../danfojs-base/core/series";
-import DataFrame from "../../../../danfojs-base/core/frame";
+import Series from "../../core/series";
+import DataFrame from "../../core/frame";
 import { Data } from "plotly.js-dist-min"
-import { PlotConfigObject } from "../../types"
-import { checkIfColsExist } from "./utils"
+import { PlotConfigObject } from "../../shared/types"
+import { checkIfColsExist, throwErrorOnWrongColName } from "./utils"
 
 
 /**

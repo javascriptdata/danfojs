@@ -12,8 +12,7 @@
 * limitations under the License.
 * ==========================================================================
 */
-import { toCSV, toExcel, toJSON } from "../io";
-import { CsvOutputOptionsNode } from "types";
+
 import BaseSeries from "../../../danfojs-base/core/series"
 import { BaseDataOptionType } from "../../../danfojs-base/shared/types";
 
@@ -33,49 +32,5 @@ export default class Series extends BaseSeries {
     [key: string]: any
     constructor(data?: any, options: BaseDataOptionType = {}) {
         super(data, options)
-    }
-
-    /**
-     * Converts a DataFrame or Series to CSV. 
-     * @param options Configuration object. Supports the following options:
-     * - `filePath`: Local file path to write the CSV file. If not specified, the CSV will be returned as a string.
-     * - `header`: Boolean indicating whether to include a header row in the CSV file.
-     * - `sep`: Character to be used as a separator in the CSV file.
-     */
-    toCSV(options?: CsvOutputOptionsNode): string
-    toCSV(options?: CsvOutputOptionsNode): string | void {
-        return toCSV(this, options);
-    }
-
-    /**
-     * Converts a DataFrame or Series to JSON. 
-     * @param options Configuration object. Supported options:
-     * - `filePath`: The file path to write the JSON to. If not specified, the JSON object is returned.
-     * - `format`: The format of the JSON. Defaults to `'column'`. E.g for using `column` format:
-     * ```
-     * [{ "a": 1, "b": 2, "c": 3, "d": 4 },
-     *  { "a": 5, "b": 6, "c": 7, "d": 8 }]
-     * ```
-     * and `row` format:
-     * ```
-     * { "a": [1, 5, 9],
-     *  "b": [2, 6, 10]
-     * }
-     * ```
-     */
-    toJSON(options?: { format?: "row" | "column", filePath?: string }): object
-    toJSON(options?: { format?: "row" | "column", filePath?: string }): object | void {
-        return toJSON(this, options);
-    }
-
-
-    /**
-     * Converts a DataFrame or Series to Excel Sheet. 
-     * @param options Configuration object. Supported options:
-     * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
-     * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`.
-     */
-    toExcel(options?: { filePath?: string, sheetName?: string }): void {
-        return toExcel(this, options);
     }
 }

@@ -12,10 +12,10 @@
 * limitations under the License.
 * ==========================================================================
 */
-import { CsvInputOptions, CsvOutputOptionsNode } from "../types"
+import { CsvInputOptionsNode, CsvOutputOptionsNode } from "../../../danfojs-base/shared/types"
 import DataFrame from "../core/frame"
 import stream from "stream"
-import { writeCsvOutputStream, openCsvInputStream } from "../io"
+import { writeCsvOutputStreamNode, openCsvInputStreamNode } from "../../../danfojs-base/io/node"
 
 /**
  * Converts a function to a pipe transformer. 
@@ -79,7 +79,7 @@ const streamCsvTransformer = (
     options: {
         outputFilePath?: string,
         customCSVStreamWriter?: any,
-        inputStreamOptions?: CsvInputOptions,
+        inputStreamOptions?: CsvInputOptionsNode,
         outputStreamOptions?: CsvOutputOptionsNode
     }) => {
     const { outputFilePath, customCSVStreamWriter, inputStreamOptions, outputStreamOptions } = {
@@ -90,7 +90,7 @@ const streamCsvTransformer = (
     }
 
     if (customCSVStreamWriter) {
-        openCsvInputStream(inputFilePath, inputStreamOptions)
+        openCsvInputStreamNode(inputFilePath, inputStreamOptions)
             .pipe(convertFunctionTotransformer(transformer))
             .pipe(customCSVStreamWriter())
             .on("error", (err: any) => {
@@ -98,9 +98,9 @@ const streamCsvTransformer = (
                 console.error(err)
             })
     } else {
-        openCsvInputStream(inputFilePath, inputStreamOptions)
+        openCsvInputStreamNode(inputFilePath, inputStreamOptions)
             .pipe(convertFunctionTotransformer(transformer))
-            .pipe(writeCsvOutputStream(outputFilePath, outputStreamOptions))
+            .pipe(writeCsvOutputStreamNode(outputFilePath, outputStreamOptions))
             .on("error", (err: any) => {
                 console.error("An error occurred while transforming the CSV file")
                 console.error(err)

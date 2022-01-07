@@ -16,7 +16,13 @@ import {
     ArrayType1D,
     ArrayType2D,
     DataFrameInterface,
-    BaseDataOptionType
+    BaseDataOptionType,
+    CsvOutputOptionsBrowser,
+    ExcelOutputOptionsBrowser,
+    JsonOutputOptionsBrowser,
+    CsvOutputOptionsNode,
+    ExcelOutputOptionsNode,
+    JsonOutputOptionsNode
 } from "../shared/types";
 import dummyEncode from "../transformers/encoders/dummy.encoder"
 import { variance, std, median, mode, mean } from 'mathjs';
@@ -30,6 +36,9 @@ import NDframe from "./generic";
 import { table } from "table";
 import Series from './series';
 import Groupby from '../aggregators/groupby'
+import { PlotlyLib } from "../plotting";
+import { toCSVBrowser, toExcelBrowser, toJSONBrowser } from "../io/browser";
+import { toCSVNode, toExcelNode, toJSONNode } from "../io/node";
 
 const utils = new Utils();
 
@@ -2449,5 +2458,78 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             colIndex
         ).group()
 
+    }
+
+    /**
+     * Make plots of Series or DataFrame.
+     * Uses the Plotly as backend, so supports Plotly's configuration parameters
+     * @param divId Name of the div to show the plot
+     * @returns Plotly class that expoese different plot type
+    */
+    plot(divId: string) {
+        //TODO: Add support for check plot library to use
+        // So we can support other plot library like d3, vega, etc
+        if (utils.isBrowserEnv()) {
+            const plt = new PlotlyLib(this, divId);
+            return plt;
+        }else{
+            throw new Error("Not supported in NodeJS");
+        }
+    }
+
+    /**
+     * Converts a DataFrame or Series to CSV. 
+     * @param options Configuration object. Supports the following options:
+     * - `filePath`: Local file path to write the CSV file. If not specified, the CSV will be returned as a string.
+     * - `header`: Boolean indicating whether to include a header row in the CSV file.
+     * - `sep`: Character to be used as a separator in the CSV file.
+     */
+    toCSV(options?: CsvOutputOptionsBrowser | CsvOutputOptionsNode): string
+    toCSV(options?: CsvOutputOptionsBrowser | CsvOutputOptionsNode): string | void {
+        if (utils.isBrowserEnv()) {
+            return toCSVBrowser(this, options as CsvOutputOptionsBrowser)
+        } else {
+            return toCSVNode(this, options as CsvOutputOptionsNode)
+        }
+    }
+
+    /**
+     * Converts a DataFrame or Series to JSON. 
+     * @param options Configuration object. Supported options:
+     * - `filePath`: The file path to write the JSON to. If not specified, the JSON object is returned.
+     * - `format`: The format of the JSON. Defaults to `'column'`. E.g for using `column` format:
+     * ```
+     * [{ "a": 1, "b": 2, "c": 3, "d": 4 },
+     *  { "a": 5, "b": 6, "c": 7, "d": 8 }]
+     * ```
+     * and `row` format:
+     * ```
+     * { "a": [1, 5, 9],
+     *  "b": [2, 6, 10]
+     * }
+     * ```
+     */
+    toJSON(options?: JsonOutputOptionsBrowser | JsonOutputOptionsNode): object
+    toJSON(options?: JsonOutputOptionsBrowser | JsonOutputOptionsNode): object | void {
+        if (utils.isBrowserEnv()) {
+            return toJSONBrowser(this, options as JsonOutputOptionsBrowser)
+        } else {
+            return toJSONNode(this, options as JsonOutputOptionsNode)
+        }
+    }
+
+
+    /**
+     * Converts a DataFrame or Series to Excel Sheet. 
+     * @param options Configuration object. Supported options:
+     * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
+     * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`.
+     */
+    toExcel(options?: ExcelOutputOptionsBrowser | ExcelOutputOptionsNode): void {
+        if (utils.isBrowserEnv()) {
+            toExcelBrowser(this, options as ExcelOutputOptionsBrowser)
+        } else {
+            return toExcelNode(this, options as ExcelOutputOptionsNode)
+        }
     }
 }

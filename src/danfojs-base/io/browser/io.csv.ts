@@ -13,9 +13,8 @@
 * ==========================================================================
 */
 import Papa from 'papaparse'
-import { DataFrame, NDframe, Series } from '../index'
-import { ArrayType2D } from "../../../danfojs-base/shared/types"
-import { CsvInputOptions, CsvOutputOptionsBrowser } from "../types"
+import { DataFrame, NDframe, Series } from '../../'
+import { CsvInputOptionsBrowser, CsvOutputOptionsBrowser, ArrayType2D} from "../../shared/types"
 
 
 /**
@@ -46,7 +45,7 @@ import { CsvInputOptions, CsvOutputOptionsBrowser } from "../types"
  * const df = await readCSV("./data/sample.csv")
  * ```
  */
-const $readCSV = async (file: any, options?: CsvInputOptions): Promise<DataFrame> => {
+const $readCSV = async (file: any, options?: CsvInputOptionsBrowser): Promise<DataFrame> => {
   return new Promise(resolve => {
     Papa.parse(file, {
       header: true,
@@ -75,7 +74,7 @@ const $readCSV = async (file: any, options?: CsvInputOptions): Promise<DataFrame
  * })
  * ```
  */
-const $streamCSV = async (file: string, callback: (df: DataFrame) => void, options: CsvInputOptions,): Promise<null> => {
+const $streamCSV = async (file: string, callback: (df: DataFrame) => void, options: CsvInputOptionsBrowser,): Promise<null> => {
   return new Promise(resolve => {
     let count = -1
     Papa.parse(file, {

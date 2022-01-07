@@ -28,8 +28,20 @@ import {
     toDateTime,
     __version
 } from "../../danfojs-base";
-import { streamCsvTransformer, convertFunctionTotransformer } from "./streams/csv.stream.transformer"
-import { readCSV, streamCSV, toCSV, readJSON, toJSON, streamJSON, readExcel, toExcel } from "./io"
+import {
+    streamCsvTransformer,
+    convertFunctionTotransformer
+} from "./streams/csv.stream.transformer"
+import {
+    readCSVNode as readCSV,
+    streamCSVNode as streamCSV,
+    toCSVNode as toCSV,
+    readJSONNode as readJSON,
+    toJSONNode as toJSON,
+    streamJSONNode as streamJSON,
+    readExcelNode as readExcel,
+    toExcelNode as toExcel
+} from "../../danfojs-base/io/node"
 
 import DataFrame from "./core/frame"
 import Series from "./core/series"

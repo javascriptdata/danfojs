@@ -12,15 +12,15 @@
 * limitations under the License.
 * ==========================================================================
 */
-import Series from "../../../../danfojs-base/core/series";
-import DataFrame from "../../../../danfojs-base/core/frame";
+import Series from "../../core/series";
+import DataFrame from "../../core/frame";
 import { Data } from "plotly.js-dist-min"
-import { PlotConfigObject } from "../../types"
+import { PlotConfigObject } from "../../shared/types"
 import { checkIfColsExist, throwErrorOnWrongColName } from "./utils"
 
 
 /**
-* Plot Series or DataFrame as histogram.
+* Plot Series or DataFrame as violin chart.
 * Uses the Plotly as backend, so supoorts Plotly's configuration parameters,
 * Line plot supports different types of parameters, and the behavior will depend on data specified.
 * The precedence of columns to plot is: (x and y => x => y => columns). 
@@ -28,35 +28,64 @@ import { checkIfColsExist, throwErrorOnWrongColName } from "./utils"
 * @param divId HTML div id to plot in.
 * @param plotConfig configuration options for making Plots, supports Plotly.js Config and Layout parameters.
 */
-export const histPlot = (ndframe: DataFrame | Series, divId: string, plotConfig: PlotConfigObject, Plotly: any) => {
+export const violinPlot = (ndframe: DataFrame | Series, divId: string, plotConfig: PlotConfigObject, Plotly: any) => {
     const config = plotConfig["config"]
     const layout = plotConfig["layout"]
 
     if (ndframe instanceof Series) {
         let trace: Data = {
-            x: ndframe.values as any,
-            type: 'histogram',
+            y: ndframe.values as any,
+            type: 'violin',
         };
 
         Plotly.newPlot(divId, [trace], layout, config);
 
     } else {
 
-       if (config["x"] || config["y"]) {
+        if (config["x"] && config["y"]) {
+            //Plotting two columns against each other, when user specifies x and y column names in configuration
+            throwErrorOnWrongColName(ndframe, config["x"]);
+            throwErrorOnWrongColName(ndframe, config["y"]);
+
+            const x = ndframe[config.x].values;
+            const y = ndframe[config.y].values;
+
+            const trace: Data = {
+                x,
+                y,
+                type: 'violin',
+            };
+            const _layout = {
+                xaxis: {
+                    title: config.x,
+                },
+                yaxis: {
+                    title: config.y,
+                },
+                ...layout,
+            };
+
+            Plotly.newPlot(divId, [trace], _layout, config);
+
+        } else if (config["x"] || config["y"]) {
             //plot single column specified in either of param [x | y] against index
             if (config["x"]) {
                 throwErrorOnWrongColName(ndframe, config.x);
 
                 const x = ndframe[config.x].values;
+                const y = ndframe.index;
 
                 const trace: Data = {
                     x,
-                    type: 'histogram',
+                    y,
+                    type: 'violin',
                 };
-
                 const _layout = {
                     xaxis: {
                         title: config.x,
+                    },
+                    yaxis: {
+                        title: "Index",
                     },
                     ...layout,
                 };
@@ -67,13 +96,18 @@ export const histPlot = (ndframe: DataFrame | Series, divId: string, plotConfig:
             if (config["y"]) {
                 throwErrorOnWrongColName(ndframe, config.y);
 
+                const x = ndframe.index
                 const y = ndframe[config.y].values;
 
                 const trace: Data = {
+                    x,
                     y,
-                    type: 'histogram',
+                    type: 'violin',
                 };
                 const _layout = {
+                    xaxis: {
+                        title: "Index",
+                    },
                     yaxis: {
                         title: config.y,
                     },
@@ -90,10 +124,13 @@ export const histPlot = (ndframe: DataFrame | Series, divId: string, plotConfig:
 
             const traces: Data[] = [];
             cols.forEach((col) => {
-                const y = ndframe.index;
-                const x = (ndframe as DataFrame)[col].values;
+                const y = (ndframe as DataFrame)[col].values;
 
-                const trace: Data = { x, y, name: col, type: 'histogram' };
+                const trace: Data = {
+                    y,
+                    name: col,
+                    type: 'violin',
+                };
                 traces.push(trace);
             });
 

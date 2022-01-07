@@ -18,6 +18,9 @@ import Dt from '../core/datetime';
 import DataFrame from '../core/frame';
 import Series from '../core/series';
 import { BaseUserConfig, TableUserConfig, } from "table"
+import { ParseConfig } from 'papaparse';
+import { Config, Layout } from "plotly.js-dist-min"
+import { HeadersInit } from "node-fetch";
 
 export type DTYPES = "float32" | "int32" | "string" | "boolean" | "undefined"
 
@@ -179,7 +182,10 @@ export interface SeriesInterface extends NDframeInterface {
         prefixSeparator?: string | Array<string>,
         inplace?: boolean
     }): DataFrame
-
+    plot(divId: string): IPlotlyLib
+    toCSV(options?: CsvOutputOptionsBrowser): string | void
+    toJSON(options?: JsonOutputOptionsBrowser): object | void
+    toExcel(options?: ExcelOutputOptionsBrowser): void
 }
 
 //Start of Series class types
@@ -319,7 +325,10 @@ export interface DataFrameInterface extends NDframeInterface {
         prefixSeparator?: string | Array<string>,
         inplace?: boolean
     }): DataFrame | void
-
+    plot(divId: string): IPlotlyLib
+    toCSV(options?: CsvOutputOptionsBrowser): string | void
+    toJSON(options?: JsonOutputOptionsBrowser): object | void
+    toExcel(options?: ExcelOutputOptionsBrowser): void
 }
 
 export interface DateTime {
@@ -332,3 +341,52 @@ export interface DateTime {
     seconds(): Series
     minutes(): Series
 }
+
+//START OF BROWSER TYPES
+interface CustomConfig extends Config {
+    x: string
+    y: string,
+    values: string,
+    labels: string,
+    rowPositions: number[],
+    columnPositions: number[],
+    grid: { rows: number, columns: number },
+    tableHeaderStyle: any,
+    tableCellStyle: any,
+    columns: string[];
+}
+
+export type PlotConfigObject = {
+    config: Partial<CustomConfig>
+    layout: Partial<Layout>
+}
+
+export interface IPlotlyLib {
+    line(plotConfig?: PlotConfigObject): void
+    bar(plotConfig?: PlotConfigObject): void
+    scatter(plotConfig?: PlotConfigObject): void
+    hist(plotConfig?: PlotConfigObject): void
+    pie(plotConfig?: PlotConfigObject): void
+    box(plotConfig?: PlotConfigObject): void
+    violin(plotConfig?: PlotConfigObject): void
+    table(plotConfig?: PlotConfigObject): void
+}
+
+export interface CsvInputOptionsBrowser extends ParseConfig { }
+export type ExcelInputOptionsBrowser = { sheet?: number, method?: string, headers?: any }
+export type JsonInputOptionsBrowser = { method?: string, headers?: any }
+
+export type CsvOutputOptionsBrowser = { fileName?: string, sep?: string, header?: boolean, download?: boolean };
+export type ExcelOutputOptionsBrowser = { fileName?: string, sheetName?: string };
+export type JsonOutputOptionsBrowser = { fileName?: string, format?: "row" | "column", download?: boolean };
+//END OF BROWSER TYPES
+
+//START OF NODEJS TYPES
+export interface CsvInputOptionsNode extends ParseConfig { }
+export type ExcelInputOptionsNode = { sheet?: number, method?: string, headers?: HeadersInit }
+export type JsonInputOptionsNode = { method?: string, headers?: HeadersInit }
+
+export type CsvOutputOptionsNode = { filePath?: string, sep?: string, header?: boolean }
+export type JsonOutputOptionsNode = { format?: "row" | "column", filePath?: string }
+export type ExcelOutputOptionsNode = { filePath?: string, sheetName?: string }
+//END OF NODEJS TYPES

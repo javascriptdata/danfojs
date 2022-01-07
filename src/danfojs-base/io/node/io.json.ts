@@ -2,9 +2,9 @@ import fs from 'fs'
 import request from "request"
 import { parser } from "stream-json"
 import fetch, { HeadersInit } from "node-fetch";
-import { DataFrame, NDframe, Series } from '../index'
+import { DataFrame, NDframe, Series } from '../../'
 import { streamArray } from "stream-json/streamers/StreamArray"
-import { ArrayType1D, ArrayType2D } from '../../../danfojs-base/shared/types';
+import { ArrayType1D, ArrayType2D, JsonInputOptionsNode, JsonOutputOptionsNode } from '../../shared/types';
 
 /**
  * Reads a JSON file from local or remote location into a DataFrame.
@@ -33,7 +33,7 @@ import { ArrayType1D, ArrayType2D } from '../../../danfojs-base/shared/types';
  * const df = await readJSON("./data/sample.json")
  * ```
  */
-const $readJSON = async (filePath: string, options: { method?: string, headers?: HeadersInit } = {}) => {
+const $readJSON = async (filePath: string, options: JsonInputOptionsNode = {}) => {
     const { method, headers } = { method: "GET", headers: {}, ...options }
 
     if (filePath.startsWith("http") || filePath.startsWith("https")) {
@@ -141,7 +141,7 @@ const $streamJSON = async (
  *   })
  * ```
  */
-const $toJSON = (df: NDframe | DataFrame | Series, options?: { format?: "row" | "column", filePath?: string }): object | void => {
+const $toJSON = (df: NDframe | DataFrame | Series, options?: JsonOutputOptionsNode): object | void => {
     let { filePath, format } = { filePath: undefined, format: "column", ...options }
 
     if (df.$isSeries) {

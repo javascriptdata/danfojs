@@ -22,9 +22,10 @@ import {
     violinPlot,
     tablePlot,
 } from "./plotly/index";
-import Series from "../../../danfojs-base/core/series";
-import DataFrame from "../../../danfojs-base/core/frame";
-import { PlotConfigObject } from "../types";
+import Series from "../core/series";
+import DataFrame from "../core/frame";
+import { PlotConfigObject, IPlotlyLib } from "../shared/types"
+
 import Plotly from "plotly.js-dist-min"
 
 
@@ -36,7 +37,7 @@ try {
     console.info(`Plotly CDN not found. If you need to make Plots, then add the Plotly CDN to your script`);
 }
 
-class PlotlyLib {
+class PlotlyLib implements IPlotlyLib {
     divId: string;
     ndframe: DataFrame | Series;
 

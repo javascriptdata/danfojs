@@ -13,9 +13,8 @@
 * ==========================================================================
 */
 import XLSX from 'xlsx';
-import { DataFrame, NDframe, Series } from '../index'
-import { ArrayType1D, ArrayType2D } from '../../../danfojs-base/shared/types'
-import { ExcelOutputOptionsBrowser, ExcelInputOptions } from "../types"
+import { DataFrame, NDframe, Series } from '../../'
+import { ArrayType1D, ArrayType2D, ExcelOutputOptionsBrowser, ExcelInputOptionsBrowser } from "../../shared/types"
 
 /**
  * Reads a JSON file from local or remote location into a DataFrame.
@@ -40,7 +39,7 @@ import { ExcelOutputOptionsBrowser, ExcelInputOptions } from "../types"
  * })
  * ```
  */
-const $readExcel = async (file: any, options?: ExcelInputOptions) => {
+const $readExcel = async (file: any, options?: ExcelInputOptionsBrowser) => {
     const { sheet, method, headers } = { sheet: 0, method: "GET", headers: {}, ...options }
 
     if (typeof file === "string" && file.startsWith("http")) {

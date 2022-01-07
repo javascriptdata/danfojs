@@ -16,25 +16,23 @@ import {
     $readCSV,
     $streamCSV,
     $toCSV,
-    $openCsvInputStream,
-    $writeCsvOutputStream,
+    // $openCsvInputStream,
+    // $writeCsvOutputStream,
 } from "./io.csv"
 import {
     $readJSON,
     $toJSON,
-    $streamJSON
 } from "./io.json"
 import { $readExcel, $toExcel } from "./io.excel"
 
 export {
-    $readCSV as readCSV,
-    $streamCSV as streamCSV,
-    $toCSV as toCSV,
-    $openCsvInputStream as openCsvInputStream,
-    $writeCsvOutputStream as writeCsvOutputStream,
-    $readJSON as readJSON,
-    $toJSON as toJSON,
-    $streamJSON as streamJSON,
-    $readExcel as readExcel,
-    $toExcel as toExcel,
+    $readCSV as readCSVBrowser,
+    $streamCSV as streamCSVBrowser,
+    $toCSV as toCSVBrowser,
+    // $openCsvInputStream as openCsvInputStream,
+    // $writeCsvOutputStream as writeCsvOutputStream,
+    $readJSON as readJSONBrowser,
+    $toJSON as toJSONBrowser,
+    $readExcel as readExcelBrowser,
+    $toExcel as toExcelBrowser,
 }

@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
 const path = require("path");
+const webpack = require("webpack");
 
 const createConfig = (target) => {
   return {
@@ -15,6 +16,16 @@ const createConfig = (target) => {
       filename: `bundle.js`,
       library: "dfd"
     },
+    plugins: [
+      // Work around for Buffer is undefined:
+      // https://github.com/webpack/changelog-v5/issues/10
+      new webpack.ProvidePlugin({
+        Buffer: [ 'buffer', 'Buffer' ]
+      }),
+      new webpack.ProvidePlugin({
+        process: 'process/browser'
+      })
+    ],
     module: {
       rules: [
         {
@@ -30,7 +41,15 @@ const createConfig = (target) => {
         "fs": false,
         "path": require.resolve("path-browserify"),
         "dotenv": require.resolve('dotenv'),
-        "os": require.resolve('os-browserify/browser')
+        "os": require.resolve('os-browserify/browser'),
+        "stream": require.resolve('stream-browserify'),
+        "buffer": require.resolve('buffer'),
+        "crypto": require.resolve('crypto-browserify'),
+        "http": require.resolve('stream-http'),
+        "https": require.resolve("https-browserify"),
+        "zlib": require.resolve("browserify-zlib"),
+        "net": false,
+        "tls": false
       }
     }
   };

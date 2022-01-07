@@ -12,10 +12,10 @@
 * limitations under the License.
 * ==========================================================================
 */
-import fetch, { HeadersInit } from "node-fetch";
-import { DataFrame, NDframe, Series } from '../index'
+import fetch from "node-fetch";
 import XLSX from 'xlsx';
-import { ArrayType1D, ArrayType2D } from '../../../danfojs-base/shared/types';
+import { DataFrame, NDframe, Series } from '../../'
+import { ArrayType1D, ArrayType2D, ExcelInputOptionsNode, ExcelOutputOptionsNode } from "../../shared/types"
 
 /**
  * Reads a JSON file from local or remote location into a DataFrame.
@@ -45,7 +45,7 @@ import { ArrayType1D, ArrayType2D } from '../../../danfojs-base/shared/types';
  * const df = await readExcel("./data/sample.xlsx")
  * ```
  */
-const $readExcel = async (filePath: string, options: { sheet?: number, method?: string, headers?: HeadersInit } = {}) => {
+const $readExcel = async (filePath: string, options: ExcelInputOptionsNode = {}) => {
     const { sheet, method, headers } = { sheet: 0, method: "GET", headers: {}, ...options }
 
     if (filePath.startsWith("http") || filePath.startsWith("https")) {
@@ -95,7 +95,7 @@ const $readExcel = async (filePath: string, options: { sheet?: number, method?: 
  *   })
  * ```
  */
-const $toExcel = (df: NDframe | DataFrame | Series, options?: { filePath?: string, sheetName?: string }) => {
+const $toExcel = (df: NDframe | DataFrame | Series, options?: ExcelOutputOptionsNode) => {
     let { filePath, sheetName } = { filePath: "./output.xlsx", sheetName: "Sheet1", ...options }
 
     if (!(filePath.endsWith(".xlsx"))) {

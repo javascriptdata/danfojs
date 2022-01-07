@@ -29,7 +29,15 @@ import {
     __version,
 } from "../../danfojs-base";
 
-import { readCSV, streamCSV, toCSV, readJSON, toJSON, readExcel, toExcel } from "./io"
+import {
+    readCSVBrowser as readCSV,
+    streamCSVBrowser as streamCSV,
+    toCSVBrowser as toCSV,
+    readJSONBrowser as readJSON,
+    toJSONBrowser as toJSON,
+    readExcelBrowser as readExcel,
+    toExcelBrowser as toExcel,
+} from "../../danfojs-base/io/browser"
 
 import DataFrame from "./core/frame"
 import Series from "./core/series"
