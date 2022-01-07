@@ -64,7 +64,7 @@ export default class Utils {
      * @returns 
      */
     isObject(value: any): boolean {
-        return typeof value === "object" && value.constructor && value.constructor.name === "Object";
+        return value && typeof value === "object" && value.constructor && value.constructor.name === "Object";
     }
 
     /**
