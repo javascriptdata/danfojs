@@ -26,15 +26,12 @@ import Series from "../core/series";
 import DataFrame from "../core/frame";
 import { PlotConfigObject, IPlotlyLib } from "../shared/types"
 
-import Plotly from "plotly.js-dist-min"
+let Plotly: IPlotlyLib;
 
+if (typeof window !== "undefined") {
+    //check if in browser environment and require "plotly.js-dist-min" module
+    Plotly = require("plotly.js-dist-min") as IPlotlyLib;
 
-try {
-    // @ts-ignore
-    const version = Plotly.version;
-    console.info(`Using Plotly version ${version}`);
-} catch (error) {
-    console.info(`Plotly CDN not found. If you need to make Plots, then add the Plotly CDN to your script`);
 }
 
 class PlotlyLib implements IPlotlyLib {
