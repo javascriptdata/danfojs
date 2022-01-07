@@ -116,8 +116,8 @@ export const linePlot = (ndframe: DataFrame | Series, divId: string, plotConfig:
 
             const traces: Data[] = [];
             cols.forEach((col) => {
-                const y = ndframe.index;
-                const x = (ndframe as DataFrame)[col].values;
+                const x = ndframe.index;
+                const y = (ndframe as DataFrame)[col].values;
 
                 const trace: Data = { x, y, name: col };
                 traces.push(trace);
