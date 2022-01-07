@@ -12,6 +12,21 @@
 * limitations under the License.
 * ==========================================================================
 */
+import { toCSVBrowser, toExcelBrowser, toJSONBrowser } from "../io/browser";
+import { toCSVNode, toExcelNode, toJSONNode } from "../io/node";
+import dummyEncode from "../transformers/encoders/dummy.encoder";
+import { variance, std, median, mode, mean } from 'mathjs';
+import tensorflow from '../shared/tensorflowlib'
+import { DATA_TYPES } from '../shared/defaults';
+import { _genericMathOp } from "./math.ops";
+import Groupby from '../aggregators/groupby';
+import ErrorThrower from "../shared/errors"
+import { _iloc, _loc } from "./indexing";
+import { PlotlyLib } from "../plotting";
+import Utils from "../shared/utils"
+import NDframe from "./generic";
+import { table } from "table";
+import Series from './series';
 import {
     ArrayType1D,
     ArrayType2D,
@@ -24,21 +39,6 @@ import {
     ExcelOutputOptionsNode,
     JsonOutputOptionsNode
 } from "../shared/types";
-import dummyEncode from "../transformers/encoders/dummy.encoder"
-import { variance, std, median, mode, mean } from 'mathjs';
-import { DATA_TYPES } from '../shared/defaults'
-import tensorflow from '../shared/tensorflowlib'
-import { _genericMathOp } from "./math.ops";
-import ErrorThrower from "../shared/errors"
-import { _iloc, _loc } from "./indexing";
-import Utils from "../shared/utils"
-import NDframe from "./generic";
-import { table } from "table";
-import Series from './series';
-import Groupby from '../aggregators/groupby'
-import { PlotlyLib } from "../plotting";
-import { toCSVBrowser, toExcelBrowser, toJSONBrowser } from "../io/browser";
-import { toCSVNode, toExcelNode, toJSONNode } from "../io/node";
 
 const utils = new Utils();
 
@@ -374,6 +374,12 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     * 
     * ``.iloc`` will raise ``IndexError`` if a requested indexer is
     * out-of-bounds.
+    * 
+    * @example
+    * ```
+    * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B'] })
+    * const df2 = df.iloc({ rows: [1], columns: ["A"] })
+    * ```
     */
     iloc({ rows, columns }: {
         rows?: Array<string | number | boolean> | Series,
@@ -404,6 +410,11 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * 
      * - A ``callable`` function with one argument (the calling Series or
      * DataFrame) and that returns valid output for indexing (one of the above)
+    * @example
+    * ```
+    * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B'] })
+    * const df2 = df.loc({ rows: [1], columns: ["A"] })
+    * ```
     */
     loc({ rows, columns }: {
         rows?: Array<string | number | boolean> | Series,
@@ -507,6 +518,11 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
       * Returns the first n values in a DataFrame
       * @param rows The number of rows to return
+      * @example
+      * ```
+      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+      * const df2 = df.head(1)
+      * ```
     */
     head(rows: number = 5): DataFrame {
         if (rows > this.shape[0]) {
@@ -522,6 +538,11 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
       * Returns the last n values in a DataFrame
       * @param rows The number of rows to return
+      * @example
+      * ```
+      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+      * const df2 = df.tail(1)
+      * ```
     */
     tail(rows: number = 5): any {
         if (rows > this.shape[0]) {
@@ -538,6 +559,16 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * Gets n number of random rows in a dataframe. Sample is reproducible if seed is provided.
      * @param num The number of rows to return. Default to 5.
      * @param options.seed An integer specifying the random seed that will be used to create the distribution.
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B'] })
+     * const df2 = df.sample(1)
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B'] })
+     * const df2 = df.sample(1, { seed: 1 })
+     * ```
     */
     async sample(num = 5, options?: { seed?: number }): Promise<DataFrame> {
         const { seed } = { seed: 1, ...options }
@@ -559,6 +590,18 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param other DataFrame, Series, Array or Scalar number to add
      * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B'] })
+     * const df2 = df.add(1)
+     * df2.print()
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B'] })
+     * df.add([1, 2], { axis: 0, inplace: true})
+     * df.print()
+     * ```
     */
     add(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame
     add(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
@@ -581,6 +624,18 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param other DataFrame, Series, Array or Scalar number to substract from DataFrame
      * @param options.axis 0 or 1. If 0, compute the subtraction column-wise, if 1, row-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B'] })
+     * const df2 = df.sub(1)
+     * df2.print()
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B'] })
+     * df.sub([1, 2], { axis: 0, inplace: true})
+     * df.print()
+     *  ```
     */
     sub(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame
     sub(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
@@ -604,6 +659,18 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param other DataFrame, Series, Array or Scalar number to multiply with.
      * @param options.axis 0 or 1. If 0, compute the multiplication column-wise, if 1, row-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B'] })
+     * const df2 = df.mul(2)
+     * df2.print()
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B'] })
+     * df.mul([1, 2], { axis: 0, inplace: true})
+     * df.print()
+     * ```
     */
     mul(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame
     mul(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
@@ -627,6 +694,12 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param other DataFrame, Series, Array or Scalar number to divide with.
      * @param options.axis 0 or 1. If 0, compute the division column-wise, if 1, row-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B'] })
+     * const df2 = df.div(2)
+     * df2.print()
+     * ```
     */
     div(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame
     div(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
@@ -651,6 +724,12 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param other DataFrame, Series, Array or Scalar number to to raise to.
      * @param options.axis 0 or 1. If 0, compute the power column-wise, if 1, row-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B'] })
+     * const df2 = df.pow(2)
+     * df2.print()
+     * ```
     */
     pow(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame
     pow(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
@@ -675,6 +754,12 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param other DataFrame, Series, Array or Scalar number to modulus with.
      * @param options.axis 0 or 1. If 0, compute the mod column-wise, if 1, row-wise
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B'] })
+     * const df2 = df.mod(2)
+     * df2.print()
+     * ```
     */
     mod(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame
     mod(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
@@ -696,6 +781,16 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Return mean of DataFrame across specified axis.
      * @param options.axis 0 or 1. If 0, compute the mean column-wise, if 1, row-wise. Defaults to 1
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B'] })
+     * df.mean().print()
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B'] })
+     * df.mean({ axis: 0 }).print()
+     * ```
     */
     mean(options?: { axis?: 0 | 1 }): Series {
         const { axis } = { axis: 1, ...options }
@@ -720,6 +815,11 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Return median of DataFrame across specified axis.
      * @param options.axis 0 or 1. If 0, compute the median column-wise, if 1, row-wise. Defaults to 1
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2, 4], [3, 4, 5], [6, 7, 8]], { columns: ['A', 'B', 'C'] });
+     * df.median().print()
+     * ```
     */
     median(options?: { axis?: 0 | 1 }): Series {
         const { axis } = { axis: 1, ...options }
@@ -746,6 +846,16 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * Return mode of DataFrame across specified axis.
      * @param options.axis 0 or 1. If 0, compute the mode column-wise, if 1, row-wise. Defaults to 1
      * @param options.keep If there are more than one modes, returns the mode at position [keep]. Defaults to 0
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2, 4], [3, 4, 5], [6, 7, 8]], { columns: ['A', 'B', 'C'] });
+     * df.mode().print()
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2, 4], [3, 4, 5], [6, 7, 8]], { columns: ['A', 'B', 'C'] });
+     * df.mode({ keep: 1 }).print()
+     * ```
     */
     mode(options?: { axis?: 0 | 1, keep?: number }): Series {
         const { axis, keep } = { axis: 1, keep: 0, ...options }
@@ -778,6 +888,16 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Return minimum of values in a DataFrame across specified axis.
      * @param options.axis 0 or 1. If 0, compute the minimum value column-wise, if 1, row-wise. Defaults to 1
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.min().print()
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.min({ axis: 0 }).print()
+     * ```
     */
     min(options?: { axis?: 0 | 1 }): Series {
         const { axis } = { axis: 1, ...options }
@@ -809,6 +929,16 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Return maximum of values in a DataFrame across specified axis.
      * @param options.axis 0 or 1. If 0, compute the maximum column-wise, if 1, row-wise. Defaults to 1
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.max().print()
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.max({ axis: 0 }).print()
+     * ```
     */
     max(options?: { axis?: 0 | 1 }): Series {
         const { axis } = { axis: 1, ...options }
@@ -841,6 +971,16 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Return standard deviation of values in a DataFrame across specified axis.
      * @param options.axis 0 or 1. If 0, compute the standard deviation column-wise, if 1, row-wise. Defaults to 1
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.std().print()
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.std({ axis: 0 }).print()
+     * ```
     */
     std(options?: { axis?: 0 | 1 }): Series {
         const { axis } = { axis: 1, ...options }
@@ -866,6 +1006,16 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Return variance of values in a DataFrame across specified axis.
      * @param options.axis 0 or 1. If 0, compute the variance column-wise, if 1, add row-wise. Defaults to 1
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.var().print()
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.var({ axis: 0 }).print()
+     * ```
     */
     var(options?: { axis?: 0 | 1 }): Series {
         const { axis } = { axis: 1, ...options }
@@ -892,6 +1042,22 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * Get Less than of dataframe and other, element-wise (binary operator lt).
      * @param other DataFrame, Series, Array or Scalar number to compare with
      * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.lt(2).print()
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.lt([2, 3], { axis: 0 }).print()
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * const sf = new Series([2, 3])
+     * df.lt(sf, { axis: 1 }).print()
+     * ```
     */
     lt(other: DataFrame | Series | number | Array<number>, options?: { axis?: 0 | 1 }): DataFrame {
         const { axis } = { axis: 1, ...options }
@@ -912,6 +1078,22 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * Returns "greater than" of dataframe and other.
      * @param other DataFrame, Series, Array or Scalar number to compare with
      * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.gt(2).print()
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.gt([2, 3], { axis: 0 }).print()
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * const sf = new Series([2, 3])
+     * df.gt(sf, { axis: 1 }).print()
+     * ```
     */
     gt(other: DataFrame | Series | number | Array<number>, options?: { axis?: 0 | 1 }): DataFrame {
         const { axis } = { axis: 1, ...options }
@@ -932,6 +1114,22 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * Returns "equals to" of dataframe and other.
      * @param other DataFrame, Series, Array or Scalar number to compare with
      * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.eq(2).print()
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.eq([2, 3], { axis: 0 }).print()
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * const sf = new Series([2, 3])
+     * df.eq(sf, { axis: 1 }).print()
+     * ```
     */
     eq(other: DataFrame | Series | number | Array<number>, options?: { axis?: 0 | 1 }): DataFrame {
         const { axis } = { axis: 1, ...options }
@@ -952,6 +1150,22 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * Returns "not equal to" of dataframe and other.
      * @param other DataFrame, Series, Array or Scalar number to compare with
      * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.ne(2).print()
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.ne([2, 3], { axis: 0 }).print()
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * const sf = new Series([2, 3])
+     * df.ne(sf, { axis: 1 }).print()
+     * ```
     */
     ne(other: DataFrame | Series | number | Array<number>, options?: { axis?: 0 | 1 }): DataFrame {
         const { axis } = { axis: 1, ...options }
@@ -972,6 +1186,22 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     * Returns "less than or equal to" of dataframe and other.
     * @param other DataFrame, Series, Array or Scalar number to compare with
     * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.le(2).print()
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.le([2, 3], { axis: 0 }).print()
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * const sf = new Series([2, 3])
+     * df.le(sf, { axis: 1 }).print()
+     * ```
     */
     le(other: DataFrame | Series | number | Array<number>, options?: { axis?: 0 | 1 }): DataFrame {
         const { axis } = { axis: 1, ...options }
@@ -992,6 +1222,22 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     * Returns "greater than or equal to" between dataframe and other.
     * @param other DataFrame, Series, Array or Scalar number to compare with
     * @param options.axis 0 or 1. If 0, add column-wise, if 1, add row-wise
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.ge(2).print()
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.ge([2, 3], { axis: 0 }).print()
+     * ```
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * const sf = new Series([2, 3])
+     * df.ge(sf, { axis: 1 }).print()
+     * ```
     */
     ge(other: DataFrame | Series | number | Array<number>, options?: { axis?: 0 | 1 }): DataFrame {
         const { axis } = { axis: 1, ...options }
@@ -1011,6 +1257,17 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Return number of non-null elements in a Series
      * @param options.axis 0 or 1. If 0, count column-wise, if 1, add row-wise. Defaults to 1
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.count().print()
+     * ```
+     * 
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.count({ axis: 0 }).print()
+     * ```
     */
     count(options?: { axis?: 0 | 1 }): Series {
         const { axis } = { axis: 1, ...options }
@@ -1032,6 +1289,17 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Return the sum of values across an axis. 
      * @param options.axis 0 or 1. If 0, count column-wise, if 1, add row-wise. Defaults to 1
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.sum().print()
+     * ```
+     * 
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.sum({ axis: 0 }).print()
+     * ```
     */
     sum(options?: { axis?: 0 | 1 }): Series {
         const { axis } = { axis: 1, ...options }
@@ -1059,6 +1327,17 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Return the absolute value of elements in a DataFrame. 
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     * @example
+     * ```
+     * const df = new DataFrame([[1.0, 2.1], [3.1, 4]], { columns: ['A', 'B']})
+     * df.abs().print()
+     * ```
+     * 
+     * @example
+     * ```
+     * const df = new DataFrame([[1.0, 2], [3.3, 4]], { columns: ['A', 'B']})
+     * df.abs({ inplace: true }).print()
+     * ```
     */
     abs(options?: { inplace?: boolean }): DataFrame
     abs(options?: { inplace?: boolean }): DataFrame | void {
