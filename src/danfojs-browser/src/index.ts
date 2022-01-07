@@ -27,6 +27,7 @@ import {
     merge,
     toDateTime,
     date_range,
+    tensorflow,
     __version,
 } from "../../danfojs-base";
 
@@ -67,5 +68,6 @@ export {
     concat,
     merge,
     date_range,
+    tensorflow,
     __version,
 }

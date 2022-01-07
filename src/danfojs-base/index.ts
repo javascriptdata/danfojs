@@ -27,6 +27,7 @@ import getDummies from "./transformers/encoders/dummy.encoder"
 import concat from "./transformers/concat"
 import merge from "./transformers/merge"
 import date_range from "./core/daterange"
+import tensorflow from "./shared/tensorflowlib"
 
 const __version = "1.0.0"
 
@@ -47,5 +48,6 @@ export {
     concat,
     merge,
     date_range,
+    tensorflow,
     __version,
 }
