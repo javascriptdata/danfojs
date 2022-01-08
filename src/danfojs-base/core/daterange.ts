@@ -130,6 +130,11 @@ class DateRange {
     return dateString
   }
 
+  /**
+   * @param date Date
+   * @param ftype string:  frequency type, month, Year, day etc
+   * @param number
+   */
   private freqType(date: Date, ftype: string): number{
     let rslt: number = 0;
     switch (ftype){
@@ -252,7 +257,7 @@ class DateRange {
 }
 
 /**
- * 
+ * Generate sequence of Dates 
  * @param start : signify the date to start with
  * @param end : signify the date to end with
  * @param period :  the total number of date to generate
@@ -260,7 +265,7 @@ class DateRange {
  * @param freq: set the date range frequency and offset
  * @return string[]
  */
-export default function date_range(param: Params): string[] {
+export default function dateRange(param: Params): string[] {
   const dateRange = new DateRange(param)
   return dateRange.range()
 }
