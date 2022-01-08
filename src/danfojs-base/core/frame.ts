@@ -1,6 +1,6 @@
 /**
 *  @license
-* Copyright 2021, JsData. All rights reserved.
+* Copyright 2022 JsData. All rights reserved.
 *
 * This source code is licensed under the MIT license found in the
 * LICENSE file in the root directory of this source tree.
@@ -3151,7 +3151,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     }
 
     /**
-     * Exposes functions for creating charts from a DataFrame or Series. 
+     * Exposes functions for creating charts from a DataFrame. 
      * Charts are created using the Plotly.js library, so all Plotly's configuration parameters are available.
      * @param divId name of the HTML Div to render the chart in.
     */
@@ -3166,7 +3166,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     }
 
     /**
-     * Converts a DataFrame or Series to CSV. 
+     * Converts a DataFrame to CSV. 
      * @param options Configuration object. Supports the following options:
      * - `filePath`: Local file path to write the CSV file. If not specified, the CSV will be returned as a string. Option is only available in NodeJS.
      * - `fileName`: Name of the CSV file. Defaults to `data.csv`. Option is only available in Browser.
@@ -3229,7 +3229,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     }
 
     /**
-     * Converts a DataFrame or Series to JSON. 
+     * Converts a DataFrame to JSON. 
      * @param options Configuration object. Supported options:
      * - `filePath`: The file path to write the JSON to. If not specified, the JSON object is returned. Option is only available in NodeJS.
      * - `fileName`: The name of the JSON file. Defaults to `data.json`. Option is only available in Browser.
@@ -3283,7 +3283,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
 
     /**
-     * Converts a DataFrame or Series to Excel Sheet. 
+     * Converts a DataFrame to Excel file format. 
      * @param options Configuration object. Supported options:
      * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
      * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`. Option is only available in NodeJs

@@ -1,6 +1,6 @@
 /**
 *  @license
-* Copyright 2021, JsData. All rights reserved.
+* Copyright 2022 JsData. All rights reserved.
 *
 * This source code is licensed under the MIT license found in the
 * LICENSE file in the root directory of this source tree.
@@ -37,7 +37,8 @@ import {
     JsonOutputOptionsBrowser,
     CsvOutputOptionsNode,
     ExcelOutputOptionsNode,
-    JsonOutputOptionsNode
+    JsonOutputOptionsNode,
+    mapParam
 } from "../shared/types";
 
 const utils = new Utils();
@@ -730,7 +731,8 @@ export default class Series extends NDframe implements SeriesInterface {
     */
     isNa(): Series {
         const newData = this.values.map((value) => {
-            if (isNaN(value as unknown as number) && typeof value != "string") {
+
+            if (utils.isEmpty(value)) {
                 return true;
             } else {
                 return false;
@@ -746,7 +748,7 @@ export default class Series extends NDframe implements SeriesInterface {
     }
 
     /**
-     * Replace all NaN with a specified value
+     * Replace all missing values with a specified value
      * @param value The value to replace NaN with
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
      * 
@@ -776,7 +778,7 @@ export default class Series extends NDframe implements SeriesInterface {
 
         const newValues: ArrayType1D = [];
         (this.values as ArrayType1D).forEach((val) => {
-            if (isNaN(val as unknown as number) && typeof val != "string") {
+            if (utils.isEmpty(val)) {
                 newValues.push(value);
             } else {
                 newValues.push(val);
@@ -956,7 +958,7 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
        * map all the element in a Series to a function or object.
-       * @param callable callable can either be a funtion or an object
+       * @param callable callable can either be a funtion or an object. If function, then each value and the corresponding index is passed.
        * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
        * @example
        * ```
@@ -977,16 +979,18 @@ export default class Series extends NDframe implements SeriesInterface {
        * //output [ -99, 2, -99, 4, -99, 6 ]
        * ```
     */
-    map(callable: any, options?: { inplace?: boolean }): Series | void {
+    map(callable: mapParam, options?: { inplace?: boolean }): Series
+    map(callable: mapParam, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
         const isCallable = utils.isFunction(callable);
 
-        const data = this.values.map((val: any) => {
+        const data = (this.values as ArrayType1D).map((val: any, i: number) => {
             if (isCallable) {
-                return callable(val);
+                return (callable as Function)(val, i);
             } else if (utils.isObject(callable)) {
                 if (val in callable) {
+                    //@ts-ignore
                     return callable[val];
                 } else {
                     return val
@@ -1009,8 +1013,25 @@ export default class Series extends NDframe implements SeriesInterface {
        * Applies a function to each element of a Series
        * @param callable Function to apply to each element of the series
        * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
-    */
-    apply(callable: any, options?: { inplace?: boolean }): Series | void {
+       * @example
+       * ```
+       * const sf = new Series([1, 2, 3, 4, 5, 6]);
+       * const sf2 = sf.apply((x) => x * 2);
+       * console.log(sf2.values);
+       * //output [ 2, 4, 6, 8, 10, 12 ]
+       * ```
+       * 
+       * @example
+       * ```
+       * const sf = new Series([1, 2, 3, 4, 5, 6]);
+       * sf.apply((x) => x * 2, { inplace: true });
+       * console.log(sf.values);
+       * //output [ 2, 4, 6, 8, 10, 12 ]
+       * ```
+       * 
+     */
+    apply(callable: (value: any) => any, options?: { inplace?: boolean }): Series
+    apply(callable: (value: any) => any, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
         const isCallable = utils.isFunction(callable);
@@ -1033,6 +1054,13 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
      * Returns a Series with only the unique value(s) in the original Series
+     * @example
+     * ```
+     * const sf = new Series([1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]);
+     * const sf2 = sf.unique();
+     * console.log(sf2.values);
+     * //output [ 1, 2, 3, 4, 5, 6 ]
+     * ```
     */
     unique(): Series {
         const newValues = new Set(this.values as ArrayType1D);
@@ -1041,7 +1069,14 @@ export default class Series extends NDframe implements SeriesInterface {
     }
 
     /**
-       * Return the number of unique elements in a Series
+     * Return the number of unique elements in a Series
+     * @example
+     * ```
+     * const sf = new Series([1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]);
+     * console.log(sf.nUnique());
+     * //output 6
+     * ```
+     * 
     */
     nUnique(): number {
         return (new Set(this.values as ArrayType1D)).size;
@@ -1049,6 +1084,12 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
      * Returns unique values and their counts in a Series
+     * @example
+     * ```
+     * const sf = new Series([1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6]);
+     * const sf2 = sf.valueCounts();
+     * sf2.print();
+     * ```
     */
     valueCounts(): Series {
         const sData = this.values;
@@ -1073,9 +1114,25 @@ export default class Series extends NDframe implements SeriesInterface {
     }
 
     /**
-      * Returns the absolute values in Series
+      * Returns the absolute of values in Series
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+      * @example
+      * ```
+      * const sf = new Series([1, -2, 3, -4, 5, -6]);
+      * const sf2 = sf.abs();
+      * console.log(sf2.values);
+      * //output [ 1, 2, 3, 4, 5, 6 ]
+      * ```
+      * 
+      * @example
+      * ```
+      * const sf = new Series([1, -2, 3, -4, 5, -6]);
+      * sf.abs({ inplace: true });
+      * console.log(sf.values);
+      * //output [ 1, 2, 3, 4, 5, 6 ]
+      * ```
     */
+    abs(options?: { inplace?: boolean }): Series
     abs(options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
@@ -1096,15 +1153,42 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
       * Returns the cumulative sum over a Series
+      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6]);
+      * const sf2 = sf.cumsum();
+      * console.log(sf2.values);
+      * //output [ 1, 3, 6, 10, 15, 21 ]
+      * ```
+      * 
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6]);
+      * sf.cumSum({ inplace: true });
+      * console.log(sf.values);
+      * //output [ 1, 3, 6, 10, 15, 21 ]
+      * ```
     */
+    cumSum(options?: { inplace?: boolean }): Series
     cumSum(options?: { inplace?: boolean }): Series | void {
         const ops = { inplace: false, ...options }
         return this.cumOps("sum", ops);
     }
 
     /**
-       * Returns cumulative minimum over a Series
+     * Returns cumulative minimum over a Series
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     * @example
+     * ```
+     * const sf = new Series([1, 2, 3, 4, 5, 6]);
+     * const sf2 = sf.cumMin();
+     * console.log(sf2.values);
+     * //output [ 1, 1, 1, 1, 1, 1 ]
+     * ```
+     * 
     */
+    cumMin(options?: { inplace?: boolean }): Series
     cumMin(options?: { inplace?: boolean }): Series | void {
         const ops = { inplace: false, ...options }
         return this.cumOps("min", ops);
@@ -1113,7 +1197,16 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
        * Returns cumulative maximum over a Series
+       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+       * @example
+       * ```
+       * const sf = new Series([1, 2, 3, 4, 5, 6]);
+       * const sf2 = sf.cumMax();
+       * console.log(sf2.values);
+       * //output [ 1, 2, 3, 4, 5, 6 ]
+       * ```
     */
+    cumMax(options?: { inplace?: boolean }): Series
     cumMax(options?: { inplace?: boolean }): Series | void {
         const ops = { inplace: false, ...options }
         return this.cumOps("max", ops);
@@ -1121,14 +1214,23 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
        * Returns cumulative product over a Series
+       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+       * @example
+       * ```
+       * const sf = new Series([1, 2, 3, 4, 5, 6]);
+       * const sf2 = sf.cumProd();
+       * console.log(sf2.values);
+       * //output [ 1, 2, 6, 24, 120, 720 ]
+       * ```
     */
+    cumProd(options?: { inplace?: boolean }): Series
     cumProd(options?: { inplace?: boolean }): Series | void {
         const ops = { inplace: false, ...options }
         return this.cumOps("prod", ops);
     }
 
     /**
-     * perform cumulative operation on series data
+     * Internal helper function to calculate cumulative operations on series data
     */
     private cumOps(ops: string, options: { inplace: boolean }): Series | void {
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError(ops)
@@ -1182,7 +1284,22 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
        * Returns less than of series and other. Supports element wise operations
-       * @param other Series or number to compare against
+       * @param other Series, number, or Array of numbers to compare against
+       * @example
+       * ```
+       * const sf = new Series([1, 2, 3, 4, 5, 6]);
+       * const sf2 = sf.lt(3);
+       * console.log(sf2.values);
+       * //output [ true, true, false, false, false, false ]
+       * ```
+       * 
+       * @example
+       * ```
+       * const sf = new Series([1, 2, 3, 4, 5, 6]);
+       * const sf2 = sf.lt([3, 4, 5, 6, 7, 8]);
+       * console.log(sf2.values);
+       * //output [ true, true, false, false, false, false ]
+       * ```
     */
     lt(other: Series | number | Array<number> | boolean[]): Series {
         return this.boolOps(other, "lt");
@@ -1190,26 +1307,69 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
        * Returns Greater than of series and other. Supports element wise operations
-       * @param {other} Series, Scalar
-       * @return {Series}
-       */
+       * @param other Series, number or Array of numbers to compare against
+       * @example
+       * ```
+       * const sf = new Series([1, 2, 3, 4, 5, 6]);
+       * const sf2 = sf.gt(3);
+       * console.log(sf2.values);
+       * //output [ false, false, true, true, true, true ]
+       * ```
+       * 
+       * @example
+       * ```
+       * const sf = new Series([1, 2, 3, 4, 5, 6]);
+       * const sf2 = sf.gt([3, 4, 5, 6, 7, 8]);
+       * console.log(sf2.values);
+       * //output [ false, false, true, true, true, true ]
+       * ```
+    */
     gt(other: Series | number | Array<number> | boolean[]): Series {
         return this.boolOps(other, "gt");
     }
 
     /**
        * Returns Less than or Equal to of series and other. Supports element wise operations
-       * @param {other} Series, Scalar
-       * @return {Series}
-       */
+       * @param other Series, number or Array of numbers to compare against
+       * @example
+       * ```
+       * const sf = new Series([1, 2, 3, 4, 5, 6]);
+       * const sf2 = sf.le(3);
+       * console.log(sf2.values);
+       * //output [ true, true, true, true, false, false ]
+       * ```
+       * 
+       * @example
+       * ```
+       * const sf = new Series([1, 2, 3, 4, 5, 6]);
+       * const sf2 = sf.le([3, 4, 5, 6, 7, 8]);
+       * console.log(sf2.values);
+       * //output [ true, true, true, true, false, false ]
+       * ```
+       * 
+    */
     le(other: Series | number | Array<number> | boolean[]): Series {
         return this.boolOps(other, "le");
     }
 
     /**
        * Returns Greater than or Equal to of series and other. Supports element wise operations
-       * @param {other} Series, Scalar
-       * @return {Series}
+       * @param other Series, number or Array of numbers to compare against
+       * @example
+       * ```
+       * const sf = new Series([1, 2, 3, 4, 5, 6]);
+       * const sf2 = sf.ge(3);
+       * console.log(sf2.values);
+       * //output [ false, false, true, true, true, true ]
+       * ```
+       * 
+       * @example
+       * ```
+       * const sf = new Series([1, 2, 3, 4, 5, 6]);
+       * const sf2 = sf.ge([3, 4, 5, 6, 7, 8]);
+       * console.log(sf2.values);
+       * //output [ false, false, true, true, true, true ]
+       * ```
        */
     ge(other: Series | number | Array<number> | boolean[]): Series {
         return this.boolOps(other, "ge");
@@ -1217,24 +1377,53 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
         * Returns Not Equal to of series and other. Supports element wise operations
-        * @param {other} Series, Scalar
-        * @return {Series}
-        */
+        * @param other Series, number or Array of numbers to compare against
+        * @example
+        * ```
+        * const sf = new Series([1, 2, 3, 4, 5, 6]);
+        * const sf2 = sf.ne(3);
+        * console.log(sf2.values);
+        * //output [ true, true, false, true, true, true ]
+        * ```
+        * 
+        * @example
+        * ```
+        * const sf = new Series([1, 2, 3, 4, 5, 6]);
+        * const sf2 = sf.ne([3, 2, 5, 6, 7, 8]);
+        * console.log(sf2.values);
+        * //output [ true, false, true, true, true, true ]
+        * ```
+        * 
+    */
     ne(other: Series | number | Array<number> | boolean[]): Series {
         return this.boolOps(other, "ne");
     }
 
     /**
        * Returns Equal to of series and other. Supports element wise operations
-       * @param {other} Series, Scalar
-       * @return {Series}
+       * @param other Series, number or Array of numbers to compare against
+       * @example
+       * ```
+       * const sf = new Series([1, 2, 3, 4, 5, 6]);
+       * const sf2 = sf.eq(3);
+       * console.log(sf2.values);
+       * //output [ false, false, true, false, false, false ]
+       * ```
+       * 
+       * @example
+       * ```
+       * const sf = new Series([1, 2, 3, 4, 5, 6]);
+       * const sf2 = sf.eq(new Series([3, 2, 5, 6, 7, 8]));
+       * console.log(sf2.values);
+       * //output [ false, true, false, false, false, false ]
+       * ```
        */
     eq(other: Series | number | Array<number> | boolean[]): Series {
         return this.boolOps(other, "eq");
     }
 
     /**
-     * Perform boolean operations on bool values
+     * Internal function to perform boolean operations
      * @param other Other Series or number to compare with
      * @param bOps Name of operation to perform [ne, ge, le, gt, lt, eq]
      */
@@ -1302,7 +1491,28 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param oldValue The value you want to replace
       * @param newValue The new value you want to replace the old value with
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+      * 
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6]);
+      * const sf2 = sf.replace(3, 10);
+      * console.log(sf2.values);
+      * //output [ 1, 2, 10, 4, 5, 6 ]
+      * ```
+      * 
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6]);
+      * sf.replace(3, 10, { inplace: true });
+      * console.log(sf.values);
+      * //output [ 1, 2, 10, 4, 5, 6 ]
+      * ```
     */
+    replace(
+        oldValue: string | number | boolean,
+        newValue: string | number | boolean,
+        options?: { inplace?: boolean }
+    ): Series
     replace(
         oldValue: string | number | boolean,
         newValue: string | number | boolean,
@@ -1337,10 +1547,27 @@ export default class Series extends NDframe implements SeriesInterface {
     }
 
     /**
-     * Drops all missing values (NaN) from a Series.
+     * Drops all missing values (NaN, null, undefined) from a Series.
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     * 
+     * @example
+     * ```
+     * const sf = new Series([1, 2, NaN, 4, 5, NaN]);
+     * const sf2 = sf.dropNa();
+     * console.log(sf2.values);
+     * //output [ 1, 2, 4, 5 ]
+     * ```
+     * 
+     * @example
+     * ```
+     * const sf = new Series([1, 2, NaN, 4, 5, null]);
+     * sf.dropNa({ inplace: true });
+     * console.log(sf.values);
+     * //output [ 1, 2, 4, 5 ]
+     * ```
     */
-    dropNa(options?: { inplace?: boolean }) {
+    dropNa(options?: { inplace?: boolean }): Series
+    dropNa(options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
         const oldValues = this.values;
@@ -1369,17 +1596,41 @@ export default class Series extends NDframe implements SeriesInterface {
     }
 
     /**
-     * Return the integer indices that would sort the Series.
-     * @param ascending boolean true: will sort the Series in ascending order, false: will sort in descending order
+     * Returns the integer indices that would sort the Series.
+     * @param ascending Boolean indicating whether to sort in ascending order or not. Defaults to true
+     * @example
+     * ```
+     * const sf = new Series([3, 1, 2]);
+     * const sf2 = sf.argSort();
+     * console.log(sf2.values);
+     * //output [ 1, 2, 0 ]
+     * ```
+     * 
+     * @example
+     * ```
+     * const sf = new Series([3, 1, 2]);
+     * const sf2 = sf.argSort({ascending: false});
+     * console.log(sf2.values);
+     * //output [ 0, 2, 1 ]
+     * 
      */
-    argSort(ascending = true): Series {
+    argSort(options?: { ascending: boolean }): Series {
+        const { ascending } = { ascending: true, ...options }
         const sortedIndex = this.sortValues({ ascending });
         const sf = new Series(sortedIndex.index);
         return sf;
     }
 
     /**
-       * Return int position of the largest value in the Series.
+       * Returns integer position of the largest value in the Series.
+       * @example
+       * ```
+       * const sf = new Series([3, 1, 2]);
+       * const sf2 = sf.argMax();
+       * console.log(sf2);
+       * //output 0
+       * ```
+       * 
     */
     argMax(): number {
         return this.tensor.argMax().arraySync() as number
@@ -1387,7 +1638,15 @@ export default class Series extends NDframe implements SeriesInterface {
 
 
     /**
-       * Return int position of the smallest value in the Series.
+       * Returns integer position of the smallest value in the Series.
+       * @example
+       * ```
+       * const sf = new Series([3, 1, 2]);
+       * const sf2 = sf.argMin();
+       * console.log(sf2);
+       * //output 1
+       * ```
+       * 
     */
     argMin(): number {
         return this.tensor.argMin().arraySync() as number
@@ -1397,7 +1656,24 @@ export default class Series extends NDframe implements SeriesInterface {
      * Remove duplicate values from a Series
      * @param keep "first" | "last", which dupliate value to keep. Defaults to "first".
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     * @example
+     * ```
+     * const sf = new Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+     * const sf2 = sf.dropDuplicates();
+     * console.log(sf2.values);
+     * //output [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+     * ```
+     * 
+     * @example
+     * ```
+     * const sf = new Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+     * sf.dropDuplicates({ keep: "last", inplace: true });
+     * console.log(sf.values);
+     * //output [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+     * ```
+     * 
     */
+    dropDuplicates(options?: { keep?: "first" | "last", inplace?: boolean }): Series
     dropDuplicates(options?: { keep?: "first" | "last", inplace?: boolean }): Series | void {
         const { keep, inplace } = { keep: "first", inplace: false, ...options }
 
@@ -1447,7 +1723,24 @@ export default class Series extends NDframe implements SeriesInterface {
      * Cast Series to specified data type
      * @param dtype Data type to cast to. One of [float32, int32, string, boolean, undefined]
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     * 
+     * @example
+     * ```
+     * const sf = new Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+     * const sf2 = sf.asType("float32");
+     * console.log(sf2.dtype);
+     * //output "float32"
+     * ```
+     * 
+     * @example
+     * ```
+     * const sf = new Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+     * sf.asType("float32", {inplace: true});
+     * console.log(sf.dtype);
+     * //output "float32"
+     * ```
      */
+    asType(dtype: "float32" | "int32" | "string" | "boolean" | "undefined", options?: { inplace?: boolean }): Series
     asType(dtype: "float32" | "int32" | "string" | "boolean" | "undefined", options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
@@ -1505,11 +1798,34 @@ export default class Series extends NDframe implements SeriesInterface {
     }
 
     /**
-     * Add a new value or values to the end of a Series
-     * @param newValues Single value | Array | Series to append to the Series 
+     * Appends a new value or values to the end of the Series
+     * @param newValue Single value | Array | Series to append to the Series 
      * @param index The new index value(s) to append to the Series. Must contain the same number of values as `newValues`
      * as they map `1 - 1`. 
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     * @example
+     * ```
+     * const sf = new Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+     * sf.append(11);
+     * console.log(sf.values);
+     * //output [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ]
+     * ```
+     * 
+     * @example
+     * ```
+     * const sf = new Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+     * sf.append([11, 12, 13]);
+     * console.log(sf.values);
+     * //output [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ]
+     * ```
+     * 
+     * @example
+     * ```
+     * const sf = new Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+     * sf.append(new Series([11, 12, 13]), { inplace: true});
+     * console.log(sf.values);
+     * //output [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ]
+     * ```
      */
     append(
         newValue: string | number | boolean | Series | ArrayType1D,
@@ -1579,13 +1895,26 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
      * Returns dtype of Series
+     * @example
+     * ```
+     * const sf = new Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+     * console.log(sf.dtype);
+     * //output "int32"
+     * ```
     */
     get dtype(): string {
         return this.dtypes[0];
     }
 
     /**
-     * Exposes numerous string methods to manipulate Series of type string
+     * Exposes numerous string methods to manipulate Series of string dtype
+     * @example
+     * ```
+     * const sf = new Series(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]);
+     * const sfs = sf.str.join("HelloWorld", "");
+     * console.log(sfs.values);
+     * //output ["aHelloWorld", "bHelloWorld", "cHelloWorld", "dHelloWorld", "eHelloWorld", "fHelloWorld", "gHelloWorld", "hHelloWorld", "iHelloWorld", "jHelloWorld"]
+     * ```
     */
     get str() {
         if (this.dtypes[0] == "string") {
@@ -1597,6 +1926,19 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
       * Returns time class that exposes different date time method
+      * @example
+      * ```
+      * const sf = new Series([
+      *  "2020-01-01",
+      *  "2020-01-02",
+      *  "2020-01-03",
+      *  "2020-01-04",
+      *  "2020-01-05",
+      * ]);
+      * const sfd = sf.dt.dayOfWeekName();
+      * console.log(sfd.values);
+      * //output [ 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday' ]
+      * ```
     */
     get dt() {
         if (this.dtypes[0] == "string") {
@@ -1607,7 +1949,7 @@ export default class Series extends NDframe implements SeriesInterface {
     }
 
     /**
-     * Prints Series to console as a grid of row and columns.
+     * Overrides default toString implementation. This essentially makes `print()` works. 
     */
     toString(): string {
         const maxRow = this.$config.getMaxRow;
@@ -1633,6 +1975,14 @@ export default class Series extends NDframe implements SeriesInterface {
     /**
      * Returns the logical AND between Series and other. Supports element wise operations and broadcasting. 
      * @param other Series, Scalar, Array of Scalars
+     * @example
+     * ```
+     * const sf = new Series([true, true, false, false, true]);
+     * const sf2 = new Series([true, false, true, false, true]);
+     * const sf3 = sf.and(sf2);
+     * console.log(sf3.values);
+     * //output [ true, false, false, false, false ]
+     * ```
     */
     and(other: any): Series {
 
@@ -1678,6 +2028,15 @@ export default class Series extends NDframe implements SeriesInterface {
     /**
      * Returns the logical OR between Series and other. Supports element wise operations and broadcasting. 
      * @param other Series, Scalar, Array of Scalars
+     * @example
+     * ```
+     * const sf = new Series([true, true, false, false, true]);
+     * const sf2 = new Series([true, false, true, false, true]);
+     * const sf3 = sf.or(sf2);
+     * console.log(sf3.values);
+     * //output [ true, true, true, false, true ]
+     * ```
+     * 
     */
     or(other: any): Series {
 
@@ -1726,11 +2085,21 @@ export default class Series extends NDframe implements SeriesInterface {
      * @param options Options for the operation. The following options are available:
      * - `prefix`: Prefix to add to the new column. Defaults to unique labels.
      * - `prefixSeparator`: Separator to use for the prefix. Defaults to '_'.
-     * @returns A DataFrame with the one-hot encoded columns.
      * @example
-     * sf.getDummies()
-     * sf.getDummies({prefix: 'cat' })
-     * sf.getDummies({ prefix: 'cat', prefixSeparator: '-' })
+     * ```
+     * const sf = new Series(["a", "b", "c", "a"]);
+     * const sf2 = sf.getDummies({ prefix: "category" });
+     * console.log(sf2.values);
+     * //output [ [ 1, 0, 0 ], [ 0, 1, 0 ], [ 0, 0, 1 ], [ 1, 0, 0 ] ]
+     * ```
+     * 
+     * @example
+     * ```
+     * const sf = new Series(["a", "b", "c", "a"]);
+     * const sf2 = sf.getDummies({ prefix: "category", prefixSeparator: "-" });
+     * console.log(sf2.values);
+     * //output [ [ 1, 0, 0 ], [ 0, 1, 0 ], [ 0, 0, 1 ], [ 1, 0, 0 ] ]
+     * ```
      */
     getDummies(options?: {
         columns?: string | Array<string>,
@@ -1742,10 +2111,14 @@ export default class Series extends NDframe implements SeriesInterface {
 
 
     /**
-     * Make plots of Series or DataFrame.
-     * Uses the Plotly as backend, so supports Plotly's configuration parameters
-     * @param divId Name of the div to show the plot
-     * @returns Plotly class that expoese different plot type
+     * Exposes functions for creating charts from a Series. 
+     * Charts are created using the Plotly.js library, so all Plotly's configuration parameters are available.
+     * @param divId name of the HTML Div to render the chart in.
+     * @example
+     * ```
+     * const sf = new Series([1, 2, 3, 4, 5]);
+     * sf.plot("myDiv").line() //renders the chart in the div with id "myDiv"
+     * ```
     */
     plot(divId: string) {
         //TODO: Add support for check plot library to use
@@ -1759,12 +2132,33 @@ export default class Series extends NDframe implements SeriesInterface {
     }
 
     /**
-     * Converts a DataFrame or Series to CSV. 
+     * Converts a Series to CSV. 
      * @param options Configuration object. Supports the following options:
-     * - `filePath`: Local file path to write the CSV file. If not specified, the CSV will be returned as a string.
-     * - `header`: Boolean indicating whether to include a header row in the CSV file.
-     * - `sep`: Character to be used as a separator in the CSV file.
-     */
+     * - `filePath`: Local file path to write the CSV file. If not specified, the CSV will be returned as a string. Option is only available in NodeJS.
+     * - `fileName`: Name of the CSV file. Defaults to `data.csv`. Option is only available in Browser.
+     * - `download`: If true, the CSV will be downloaded. Defaults to false. Option is only available in Browser.
+     * 
+     * @example
+     * ```
+     * const df = new Series([1, 2, 3, 4])
+     * const csv = df.toCSV()
+     * console.log(csv)
+     * //output "1,2,3,4"
+     * ```
+     * 
+     * @example
+     * ```
+     * const df = new Series([1, 2, 3, 4])
+     * df.toCSV({ filePath: './data.csv' }) //write to local file in NodeJS
+     * ```
+     * 
+     * @example
+     * ```
+     * const df = new Series([1, 2, 3, 4])
+     * df.toCSV({ fileName: 'data.csv', download: true }) //Downloads file in Browser
+     * ```
+     * 
+    */
     toCSV(options?: CsvOutputOptionsBrowser | CsvOutputOptionsNode): string
     toCSV(options?: CsvOutputOptionsBrowser | CsvOutputOptionsNode): string | void {
         if (utils.isBrowserEnv()) {
@@ -1775,21 +2169,32 @@ export default class Series extends NDframe implements SeriesInterface {
     }
 
     /**
-     * Converts a DataFrame or Series to JSON. 
+     * Converts a Series to JSON. 
      * @param options Configuration object. Supported options:
-     * - `filePath`: The file path to write the JSON to. If not specified, the JSON object is returned.
-     * - `format`: The format of the JSON. Defaults to `'column'`. E.g for using `column` format:
+     * - `filePath`: The file path to write the JSON to. If not specified, the JSON object is returned. Option is only available in NodeJS.
+     * - `fileName`: The name of the JSON file. Defaults to `data.json`. Option is only available in Browser.
+     * - `download`: If true, the JSON will be downloaded. Defaults to false. Option is only available in Browser.
+     * 
+     * @example
      * ```
-     * [{ "a": 1, "b": 2, "c": 3, "d": 4 },
-     *  { "a": 5, "b": 6, "c": 7, "d": 8 }]
+     * const df = new Series([[1, 2, 3, 4]], { columns: ['A']})
+     * const json = df.toJSON()
+     * console.log(json)
+     * //output { A: [ '1,2,3,4' ] }
      * ```
-     * and `row` format:
+     * 
+     * @example
      * ```
-     * { "a": [1, 5, 9],
-     *  "b": [2, 6, 10]
-     * }
+     * const df = new Series([1, 2, 3, 4])
+     * df.toJSON({ filePath: './data.json' }) // downloads to local file system as data.json in NodeJS
      * ```
-     */
+     * 
+     * @example
+     * ```
+     * const df = new Series([1, 2, 3, 4])
+     * df.toJSON({ fileName: 'data.json', download: true }) // downloads file browser
+     * ```
+    */
     toJSON(options?: JsonOutputOptionsBrowser | JsonOutputOptionsNode): object
     toJSON(options?: JsonOutputOptionsBrowser | JsonOutputOptionsNode): object | void {
         if (utils.isBrowserEnv()) {
@@ -1801,11 +2206,31 @@ export default class Series extends NDframe implements SeriesInterface {
 
 
     /**
-     * Converts a DataFrame or Series to Excel Sheet. 
+     * Converts a Series to Excel file format. 
      * @param options Configuration object. Supported options:
      * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
-     * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`.
-     */
+     * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`. Option is only available in NodeJs
+     * - `fileName`: The fileName to be written to. Defaults to `'output.xlsx'`. Option is only available in Browser
+     * 
+     * @example
+     * ```
+     * const df = new Series([1, 2, 3, 4])
+     * df.toExcel({ filePath: './output.xlsx' }) // writes to local file system as output.xlsx in NodeJS
+     * ```
+     * 
+     * @example
+     * ```
+     * const df = new Series([1, 2, 3, 4])
+     * df.toExcel({ fileName: 'output.xlsx', download: true }) // downloads file browser
+     * ```
+     * 
+     * @example
+     * ```
+     * const df = new Series([1, 2, 3, 4])
+     * df.toExcel({ sheetName: 'Sheet2' }) // writes to Sheet2 in Excel
+     * ```
+     * 
+    */
     toExcel(options?: ExcelOutputOptionsBrowser | ExcelOutputOptionsNode): void {
         if (utils.isBrowserEnv()) {
             toExcelBrowser(this, options as ExcelOutputOptionsBrowser)

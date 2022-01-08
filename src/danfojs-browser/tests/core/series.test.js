@@ -602,7 +602,7 @@ describe("Series Functions", () => {
       assert.deepEqual(sf.isNa().values, [ false, true, false, true ]);
     });
     it("Return a boolean same-sized object indicating if int Series values are NaN", function () {
-      const data1 = [ 30, 40, 3, 5, undefined, undefined ];
+      const data1 = [ 30, 40, 3, 5, undefined, null ];
       const sf = new dfd.Series(data1);
       assert.deepEqual(sf.isNa().values, [
         false,
@@ -617,7 +617,7 @@ describe("Series Functions", () => {
 
   describe("fillNa", function () {
     it("replace all NaN value with specified value", function () {
-      const data = [ NaN, 1, 2, 33, 4, NaN, 5, 6, 7, 8 ];
+      const data = [ NaN, 1, 2, 33, 4, null, 5, 6, 7, 8 ];
       const sf = new dfd.Series(data);
       const sfVal = [ -999, 1, 2, 33, 4, -999, 5, 6, 7, 8 ];
       sf.fillNa(-999, { inplace: true });
@@ -814,6 +814,13 @@ describe("Series Functions", () => {
       sf.map(map, { inplace: true });
       assert.deepEqual(sf.values, rslt);
     });
+    it("map series element to incomplete object keys", function () {
+      const sf = new dfd.Series([ 1, 2, 3, 4 ]);
+      const map = { 1: "ok", 2: "okie", 4: "gop" };
+      const rslt = [ "ok", "okie", 3, "gop" ];
+      sf.map(map, { inplace: true });
+      assert.deepEqual(sf.values, rslt);
+    });
     it("map series element to a function statement", function () {
       const sf = new dfd.Series([ 1, 2, 3, 4 ]);
       const func_map = (x) => {
@@ -829,6 +836,16 @@ describe("Series Functions", () => {
         return x + 1;
       };
       const rslt = [ 2, 3, 4, 5 ];
+      sf.map(func_map, { inplace: true });
+      assert.deepEqual(sf.values, rslt);
+    });
+
+    it("map passes along the index", function () {
+      const sf = new dfd.Series([ 1, 2, 3, 4 ]);
+      const func_map = (x, i) => {
+        return x + i;
+      };
+      const rslt = [ 1, 3, 5, 7 ];
       sf.map(func_map, { inplace: true });
       assert.deepEqual(sf.values, rslt);
     });
@@ -1206,7 +1223,7 @@ describe("Series Functions", () => {
       const data1 = [ 10.22, 4.5, 2.0, 10, 23.23, 20.1, 30, 11 ];
       const sf = new dfd.Series(data1);
       const expected = [ 6, 4, 5, 7, 0, 3, 1, 2 ];
-      const sf_sort = sf.argSort(false);
+      const sf_sort = sf.argSort({ ascending: false });
       assert.deepEqual(sf_sort.values, expected);
     });
   });

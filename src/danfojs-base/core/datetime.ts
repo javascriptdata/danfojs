@@ -1,6 +1,6 @@
 /**
 *  @license
-* Copyright 2021, JsData. All rights reserved.
+* Copyright 2022 JsData. All rights reserved.
 *
 * This source code is licensed under the MIT license found in the
 * LICENSE file in the root directory of this source tree.
@@ -12,11 +12,11 @@
 * limitations under the License.
 * ==========================================================================
 */
-import Series from "./series";
 import { ArrayType1D, DateTime } from "../shared/types";
+import Series from "./series";
 
-const MONTH_NAME = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const WEEK_NAME = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const MONTH_NAME = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 /**
  * Format and handle all datetime operations on Series or Array of date strings

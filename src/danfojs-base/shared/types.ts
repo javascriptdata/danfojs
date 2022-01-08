@@ -1,6 +1,6 @@
 /**
 *  @license
-* Copyright 2021, JsData. All rights reserved.
+* Copyright 2022 JsData. All rights reserved.
 *
 * This source code is licensed under the MIT license found in the
 * LICENSE file in the root directory of this source tree.
@@ -13,14 +13,15 @@
 * ==========================================================================
 */
 
-import Str from '../core/strings';
-import Dt from '../core/datetime';
-import DataFrame from '../core/frame';
-import Series from '../core/series';
 import { BaseUserConfig, TableUserConfig, } from "table"
-import { ParseConfig } from 'papaparse';
 import { Config, Layout } from "plotly.js-dist-min"
 import { HeadersInit } from "node-fetch";
+import Groupby from '../aggregators/groupby';
+import { ParseConfig } from 'papaparse';
+import DataFrame from '../core/frame';
+import Series from '../core/series';
+import Str from '../core/strings';
+import Dt from '../core/datetime';
 
 export type DTYPES = "float32" | "int32" | "string" | "boolean" | "undefined"
 
@@ -37,7 +38,6 @@ export type ArrayType1D = Array<
     | (number | string | boolean)>
 
 //Start of Config class types
-
 export type ConfigsType = {
     tableDisplayConfig?: BaseUserConfig & TableUserConfig
     tableMaxRow?: number;
@@ -84,14 +84,12 @@ export type AxisType = {
     index: Array<string | number>
     columns: Array<string | number>
 }
-
 export interface NDframeInterface {
     config?: ConfigsType;
     $setDtypes(dtypes: Array<string>, infer: boolean): void;
     $setIndex(index: Array<string | number>): void;
     $resetIndex(): void;
     $setColumnNames(columns: string[]): void
-
     get dtypes(): Array<string>;
     get ndim(): number;
     get axis(): AxisType;
@@ -101,15 +99,15 @@ export interface NDframeInterface {
     get values(): ArrayType1D | ArrayType2D
     get tensor(): any
     get size(): number;
-    // toCSV(options?: CsvOutputOptionsNode): string | void
-    // toJSON(options?: { format?: "row" | "column", filePath?: string }): object | void
-    // toExcel(options?: { filePath?: string, sheetName?: string }): void
     print(): void;
 }
 //End of Generic class types
 
 
 //Start of Series class types
+type mapFunc = (val: any, i: number) => any[]
+
+export type mapParam = object | mapFunc
 export interface SeriesInterface extends NDframeInterface {
     iloc(rows: Array<string | number> | boolean[]): Series;
     head(rows: number): Series
@@ -135,17 +133,17 @@ export interface SeriesInterface extends NDframeInterface {
     var(): number
     isNa(): Series
     fillNa(value: number | string | boolean, options?: { inplace?: boolean }): Series | void
-    sortValues(options?: {  ascending?: boolean, inplace?: boolean }): Series | void
+    sortValues(options?: { ascending?: boolean, inplace?: boolean }): Series | void
     copy(): Series
     describe(): Series
     resetIndex(options?: { inplace?: boolean }): Series | void
     setIndex(index: Array<number | string | (number | string)>, options?: { inplace?: boolean }): Series | void
     map(
-        callable: any,
+        callable: mapParam,
         options?: { inplace?: boolean })
         : Series | void
     apply(
-        callable: any,
+        callable: (value: any) => any,
         options?: { inplace?: boolean }): Series | void
     unique(): Series
     nUnique(): number
@@ -163,7 +161,7 @@ export interface SeriesInterface extends NDframeInterface {
     eq(other: Series | number | Array<number> | boolean[]): Series
     replace(oldValue: string | number | boolean, newValue: string | number | boolean, options?: { inplace?: boolean }): Series | void
     dropNa(options?: { inplace?: boolean }): Series | void
-    argSort(): Series
+    argSort(options?: { ascending: boolean }): Series
     argMax(): number
     argMin(): number
     get dtype(): string
@@ -188,7 +186,7 @@ export interface SeriesInterface extends NDframeInterface {
     toExcel(options?: ExcelOutputOptionsBrowser): void
 }
 
-//Start of Series class types
+//Start of DataFrame class types
 export interface DataFrameInterface extends NDframeInterface {
     [key: string]: any
     drop(
@@ -255,7 +253,7 @@ export interface DataFrameInterface extends NDframeInterface {
             atIndex?: number
         }
     ): DataFrame | void
-    groupby(column: [string, string]): any //Update to GroupBy class later
+    groupby(col: Array<string>): Groupby
     column(column: string): Series
     fillNa(value: ArrayType1D,
         options?:
@@ -342,7 +340,6 @@ export interface DateTime {
     minutes(): Series
 }
 
-//START OF BROWSER TYPES
 interface CustomConfig extends Config {
     x: string
     y: string,
@@ -376,17 +373,14 @@ export interface CsvInputOptionsBrowser extends ParseConfig { }
 export type ExcelInputOptionsBrowser = { sheet?: number, method?: string, headers?: any }
 export type JsonInputOptionsBrowser = { method?: string, headers?: any }
 
-export type CsvOutputOptionsBrowser = { fileName?: string, sep?: string, header?: boolean, download?: boolean };
-export type ExcelOutputOptionsBrowser = { fileName?: string, sheetName?: string };
-export type JsonOutputOptionsBrowser = { fileName?: string, format?: "row" | "column", download?: boolean };
-//END OF BROWSER TYPES
-
-//START OF NODEJS TYPES
 export interface CsvInputOptionsNode extends ParseConfig { }
 export type ExcelInputOptionsNode = { sheet?: number, method?: string, headers?: HeadersInit }
 export type JsonInputOptionsNode = { method?: string, headers?: HeadersInit }
 
+export type CsvOutputOptionsBrowser = { fileName?: string, sep?: string, header?: boolean, download?: boolean };
+export type ExcelOutputOptionsBrowser = { fileName?: string, sheetName?: string };
+export type JsonOutputOptionsBrowser = { fileName?: string, format?: "row" | "column", download?: boolean };
+
 export type CsvOutputOptionsNode = { filePath?: string, sep?: string, header?: boolean }
 export type JsonOutputOptionsNode = { format?: "row" | "column", filePath?: string }
 export type ExcelOutputOptionsNode = { filePath?: string, sheetName?: string }
-//END OF NODEJS TYPES
