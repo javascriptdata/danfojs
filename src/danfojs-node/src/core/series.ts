@@ -13,21 +13,21 @@
 * ==========================================================================
 */
 
-import BaseSeries from "../../../danfojs-base/core/series"
 import { BaseDataOptionType } from "../../../danfojs-base/shared/types";
+import BaseSeries from "../../../danfojs-base/core/series"
+
 
 
 /**
- * Two-dimensional ndarray with axis labels.
+ * One-dimensional ndarray with axis labels.
  * The object supports both integer- and label-based indexing and provides a host of methods for performing operations involving the index.
- * Operations between DataFrame (+, -, /, , *) align values based on their associated index values– they need not be the same length.
- * @param data 2D Array, JSON, Tensor, Block of data.
- * @param options.index Array of numeric or string names for subseting array. If not specified, indexes are auto generated.
- * @param options.columns Array of column names. If not specified, column names are auto generated.
- * @param options.dtypes Array of data types for each the column. If not specified, dtypes are/is inferred.
- * @param options.config General configuration object for extending or setting NDframe behavior.      
+ * Operations between Series (+, -, /, , *) align values based on their associated index values – they need not be the same length.
+ * @param data 1D Array, JSON, Tensor, Block of data.
+ * @param options.index Array of numeric or string index for subseting array. If not specified, indices are auto generated.
+ * @param options.columns Column name. This is like the name of the Series. If not specified, column name is set to 0.
+ * @param options.dtypes Data types of the Series data. If not specified, dtypes is inferred.
+ * @param options.config General configuration object for extending or setting Series behavior.      
  */
-/* @ts-ignore */ //COMMENT OUT WHEN METHODS HAVE BEEN IMPLEMENTED
 export default class Series extends BaseSeries {
     [key: string]: any
     constructor(data?: any, options: BaseDataOptionType = {}) {

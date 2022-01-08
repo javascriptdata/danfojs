@@ -16,8 +16,6 @@ import {
     $readCSV,
     $streamCSV,
     $toCSV,
-    // $openCsvInputStream,
-    // $writeCsvOutputStream,
 } from "./io.csv"
 import {
     $readJSON,
@@ -29,8 +27,6 @@ export {
     $readCSV as readCSVBrowser,
     $streamCSV as streamCSVBrowser,
     $toCSV as toCSVBrowser,
-    // $openCsvInputStream as openCsvInputStream,
-    // $writeCsvOutputStream as writeCsvOutputStream,
     $readJSON as readJSONBrowser,
     $toJSON as toJSONBrowser,
     $readExcel as readExcelBrowser,

@@ -12,9 +12,14 @@
 * limitations under the License.
 * ==========================================================================
 */
-import XLSX from 'xlsx';
+import {
+    ArrayType1D,
+    ArrayType2D,
+    ExcelOutputOptionsBrowser,
+    ExcelInputOptionsBrowser
+} from "../../shared/types"
 import { DataFrame, NDframe, Series } from '../../'
-import { ArrayType1D, ArrayType2D, ExcelOutputOptionsBrowser, ExcelInputOptionsBrowser } from "../../shared/types"
+import XLSX from 'xlsx';
 
 /**
  * Reads a JSON file from local or remote location into a DataFrame.

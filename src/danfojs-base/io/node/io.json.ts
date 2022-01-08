@@ -1,10 +1,10 @@
-import fs from 'fs'
-import request from "request"
-import { parser } from "stream-json"
-import fetch, { HeadersInit } from "node-fetch";
-import { DataFrame, NDframe, Series } from '../../'
-import { streamArray } from "stream-json/streamers/StreamArray"
 import { ArrayType1D, ArrayType2D, JsonInputOptionsNode, JsonOutputOptionsNode } from '../../shared/types';
+import { streamArray } from "stream-json/streamers/StreamArray"
+import { DataFrame, NDframe, Series } from '../../'
+import { parser } from "stream-json"
+import fetch from "node-fetch";
+import request from "request"
+import fs from 'fs'
 
 /**
  * Reads a JSON file from local or remote location into a DataFrame.

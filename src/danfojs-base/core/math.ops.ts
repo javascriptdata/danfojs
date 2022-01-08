@@ -18,7 +18,7 @@ import Utils from "../shared/utils"
 const utils = new Utils();
 
 /**
- * Generic function for performing add, sub, pow, mul and mod operation on a series
+ * Generic function for performing math operations on a series
  * @param object
  * 
  * ndframe ==> The current Series

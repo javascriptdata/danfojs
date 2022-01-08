@@ -21,7 +21,7 @@ import { NDframeInterface } from "../shared/types";
 const utils = new Utils();
 
 /**
-* Slice a Series/DataFrame by specified string location based labels
+* Internal function to slice a Series/DataFrame by index based labels
 * @param Object 
 */
 export function _iloc({ ndFrame, rows, columns }: {
@@ -206,7 +206,7 @@ export function _iloc({ ndFrame, rows, columns }: {
 }
 
 /**
-* Slice a Series/DataFrame by specified string location based labels
+* Internal function to slice a Series/DataFrame by specified string location based labels
 * @param Object 
 */
 export function _loc({ ndFrame, rows, columns }: {

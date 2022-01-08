@@ -23,7 +23,7 @@ import ErrorThrower from '../shared/errors'
 const config = new Config(BASE_CONFIG);
 
 /**
- * Utility class for working with Frames and Series
+ * General Utility class
  */
 export default class Utils {
     /**

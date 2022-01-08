@@ -12,12 +12,12 @@
 * limitations under the License.
 * ==========================================================================
 */
-import fs from 'fs'
-import Papa from 'papaparse'
-import request from "request"
-import stream from "stream"
-import { DataFrame, NDframe, Series } from '../../'
 import { CsvInputOptionsNode, CsvOutputOptionsNode, ArrayType2D } from "../../shared/types"
+import { DataFrame, NDframe, Series } from '../../'
+import request from "request"
+import Papa from 'papaparse'
+import stream from "stream"
+import fs from 'fs'
 
 /**
  * Reads a CSV file from local or remote location into a DataFrame.

@@ -15,7 +15,7 @@
 
 /**
  * Danfojs-node version uses Tensorflowjs-node package. Hence on bundling, we set the tensorflow lib
- * to use the Tensorflowjs-node package.
+ * to use the Tensorflowjs-node package, and vice-versa for browser.
  * */
 
 /* eslint-disable no-undef */

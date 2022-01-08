@@ -1837,7 +1837,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
-     * df.isNaN().print()
+     * df.isNa().print()
      * ```
     */
     isNa(): DataFrame {

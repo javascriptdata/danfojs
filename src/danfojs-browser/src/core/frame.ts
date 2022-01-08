@@ -12,8 +12,8 @@
 * limitations under the License.
 * ==========================================================================
 */
-import BaseDataFrame from "../../../danfojs-base/core/frame"
 import { BaseDataOptionType } from "../../../danfojs-base/shared/types";
+import BaseDataFrame from "../../../danfojs-base/core/frame"
 
 
 /**
@@ -26,7 +26,6 @@ import { BaseDataOptionType } from "../../../danfojs-base/shared/types";
  * @param options.dtypes Array of data types for each the column. If not specified, dtypes are/is inferred.
  * @param options.config General configuration object for extending or setting NDframe behavior.      
  */
-/* @ts-ignore */ //COMMENT OUT WHEN METHODS HAVE BEEN IMPLEMENTED
 export default class DataFrame extends BaseDataFrame {
     [key: string]: any
     constructor(data?: any, options: BaseDataOptionType = {}) {

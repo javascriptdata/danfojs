@@ -13,9 +13,9 @@
 * ==========================================================================
 */
 import { CsvInputOptionsNode, CsvOutputOptionsNode } from "../../../danfojs-base/shared/types"
+import { writeCsvOutputStreamNode, openCsvInputStreamNode } from "../../../danfojs-base/io/node"
 import DataFrame from "../core/frame"
 import stream from "stream"
-import { writeCsvOutputStreamNode, openCsvInputStreamNode } from "../../../danfojs-base/io/node"
 
 /**
  * Converts a function to a pipe transformer. 

@@ -154,6 +154,16 @@ describe("DataFrame", function () {
             assert.deepEqual(newdf.dtypes, ["string", "int32", "float32", "string"]);
             assert.deepEqual(newdf.index, [0, 1, 2, 3]);
         });
+
+        it("Add new array values to specific column index", function () {
+            let data = { alpha: ["A", "B", "C", "D"], val_count: [1, 2, 3, 4], val_sum: [20.3, 30.456, 40.90, 90.1] };
+            let df = new DataFrame(data);
+            const newdf = df.addColumn("new_column", ["a", "b", "c", "d"], { atIndex: 'alpha' }) as DataFrame;
+            assert.deepEqual(newdf["new_column"].values, ["a", "b", "c", "d"]);
+            assert.deepEqual(newdf.columns, ["new_column", "alpha", "val_count", "val_sum"]);
+            assert.deepEqual(newdf.dtypes, ["string", "int32", "float32", "string"]);
+            assert.deepEqual(newdf.index, [0, 1, 2, 3]);
+        });
     })
 
     describe("drop", function () {

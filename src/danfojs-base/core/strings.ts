@@ -13,8 +13,10 @@
 * ==========================================================================
 */
 import { ArrayType1D } from "../shared/types";
+import Utils from "../shared/utils"
 import Series from "./series";
 
+const utils = new Utils();
 /**
  * Exposes numerous String methods. All methods are applied Element-wise
  */
@@ -45,7 +47,7 @@ export default class Str {
         const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
-            if (isNaN(val as number) && typeof val != "string") {
+            if (utils.isEmpty(val)) {
                 newArr.push(NaN);
             } else {
                 newArr.push(`${val}`.toLowerCase());
@@ -82,7 +84,7 @@ export default class Str {
         const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
-            if (isNaN(val as number) && typeof val != "string") {
+            if (utils.isEmpty(val)) {
                 newArr.push(NaN);
             } else {
                 newArr.push(`${val}`.toUpperCase());
@@ -118,7 +120,7 @@ export default class Str {
         const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
-            if (isNaN(val as number) && typeof val != "string") {
+            if (utils.isEmpty(val)) {
                 newArr.push(NaN);
             } else {
                 let firstChar = `${val}`.slice(0, 1);
@@ -159,7 +161,7 @@ export default class Str {
         const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
-            if (isNaN(val as number) && typeof val != "string") {
+            if (utils.isEmpty(val)) {
                 newArr.push(NaN);
             } else {
                 newArr.push(`${val}`.charAt(index));
@@ -209,14 +211,14 @@ export default class Str {
         } else {
             this.values.map((val) => {
                 if (position == 1) {
-                    if (isNaN(val as number) && typeof val != "string") {
+                    if (utils.isEmpty(val)) {
                         newArr.push(NaN);
                     } else {
                         newArr.push(`${val}`.concat(`${other}`));
                     }
 
                 } else {
-                    if (isNaN(val as number) && typeof val != "string") {
+                    if (utils.isEmpty(val)) {
                         newArr.push(NaN);
                     } else {
                         newArr.push(other.concat(`${val}`));
@@ -256,7 +258,7 @@ export default class Str {
         const { inplace } = { inplace: false, ...options }
         const newArr: Array<boolean | number> = [];
         this.values.forEach((val) => {
-            if (isNaN(val as number) && typeof val != "string") {
+            if (utils.isEmpty(val)) {
                 newArr.push(NaN);
             } else {
                 newArr.push(`${val}`.startsWith(str));
@@ -291,7 +293,7 @@ export default class Str {
         const { inplace } = { inplace: false, ...options }
         const newArr: Array<boolean | number> = [];
         this.values.map((val) => {
-            if (isNaN(val as number) && typeof val != "string") {
+            if (utils.isEmpty(val)) {
                 newArr.push(NaN);
             } else {
                 newArr.push(`${val}`.endsWith(str));
@@ -326,7 +328,7 @@ export default class Str {
         const { inplace } = { inplace: false, ...options }
         const newArr: Array<boolean | number> = [];
         this.values.map((val) => {
-            if (isNaN(val as number) && typeof val != "string") {
+            if (utils.isEmpty(val)) {
                 newArr.push(NaN);
             } else {
                 newArr.push(`${val}`.includes(str));
@@ -361,7 +363,7 @@ export default class Str {
         const { inplace } = { inplace: false, ...options }
         const newArr: Array<number> = [];
         this.values.map((val) => {
-            if (isNaN(val as number) && typeof val != "string") {
+            if (utils.isEmpty(val)) {
                 newArr.push(NaN);
             } else {
                 newArr.push(`${val}`.indexOf(str));
@@ -396,7 +398,7 @@ export default class Str {
         const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
-            if (isNaN(val as number) && typeof val != "string") {
+            if (utils.isEmpty(val)) {
                 newArr.push(NaN);
             } else {
                 newArr.push(`${val}`.lastIndexOf(str));
@@ -433,7 +435,7 @@ export default class Str {
         const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
-            if (isNaN(val as number) && typeof val != "string") {
+            if (utils.isEmpty(val)) {
                 newArr.push(NaN);
             } else {
                 newArr.push(`${val}`.replace(searchValue, replaceValue));
@@ -468,7 +470,7 @@ export default class Str {
         const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
-            if (isNaN(val as number) && typeof val != "string") {
+            if (utils.isEmpty(val)) {
                 newArr.push(NaN);
             } else {
                 newArr.push(`${val}`.repeat(num));
@@ -503,7 +505,7 @@ export default class Str {
         const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
-            if (isNaN(val as number) && typeof val != "string") {
+            if (utils.isEmpty(val)) {
                 newArr.push(NaN);
             } else {
                 newArr.push(`${val}`.search(str));
@@ -539,7 +541,7 @@ export default class Str {
         const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
-            if (isNaN(val as number) && typeof val != "string") {
+            if (utils.isEmpty(val)) {
                 newArr.push(NaN);
             } else {
                 newArr.push(`${val}`.slice(startIndex, endIndex));
@@ -573,7 +575,7 @@ export default class Str {
         const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
-            if (isNaN(val as number) && typeof val != "string") {
+            if (utils.isEmpty(val)) {
                 newArr.push(NaN);
             } else {
                 newArr.push(`${String(val).split(splitVal)}`);
@@ -607,7 +609,7 @@ export default class Str {
         const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
-            if (isNaN(val as number) && typeof val != "string") {
+            if (utils.isEmpty(val)) {
                 newArr.push(NaN);
             } else {
                 newArr.push(`${String(val).substr(startIndex, num)}`);
@@ -641,7 +643,7 @@ export default class Str {
         const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
-            if (isNaN(val as number) && typeof val != "string") {
+            if (utils.isEmpty(val)) {
                 newArr.push(NaN);
             } else {
                 newArr.push(`${String(val).substring(startIndex, endIndex)}`);
@@ -674,7 +676,7 @@ export default class Str {
         const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
-            if (isNaN(val as number) && typeof val != "string") {
+            if (utils.isEmpty(val)) {
                 newArr.push(NaN);
             } else {
                 newArr.push(`${val}`.trim());
@@ -709,7 +711,7 @@ export default class Str {
         const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
-            if (isNaN(val as number) && typeof val != "string") {
+            if (utils.isEmpty(val)) {
                 newArr.push(NaN);
             } else {
                 let leftChar = val;
@@ -745,7 +747,7 @@ export default class Str {
         const { inplace } = { inplace: false, ...options }
         const newArr: Array<string | number> = [];
         this.values.map((val) => {
-            if (isNaN(val as number) && typeof val != "string") {
+            if (utils.isEmpty(val)) {
                 newArr.push(NaN);
             } else {
                 newArr.push(`${val}`.length);

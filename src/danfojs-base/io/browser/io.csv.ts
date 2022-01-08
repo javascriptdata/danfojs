@@ -12,9 +12,9 @@
 * limitations under the License.
 * ==========================================================================
 */
-import Papa from 'papaparse'
-import { DataFrame, NDframe, Series } from '../../'
 import { CsvInputOptionsBrowser, CsvOutputOptionsBrowser, ArrayType2D} from "../../shared/types"
+import { DataFrame, NDframe, Series } from '../../'
+import Papa from 'papaparse'
 
 
 /**
@@ -150,7 +150,7 @@ const $toCSV = (df: NDframe | DataFrame | Series, options?: CsvOutputOptionsBrow
 };
 
 /**
- * Function to download a CSV file in the browser.
+ * Internal function to download a CSV file in the browser.
  * @param content A string of CSV file contents
  * @param fileName  The name of the file to be downloaded
  */

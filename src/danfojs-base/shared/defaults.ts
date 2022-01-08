@@ -18,7 +18,7 @@
  */
 export const BASE_CONFIG = {
     tableMaxRow: 10,
-    tableMaxColInConsole: 21,
+    tableMaxColInConsole: 10,
     dtypeTestLim: 7,
     lowMemoryMode: false,
 }
