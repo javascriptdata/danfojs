@@ -250,7 +250,7 @@ export interface DataFrameInterface extends NDframeInterface {
         values: Series | ArrayType1D,
         options?: {
             inplace?: boolean,
-            atIndex?: number
+            atIndex?: number | string
         }
     ): DataFrame | void
     groupby(col: Array<string>): Groupby

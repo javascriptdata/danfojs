@@ -19,6 +19,7 @@ import  concat from "../transformers/concat"
 import Series from "../core/series";
 
 
+
 /**
  * The class performs all groupby operation on a dataframe
  * involving all aggregate funciton
@@ -422,46 +423,95 @@ export default class Groupby {
     return df
   }
 
-  count() {
+  /**
+   * Obtain the count for each group
+   * @returns DataFrame
+   * 
+   */
+  count(): DataFrame {
     return this.operations("count")
   }
 
-  sum(){
+  /**
+   * Obtain the sum of columns for each group
+   * @returns DataFrame
+   * 
+   */
+  sum(): DataFrame{
     return this.operations("sum")
   }
 
-  var(){
+  /**
+   * Obtain the variance of columns for each group
+   * @returns DataFrame
+   */
+  var(): DataFrame{
     return this.operations("var")
   }
 
-  mean(){
+  /**
+   * Obtain the mean of columns for each group
+   * @returns DataFrame
+   */
+  mean(): DataFrame{
     return this.operations("mean")
   }
 
-  cumsum(){
+  /**
+   * Obtain the cumsum of columns for each group
+   * @returns DataFrame
+   * 
+   */
+  cumsum(): DataFrame{
     return this.operations("cumsum")
   }
 
-  cummax(){
+  /**
+   * Obtain the cummax of columns for each group
+   * @returns DataFrame
+   */
+  cummax(): DataFrame{
     return this.operations("cummax")
   }
 
-  cumprod(){
+  /**
+   * Obtain the cumprod of columns for each group
+   * @returns DataFrame
+   */
+  cumprod(): DataFrame{
     return this.operations("cumprod")
   }
 
-  cummin(){
+  /**
+   * Obtain the cummin of columns for each group
+   * @returns DataFrame
+   */
+  cummin(): DataFrame{
     return this.operations("cummin")
   }
 
-  max(){
+  /**
+   * Obtain the max value of columns for each group
+   * @returns DataFrame
+   * 
+   */
+  max(): DataFrame{
     return this.operations("max")
   }
 
-  min(){
+  /**
+   * Obtain the min of columns for each group
+   * @returns DataFrame
+   */
+  min(): DataFrame{
     return this.operations("min")
   }
 
+  /**
+   * Obtain a specific group
+   * @param keys Array<string | number>
+   * @returns DataFrame
+   */
   getGroup(keys: Array<string | number>): DataFrame {
     let dictKey = keys.join("-")
     let colDict: { [key: string ]: {} }  = {}
@@ -469,7 +519,12 @@ export default class Groupby {
     return this.toDataFrame(colDict)
   }
 
-  agg(ops: { [key: string ]: Array<string> | string }) {
+  /**
+   * Perform aggregation on all groups
+   * @param ops 
+   * @returns DataFrame
+   */
+  agg(ops: { [key: string ]: Array<string> | string }): DataFrame {
     let columns = Object.keys(ops);
     let col_gp = this.col(columns);
     let data = col_gp.arithemetic(ops);
@@ -477,6 +532,15 @@ export default class Groupby {
     return df;
   }
 
+  /**
+   * Apply custom aggregator function
+   * to each group
+   * @param callable 
+   * @returns DataFrame
+   * @example
+   * let grp = df.groupby(['A'])
+   * grp.apply((x) => x.count())
+   */
   apply(callable: (x: DataFrame)=> DataFrame | Series ): DataFrame {
     let colDict: { [key: string ]: DataFrame | Series } = {}
     for(const key of this.colKeyDict(this.colDict)) {
@@ -486,7 +550,7 @@ export default class Groupby {
     return this.concatGroups(colDict)
   }
 
-  concatGroups(colDict: {[key: string]: DataFrame | Series}): DataFrame {
+  private concatGroups(colDict: {[key: string]: DataFrame | Series}): DataFrame {
     let data: Array<DataFrame | Series> = []
     for(const [key, values] of Object.entries(colDict)) {
       let copyDf: DataFrame;
@@ -505,11 +569,12 @@ export default class Groupby {
         let keyName = this.keyCol[key1] as string
         let keyValue = this.keyToValue[key][key1]
         let dfValue = Array(len).fill(keyValue)
+        let atIndex: number = parseInt(key1)
         if (this.groupColNames) {
-          copyDf.addColumn(keyName, dfValue, {inplace: true, atIndex: key1 as number })
+          copyDf.addColumn(keyName, dfValue, {inplace: true, atIndex: atIndex })
         }
         else {
-          copyDf.addColumn(`${keyName}_Group`, dfValue, {inplace: true, atIndex: key1 as number })
+          copyDf.addColumn(`${keyName}_Group`, dfValue, {inplace: true, atIndex: atIndex })
         }
         
       }
@@ -518,27 +583,47 @@ export default class Groupby {
     return concat({dfList: data, axis:0}) as DataFrame
   }
   
+  /**
+   * obtain the total number of groups
+   * @returns number
+   */
   get ngroups(): number{
     let keys = Object.keys(this.colDict)
     return keys.length
   }
 
+  /**
+   * obtaind the internal group data
+   * @returns  {[keys: string]: {}}
+   */
   get groups(): {[keys: string]: {}}{
     return this.colDict
   }
 
+  /**
+   * Obtain the first row of each group
+   * @returns DataFrame
+   */
   first(): DataFrame{
     return this.apply((x)=>{
       return x.head(1)
     })
   }
 
+  /**
+   * Obtain the last row of each group
+   * @returns DataFrame
+   */
   last(): DataFrame {
     return this.apply((x)=>{
       return x.tail(1)
     })
   }
 
+  /**
+   * Obtains the dataframe se of each groups
+   * @returns DataFrame
+   */
   size(): DataFrame {
     return this.apply((x)=>{
       return new Series([x.shape[0]])
