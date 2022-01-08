@@ -569,11 +569,12 @@ export default class Groupby {
         let keyName = this.keyCol[key1] as string
         let keyValue = this.keyToValue[key][key1]
         let dfValue = Array(len).fill(keyValue)
+        let atIndex: number = parseInt(key1)
         if (this.groupColNames) {
-          copyDf.addColumn(keyName, dfValue, {inplace: true, atIndex: key1 as number })
+          copyDf.addColumn(keyName, dfValue, {inplace: true, atIndex: atIndex })
         }
         else {
-          copyDf.addColumn(`${keyName}_Group`, dfValue, {inplace: true, atIndex: key1 as number })
+          copyDf.addColumn(`${keyName}_Group`, dfValue, {inplace: true, atIndex: atIndex })
         }
         
       }
