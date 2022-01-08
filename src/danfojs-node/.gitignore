@@ -8,3 +8,5 @@ danfojs/data
 build
 lib/*
 dist
+*.xlsx
+tensorflowlib.ts

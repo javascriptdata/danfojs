@@ -1,9 +1,5 @@
 .editorconfig
 node_modules
-test/fixtures/titanicO*
-danfojs-node/test/samples/test*
-danfojs-node/test/samples/titanicO*
-danfojs-node/test/samples/sampleO*
-src/danfojs-node/test/samples/sampleOut.xlsx
-src/danfojs-node/test/samples/test.xlsx
-src/danfojs-node/test/samples/testSeries.xlsx
+test/fixtures/*
+test/samples/*
+*.xlsx
