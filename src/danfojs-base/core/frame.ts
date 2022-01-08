@@ -1615,15 +1615,29 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     addColumn(
         column: string,
         values: Series | ArrayType1D,
-        options?: { inplace?: boolean, atIndex?: number }
+        options?: { inplace?: boolean, atIndex?: number | string }
     ): DataFrame
     addColumn(
         column: string,
         values: Series | ArrayType1D,
-        options?: { inplace?: boolean, atIndex?: number }
+        options?: { inplace?: boolean, atIndex?: number | string }
     ): DataFrame | void {
         const { inplace } = { inplace: false, ...options };
-        const atIndex = typeof options?.atIndex !== "undefined" ? options.atIndex : this.columns.length
+        let atIndex;
+        if(typeof options?.atIndex !== "undefined" ) {
+            if (typeof options?.atIndex === "string" ) {
+                if (!(this.columns.includes(options?.atIndex))){
+                    throw new Error(`${options?.atIndex} not a column`)
+                }
+                atIndex = this.columns.indexOf(options?.atIndex)
+            }
+            else {
+                atIndex = options?.atIndex
+            }
+        }
+        else {
+            atIndex = this.columns.length
+        }
 
         if (!column) {
             throw new Error("ParamError: column must be specified")
@@ -2726,6 +2740,12 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Groupby
      * @params col a list of column
+     * @returns Groupby
+     * @example
+     * let data = [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 20, 30, 40 ], [ 39, 89, 78 ] ];
+     * let cols = [ "A", "B", "C" ];
+     * let df = new dfd.DataFrame(data, { columns: cols });
+     * let groupDf = df.groupby([ "A" ]);
      */
     groupby(col: Array<string>): Groupby {
         const columns = this.columns
