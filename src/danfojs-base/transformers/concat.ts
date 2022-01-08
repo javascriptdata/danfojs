@@ -17,6 +17,12 @@ import Series from "../core/series"
 import DataFrame from "../core/frame"
 import { ArrayType1D, ArrayType2D } from "../shared/types"
 
+/**
+ * 
+ * @param dfList Array<DataFrame | Series>
+ * @param axis number
+ * @returns DataFrame
+ */
 function processColumn(dfList: Array<DataFrame | Series>, axis: number ): DataFrame {
   let allDf: any = {}
   let dublicateColumns: any = {}
@@ -58,7 +64,12 @@ function processColumn(dfList: Array<DataFrame | Series>, axis: number ): DataFr
   return new DataFrame(allDf)
 }
 
-
+/**
+ * Concat data along rows
+ * @param dfList Array<DataFrame | Series>
+ * @param axis  Array<DataFrame | Series>
+ * @returns DataFrame
+ */
 function processRow(dfList: Array<DataFrame | Series>, axis: number ): DataFrame | Series {
     let allDf: any = {}
     let maxLen = 0
@@ -120,6 +131,8 @@ function processRow(dfList: Array<DataFrame | Series>, axis: number ): DataFrame
 * dfList: Array of DataFrame or Series
 * axis: axis of concatenation 1 or 0
 * @returns {DataFrame}
+* @example
+* concat({dfList: [df1, df2, df3], axis: 1})
 */
 function concat({dfList, axis}: {
   dfList : Array<DataFrame | Series>,
