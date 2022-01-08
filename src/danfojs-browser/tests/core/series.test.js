@@ -654,20 +654,20 @@ describe("Series Functions", () => {
       const sf = new dfd.Series([ 20, 30, 1, 2, 4, 57, 89, 0, 4 ]);
       const result = [ 0, 1, 2, 4, 4, 20, 30, 57, 89 ];
       const expectedIndex = [ 7, 2, 3, 8, 4, 0, 1, 5, 6 ];
-      sf.sortValues(true, { inplace: true });
+      sf.sortValues({ ascending:true, inplace: true });
       assert.deepEqual(sf.values, result);
       assert.deepEqual(sf.index, expectedIndex);
     });
     it("Sort values in a Series in Descending order", function () {
       const sf = new dfd.Series([ 20, 30, 1, 2, 4, 57, 89, 0, 4 ]);
       const result = [ 89, 57, 30, 20, 4, 4, 2, 1, 0 ];
-      const sortedSf = sf.sortValues(false);
+      const sortedSf = sf.sortValues({ ascending: false });
       assert.deepEqual(sortedSf.values, result);
     });
     it("confirms that sortValues in descending order happens inplace", function () {
       const sf = new dfd.Series([ 20, 30, 1, 2, 4, 57, 89, 0, 4 ]);
       const result = [ 89, 57, 30, 20, 4, 4, 2, 1, 0 ];
-      sf.sortValues(false, { inplace: true });
+      sf.sortValues({ ascending: false, inplace: true });
       assert.deepEqual(sf.values, result);
     });
     it("Confirms that series index is sorted in ascending order (not in inplace)", function () {
@@ -679,13 +679,13 @@ describe("Series Functions", () => {
     it("Confirms that series index is sorted in descending order (not in inplace)", function () {
       const sf = new dfd.Series([ 20, 30, 1, 2, 4, 57, 89, 0, 4 ]);
       const result = [ 6, 5, 1, 0, 4, 8, 3, 2, 7 ];
-      const sortedSf = sf.sortValues(false);
+      const sortedSf = sf.sortValues({ ascending: false });
       assert.deepEqual(sortedSf.index, result);
     });
     it("Sort string values in a Series", function () {
       const sf = new dfd.Series([ "boy", "zebra", "girl", "man" ]);
       const result = [ "boy", "girl", "man", "zebra" ];
-      const sortedSf = sf.sortValues(false);
+      const sortedSf = sf.sortValues({ ascending: false });
       assert.deepEqual(sortedSf.values, result);
     });
   });

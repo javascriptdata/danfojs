@@ -1561,7 +1561,7 @@ describe("DataFrame", function () {
             const df_val = [[2, 4],
             [180, 360],
             [180, 360]]
-            assert.deepEqual((df.dropNa(0) as DataFrame).values, df_val);
+            assert.deepEqual((df.dropNa({ axis: 0 }) as DataFrame).values, df_val);
 
         });
         it("drop NaNs along axis 1", function () {
@@ -1572,7 +1572,7 @@ describe("DataFrame", function () {
             const df = new DataFrame(data, { columns: column });
             const df_val = [[0, 2, 4],
             [360, 180, 360]]
-            assert.deepEqual((df.dropNa(1) as DataFrame).values, df_val);
+            assert.deepEqual((df.dropNa({ axis: 1 }) as DataFrame).values, df_val);
 
         });
         it("drop NaNs along axis 1", function () {
@@ -1580,7 +1580,7 @@ describe("DataFrame", function () {
             const column = ["A", "B", "C", "D"];
             const df = new DataFrame(data, { columns: column });
             const df_val = [[5, 6, 7, 8]];
-            assert.deepEqual((df.dropNa(1) as DataFrame).values, df_val);
+            assert.deepEqual((df.dropNa({ axis: 1 }) as DataFrame).values, df_val);
 
         });
         it("drop inplace at axis 0, inplace false ", function () {
@@ -1590,7 +1590,7 @@ describe("DataFrame", function () {
 
             const df_val = [[1, 3], [4, 9], [6, 8]];
 
-            assert.deepEqual((df.dropNa(0) as DataFrame).values, df_val);
+            assert.deepEqual((df.dropNa({ axis: 0 }) as DataFrame).values, df_val);
 
         });
         it("drop inplace at axis 0, inplace true ", function () {
@@ -1599,7 +1599,7 @@ describe("DataFrame", function () {
             const df = new DataFrame(data, { columns: column });
 
             const df_val = [[1, 3], [4, 9], [6, 8]];
-            df.dropNa(0, { inplace: true });
+            df.dropNa({ axis: 0, inplace: true });
             assert.deepEqual(df.values, df_val);
 
         });
@@ -1610,7 +1610,7 @@ describe("DataFrame", function () {
 
             const df_val = [[5, 6, 7, 8]];
 
-            df.dropNa(1, { inplace: true });
+            df.dropNa({ axis: 1, inplace: true });
             assert.deepEqual(df.values, df_val);
 
         });
@@ -1621,7 +1621,7 @@ describe("DataFrame", function () {
 
             let df_val = [[5, 6, 7, 8]];
 
-            df.dropNa(1, { inplace: true });
+            df.dropNa({ axis: 1, inplace: true });
             assert.deepEqual(df.values, df_val);
 
         });
@@ -2703,13 +2703,13 @@ describe("DataFrame", function () {
 
         it("Confirms that column names are not changed", function () {
 
-            let data = [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 20, 30, 40 ], [ 39, 89, 78 ] ];
-            let cols = [ "A", "B", "C" ];
+            let data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+            let cols = ["A", "B", "C"];
             let df = new DataFrame(data, { columns: cols });
-            let df_query = df.query( df["B"].ge(5));
-            assert.deepEqual(df_query.index, [ 1, 2, 3 ]);
-            assert.deepEqual(df_query.columns, [ "A", "B", "C" ]);
-          });
+            let df_query = df.query(df["B"].ge(5));
+            assert.deepEqual(df_query.index, [1, 2, 3]);
+            assert.deepEqual(df_query.columns, ["A", "B", "C"]);
+        });
 
     });
 

@@ -93,7 +93,7 @@ const $readJSON = async (file: any, options?: JsonInputOptionsBrowser) => {
  * ```
  */
 const $toJSON = (df: NDframe | DataFrame | Series, options?: JsonOutputOptionsBrowser): object | void => {
-    let { fileName, format, download } = { fileName: "output.json", download: true, format: "column", ...options }
+    let { fileName, format, download } = { fileName: "output.json", download: false, format: "column", ...options }
 
     if (df.$isSeries) {
         const obj: { [key: string]: ArrayType1D } = {};

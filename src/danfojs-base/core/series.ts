@@ -12,6 +12,22 @@
 * limitations under the License.
 * ==========================================================================
 */
+import { toCSVBrowser, toExcelBrowser, toJSONBrowser } from "../io/browser";
+import { toCSVNode, toExcelNode, toJSONNode } from "../io/node";
+import dummyEncode from "../transformers/encoders/dummy.encoder";
+import { variance, std, median, mode } from 'mathjs';
+import tensorflow from '../shared/tensorflowlib'
+import { DATA_TYPES } from '../shared/defaults'
+import { _genericMathOp } from "./math.ops";
+import ErrorThrower from "../shared/errors"
+import { _iloc, _loc } from "./indexing";
+import { PlotlyLib } from "../plotting";
+import Utils from "../shared/utils"
+import NDframe from "./generic";
+import { table } from "table";
+import Str from './strings';
+import Dt from './datetime';
+import DataFrame from "./frame";
 import {
     ArrayType1D,
     BaseDataOptionType,
@@ -23,22 +39,6 @@ import {
     ExcelOutputOptionsNode,
     JsonOutputOptionsNode
 } from "../shared/types";
-import { variance, std, median, mode } from 'mathjs';
-import { _genericMathOp } from "./math.ops";
-import { DATA_TYPES } from '../shared/defaults'
-import ErrorThrower from "../shared/errors"
-import { _iloc, _loc } from "./indexing";
-import Utils from "../shared/utils"
-import NDframe from "./generic";
-import { table } from "table";
-import Str from './strings';
-import Dt from './datetime';
-import dummyEncode from "../transformers/encoders/dummy.encoder";
-import DataFrame from "./frame";
-import tensorflow from '../shared/tensorflowlib'
-import { PlotlyLib } from "../plotting";
-import { toCSVBrowser, toExcelBrowser, toJSONBrowser } from "../io/browser";
-import { toCSVNode, toExcelNode, toJSONNode } from "../io/node";
 
 const utils = new Utils();
 
@@ -98,6 +98,13 @@ export default class Series extends NDframe implements SeriesInterface {
     * 
     * ``.iloc`` will raise ``IndexError`` if a requested indexer is
     * out-of-bounds.
+    * 
+    * @example
+    * ```
+    * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+    * const sf2 = sf.iloc([0, 2, 4]);
+    * sf2.print();
+    * ```
     */
     iloc(rows: Array<string | number | boolean>): Series {
         return _iloc({ ndFrame: this, rows }) as Series
@@ -123,6 +130,20 @@ export default class Series extends NDframe implements SeriesInterface {
      * 
      * - A ``callable`` function with one argument (the calling Series or
      * DataFrame) and that returns valid output for indexing (one of the above)
+     * 
+     * @example
+     * ```
+     * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+     * const sf2 = sf.loc(['a', 'c', 'e']);
+     * sf2.print();
+     * ```
+     * 
+     * @example
+     * ```
+     * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+     * const sf2 = sf.loc(sf.gt(2));
+     * sf2.print();
+     * ```
     */
     loc(rows: Array<string | number | boolean>): Series {
         return _loc({ ndFrame: this, rows }) as Series
@@ -131,6 +152,12 @@ export default class Series extends NDframe implements SeriesInterface {
     /**
       * Returns the first n values in a Series
       * @param rows The number of rows to return
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+      * const sf2 = sf.head(3);
+      * sf2.print();
+      * ```
     */
     head(rows: number = 5): Series {
         return this.iloc([`0:${rows}`])
@@ -139,6 +166,12 @@ export default class Series extends NDframe implements SeriesInterface {
     /**
       * Returns the last n values in a Series
       * @param rows The number of rows to return
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+      * const sf2 = sf.tail(3);
+      * sf2.print();
+      * ```
     */
     tail(rows: number = 5): Series {
         const startIdx = this.shape[0] - rows
@@ -149,6 +182,18 @@ export default class Series extends NDframe implements SeriesInterface {
      * Returns specified number of random rows in a Series
      * @param num The number of rows to return
      * @param options.seed An integer specifying the random seed that will be used to create the distribution.
+     * @example
+     * ```
+     * const df = new Series([1, 2, 3, 4])
+     * const df2 = await df.sample(2)
+     * df2.print()
+     * ```
+     * @example
+     * ```
+     * const df = new Series([1, 2, 3, 4])
+     * const df2 = await df.sample(1, { seed: 1 })
+     * df2.print()
+     * ```   
     */
     async sample(num = 5, options?: { seed?: number }): Promise<Series> {
         const { seed } = { seed: 1, ...options }
@@ -171,7 +216,32 @@ export default class Series extends NDframe implements SeriesInterface {
       * Equivalent to series + other
       * @param other Series, Array of same length or scalar number to add
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+      * 
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+      * const sf2 = sf.add(2);
+      * console.log(sf2.values);
+      * //output [3, 4, 5, 6, 7, 8]
+      * ```
+      * 
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+      * const sf2 = sf.add([2, 3, 4, 5, 6, 7]);
+      * console.log(sf2.values);
+      * //output [3, 5, 7, 9, 11, 13]
+      * ```
+      * 
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+      * sf.add(2, { inplace: true });
+      * console.log(sf.values);
+      * //output [3, 4, 5, 6, 7, 8]
+      * ```
       */
+    add(other: Series | Array<number> | number, options?: { inplace?: boolean }): Series
     add(other: Series | Array<number> | number, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
@@ -191,7 +261,31 @@ export default class Series extends NDframe implements SeriesInterface {
       * Equivalent to series - other
       * @param other Number to subtract
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+      * const sf2 = sf.sub(2);
+      * console.log(sf2.values);
+      * //output [-1, 0, 1, 2, 3, 4]
+      * ```
+      * 
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+      * const sf2 = sf.sub([2, 3, 4, 5, 6, 7]);
+      * console.log(sf2.values);
+      * //output [-1, -1, -1, -1, -1, -1]
+      * ```
+      * 
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+      * sf.sub(2, { inplace: true });
+      * console.log(sf.values);
+      * //output [-1, 0, 1, 2, 3, 4]
+      * ```
       */
+    sub(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series
     sub(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
@@ -212,7 +306,31 @@ export default class Series extends NDframe implements SeriesInterface {
       * Equivalent to series * other
       * @param other Number to multiply with.
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+      * const sf2 = sf.mul(2);
+      * console.log(sf2.values);
+      * //output [2, 4, 6, 8, 10, 12]
+      * ```
+      * 
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+      * const sf2 = sf.mul([2, 3, 4, 5, 6, 7]);
+      * console.log(sf2.values);
+      * //output [2, 6, 12, 20, 30, 42]
+      * ```
+      * 
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+      * sf.mul(2, { inplace: true });
+      * console.log(sf.values);
+      * //output [2, 4, 6, 8, 10, 12]
+      * ```
     */
+    mul(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series
     mul(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
@@ -232,7 +350,30 @@ export default class Series extends NDframe implements SeriesInterface {
       * Equivalent to series / other
       * @param other Series or number to divide with.
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
-      */
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+      * const sf2 = sf.div(2);
+      * console.log(sf2.values);
+      * //output [0.5, 1, 1.5, 2, 2.5, 3]
+      * ```
+      * 
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+      * const sf2 = sf.div([2, 3, 4, 5, 6, 7]);
+      * console.log(sf2.values);
+      * ```
+      * 
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+      * sf.div(2, { inplace: true });
+      * console.log(sf.values);
+      * //output [0.5, 1, 1.5, 2, 2.5, 3]
+      * ```  
+    */
+    div(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series
     div(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
@@ -250,9 +391,26 @@ export default class Series extends NDframe implements SeriesInterface {
     /**
       * Return Exponential power of series and other, element-wise (binary operator pow).
       * Equivalent to series ** other
-      * @param other Number to multiply with.
+      * @param other Number to raise to power.
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
-      */
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+      * const sf2 = sf.pow(2);
+      * console.log(sf2.values);
+      * //output [1, 4, 9, 16, 25, 36]
+      * ```
+      * 
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+      * const sf2 = sf.pow(new Series([2, 3, 4, 5, 6, 7]));
+      * console.log(sf2.values);
+      * //output [ 1, 8, 81, 1024, 15625, 279936 ]
+      * ```
+      * 
+    */
+    pow(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series
     pow(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
@@ -272,7 +430,15 @@ export default class Series extends NDframe implements SeriesInterface {
       * Equivalent to series % other
       * @param other Number to modulo with
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+      * const sf2 = sf.mod(2);
+      * console.log(sf2.values);
+      * //output [1, 0, 1, 0, 1, 0]
+      * ```
     */
+    mod(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series
     mod(other: Series | number | Array<number>, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
@@ -290,7 +456,7 @@ export default class Series extends NDframe implements SeriesInterface {
     /**
      * Checks if the array value passed has a compatible dtype, removes NaN values, and if 
      * boolean values are present, converts them to integer values.
-     * */
+    */
     private $checkAndCleanValues(values: ArrayType1D, operation: string): number[] {
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError(operation)
         values = utils.removeMissingValuesFromArray(values);
@@ -302,7 +468,13 @@ export default class Series extends NDframe implements SeriesInterface {
     }
 
     /**
-     * Returns the mean of elements in Series
+     * Returns the mean of elements in Series.
+     * @example
+     * ```
+     * const sf = new Series([1, 2, 3, 4, 5, 6]);
+     * console.log(sf.mean());
+     * //output 3.5
+     * ```
     */
     mean(): number {
         const values = this.$checkAndCleanValues(this.values as ArrayType1D, "mean")
@@ -312,6 +484,12 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
       * Returns the median of elements in Series
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6]);
+      * console.log(sf.median());
+      * //output 3.5
+      * ```
     */
     median(): number {
         const values = this.$checkAndCleanValues(this.values as ArrayType1D, "median")
@@ -320,6 +498,20 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
       * Returns the modal value of elements in Series
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 4, 5, 6]);
+      * console.log(sf.mode());
+      * //output [ 4 ]
+      * ```
+      * 
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 4, 5, 5, 6]);
+      * console.log(sf.mode());
+      * //output [ 4, 5 ]
+      * ```
+      * 
     */
     mode() {
         const values = this.$checkAndCleanValues(this.values as ArrayType1D, "mode")
@@ -328,6 +520,13 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
       * Returns the minimum value in a Series
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6]);
+      * console.log(sf.min());
+      * //output 1
+      * ```
+      * 
     */
     min(): number {
         const values = this.$checkAndCleanValues(this.values as ArrayType1D, "min")
@@ -340,7 +539,12 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
       * Returns the maximum value in a Series
-      * @returns {Number}
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6]);
+      * console.log(sf.max());
+      * //output 6
+      * ```
     */
     max(): number {
         const values = this.$checkAndCleanValues(this.values as ArrayType1D, "max")
@@ -353,6 +557,12 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
       * Return the sum of the values in a series.
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6]);
+      * console.log(sf.sum());
+      * //output 21
+      * ```
     */
     sum(): number {
         const values = this.$checkAndCleanValues(this.values as ArrayType1D, "sum")
@@ -361,6 +571,19 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
        * Return number of non-null elements in a Series
+       * @example
+       * ```
+       * const sf = new Series([1, 2, 3, 4, 5, 6]);
+       * console.log(sf.count());
+       * //output 6
+       * ```
+       * 
+       * @example
+       * ```
+       * const sf = new Series([1, 2, 3, 4, 5, 6, NaN]);
+       * console.log(sf.count());
+       * //output 6
+       * ```
     */
     count(): number {
         const values = utils.removeMissingValuesFromArray(this.values as ArrayType1D)
@@ -369,7 +592,23 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
       * Return maximum of series and other.
-      * @param other Series or number to check against
+      * @param other Series, number or Array of numbers to check against
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6]);
+      * const sf2 = sf.maximum(3);
+      * console.log(sf2.values);
+      * //output [ 3, 3, 3, 4, 5, 6 ]
+      * ```
+      * 
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6]);
+      * const sf2 = new Series([4, 1, 3, 40, 5, 3]);
+      * const sf3 = sf.maximum(sf2);
+      * console.log(sf3.values);
+      * //output [ 4, 2, 3, 40, 5, 6 ]
+      * ```
     */
     maximum(other: Series | number | Array<number>): Series {
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("maximum")
@@ -383,7 +622,24 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
       * Return minimum of series and other.
-      * @param other Series, Numbers to check against
+      * @param other Series, number of Array of numbers to check against
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6]);
+      * const sf2 = sf.minimum(3);
+      * console.log(sf2.values);
+      * //output [ 1, 2, 3, 3, 3, 3 ]
+      * ```
+      * 
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6]);
+      * const sf2 = new Series([4, 1, 3, 40, 5, 3]);
+      * const sf3 = sf.minimum(sf2);
+      * console.log(sf3.values);
+      * //output [ 1, 1, 3, 4, 5, 3 ]
+      * ```
+      * 
     */
     minimum(other: Series | number | Array<number>): Series {
         if (this.dtypes[0] == "string") ErrorThrower.throwStringDtypeOperationError("maximum")
@@ -399,6 +655,22 @@ export default class Series extends NDframe implements SeriesInterface {
      * Round each value in a Series to the specified number of decimals.
      * @param dp Number of Decimal places to round to
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     * 
+     * @example
+     * ```
+     * const sf = new Series([1.23, 2.4, 3.123, 4.1234, 5.12345]);
+     * const sf2 = sf.round(2);
+     * console.log(sf2.values);
+     * //output [ 1.23, 2.4, 3.12, 4.12, 5.12 ]
+     * ```
+     * 
+     * @example
+     * ```
+     * const sf = new Series([1.23, 2.4, 3.123, 4.1234, 5.12345]);
+     * sf.round(2, { inplace: true });
+     * console.log(sf.values);
+     * //output [ 1.23, 2.4, 3.12, 4.12, 5.12 ]
+     * ```
     */
     round(dp = 1, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
@@ -419,6 +691,12 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
       * Return sample standard deviation of elements in Series
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6]);
+      * console.log(sf.std());
+      * //output 1.8708286933869707
+      * ```
     */
     std(): number {
         const values = this.$checkAndCleanValues(this.values as ArrayType1D, "max")
@@ -427,6 +705,12 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
       *  Return unbiased variance of elements in a Series.
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6]);
+      * console.log(sf.var());
+      * //output 3.5
+      * ```
     */
     var(): number {
         const values = this.$checkAndCleanValues(this.values as ArrayType1D, "max")
@@ -436,6 +720,13 @@ export default class Series extends NDframe implements SeriesInterface {
     /**
      * Return a boolean same-sized object indicating where elements are NaN.
      * NaN and undefined values gets mapped to true, and everything else gets mapped to false.
+     * @example
+     * ```
+     * const sf = new Series([1, 2, 3, 4, NaN, 6]);
+     * console.log(sf.isNaN());
+     * //output [ false, false, false, false, true, false ]
+     * ```
+     * 
     */
     isNa(): Series {
         const newData = this.values.map((value) => {
@@ -458,7 +749,24 @@ export default class Series extends NDframe implements SeriesInterface {
      * Replace all NaN with a specified value
      * @param value The value to replace NaN with
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     * 
+     * @example
+     * ```
+     * const sf = new Series([1, 2, 3, 4, NaN, 6]);
+     * const sf2 = sf.fillNa(-99);
+     * console.log(sf2.values);
+     * //output [ 1, 2, 3, 4, -99, 6 ]
+     * ```
+     * 
+     * @example
+     * ```
+     * const sf = new Series([1, 2, 3, 4, NaN, 6]);
+     * sf.fillNa(-99, { inplace: true });
+     * console.log(sf.values);
+     * //output [ 1, 2, 3, 4, -99, 6 ]
+     * ```
     */
+    fillNa(value: number | string | boolean, options?: { inplace?: boolean }): Series
     fillNa(value: number | string | boolean, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
@@ -492,10 +800,17 @@ export default class Series extends NDframe implements SeriesInterface {
       * @param options Method options
       * @param ascending Whether to return sorted values in ascending order or not. Defaults to true
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+      * @example
+      * ```
+      * const sf = new Series([2, 1, 3, 4, 6, 5]);
+      * const sf2 = sf.sortValues();
+      * console.log(sf2.values);
+      * //output [ 1, 2, 3, 4, 5, 6 ]
+      * ```
     */
-    sortValues(ascending?: boolean, options?: { inplace?: boolean }): Series
-    sortValues(ascending = true, options?: { inplace?: boolean }): Series | void {
-        const { inplace } = { inplace: false, ...options }
+    sortValues(options?: { ascending?: boolean, inplace?: boolean }): Series
+    sortValues(options?: { ascending?: boolean, inplace?: boolean }): Series | void {
+        const { ascending, inplace, } = { ascending: true, inplace: false, ...options }
 
         let sortedValues = [];
         const rangeIdx = utils.range(0, this.index.length - 1);
@@ -527,6 +842,12 @@ export default class Series extends NDframe implements SeriesInterface {
 
     /**
       * Makes a deep copy of a Series
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6]);
+      * const sf2 = sf.copy();
+      * ```
+      * 
     */
     copy(): Series {
         const sf = new Series([...this.values], {
@@ -543,6 +864,12 @@ export default class Series extends NDframe implements SeriesInterface {
       * Generate descriptive statistics.
       * Descriptive statistics include those that summarize the central tendency,
       * dispersion and shape of a dataset’s distribution, excluding NaN values.
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6]);
+      * const sf2 = sf.describe();
+      * sf2.print();
+      * ```
     */
     describe(): Series {
         if (this.dtypes[0] == "string") {
@@ -567,9 +894,24 @@ export default class Series extends NDframe implements SeriesInterface {
 
 
     /**
-      * Returns Series with the index reset.
-      * This is useful when index is meaningless and needs to be reset to the default before another operation.
+      * Resets the index of the Series to default values.
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+      * const sf2 = sf.resetIndex();
+      * console.log(sf2.index);
+      * //output [ 0, 1, 2, 3, 4, 5 ]
+      * ```
+      * 
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+      * sf.resetIndex({ inplace: true });
+      * console.log(sf.index);
+      * //output [ 0, 1, 2, 3, 4, 5 ]
+      * ```
       */
+    resetIndex(options?: { inplace?: boolean }): Series
     resetIndex(options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
@@ -586,7 +928,15 @@ export default class Series extends NDframe implements SeriesInterface {
       * Set the Series index (row labels) using an array of the same length.
       * @param index Array of new index values,
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['a', 'b', 'c', 'd', 'e', 'f'] });
+      * const sf2 = sf.setIndex(['g', 'h', 'i', 'j', 'k', 'l']);
+      * console.log(sf2.index);
+      * //output [ 'g', 'h', 'i', 'j', 'k', 'l' ]
+      * ```
     */
+    setIndex(index: Array<number | string | (number | string)>, options?: { inplace?: boolean }): Series
     setIndex(index: Array<number | string | (number | string)>, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
@@ -605,9 +955,27 @@ export default class Series extends NDframe implements SeriesInterface {
 
 
     /**
-       * map all the element in a column to a variable or function
+       * map all the element in a Series to a function or object.
        * @param callable callable can either be a funtion or an object
        * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+       * @example
+       * ```
+       * const sf = new Series([1, 2, 3, 4, 5, 6]);
+       * const sf2 = sf.map((x) => x * 2);
+       * console.log(sf2.values);
+       * //output [ 2, 4, 6, 8, 10, 12 ]
+       * ```
+       * 
+       * @example
+       * ```
+       * const sf = new Series([1, 2, 3, 4, 5, 6]);
+       * const sf2 = sf.map({
+       *   1: -99,
+       *   3: -99
+       * });
+       * console.log(sf2.values);
+       * //output [ -99, 2, -99, 4, -99, 6 ]
+       * ```
     */
     map(callable: any, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
@@ -621,7 +989,7 @@ export default class Series extends NDframe implements SeriesInterface {
                 if (val in callable) {
                     return callable[val];
                 } else {
-                    return NaN;
+                    return val
                 }
             } else {
                 throw new Error("Param Error: callable must either be a function or an object");
@@ -1005,7 +1373,7 @@ export default class Series extends NDframe implements SeriesInterface {
      * @param ascending boolean true: will sort the Series in ascending order, false: will sort in descending order
      */
     argSort(ascending = true): Series {
-        const sortedIndex = this.sortValues(ascending);
+        const sortedIndex = this.sortValues({ ascending });
         const sf = new Series(sortedIndex.index);
         return sf;
     }

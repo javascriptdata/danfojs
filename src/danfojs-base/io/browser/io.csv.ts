@@ -116,7 +116,7 @@ const $streamCSV = async (file: string, callback: (df: DataFrame) => void, optio
  * ```
  */
 const $toCSV = (df: NDframe | DataFrame | Series, options?: CsvOutputOptionsBrowser): string | void => {
-  let { fileName, download, sep, header } = { fileName: "output.csv", sep: ",", header: true, download: true, ...options }
+  let { fileName, download, sep, header } = { fileName: "output.csv", sep: ",", header: true, download: false, ...options }
 
   if (df.$isSeries) {
     const csv = df.values.join(sep);

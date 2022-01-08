@@ -135,7 +135,7 @@ export interface SeriesInterface extends NDframeInterface {
     var(): number
     isNa(): Series
     fillNa(value: number | string | boolean, options?: { inplace?: boolean }): Series | void
-    sortValues(ascending: boolean, options?: { inplace?: boolean }): Series | void
+    sortValues(options?: {  ascending?: boolean, inplace?: boolean }): Series | void
     copy(): Series
     describe(): Series
     resetIndex(options?: { inplace?: boolean }): Series | void
@@ -264,7 +264,7 @@ export interface DataFrameInterface extends NDframeInterface {
                 inplace?: boolean
             }): DataFrame | void
     isNa(): DataFrame
-    dropNa(axis?: 0 | 1, options?: { inplace?: boolean }): DataFrame | void
+    dropNa(options?: { axis: 0 | 1, inplace?: boolean }): DataFrame | void
     apply(callable: any, options?: { axis?: 0 | 1 }): DataFrame | Series
     applyMap(callable: any, options?: { inplace?: boolean }): DataFrame | void
     lt(other: DataFrame | Series | number, options?: { axis?: 0 | 1 }): DataFrame
