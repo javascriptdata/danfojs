@@ -773,8 +773,8 @@ export default class Series extends NDframe implements SeriesInterface {
     fillNa(value: number | string | boolean, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
 
-        if (!value && typeof value !== 'boolean') {
-            throw Error('Value Error: Must specify value to replace with');
+        if (!value && typeof value !== "boolean" && typeof value !== "number") {
+            throw Error('ParamError: value must be specified');
         }
 
         const newValues: ArrayType1D = [];

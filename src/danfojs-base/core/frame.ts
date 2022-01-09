@@ -1906,7 +1906,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     ): DataFrame | void {
         let { columns, inplace } = { inplace: false, ...options }
 
-        if (!values && typeof values !== "boolean") {
+        if (!values && typeof values !== "boolean" && typeof values !== "number") {
             throw Error('ParamError: value must be specified');
         }
 

@@ -1668,7 +1668,7 @@ describe("DataFrame", function () {
             assert.deepEqual(df.values, expected);
         });
         it("replace all undefined value", function () {
-            const data = [[undefined, 1, 2, 3], [3, 4, undefined, 9], [5, 6, 7, 8]];
+            const data = [[undefined, 1, 2, 3], [3, 4, null, 9], [5, 6, 7, 8]];
             const columns = ["A", "B", "C", "D"];
             const df = new DataFrame(data, { columns: columns });
 
@@ -1677,6 +1677,17 @@ describe("DataFrame", function () {
             const df_filled = df.fillNa(-999) as DataFrame
             assert.deepEqual(df_filled.values, expected);
         });
+        it("replace all undefined value with 0 works", function () {
+            const data = [[undefined, 1, 2, 3], [3, 4, null, 9], [5, NaN, 7, 8]];
+            const columns = ["A", "B", "C", "D"];
+            const df = new DataFrame(data, { columns: columns });
+
+            const expected = [[0, 1, 2, 3], [3, 4, 0, 9], [5, 0, 7, 8]];
+
+            const df_filled = df.fillNa(0) as DataFrame
+            assert.deepEqual(df_filled.values, expected);
+        });
+
 
         it("Fills only a specified column", function () {
             const data = [[1, 2, 3],

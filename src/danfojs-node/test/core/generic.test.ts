@@ -123,7 +123,69 @@ describe("Generic (NDFrame)", function () {
             let ndframe = new NDframe({ data, isSeries: false });
             assert.deepEqual(ndframe.values as any, [["A", NaN], [NaN, 2]]);
         });
+        // it("NDframe created from json takes key position into consideration", function () {
+        //     let json_data = [{ A: "A", B: "B", C: "C" },
+        //     { A: "A", B: "B", C: "C" },
+        //     { C: "C", B: "B", A: "A" },
+        //     { A: "A", C: "C", B: "B" }];
 
+        //     let output = [
+        //         [
+        //             'A',
+        //             'B',
+        //             'C'
+        //         ],
+        //         [
+        //             'A',
+        //             'B',
+        //             'C'
+        //         ],
+        //         [
+        //             'A',
+        //             'B',
+        //             'C'
+        //         ],
+        //         [
+        //             'A',
+        //             'B',
+        //             'C'
+        //         ]
+        //     ];
+        //     let ndframe = new NDframe({ data: json_data, isSeries: false });
+        //     assert.deepEqual(ndframe.values, output);
+        // });
+
+        // it("NDframe created from json sets value to NaN if not present", function () {
+        //     let json_data = [{ A: "A", B: "B", C: "C" },
+        //     { A: "A", B: "B", C: "C" },
+        //     { C: "C", B: "B", A: "A" },
+        //     { A: "A", C: "C" }];
+
+        //     let output = [
+        //         [
+        //             'A',
+        //             'B',
+        //             'C'
+        //         ],
+        //         [
+        //             'A',
+        //             'B',
+        //             'C'
+        //         ],
+        //         [
+        //             'A',
+        //             'B',
+        //             'C'
+        //         ],
+        //         [
+        //             'A',
+        //             'B',
+        //             NaN
+        //         ]
+        //     ];
+        //     let ndframe = new NDframe({ data: json_data, isSeries: false });
+        //     assert.deepEqual(ndframe.values, output);
+        // });
 
     });
 
