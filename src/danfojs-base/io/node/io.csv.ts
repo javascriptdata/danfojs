@@ -88,8 +88,8 @@ const $readCSV = async (filePath: string, options?: CsvInputOptionsNode): Promis
  * Streams a CSV file from local or remote location in chunks. Intermediate chunks is passed as a DataFrame to the callback function.
  * @param filePath URL or local file path to CSV file. `readCSV` uses PapaParse to parse the CSV file,
  * hence all PapaParse options are supported.
- * @param options Configuration object. Supports all Papaparse parse config options.
  * @param callback Callback function to be called once the specifed rows are parsed into DataFrame.
+ * @param options Configuration object. Supports all Papaparse parse config options.
  * @example
  * ```
  * import { streamCSV } from "danfojs-node"

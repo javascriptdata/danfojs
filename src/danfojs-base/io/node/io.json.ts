@@ -63,9 +63,9 @@ const $readJSON = async (filePath: string, options: JsonInputOptionsNode = {}) =
 /**
  * Streams a JSON file from local or remote location in chunks. Intermediate chunks is passed as a DataFrame to the callback function.
  * @param filePath URL or local file path to CSV file.
+ * @param callback Callback function to be called once the specifed rows are parsed into DataFrame.
  * @param options Configuration object. We use the `request` library for reading remote json files,
  * Hence all `request` parameters such as `method`, `headers`, are supported.
- * @param callback Callback function to be called once the specifed rows are parsed into DataFrame.
  * @example
  * ```
  * import { streamJSON } from "danfojs-node"
@@ -78,7 +78,6 @@ const $readJSON = async (filePath: string, options: JsonInputOptionsNode = {}) =
 const $streamJSON = async (
     filePath: string,
     callback: (df: DataFrame) => void,
-    
     options?: request.RequiredUriUrl & request.CoreOptions,
 ) => {
     const { method, headers } = { method: "GET", headers: {}, ...options }
