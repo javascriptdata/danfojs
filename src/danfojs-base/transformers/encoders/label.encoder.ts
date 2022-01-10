@@ -82,7 +82,8 @@ export default class LabelEncoder {
     transform(data: Array<string | number> | typeof tensorflow.Tensor | Series) {
         const $data = this.$getData(data)
         const encodedData: Array<number> = $data.map(value => {
-            return this.$labels[value]
+            const label = this.$labels[value] !== undefined ? this.$labels[value] : -1
+            return label
         })
 
         if (data instanceof Array) {

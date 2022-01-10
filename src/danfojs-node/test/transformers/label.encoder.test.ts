@@ -11,6 +11,14 @@ describe("LabelEncoder", function () {
         const expected = [0, 1, 1, 2];
         assert.deepEqual((scaler.transform(sf) as Series).values, expected);
     });
+    it("LabelEncoder works for values not found", function () {
+        const sf = new Series([1, 2, 2, 6])
+        const scaler = new LabelEncoder();
+        scaler.fit(sf);
+
+        const expected = [0, 1, 1, 2, -1];
+        assert.deepEqual((scaler.transform(new Series([1, 2, 2, 6, 7])) as Series).values, expected);
+    });
     it("LabelEncoder works for 1D array", function () {
         const sf = [1, 2, 2, "boy", "git", "git"]
         const scaler = new LabelEncoder();
