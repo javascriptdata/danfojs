@@ -3,7 +3,7 @@
 describe("readExcel", function () {
   this.timeout(100000);
   it("Read remote excel file works", async function () {
-    const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/SampleData.xlsx";
+    const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev//src/danfojs-node/test/samples/sample.xlsx";
     let df = await dfd.readExcel(remoteFile);
     assert.deepEqual(df.columns, [
       'Year',
@@ -19,7 +19,7 @@ describe("readExcel", function () {
   });
 
   it("Read remote excel file with config works", async function () {
-    const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/SampleData.xlsx";
+    const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev//src/danfojs-node/test/samples/sample.xlsx";
     const frameConfig = {
       columns: [
         'A',

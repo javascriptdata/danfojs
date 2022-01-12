@@ -4,7 +4,7 @@ describe("readJSON", function () {
   this.timeout(100000);
 
   it("Read remote csv file works", async function () {
-    const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/book.json";
+    const remoteFile = "https://raw.githubusercontent.com/javascriptdata/danfojs/dev/src/danfojs-node/test/samples/book.json";
     const df = await dfd.readJSON(remoteFile);
     assert.deepEqual(df.columns, [
       'book_id',
@@ -19,7 +19,7 @@ describe("readJSON", function () {
   });
 
   it("Read remote csv file with config works", async function () {
-    const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/book.json";
+    const remoteFile = "https://raw.githubusercontent.com/javascriptdata/danfojs/dev/src/danfojs-node/test/samples/book.json";
     const frameConfig = {
       columns: [
         'A',

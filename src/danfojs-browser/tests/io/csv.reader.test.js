@@ -3,7 +3,7 @@
 describe("readCSV", function () {
   this.timeout(10000);
   it("Read remote csv file works", async function () {
-    const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/titanic.csv";
+    const remoteFile = "https://raw.githubusercontent.com/javascriptdata/danfojs/dev/src/danfojs-node/test/samples/titanic.csv";
     let df = await dfd.readCSV(remoteFile, { header: true, preview: 5 });
     assert.deepEqual(df.shape, [ 5, 8 ]);
     assert.deepEqual(df.columns, [
@@ -25,7 +25,7 @@ describe("readCSV", function () {
   });
 
   it("Read remote csv file with config works", async function () {
-    const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/titanic.csv";
+    const remoteFile = "https://raw.githubusercontent.com/javascriptdata/danfojs/dev/src/danfojs-node/test/samples/titanic.csv";
     const frameConfig = {
       columns: [
         'A',
@@ -64,7 +64,7 @@ describe("readCSV", function () {
 //   this.timeout(100000);
 
 //   it("Streaming remote csv file with callback works", async function () {
-//     const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/titanic.csv";
+//     const remoteFile = "https://raw.githubusercontent.com/javascriptdata/danfojs/dev/src/danfojs-node/test/samples/titanic.csv";
 //     await dfd.streamCSV(remoteFile, (df) => {
 //       if (df) {
 //         assert.deepEqual(df.shape, [ 1, 8 ]);
