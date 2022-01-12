@@ -462,7 +462,7 @@ export default class Groupby {
    * @returns DataFrame
    * 
    */
-  cumsum(): DataFrame{
+  cumSum(): DataFrame{
     return this.operations("cumsum")
   }
 
@@ -470,7 +470,7 @@ export default class Groupby {
    * Obtain the cummax of columns for each group
    * @returns DataFrame
    */
-  cummax(): DataFrame{
+  cumMax(): DataFrame{
     return this.operations("cummax")
   }
 
@@ -478,7 +478,7 @@ export default class Groupby {
    * Obtain the cumprod of columns for each group
    * @returns DataFrame
    */
-  cumprod(): DataFrame{
+  cumProd(): DataFrame{
     return this.operations("cumprod")
   }
 
@@ -486,7 +486,7 @@ export default class Groupby {
    * Obtain the cummin of columns for each group
    * @returns DataFrame
    */
-  cummin(): DataFrame{
+  cumMin(): DataFrame{
     return this.operations("cummin")
   }
 

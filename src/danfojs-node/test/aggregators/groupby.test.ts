@@ -131,7 +131,7 @@ describe("groupby", function () {
             [20, 30, 30, 40],
             [39, 89, 89, 78]
         ];
-        assert.deepEqual(group_df.col(["B", "C"]).cumsum().values, new_data);
+        assert.deepEqual(group_df.col(["B", "C"]).cumSum().values, new_data);
     });
 
     it("cummulative max for groupby", function () {
@@ -143,7 +143,7 @@ describe("groupby", function () {
         let new_data = [[1, 3], [4, 6], [20, 40], [39, 78]];
 
 
-        assert.deepEqual(group_df.col(["C"]).cummax().values, new_data);
+        assert.deepEqual(group_df.col(["C"]).cumMax().values, new_data);
     });
 
     it("cummulative min for groupby", function () {
@@ -154,7 +154,7 @@ describe("groupby", function () {
         let group_df = df.groupby(["A"]);
         let new_data = [[1, 3], [4, 6], [20, 40], [39, 78]];
 
-        assert.deepEqual(group_df.col(["C"]).cummin().values, new_data);
+        assert.deepEqual(group_df.col(["C"]).cumMin().values, new_data);
     });
 
     it("cummulative prod for groupby", function () {
@@ -165,7 +165,7 @@ describe("groupby", function () {
         let group_df = df.groupby(["A"]);
         let new_data = [[1, 3], [4, 6], [20, 40], [39, 78]];
 
-        assert.deepEqual(group_df.col(["C"]).cumprod().values, new_data);
+        assert.deepEqual(group_df.col(["C"]).cumProd().values, new_data);
     });
 
     it("mean for groupby", function () {
