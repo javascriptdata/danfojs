@@ -69,10 +69,10 @@ yarn add danfojs
 ```
 
 For use directly in HTML files, you can add the latest script tag from [JsDelivr](https://www.jsdelivr.com/package/npm/danfojs) to your HTML file:
-<script src="https://cdn.jsdelivr.net/npm/danfojs@0.3.3/lib/bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/danfojs@1.0.0/lib/bundle.min.js"></script>
 
 ```html
-    <script src="https://cdn.jsdelivr.net/npm/danfojs@0.2.7/lib/bundle.min.js"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/danfojs@1.0.0/lib/bundle.min.js"></script> 
 ```
 See all available versions [here](https://www.jsdelivr.com/package/npm/danfojs)
 
@@ -87,7 +87,7 @@ See all available versions [here](https://www.jsdelivr.com/package/npm/danfojs)
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="/Users/mac/Documents/Opensource/danfojs/src/danfojs-browser/lib/bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/danfojs@1.0.0/lib/bundle.min.js"></script> 
 
     <title>Document</title>
   </head>
