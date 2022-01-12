@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 describe("dfd.dateRange", function(){
 
   // it("Obtain date between start and end specified", function(){
@@ -7,7 +9,7 @@ describe("dfd.dateRange", function(){
   //     '4/25/2018, 1:00:00 AM',
   //     '4/26/2018, 1:00:00 AM',
   //     '4/27/2018, 1:00:00 AM'
-  //   ]  
+  //   ]
   //   assert.deepEqual(d,rslt)
   // });
   it("Obtain date between start with end not specified, but period and freq specified", function(){
