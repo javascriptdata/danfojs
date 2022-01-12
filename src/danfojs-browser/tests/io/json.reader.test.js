@@ -17,6 +17,29 @@ describe("readJSON", function () {
       'string', 'string'
     ]);
   });
+
+  it("Read remote csv file with config works", async function () {
+    const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/book.json";
+    const frameConfig = {
+      columns: [
+        'A',
+        'B',
+        'C',
+        'D'
+      ]
+    };
+    const df = await dfd.readJSON(remoteFile, { frameConfig });
+    assert.deepEqual(df.columns, [
+      'A',
+      'B',
+      'C',
+      'D'
+    ]);
+    assert.deepEqual(df.dtypes, [
+      'int32', 'string',
+      'string', 'string'
+    ]);
+  });
 });
 
 describe("toJSON", function () {

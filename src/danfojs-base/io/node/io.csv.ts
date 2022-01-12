@@ -48,6 +48,8 @@ import fs from 'fs'
  * ```
  */
 const $readCSV = async (filePath: string, options?: CsvInputOptionsNode): Promise<DataFrame> => {
+  const frameConfig = options?.frameConfig || {}
+
   if (filePath.startsWith("http") || filePath.startsWith("https")) {
     return new Promise(resolve => {
       const optionsWithDefaults = {
@@ -65,7 +67,7 @@ const $readCSV = async (filePath: string, options?: CsvInputOptionsNode): Promis
       });
 
       parseStream.on("finish", () => {
-        resolve(new DataFrame(data));
+        resolve(new DataFrame(data, frameConfig));
       });
     });
 
@@ -76,7 +78,7 @@ const $readCSV = async (filePath: string, options?: CsvInputOptionsNode): Promis
         header: true,
         ...options,
         complete: results => {
-          const df = new DataFrame(results.data);
+          const df = new DataFrame(results.data, frameConfig);
           resolve(df);
         }
       });
@@ -100,6 +102,7 @@ const $readCSV = async (filePath: string, options?: CsvInputOptionsNode): Promis
  * ```
  */
 const $streamCSV = async (filePath: string, callback: (df: DataFrame) => void, options?: CsvInputOptionsNode): Promise<null> => {
+  const frameConfig = options?.frameConfig || {}
 
   if (filePath.startsWith("http") || filePath.startsWith("https")) {
     const optionsWithDefaults = {
@@ -113,7 +116,7 @@ const $streamCSV = async (filePath: string, callback: (df: DataFrame) => void, o
       dataStream.pipe(parseStream);
 
       parseStream.on("data", (chunk: any) => {
-        const df = new DataFrame([chunk], { index: [count++] });
+        const df = new DataFrame([chunk], { ...frameConfig, index: [count++], });
         callback(df);
       });
 
@@ -131,7 +134,7 @@ const $streamCSV = async (filePath: string, callback: (df: DataFrame) => void, o
         header: true,
         ...options,
         step: results => {
-          const df = new DataFrame([results.data], { index: [count++] });
+          const df = new DataFrame([results.data], { ...frameConfig, index: [count++] });
           callback(df);
         },
         complete: () => resolve(null)

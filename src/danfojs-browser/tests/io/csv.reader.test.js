@@ -24,6 +24,40 @@ describe("readCSV", function () {
     ]);
   });
 
+  it("Read remote csv file with config works", async function () {
+    const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/titanic.csv";
+    const frameConfig = {
+      columns: [
+        'A',
+        'B',
+        'C',
+        'D',
+        'E',
+        'F',
+        'G',
+        'H'
+      ]
+    };
+    let df = await dfd.readCSV(remoteFile, { header: true, preview: 5, frameConfig });
+    assert.deepEqual(df.shape, [ 5, 8 ]);
+    assert.deepEqual(df.columns, [
+      'A',
+      'B',
+      'C',
+      'D',
+      'E',
+      'F',
+      'G',
+      'H'
+    ]);
+    assert.deepEqual(df.dtypes, [
+      'int32', 'int32',
+      'string', 'string',
+      'int32', 'int32',
+      'int32', 'float32'
+    ]);
+  });
+
 });
 
 // describe("streamCSV", function () {

@@ -374,13 +374,36 @@ export interface IPlotlyLib {
     table(plotConfig?: PlotConfigObject): void
 }
 
-export interface CsvInputOptionsBrowser extends ParseConfig { }
-export type ExcelInputOptionsBrowser = { sheet?: number, method?: string, headers?: any }
-export type JsonInputOptionsBrowser = { method?: string, headers?: any }
+export interface CsvInputOptionsBrowser extends ParseConfig {
+    frameConfig?: BaseDataOptionType
+}
+export type ExcelInputOptionsBrowser = {
+    sheet?: number,
+    method?: string,
+    headers?: any,
+    frameConfig?: BaseDataOptionType
+}
+export type JsonInputOptionsBrowser = {
+    method?: string,
+    headers?: any,
+    frameConfig?: BaseDataOptionType
+}
 
-export interface CsvInputOptionsNode extends ParseConfig { }
-export type ExcelInputOptionsNode = { sheet?: number, method?: string, headers?: HeadersInit }
-export type JsonInputOptionsNode = { method?: string, headers?: HeadersInit }
+export interface CsvInputOptionsNode extends ParseConfig {
+    frameConfig?: BaseDataOptionType
+}
+
+export type ExcelInputOptionsNode = {
+    sheet?: number,
+    method?: string,
+    headers?: HeadersInit
+    frameConfig?: BaseDataOptionType
+}
+export type JsonInputOptionsNode = {
+    method?: string,
+    headers?: HeadersInit
+    frameConfig?: BaseDataOptionType
+}
 
 export type CsvOutputOptionsBrowser = { fileName?: string, sep?: string, header?: boolean, download?: boolean };
 export type ExcelOutputOptionsBrowser = { fileName?: string, sheetName?: string };

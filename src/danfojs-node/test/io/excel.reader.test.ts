@@ -21,6 +21,29 @@ describe("readExcel", function () {
         ]);
         assert.deepEqual(df.shape, [82, 4])
     });
+    it("Read local excel file with config works", async function () {
+        const filePath = path.join(process.cwd(), "test", "samples", "sample.xlsx");
+        const frameConfig = {
+            columns: [
+                'A',
+                'B',
+                'C',
+                'D',
+            ]
+        }
+        let df: any = await readExcel(filePath, { frameConfig });
+        assert.deepEqual(df.columns, [
+            'A',
+            'B',
+            'C',
+            'D',
+        ]);
+        assert.deepEqual(df.dtypes, [
+            'int32', 'float32',
+            'float32', 'float32',
+        ]);
+        assert.deepEqual(df.shape, [82, 4])
+    });
     it("Read local excel file works for selected sheet", async function () {
         const filePath = path.join(process.cwd(), "test", "samples", "sample.xlsx");
         let df: any = await readExcel(filePath, { sheet: 1 });

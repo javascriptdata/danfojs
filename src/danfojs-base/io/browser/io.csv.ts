@@ -12,7 +12,7 @@
 * limitations under the License.
 * ==========================================================================
 */
-import { CsvInputOptionsBrowser, CsvOutputOptionsBrowser, ArrayType2D} from "../../shared/types"
+import { CsvInputOptionsBrowser, CsvOutputOptionsBrowser, ArrayType2D } from "../../shared/types"
 import { DataFrame, NDframe, Series } from '../../'
 import Papa from 'papaparse'
 
@@ -46,13 +46,15 @@ import Papa from 'papaparse'
  * ```
  */
 const $readCSV = async (file: any, options?: CsvInputOptionsBrowser): Promise<DataFrame> => {
+  const frameConfig = options?.frameConfig || {}
+
   return new Promise(resolve => {
     Papa.parse(file, {
       header: true,
       ...options,
       download: true,
       complete: results => {
-        const df = new DataFrame(results.data);
+        const df = new DataFrame(results.data, frameConfig);
         resolve(df);
       }
     });
@@ -75,6 +77,8 @@ const $readCSV = async (file: any, options?: CsvInputOptionsBrowser): Promise<Da
  * ```
  */
 const $streamCSV = async (file: string, callback: (df: DataFrame) => void, options: CsvInputOptionsBrowser,): Promise<null> => {
+  const frameConfig = options?.frameConfig || {}
+
   return new Promise(resolve => {
     let count = -1
     Papa.parse(file, {
@@ -82,7 +86,7 @@ const $streamCSV = async (file: string, callback: (df: DataFrame) => void, optio
       header: true,
       download: true,
       step: results => {
-        const df = new DataFrame([results.data], { index: [count++] });
+        const df = new DataFrame([results.data], { ...frameConfig, index: [count++] });
         callback(df);
       },
       complete: () => resolve(null)

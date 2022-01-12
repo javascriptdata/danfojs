@@ -45,7 +45,7 @@ import XLSX from 'xlsx';
  * ```
  */
 const $readExcel = async (file: any, options?: ExcelInputOptionsBrowser) => {
-    const { sheet, method, headers } = { sheet: 0, method: "GET", headers: {}, ...options }
+    const { sheet, method, headers, frameConfig } = { sheet: 0, method: "GET", headers: {}, frameConfig: {}, ...options }
 
     if (typeof file === "string" && file.startsWith("http")) {
 
@@ -59,7 +59,7 @@ const $readExcel = async (file: any, options?: ExcelInputOptionsBrowser) => {
                     const workbook = XLSX.read(arrBufInt8, { type: "array" })
                     const worksheet = workbook.Sheets[workbook.SheetNames[sheet]];
                     const data = XLSX.utils.sheet_to_json(worksheet);
-                    const df = new DataFrame(data);
+                    const df = new DataFrame(data, frameConfig);
                     resolve(df);
                 });
             }).catch((err) => {
@@ -73,7 +73,7 @@ const $readExcel = async (file: any, options?: ExcelInputOptionsBrowser) => {
         const workbook = XLSX.read(arrBufInt8, { type: "array" })
         const worksheet = workbook.Sheets[workbook.SheetNames[sheet]];
         const data = XLSX.utils.sheet_to_json(worksheet);
-        const df = new DataFrame(data);
+        const df = new DataFrame(data, frameConfig);
         return df;
     } else {
         throw new Error("ParamError: File not supported. file must be a url or an input File object")

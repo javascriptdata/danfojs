@@ -21,6 +21,18 @@ describe("readJSON", function () {
         ]);
     });
 
+    it("Read local json file with config works", async function () {
+        const filePath = path.join(process.cwd(), "test", "samples", "book.json");
+        const frameConfig = {
+            columns: ["A", "B", "C", "D"]
+        }
+        const df: any = await readJSON(filePath, { frameConfig });
+        assert.deepEqual(df.columns, ["A", "B", "C", "D"]);
+        assert.deepEqual(df.dtypes, [
+            'int32', 'string',
+            'string', 'string',
+        ]);
+    });
     // it("Read remote json file works", async function () {
     //     const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/book.json"
     //     const df: any = await readJSON(remoteFile, {});

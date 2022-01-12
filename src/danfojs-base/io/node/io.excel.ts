@@ -46,7 +46,7 @@ import XLSX from 'xlsx';
  * ```
  */
 const $readExcel = async (filePath: string, options: ExcelInputOptionsNode = {}) => {
-    const { sheet, method, headers } = { sheet: 0, method: "GET", headers: {}, ...options }
+    const { sheet, method, headers, frameConfig } = { sheet: 0, method: "GET", headers: {}, frameConfig: {}, ...options }
 
     if (filePath.startsWith("http") || filePath.startsWith("https")) {
 
@@ -60,7 +60,7 @@ const $readExcel = async (filePath: string, options: ExcelInputOptionsNode = {})
                     const workbook = XLSX.read(arrBufInt8, { type: "array" })
                     const worksheet = workbook.Sheets[workbook.SheetNames[sheet]];
                     const data = XLSX.utils.sheet_to_json(worksheet);
-                    const df = new DataFrame(data);
+                    const df = new DataFrame(data, frameConfig);
                     resolve(df);
                 });
             }).catch((err) => {
@@ -73,7 +73,7 @@ const $readExcel = async (filePath: string, options: ExcelInputOptionsNode = {})
             const workbook = XLSX.readFile(filePath);
             const worksheet = workbook.Sheets[workbook.SheetNames[sheet]];
             const data = XLSX.utils.sheet_to_json(worksheet);
-            const df = new DataFrame(data);
+            const df = new DataFrame(data, frameConfig);
             resolve(df);
         });
     }

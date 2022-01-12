@@ -26,6 +26,39 @@ describe("readCSV", function () {
             'int32', 'float32'
         ]);
     });
+    it("Read local CSV file with config works", async function () {
+        const filePath = path.join(process.cwd(), "test", "samples", "titanic.csv");
+        const frameConfig = {
+            columns: [
+                'A',
+                'B',
+                'C',
+                'D',
+                'E',
+                'F',
+                'G',
+                'H'
+            ]
+        }
+        let df: any = await readCSV(filePath, { frameConfig, header: true, preview: 5 });
+        assert.deepEqual(df.shape, [5, 8]);
+        assert.deepEqual(df.columns, [
+            'A',
+            'B',
+            'C',
+            'D',
+            'E',
+            'F',
+            'G',
+            'H'
+        ]);
+        assert.deepEqual(df.dtypes, [
+            'int32', 'int32',
+            'string', 'string',
+            'int32', 'int32',
+            'int32', 'float32'
+        ]);
+    });
 
     // it("Read remote csv file works", async function () {
     //     const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/titanic.csv"

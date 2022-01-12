@@ -48,7 +48,7 @@ import { DataFrame, NDframe, Series } from '../../'
  * ```
  */
 const $readJSON = async (file: any, options?: JsonInputOptionsBrowser) => {
-    const { method, headers } = { method: "GET", headers: {}, ...options }
+    const { method, headers, frameConfig } = { method: "GET", headers: {}, frameConfig: {}, ...options }
 
     if (typeof file === "string" && file.startsWith("http")) {
 
@@ -58,7 +58,7 @@ const $readJSON = async (file: any, options?: JsonInputOptionsBrowser) => {
                     throw new Error(`Failed to load ${file}`)
                 }
                 response.json().then(json => {
-                    resolve(new DataFrame(json));
+                    resolve(new DataFrame(json, frameConfig));
                 });
             }).catch((err) => {
                 throw new Error(err)
@@ -71,7 +71,7 @@ const $readJSON = async (file: any, options?: JsonInputOptionsBrowser) => {
             reader.readAsText(file);
             reader.onload = (event) => {
                 const jsonObj = JSON.parse(event?.target?.result as string);
-                resolve(new DataFrame(jsonObj));
+                resolve(new DataFrame(jsonObj, frameConfig));
             }
         })
     } else {

@@ -34,7 +34,7 @@ import fs from 'fs'
  * ```
  */
 const $readJSON = async (filePath: string, options: JsonInputOptionsNode = {}) => {
-    const { method, headers } = { method: "GET", headers: {}, ...options }
+    const { method, headers, frameConfig } = { method: "GET", headers: {}, frameConfig: {}, ...options }
 
     if (filePath.startsWith("http") || filePath.startsWith("https")) {
 
@@ -44,7 +44,7 @@ const $readJSON = async (filePath: string, options: JsonInputOptionsNode = {}) =
                     throw new Error(`Failed to load ${filePath}`)
                 }
                 response.json().then(json => {
-                    resolve(new DataFrame(json));
+                    resolve(new DataFrame(json, frameConfig));
                 });
             }).catch((err) => {
                 throw new Error(err)
@@ -54,7 +54,7 @@ const $readJSON = async (filePath: string, options: JsonInputOptionsNode = {}) =
     } else {
         return new Promise(resolve => {
             const file = fs.readFileSync(filePath, "utf8")
-            const df = new DataFrame(JSON.parse(file));
+            const df = new DataFrame(JSON.parse(file), frameConfig);
             resolve(df);
         });
     }
@@ -80,14 +80,14 @@ const $streamJSON = async (
     callback: (df: DataFrame) => void,
     options?: request.RequiredUriUrl & request.CoreOptions,
 ) => {
-    const { method, headers } = { method: "GET", headers: {}, ...options }
+    const { method, headers, frameConfig } = { method: "GET", headers: {}, frameConfig: {}, ...options }
     if (filePath.startsWith("http") || filePath.startsWith("https")) {
         return new Promise(resolve => {
             let count = -1
             const dataStream = request({ url: filePath, method, headers })
             const pipeline = dataStream.pipe(parser()).pipe(streamArray());
             pipeline.on('data', ({ value }) => {
-                const df = new DataFrame([value], { index: [count++] });
+                const df = new DataFrame([value], { ...frameConfig, index: [count++] });
                 callback(df);
             });
             pipeline.on('end', () => resolve(null));
@@ -99,7 +99,7 @@ const $streamJSON = async (
             const fileStream = fs.createReadStream(filePath)
             const pipeline = fileStream.pipe(parser()).pipe(streamArray());
             pipeline.on('data', ({ value }) => {
-                const df = new DataFrame([value], { index: [count++] });
+                const df = new DataFrame([value], { ...frameConfig, index: [count++] });
                 callback(df);
             });
             pipeline.on('end', () => resolve(null));
