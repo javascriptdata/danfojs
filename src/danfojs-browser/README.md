@@ -12,6 +12,7 @@
 ![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2FDanfoJs) 
 <span class="badge-patreon"><a href="https://www.patreon.com/bePatron?u=40496758" title="Donate to this project using Patreon"><img src="https://img.shields.io/badge/patreon-donate-yellow.svg" alt="Patreon donate button" /></a></span>
 
+
 ## What is it?
 
 **Danfo.js** is a javascript package that provides fast, flexible, and expressive data
@@ -20,7 +21,7 @@ easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org
 
 ## Main Features
 
-  - Danfo.js is fast and supports Tensorflow.js tensors out of the box. This means you can [convert Danfo data structure](https://danfo.jsdata.org/api-reference/dataframe/dataframe.tensor) to Tensors.
+  - Danfo.js is fast. It is built on Tensorflow.js, and supports tensors out of the box. This means you can [convert Danfo data structure](https://danfo.jsdata.org/api-reference/dataframe/dataframe.tensor) to Tensors.
   - Easy handling of [missing-data](https://danfo.jsdata.org/getting-started#missing-data) (represented as
     `NaN`) in floating point as well as non-floating point data
   - Size mutability: columns can be [inserted/deleted](https://danfo.jsdata.org/api-reference/dataframe#combining-comparing-joining-merging) from DataFrame
@@ -39,7 +40,7 @@ easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org
   - Intuitive [merging](https://danfo.jsdata.org/api-reference/general-functions/danfo.merge) and [joining](https://danfo.jsdata.org/api-reference/general-functions/danfo.concat) data
     sets
   - Robust IO tools for loading data from [flat-files](https://danfo.jsdata.org/api-reference/input-output)
-    (CSV, Json, Excel).
+    (CSV, Json, Excel, Data package).
   - Powerful, flexible and intutive API for [plotting](https://danfo.jsdata.org/api-reference/plotting) DataFrames and Series interactively.
   - [Timeseries](https://danfo.jsdata.org/api-reference/series#accessors)-specific functionality: date range
     generation and date and time properties. 
@@ -165,11 +166,6 @@ dfd.readCSV(file_url)
         str_cols.print()
         num_cols.print()
 
-        //select columns by dtypes
-        let str_cols = df_drop.select_dtypes(["string"])
-        let num_cols = df_drop.select_dtypes(["int32", "float32"])
-        str_cols.print()
-        num_cols.print()
 
         //add new column to Dataframe
 

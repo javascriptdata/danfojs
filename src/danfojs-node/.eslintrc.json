@@ -1,0 +1,61 @@
+{
+    "env": {
+        "browser": true,
+        "es6": true,
+        "mocha": true
+    },
+    "extends": "eslint:recommended",
+    "globals": {
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly"
+    },
+    "parserOptions": {
+        "ecmaVersion": 11,
+        "sourceType": "module"
+    },
+    "rules": {
+    "no-trailing-spaces": "error",
+    "prefer-const": "off",
+    "no-useless-escape": "off",
+    "comma-spacing": [
+      "error",
+            {
+        "before": false, "after": true
+            }
+        ],
+    "indent": [ "error",
+            2
+        ],
+    "keyword-spacing": [
+      "error",
+            { "before": true
+            }
+        ],
+    "space-infix-ops": "error",
+    "object-curly-spacing": [ "error", "always"
+        ],
+    "semi": [ "error", "always"
+        ],
+    "eol-last": [ "error", "always"
+        ],
+    "comma-dangle": [ "error", "never"
+        ],
+    "no-multi-spaces": "error",
+    "no-multiple-empty-lines": "error",
+    "no-irregular-whitespace": "error",
+    "arrow-parens": [ "error", "always"
+        ],
+    "arrow-spacing": [ "error",
+            { "before": true, "after": true
+            }
+        ],
+    "block-spacing": "error",
+    "brace-style": [ "error", "1tbs",
+            { "allowSingleLine": true
+            }
+        ],
+    "comma-style": "error",
+    "no-unused-vars": [ "off"] // Use @typescript-eslint/no-unused-vars instead, otherwise there will be checked twice
+    }
+    
+}

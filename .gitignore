@@ -1,2 +1,5 @@
 .editorconfig
 node_modules
+test/fixtures/*
+test/samples/*
+*.xlsx
