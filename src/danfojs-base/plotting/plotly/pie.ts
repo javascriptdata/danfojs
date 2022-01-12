@@ -17,8 +17,8 @@
 import Series from "../../core/series";
 import DataFrame from "../../core/frame";
 import { Data } from "plotly.js-dist-min"
-import { PlotConfigObject } from "../../shared/types"
-import { checkIfColsExist, throwErrorOnWrongColName } from "./utils"
+import { InternalPlotConfigObject } from "../../shared/types"
+import { checkIfColsExist } from "./utils"
 
 
 /**
@@ -29,7 +29,7 @@ import { checkIfColsExist, throwErrorOnWrongColName } from "./utils"
 * @param divId HTML div id to plot in.
 * @param plotConfig configuration options for making Plots, supports Plotly.js Config and Layout parameters.
 */
-export const piePlot = (ndframe: DataFrame | Series, divId: string, plotConfig: PlotConfigObject, Plotly: any) => {
+export const piePlot = (ndframe: DataFrame | Series, divId: string, plotConfig: InternalPlotConfigObject, Plotly: any) => {
     const config = plotConfig["config"]
     const layout = plotConfig["layout"]
 
@@ -74,7 +74,7 @@ export const piePlot = (ndframe: DataFrame | Series, divId: string, plotConfig: 
                 const cols = config["columns"] ? checkIfColsExist(ndframe, config['columns']) : ndframe.columns;
 
                 if (config['rowPositions']) {
-                    if (config['rowPositions'].length != cols.length - 1) {
+                    if (config['rowPositions'].length != cols.length) {
                         throw Error(`Lenght of rowPositions array must be equal to number of columns. Got ${config['rowPositions'].length}, expected ${cols.length - 1}`);
                     }
                 } else {
@@ -87,7 +87,7 @@ export const piePlot = (ndframe: DataFrame | Series, divId: string, plotConfig: 
                 }
 
                 if (config['columnPositions']) {
-                    if (config['columnPositions'].length != cols.length - 1) {
+                    if (config['columnPositions'].length != cols.length) {
                         throw Error(`Lenght of columnPositions array must be equal to number of columns. Got ${config['columnPositions'].length}, expected ${cols.length - 1}`);
                     }
                 } else {

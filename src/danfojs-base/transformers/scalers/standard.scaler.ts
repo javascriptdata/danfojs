@@ -43,10 +43,8 @@ export default class StandardScaler {
             } else {
                 $tensorArray = tensorflow.tensor2d(data)
             }
-        } else if (data instanceof DataFrame) {
-            $tensorArray = tensorflow.tensor2d(data.values as number[][])
-        } else if (data instanceof Series) {
-            $tensorArray = tensorflow.tensor1d(data.values as number[])
+        } else if (data instanceof DataFrame || data instanceof Series) {
+            $tensorArray = data.tensor
         } else if (data instanceof tensorflow.Tensor) {
             $tensorArray = data
         } else {

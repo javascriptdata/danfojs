@@ -43,14 +43,12 @@ export default class MinMaxScaler {
             } else {
                 $tensorArray = tensorflow.tensor2d(data)
             }
-        } else if (data instanceof DataFrame) {
-            $tensorArray = tensorflow.tensor2d(data.values as number[][])
-        } else if (data instanceof Series) {
-            $tensorArray = tensorflow.tensor1d(data.values as number[])
+        } else if (data instanceof DataFrame || data instanceof Series) {
+            $tensorArray = data.tensor 
         } else if (data instanceof tensorflow.Tensor) {
             $tensorArray = data
         } else {
-            throw new Error("ParamError: data must be one of Array, DataFrame or Series")
+            throw new Error("ParamError: data must be one of Array, Tensor, DataFrame or Series")
         }
         return $tensorArray
     }

@@ -354,6 +354,11 @@ interface CustomConfig extends Config {
 }
 
 export type PlotConfigObject = {
+    config?: Partial<CustomConfig>
+    layout?: Partial<Layout>
+}
+
+export type InternalPlotConfigObject = {
     config: Partial<CustomConfig>
     layout: Partial<Layout>
 }

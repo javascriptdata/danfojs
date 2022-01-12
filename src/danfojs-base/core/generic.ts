@@ -161,9 +161,9 @@ export default class NDframe implements NDframeInterface {
     */
     get tensor() {
         if (this.$isSeries) {
-            return tensorflow.tensor1d(this.$data)
+            return tensorflow.tensor1d(this.$data, this.$dtypes[0]);
         } else {
-            return tensorflow.tensor2d(this.$data)
+            return tensorflow.tensor2d(this.$data, this.shape, "float32")
         }
     }
 

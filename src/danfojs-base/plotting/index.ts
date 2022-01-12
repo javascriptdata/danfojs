@@ -43,16 +43,20 @@ class PlotlyLib implements IPlotlyLib {
         this.divId = divId;
     }
 
+    private getPlotConfig(plotConfig?: PlotConfigObject) {
+        const _plotConfig = {
+            config: plotConfig && plotConfig.config ? plotConfig.config : {},
+            layout: plotConfig && plotConfig.layout ? plotConfig.layout : {}
+        };
+        return _plotConfig;
+    }
     /**
      * Plot Series or DataFrame as lines.
      * Uses Plotly library as backend, so supports Plotly's configuration parameters
      * @param plotConfig configuration options for making Plots, supports Plotly.js Config and Layout parameters.
     */
     line(plotConfig?: PlotConfigObject) {
-        const _plotConfig = plotConfig || {
-            config: {},
-            layout: {}
-        };
+        const _plotConfig = this.getPlotConfig(plotConfig);
         linePlot(this.ndframe, this.divId, _plotConfig, Plotly);
     }
 
@@ -62,10 +66,7 @@ class PlotlyLib implements IPlotlyLib {
      * @param plotConfig configuration options for making Plots, supports Plotly.js Config and Layout parameters.
     */
     bar(plotConfig?: PlotConfigObject) {
-        const _plotConfig = plotConfig || {
-            config: {},
-            layout: {}
-        };
+        const _plotConfig = this.getPlotConfig(plotConfig);
         barPlot(this.ndframe, this.divId, _plotConfig, Plotly);
     }
 
@@ -75,10 +76,7 @@ class PlotlyLib implements IPlotlyLib {
      * @param plotConfig configuration options for making Plots, supports Plotly.js Config and Layout parameters.
     */
     scatter(plotConfig?: PlotConfigObject) {
-        const _plotConfig = plotConfig || {
-            config: {},
-            layout: {}
-        };
+        const _plotConfig = this.getPlotConfig(plotConfig);
         scatterPlot(this.ndframe, this.divId, _plotConfig, Plotly);
     }
 
@@ -88,10 +86,7 @@ class PlotlyLib implements IPlotlyLib {
      * @param plotConfig configuration options for making Plots, supports Plotly.js Config and Layout parameters.
     */
     hist(plotConfig?: PlotConfigObject) {
-        const _plotConfig = plotConfig || {
-            config: {},
-            layout: {}
-        };
+        const _plotConfig = this.getPlotConfig(plotConfig);
         histPlot(this.ndframe, this.divId, _plotConfig, Plotly);
     }
 
@@ -101,10 +96,7 @@ class PlotlyLib implements IPlotlyLib {
      * @param plotConfig configuration options for making Plots, supports Plotly.js Config and Layout parameters.
     */
     pie(plotConfig?: PlotConfigObject) {
-        const _plotConfig = plotConfig || {
-            config: {},
-            layout: {}
-        };
+        const _plotConfig = this.getPlotConfig(plotConfig);
         piePlot(this.ndframe, this.divId, _plotConfig, Plotly);
     }
 
@@ -114,10 +106,7 @@ class PlotlyLib implements IPlotlyLib {
      * @param plotConfig configuration options for making Plots, supports Plotly.js Config and Layout parameters.
     */
     box(plotConfig?: PlotConfigObject) {
-        const _plotConfig = plotConfig || {
-            config: {},
-            layout: {}
-        };
+        const _plotConfig = this.getPlotConfig(plotConfig);
         boxPlot(this.ndframe, this.divId, _plotConfig, Plotly);
     }
 
@@ -127,10 +116,7 @@ class PlotlyLib implements IPlotlyLib {
      * @param plotConfig configuration options for making Plots, supports Plotly.js Config and Layout parameters.
      */
     violin(plotConfig?: PlotConfigObject) {
-        const _plotConfig = plotConfig || {
-            config: {},
-            layout: {}
-        };
+        const _plotConfig = this.getPlotConfig(plotConfig);
         violinPlot(this.ndframe, this.divId, _plotConfig, Plotly);
     }
 
@@ -140,18 +126,12 @@ class PlotlyLib implements IPlotlyLib {
      * @param plotConfig configuration options for making Plots, supports Plotly.js Config and Layout parameters.
      */
     table(plotConfig?: PlotConfigObject) {
-        const _plotConfig = plotConfig || {
-            config: {},
-            layout: {}
-        };
+        const _plotConfig = this.getPlotConfig(plotConfig);
         tablePlot(this.ndframe, this.divId, _plotConfig, Plotly);
     }
 
 }
 
-// class Vega {
-//     //TODO: Add support for vega library
-// }
 
 export {
     PlotlyLib

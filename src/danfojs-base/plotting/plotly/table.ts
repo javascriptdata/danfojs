@@ -14,7 +14,7 @@
 */
 import Series from "../../core/series";
 import DataFrame from "../../core/frame";
-import { PlotConfigObject } from "../../shared/types"
+import { InternalPlotConfigObject } from "../../shared/types"
 
 
 /**
@@ -24,7 +24,7 @@ import { PlotConfigObject } from "../../shared/types"
 * @param divId HTML div id to plot in.
 * @param plotConfig configuration options for making Plots, supports Plotly.js Config and Layout parameters.
 */
-export const tablePlot = (ndframe: DataFrame | Series, divId: string, plotConfig: PlotConfigObject, Plotly: any) => {
+export const tablePlot = (ndframe: DataFrame | Series, divId: string, plotConfig: InternalPlotConfigObject, Plotly: any) => {
     const config = plotConfig["config"]
     const layout = plotConfig["layout"]
     let header: any = {};
@@ -65,6 +65,7 @@ export const tablePlot = (ndframe: DataFrame | Series, divId: string, plotConfig
             cells[param] = config['tableCellStyle'][param];
         });
     }
+    
     const trace = {
         type: 'table',
         header,

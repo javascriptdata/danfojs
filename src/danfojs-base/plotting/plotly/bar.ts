@@ -15,7 +15,7 @@
 import Series from "../../core/series";
 import DataFrame from "../../core/frame";
 import { Data } from "plotly.js-dist-min"
-import { PlotConfigObject } from "../../shared/types"
+import { InternalPlotConfigObject } from "../../shared/types"
 import { checkIfColsExist, throwErrorOnWrongColName } from "./utils"
 
 
@@ -28,7 +28,7 @@ import { checkIfColsExist, throwErrorOnWrongColName } from "./utils"
 * @param divId HTML div id to plot in.
 * @param plotConfig configuration options for making Plots, supports Plotly.js Config and Layout parameters.
 */
-export const barPlot = (ndframe: DataFrame | Series, divId: string, plotConfig: PlotConfigObject, Plotly: any) => {
+export const barPlot = (ndframe: DataFrame | Series, divId: string, plotConfig: InternalPlotConfigObject, Plotly: any) => {
     const config = plotConfig["config"]
     const layout = plotConfig["layout"]
 
@@ -126,8 +126,8 @@ export const barPlot = (ndframe: DataFrame | Series, divId: string, plotConfig: 
 
             const traces: Data[] = [];
             cols.forEach((col) => {
-                const y = ndframe.index;
-                const x = (ndframe as DataFrame)[col].values;
+                const x = ndframe.index;
+                const y = (ndframe as DataFrame)[col].values;
 
                 const trace: Data = { x, y, name: col, type: 'bar' };
                 traces.push(trace);

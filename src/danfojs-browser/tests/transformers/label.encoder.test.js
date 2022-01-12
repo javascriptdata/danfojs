@@ -22,7 +22,7 @@ describe("LabelEncoder", function () {
     scaler.fit(sf);
 
     const expected = [ 0, 1, 1, 2, -1 ];
-    assert.deepEqual((scaler.transform(new Series([ 1, 2, 2, 6, 7 ]))).values, expected);
+    assert.deepEqual((scaler.transform(new dfd.Series([ 1, 2, 2, 6, 7 ]))).values, expected);
   });
   it("fitTransform works for 1D array", function () {
     const sf = [ 1, 2, 2, "boy", "git", "git" ];
