@@ -2754,14 +2754,18 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * 
      */
     rename(
-        mapper: any,
+        mapper: {
+            [index: string | number]: string | number
+        },
         options?: {
             axis?: 0 | 1
             inplace?: boolean
         }
     ): DataFrame
-    rename(
-        mapper: any,
+    rename(  
+        mapper: {
+            [index: string | number]: string | number
+        },
         options?: {
             axis?: 0 | 1
             inplace?: boolean
@@ -2777,8 +2781,9 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             const colsAdded: string[] = [];
             const newColumns = this.columns.map(col => {
                 if (mapper[col] !== undefined) {
-                    colsAdded.push(mapper[col]);
-                    return mapper[col]
+                    const newCol = `${mapper[col]}`;
+                    colsAdded.push(newCol);
+                    return newCol;
                 } else {
                     return col
                 }
