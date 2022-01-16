@@ -51,6 +51,7 @@ const $readCSV = async (file: any, options?: CsvInputOptionsBrowser): Promise<Da
   return new Promise(resolve => {
     Papa.parse(file, {
       header: true,
+      dynamicTyping: true,
       ...options,
       download: true,
       complete: results => {
@@ -83,6 +84,7 @@ const $streamCSV = async (file: string, callback: (df: DataFrame) => void, optio
     let count = -1
     Papa.parse(file, {
       ...options,
+      dynamicTyping: true,
       header: true,
       download: true,
       step: results => {

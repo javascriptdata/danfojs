@@ -59,7 +59,19 @@ describe("readCSV", function () {
             'int32', 'float32'
         ]);
     });
-
+    it("Read local csv with correct types and format works", async function () {
+        const filePath = path.join(process.cwd(), "test", "samples", "iris.csv");
+        let df: any = await readCSV(filePath, { header: true, preview: 5 });
+        const values = [
+            [5.1, 3.5, 1.4, 0.2, 0.0],
+            [4.9, 3.0, 1.4, 0.2, 0.0],
+            [4.7, 3.2, 1.3, 0.2, 0.0],
+            [4.6, 3.1, 1.5, 0.2, 0.0],
+            [5.0, 3.6, 1.4, 0.2, 0.0],
+        ]
+        console.log(df.values)
+        assert.deepEqual(df.values, values);
+    });
     // it("Read remote csv file works", async function () {
     //     const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/titanic.csv"
     //     let df: any = await readCSV(remoteFile, { header: true, preview: 5 });
