@@ -58,6 +58,16 @@ describe("readCSV", function () {
     ]);
   });
 
+  it("Read remote csv file works and returns correct data type", async function () {
+    const remoteFile = "https://raw.githubusercontent.com/javascriptdata/danfojs/dev/src/danfojs-node/test/samples/titanic.csv";
+    let df = await dfd.readCSV(remoteFile, { header: true, preview: 2 });
+    const values = [
+      [ 0, 3, 'Mr. Owen Harris Braund', 'male', 22, 1, 0, 7.25 ],
+      [ 1, 1, 'Mrs. John Bradley (Florence Briggs Thayer) Cumings', 'female', 38, 1, 0, 71.2833 ]
+    ];
+    assert.deepEqual(df.values, values);
+  });
+
 });
 
 // describe("streamCSV", function () {

@@ -54,6 +54,7 @@ const $readCSV = async (filePath: string, options?: CsvInputOptionsNode): Promis
     return new Promise(resolve => {
       const optionsWithDefaults = {
         header: true,
+        dynamicTyping: true,
         ...options,
       }
 
@@ -76,6 +77,7 @@ const $readCSV = async (filePath: string, options?: CsvInputOptionsNode): Promis
       const fileStream = fs.createReadStream(filePath)
       Papa.parse(fileStream, {
         header: true,
+        dynamicTyping: true,
         ...options,
         complete: results => {
           const df = new DataFrame(results.data, frameConfig);
@@ -107,6 +109,7 @@ const $streamCSV = async (filePath: string, callback: (df: DataFrame) => void, o
   if (filePath.startsWith("http") || filePath.startsWith("https")) {
     const optionsWithDefaults = {
       header: true,
+      dynamicTyping: true,
       ...options,
     }
     return new Promise(resolve => {
@@ -132,6 +135,7 @@ const $streamCSV = async (filePath: string, callback: (df: DataFrame) => void, o
       let count = -1
       Papa.parse(fileStream, {
         header: true,
+        dynamicTyping: true,
         ...options,
         step: results => {
           const df = new DataFrame([results.data], { ...frameConfig, index: [count++] });
@@ -223,7 +227,7 @@ const $openCsvInputStream = (filePath: string, options: CsvInputOptionsNode) => 
 
   if (filePath.startsWith("http") || filePath.startsWith("https")) {
     const dataStream = request.get(filePath);
-    const parseStream: any = Papa.parse(Papa.NODE_STREAM_INPUT, { header, ...options });
+    const parseStream: any = Papa.parse(Papa.NODE_STREAM_INPUT, { header, dynamicTyping: true, ...options });
     dataStream.pipe(parseStream);
     let count = -1
 
@@ -255,7 +259,7 @@ const $openCsvInputStream = (filePath: string, options: CsvInputOptionsNode) => 
     const fileStream = fs.createReadStream(filePath)
     let count = -1
     Papa.parse(fileStream, {
-      ...{ header, ...options },
+      ...{ header, dynamicTyping: true, ...options },
       step: results => {
         if (isFirstChunk) {
           if (header === true) {

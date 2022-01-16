@@ -442,6 +442,14 @@ export default class Groupby {
   }
 
   /**
+   * Obtain the standard deviation of columns for each group
+   * @returns DataFrame
+   */
+  std(): DataFrame{
+    return this.operations("std")
+  }
+
+  /**
    * Obtain the variance of columns for each group
    * @returns DataFrame
    */
