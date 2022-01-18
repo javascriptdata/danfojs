@@ -20,7 +20,7 @@
     "dist/"
   ],
   "dependencies": {
-    "@tensorflow/tfjs": "^3.11.0",
+    "@tensorflow/tfjs": "^3.13.0",
     "mathjs": "9.4.4",
     "papaparse": "^5.3.1",
     "plotly.js-dist-min": "^2.8.0",
