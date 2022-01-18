@@ -88,4 +88,17 @@ describe("TimeSeries", function () {
     assert.deepEqual(dateTime.monthName().values, expectedMonthName);
 
   });
+
+  it("Returns date string in standard JS format", function () {
+    const data = [ "02Sep2019", "03Aug2019", "04July2019" ];
+    const dateTime = dfd.toDateTime(data);
+    const expected = [ "2019-09-02", "2019-08-03", "2019-07-04" ];
+
+    const data2 = new Series([ "12.30.19", "12.22.19", "11.01.20" ]);
+    const dateTime2 = dfd.toDateTime(data2);
+    const expected2 = [ "2019-12-30", "2019-12-22", "2020-11-01" ];
+
+    assert.deepEqual(dateTime.date().values, expected);
+    assert.deepEqual(dateTime2.date().values, expected2);
+  });
 });
