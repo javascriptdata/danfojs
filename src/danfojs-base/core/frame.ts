@@ -3336,7 +3336,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Access a single value for a row/column pair by integer position.
      * Similar to {@link iloc}, in that both provide integer-based lookups. 
-     * Use iat if you only need to get or set a single value in a DataFrame or Series.
+     * Use iat if you only need to get or set a single value in a DataFrame.
      * @param row Row index of the value to access.
      * @param column Column index of the value to access.
      * @example
@@ -3347,7 +3347,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * df.iat(1, 0) // 3
      * ```
     */
-    iat(row: number, column: number): string | number | boolean {
+    iat(row: number, column: number): string | number | boolean | undefined {
         if(typeof row === 'string' || typeof column === 'string') {
             throw new Error('ParamError: row and column index must be an integer. Use .at to get a row or column by label.')
         }
@@ -3358,7 +3358,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Access a single value for a row/column label pair.
      * Similar to {@link loc}, in that both provide label-based lookups. 
-     * Use at if you only need to get or set a single value in a DataFrame or Series.
+     * Use at if you only need to get or set a single value in a DataFrame.
      * @param row Row index of the value to access.
      * @param column Column label of the value to access.
      * @example
@@ -3369,7 +3369,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * df.at(1, 'B') // 4
      * ```
     */
-    at(row: string | number, column: string): string | number | boolean {
+    at(row: string | number, column: string): string | number | boolean | undefined {
         if(typeof column !== 'string') {
             throw new Error('ParamError: column index must be a string. Use .iat to get a row or column by index.')
         }
