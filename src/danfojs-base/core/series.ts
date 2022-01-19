@@ -2239,4 +2239,44 @@ export default class Series extends NDframe implements SeriesInterface {
             return toExcelNode(this, options as ExcelOutputOptionsNode)
         }
     }
+
+    /**
+     * Access a single value for a row index.
+     * Similar to iloc, in that both provide index-based lookups. 
+     * Use iat if you only need to get or set a single value in a Series.
+     * @param row Row index of the value to access.
+     * @example
+     * ```
+     * const sf = new Series([1, 2, 3, 4, 5])
+     * sf.iat(0) //returns 1
+     * sf.iat(1) //returns 2
+     * sf.iat(2) //returns 3
+     * ```
+    */
+    iat(row: number): number | string | boolean | undefined {
+        if(typeof row === 'string') {
+            throw new Error('ParamError: row index must be an integer. Use .at to get a row by label.')
+        }
+        return (this.values as ArrayType1D)[row];
+    }
+
+    /**
+     * Access a single value for a row label.
+     * Similar to loc, in that both provide label-based lookups.
+     * Use at if you only need to get or set a single value in a Series.
+     * @param row Row label of the value to access.
+     * @example
+     * ```
+     * const sf = new Series([1, 2, 3, 4, 5, 6], { index: ['A', 'B', 'C', 'D', 'E', 'F'] })
+     * sf.at('A') //returns 1
+     * sf.at('B') //returns 2
+     * sf.at('C') //returns 3
+     * ```
+    */
+    at(row: string): number | string | boolean | undefined {
+        if(typeof row !== 'string') {
+            throw new Error('ParamError: row index must be a string. Use .iat to get a row by index.')
+        }
+        return (this.values as ArrayType1D)[this.index.indexOf(row)];
+    }
 }

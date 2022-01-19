@@ -1583,4 +1583,58 @@ describe("Series Functions", () => {
     });
 
   });
+
+  describe("iat", function () {
+    it("iat works on Series", function () {
+      const data = [ 1, 2, 3, 4 ];
+      const index = [ "a", "b", "c", "d" ];
+      const df = new dfd.Series(data, { index });
+      assert.equal(df.iat(0), 1);
+      assert.equal(df.iat(1), 2);
+      assert.equal(df.iat(2), 3);
+    });
+    it("iat can return undefined", function () {
+      const data = [ 1, undefined, null, NaN ];
+      const df = new dfd.Series(data);
+      assert.equal(df.iat(1), undefined);
+      assert.equal(df.iat(2), null);
+      /* @ts-ignore */
+      assert.equal(isNaN(df.iat(3)), true);
+    });
+    it("throws error on string indices", function () {
+      const data = [ 1, 2, 3, 4 ];
+      const index = [ "a", "b", "c", "d" ];
+      const df = new dfd.Series(data, { index });
+      /* @ts-ignore */
+      assert.throws(function () { df.iat("A"); }, Error, "ParamError: row index must be an integer. Use .at to get a row by label.");
+    });
+  });
+
+  describe("at", function () {
+    it("at works on Series", function () {
+      const data = [ 1, 2, 3, 4 ];
+      const index = [ "a", "b", "c", "d" ];
+      const df = new dfd.Series(data, { index });
+      assert.equal(df.at("a"), 1);
+      assert.equal(df.at("b"), 2);
+      assert.equal(df.at("c"), 3);
+    });
+    it("at can return undefined", function () {
+      const data = [ 1, undefined, null, NaN ];
+      const index = [ "a", "b", "c", "d" ];
+      const df = new dfd.Series(data, { index });
+      assert.equal(df.at("b"), undefined);
+      assert.equal(df.at("c"), null);
+      /* @ts-ignore */
+      assert.equal(isNaN(df.at("d")), true);
+    });
+    it("throws error on string indices", function () {
+      const data = [ 1, 2, 3, 4 ];
+      const index = [ "a", "b", "c", "d" ];
+      const df = new dfd.Series(data, { index });
+      /* @ts-ignore */
+      assert.throws(function () { df.at(0); }, Error, "ParamError: row index must be a string. Use .iat to get a row by index.");
+    });
+
+  });
 });

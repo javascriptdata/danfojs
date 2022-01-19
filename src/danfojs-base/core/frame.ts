@@ -1747,8 +1747,8 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         options?: { inplace?: boolean, atIndex?: number | string }
     ): DataFrame | void {
         let { inplace, atIndex } = { inplace: false, atIndex: this.columns.length, ...options };
-        if (typeof atIndex === "string" ) {
-            if (!(this.columns.includes(atIndex))){
+        if (typeof atIndex === "string") {
+            if (!(this.columns.includes(atIndex))) {
                 throw new Error(`${atIndex} not a column`)
             }
             atIndex = this.columns.indexOf(atIndex)
@@ -2762,7 +2762,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             inplace?: boolean
         }
     ): DataFrame
-    rename(  
+    rename(
         mapper: {
             [index: string | number]: string | number
         },
@@ -3331,5 +3331,48 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         } else {
             return toExcelNode(this, options as ExcelOutputOptionsNode)
         }
+    }
+
+    /**
+     * Access a single value for a row/column pair by integer position.
+     * Similar to {@link iloc}, in that both provide integer-based lookups. 
+     * Use iat if you only need to get or set a single value in a DataFrame.
+     * @param row Row index of the value to access.
+     * @param column Column index of the value to access.
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.iat(0, 0) // 1
+     * df.iat(0, 1) // 2
+     * df.iat(1, 0) // 3
+     * ```
+    */
+    iat(row: number, column: number): string | number | boolean | undefined {
+        if(typeof row === 'string' || typeof column === 'string') {
+            throw new Error('ParamError: row and column index must be an integer. Use .at to get a row or column by label.')
+        }
+
+        return (this.values as ArrayType2D)[row][column]
+    }
+
+    /**
+     * Access a single value for a row/column label pair.
+     * Similar to {@link loc}, in that both provide label-based lookups. 
+     * Use at if you only need to get or set a single value in a DataFrame.
+     * @param row Row index of the value to access.
+     * @param column Column label of the value to access.
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.at(0,'A') // 1
+     * df.at(1, 'A') // 3
+     * df.at(1, 'B') // 4
+     * ```
+    */
+    at(row: string | number, column: string): string | number | boolean | undefined {
+        if(typeof column !== 'string') {
+            throw new Error('ParamError: column index must be a string. Use .iat to get a row or column by index.')
+        }
+        return (this.values as ArrayType2D)[this.index.indexOf(row)][this.columns.indexOf(column)]
     }
 }
