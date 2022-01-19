@@ -674,9 +674,10 @@ export default class Series extends NDframe implements SeriesInterface {
      * //output [ 1.23, 2.4, 3.12, 4.12, 5.12 ]
      * ```
     */
+    round(dp?: number, options?: { inplace?: boolean }): Series
     round(dp = 1, options?: { inplace?: boolean }): Series | void {
         const { inplace } = { inplace: false, ...options }
-
+        if (dp === undefined) dp = 1;
         const newValues = utils.round(this.values as number[], dp, true);
 
         if (inplace) {
@@ -816,24 +817,26 @@ export default class Series extends NDframe implements SeriesInterface {
         const { ascending, inplace, } = { ascending: true, inplace: false, ...options }
 
         let sortedValues = [];
+        let sortedIndex = []
         const rangeIdx = utils.range(0, this.index.length - 1);
         let sortedIdx = utils.sortArrayByIndex(rangeIdx, this.values, this.dtypes[0]);
 
         for (let indx of sortedIdx) {
             sortedValues.push(this.values[indx])
+            sortedIndex.push(this.index[indx])
         }
 
         if (ascending) {
             sortedValues = sortedValues.reverse();
-            sortedIdx = sortedIdx.reverse();
+            sortedIndex = sortedIndex.reverse();
         }
 
         if (inplace) {
             this.$setValues(sortedValues as ArrayType1D)
-            this.$setIndex(sortedIdx);
+            this.$setIndex(sortedIndex);
         } else {
             const sf = new Series(sortedValues, {
-                index: sortedIdx,
+                index: sortedIndex,
                 dtypes: this.dtypes,
                 config: this.config
             });
@@ -1832,6 +1835,11 @@ export default class Series extends NDframe implements SeriesInterface {
         newValue: string | number | boolean | Series | ArrayType1D,
         index: Array<number | string> | number | string,
         options?: { inplace?: boolean }
+    ): Series
+    append(
+        newValue: string | number | boolean | Series | ArrayType1D,
+        index: Array<number | string> | number | string,
+        options?: { inplace?: boolean }
     ): Series | void {
         const { inplace } = { inplace: false, ...options }
 
@@ -2254,7 +2262,7 @@ export default class Series extends NDframe implements SeriesInterface {
      * ```
     */
     iat(row: number): number | string | boolean | undefined {
-        if(typeof row === 'string') {
+        if (typeof row === 'string') {
             throw new Error('ParamError: row index must be an integer. Use .at to get a row by label.')
         }
         return (this.values as ArrayType1D)[row];
@@ -2274,7 +2282,7 @@ export default class Series extends NDframe implements SeriesInterface {
      * ```
     */
     at(row: string): number | string | boolean | undefined {
-        if(typeof row !== 'string') {
+        if (typeof row !== 'string') {
             throw new Error('ParamError: row index must be a string. Use .iat to get a row by index.')
         }
         return (this.values as ArrayType1D)[this.index.indexOf(row)];

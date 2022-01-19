@@ -774,27 +774,48 @@ export default class Utils {
         arr: Array<{ index: number | string, value: number | string | boolean }>,
         ascending: boolean
     ) {
-        return arr.sort((obj1, obj2) => {
-            const a = obj2.value;
-            const b = obj1.value;
+        let sortedValues = arr.sort((obj1, obj2) => {
+            let a = obj2.value;
+            let b = obj1.value;
 
             if (!ascending) {
                 if (typeof a === "string" && typeof b === "string") {
-                    return a.charCodeAt(0) - b.charCodeAt(0);
-                } else if ((typeof a === "number" && typeof b === "number") || (typeof a === "boolean" && typeof b === "boolean")) {
-                    return Number(a) - Number(b);
+                    a = a.toUpperCase();
+                    b = b.toUpperCase();
+
+                    if (a < b) {
+                        return -1;
+                    }
+
+                    if (a > b) {
+                        return 1;
+                    }
+
+                    return 0;
+
                 } else {
-                    throw Error('ParamError: column values must be either numbers or strings');
+                    return Number(a) - Number(b);
                 }
             } else {
                 if (typeof a === "string" && typeof b === "string") {
-                    return b.charCodeAt(0) - a.charCodeAt(0);
-                } else if ((typeof a === "number" && typeof b === "number") || (typeof a === "boolean" && typeof b === "boolean")) {
-                    return Number(b) - Number(a);
+                    a = a.toUpperCase();
+                    b = b.toUpperCase();
+
+                    if (a > b) {
+                        return -1;
+                    }
+
+                    if (a < b) {
+                        return 1;
+                    }
+
+                    return 0;
                 } else {
-                    throw Error('ParamError: column values must be either numbers or strings');
+                    return Number(b) - Number(a);;
                 }
             }
         });
+
+        return sortedValues;
     }
 }
