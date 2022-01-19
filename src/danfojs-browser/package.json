@@ -1,6 +1,6 @@
 {
   "name": "danfojs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
   "main": "dist/danfojs-browser/src/index.js",
   "types": "dist/danfojs-browser/src/index.d.ts",
@@ -20,7 +20,7 @@
     "dist/"
   ],
   "dependencies": {
-    "@tensorflow/tfjs": "^3.11.0",
+    "@tensorflow/tfjs": "^3.13.0",
     "mathjs": "9.4.4",
     "papaparse": "^5.3.1",
     "plotly.js-dist-min": "^2.8.0",

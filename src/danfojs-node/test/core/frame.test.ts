@@ -1266,7 +1266,7 @@ describe("DataFrame", function () {
             [2, 4, 6, "c"]];
 
             const df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] });
-            const df_sort = df.sortValues("col3") as DataFrame
+            const df_sort = df.sortValues("col3")
             const expected = [[360, 180, 1, "b"], [0, 2, 4, "a"], [2, 4, 6, "c"]];
             assert.deepEqual(df_sort.values, expected);
             assert.deepEqual(df_sort.index, [1, 0, 2]);
@@ -1297,9 +1297,21 @@ describe("DataFrame", function () {
             [2, 4, 6, "c"]];
 
             const df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"] });
-            const expected = [[2, 4, 6, 'c'], [360, 180, 1, 'b'], [0, 2, 4, 'a']];
-            assert.deepEqual((df.sortValues("col4", { "ascending": false }) as DataFrame).values, expected);
+            const expected = [[2, 4, 6, "c"], [360, 180, 1, "b"], [0, 2, 4, "a"]]
+            assert.deepEqual(df.sortValues("col4", { "ascending": false }).values, expected);
         });
+
+        it("sort works for Date string", function () {
+            const data = {
+                date: ['1974-02-19', '1955-12-06', '1963-11-18']
+            };
+            const df = new DataFrame(data);
+            const expected1 = [['1974-02-19'], ['1963-11-18'], ['1955-12-06']]
+            const expected2 = [['1955-12-06'], ['1963-11-18'], ['1974-02-19']]
+            assert.deepEqual(df.sortValues("date", { "ascending": false }).values, expected1);
+            assert.deepEqual(df.sortValues("date", { "ascending": true }).values, expected2);
+        });
+
         it("Sort duplicate DataFrame with duplicate columns", function () {
 
             const data = {
@@ -1320,7 +1332,7 @@ describe("DataFrame", function () {
             [5, 8],
             [5, 2],
             [6, 9]];
-            assert.deepEqual((df.sortValues("A", { "ascending": true }) as DataFrame).values, expected);
+            assert.deepEqual(df.sortValues("A", { "ascending": true }).values, expected);
         });
         it("sort index in descending order and retains index", function () {
             let data = [[0, 2, 4, "b"],
@@ -1330,9 +1342,9 @@ describe("DataFrame", function () {
             let df = new DataFrame(data, { "columns": ["col1", "col2", "col3", "col4"], index: ["b", "a", "c"] });
             let df2 = df.sortIndex({ ascending: false });
             let rslt = ["c", "b", "a"];
-
             assert.deepEqual(df2.index, rslt);
         });
+
     });
 
     describe("copy", function () {
@@ -2905,5 +2917,52 @@ describe("DataFrame", function () {
         });
     });
 
+    describe("iat", function () {
+        it("iat works on DataFrame", function () {
+            const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]];
+            const columns = ["a", "b", "c", "d"];
+            const df = new DataFrame(data, { columns });
+            assert.equal(df.iat(0, 0), 1);
+            assert.equal(df.iat(1, 1), 6);
+            assert.equal(df.iat(2, 3), 12);
+        });
+        it("throws error on string indices", function () {
+            const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]];
+            const columns = ["a", "b", "c", "d"];
+            const index = ["A", "B", "C"];
+            const df = new DataFrame(data, { columns, index });
+            /* @ts-ignore */
+            assert.throws(function () { df.iat("A", 0); }, Error, "ParamError: row and column index must be an integer. Use .at to get a row or column by label.");
+            /* @ts-ignore */
+            assert.throws(function () { df.iat(0, "A"); }, Error, "ParamError: row and column index must be an integer. Use .at to get a row or column by label.");
+        });
+    })
+
+    describe("at", function () {
+        it("at works on DataFrame", function () {
+            const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]];
+            const columns = ["a", "b", "c", "d"];
+            const index = ["A", "B", "C"]
+            const df = new DataFrame(data, { columns, index });
+            assert.equal(df.at("A", "a"), 1);
+            assert.equal(df.at("B", "b"), 6);
+            assert.equal(df.at("C", "c"), 11);
+
+        });
+        it("throws error on numeric column index", function () {
+            const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]];
+            const columns = ["a", "b", "c", "d"];
+            const index = [0, "B", "C"]
+            const df = new DataFrame(data, { columns, index });
+
+            assert.equal(df.at(0, "b"), 2);
+            /* @ts-ignore */
+            assert.throws(function () { df.at(0, 1); }, Error, "ParamError: column index must be a string. Use .iat to get a row or column by index.");
+            /* @ts-ignore */
+            assert.throws(function () { df.at("B", 0); }, Error, "ParamError: column index must be a string. Use .iat to get a row or column by index.");
+
+        });
+
+    });
 
 });

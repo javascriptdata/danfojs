@@ -29,7 +29,7 @@ import merge from "./transformers/merge"
 import dateRange from "./core/daterange"
 import tensorflow from "./shared/tensorflowlib"
 
-const __version = "1.0.1";
+const __version = "1.0.2";
 
 export {
     NDframe,

@@ -1,5 +1,6 @@
 {
     "name": "danfo",
+    "version": "1.0.2",
     "private": true,
     "workspaces": [
         "danfojs-node/**",

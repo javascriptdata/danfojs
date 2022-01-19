@@ -184,6 +184,8 @@ export interface SeriesInterface extends NDframeInterface {
     toCSV(options?: CsvOutputOptionsBrowser): string | void
     toJSON(options?: JsonOutputOptionsBrowser): object | void
     toExcel(options?: ExcelOutputOptionsBrowser): void
+    iat(index: number): number | string | boolean | undefined 
+    at(index: string | number): number | string | boolean | undefined 
 }
 
 //Start of DataFrame class types
@@ -327,6 +329,8 @@ export interface DataFrameInterface extends NDframeInterface {
     toCSV(options?: CsvOutputOptionsBrowser): string | void
     toJSON(options?: JsonOutputOptionsBrowser): object | void
     toExcel(options?: ExcelOutputOptionsBrowser): void
+    iat(row: number, column: number): number | string | boolean | undefined 
+    at(row: string | number, column: string): number | string | boolean | undefined 
 }
 
 export interface DateTime {
@@ -338,6 +342,7 @@ export interface DateTime {
     hours(): Series
     seconds(): Series
     minutes(): Series
+    date(): Series
 }
 
 interface CustomConfig extends Config {

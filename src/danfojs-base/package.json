@@ -1,6 +1,6 @@
 {
   "name": "danfojs-base",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Base package used in danfojs-node and danfojs-browser",
   "main": "index.ts",
   "scripts": {
@@ -9,8 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@tensorflow/tfjs": "3.6.0",
-    "@tensorflow/tfjs-node": "3.6.1",
+    "@tensorflow/tfjs": "^3.13.0",
+    "@tensorflow/tfjs-node": "^3.13.0",
     "mathjs": "^10.0.0",
     "papaparse": "^5.3.1",
     "request": "^2.88.2",

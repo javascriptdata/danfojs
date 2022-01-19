@@ -688,6 +688,45 @@ describe("Series Functions", () => {
       const sortedSf = sf.sortValues({ ascending: false });
       assert.deepEqual(sortedSf.values, result);
     });
+
+    it("Index is retained after sort (ascending=true)", function () {
+      let index = [ "apple", "banana", "orange", "grape" ];
+      let value = [ 3, 6, 2, 9 ];
+
+      let sf = new dfd.Series(value, { index });
+      sf.sortValues().print();
+      const expectedValues = [ 2, 3, 6, 9 ];
+      const expectedIndex = [ "orange", "apple", "banana", "grape" ];
+      const sortedSf = sf.sortValues();
+      assert.deepEqual(sortedSf.values, expectedValues);
+      assert.deepEqual(sortedSf.index, expectedIndex);
+    });
+    it("Index is retained after sort (ascending=false)", function () {
+      let index = [ "apple", "banana", "orange", "grape" ];
+      let value = [ 3, 6, 2, 9 ];
+
+      let sf = new dfd.Series(value, { index });
+      sf.sortValues().print();
+      const expectedValues = [ 9, 6, 3, 2 ];
+      const expectedIndex = [ "grape", "banana", "apple", "orange" ];
+      const sortedSf = sf.sortValues({ ascending: false });
+      assert.deepEqual(sortedSf.values, expectedValues);
+      assert.deepEqual(sortedSf.index, expectedIndex);
+    });
+
+    it("Index is retained after inplace sort (ascending=false)", function () {
+      let index = [ "apple", "banana", "orange", "grape" ];
+      let value = [ 3, 6, 2, 9 ];
+
+      let sf = new dfd.Series(value, { index });
+      sf.sortValues().print();
+      const expectedValues = [ 9, 6, 3, 2 ];
+      const expectedIndex = [ "grape", "banana", "apple", "orange" ];
+      sf.sortValues({ ascending: false, inplace: true });
+      assert.deepEqual(sf.values, expectedValues);
+      assert.deepEqual(sf.index, expectedIndex);
+    });
+
   });
 
   describe("describe", function () {
@@ -1580,6 +1619,60 @@ describe("Series Functions", () => {
       const dfColumns = [ '0_dog', '1_male', '2_female' ];
       assert.deepEqual(df.values, dfValues);
       assert.deepEqual(df.columns, dfColumns);
+    });
+
+  });
+
+  describe("iat", function () {
+    it("iat works on Series", function () {
+      const data = [ 1, 2, 3, 4 ];
+      const index = [ "a", "b", "c", "d" ];
+      const df = new dfd.Series(data, { index });
+      assert.equal(df.iat(0), 1);
+      assert.equal(df.iat(1), 2);
+      assert.equal(df.iat(2), 3);
+    });
+    it("iat can return undefined", function () {
+      const data = [ 1, undefined, null, NaN ];
+      const df = new dfd.Series(data);
+      assert.equal(df.iat(1), undefined);
+      assert.equal(df.iat(2), null);
+      /* @ts-ignore */
+      assert.equal(isNaN(df.iat(3)), true);
+    });
+    it("throws error on string indices", function () {
+      const data = [ 1, 2, 3, 4 ];
+      const index = [ "a", "b", "c", "d" ];
+      const df = new dfd.Series(data, { index });
+      /* @ts-ignore */
+      assert.throws(function () { df.iat("A"); }, Error, "ParamError: row index must be an integer. Use .at to get a row by label.");
+    });
+  });
+
+  describe("at", function () {
+    it("at works on Series", function () {
+      const data = [ 1, 2, 3, 4 ];
+      const index = [ "a", "b", "c", "d" ];
+      const df = new dfd.Series(data, { index });
+      assert.equal(df.at("a"), 1);
+      assert.equal(df.at("b"), 2);
+      assert.equal(df.at("c"), 3);
+    });
+    it("at can return undefined", function () {
+      const data = [ 1, undefined, null, NaN ];
+      const index = [ "a", "b", "c", "d" ];
+      const df = new dfd.Series(data, { index });
+      assert.equal(df.at("b"), undefined);
+      assert.equal(df.at("c"), null);
+      /* @ts-ignore */
+      assert.equal(isNaN(df.at("d")), true);
+    });
+    it("throws error on string indices", function () {
+      const data = [ 1, 2, 3, 4 ];
+      const index = [ "a", "b", "c", "d" ];
+      const df = new dfd.Series(data, { index });
+      /* @ts-ignore */
+      assert.throws(function () { df.at(0); }, Error, "ParamError: row index must be a string. Use .iat to get a row by index.");
     });
 
   });
