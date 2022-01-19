@@ -79,12 +79,12 @@ describe("Series Functions", () => {
             const data2 = [30, 40, 39, 1, 2, 1];
             const sf = new Series(data);
             const sf2 = new Series(data2);
-            assert.deepEqual((sf.add(sf2) as Series).values, [31, 42, 42, 5, 7, 7]);
+            assert.deepEqual((sf.add(sf2)).values, [31, 42, 42, 5, 7, 7]);
         });
         it("Return Addition of series with a single value (Broadcasting)", function () {
             const data = [1, 2, 3, 4, 5];
             const sf = new Series(data);
-            assert.deepEqual((sf.add(1) as Series).values, [2, 3, 4, 5, 6]);
+            assert.deepEqual((sf.add(1)).values, [2, 3, 4, 5, 6]);
         });
         it("Return Addition of series with another series inplace", function () {
             const data = [1, 2, 3, 4, 5, 6];
@@ -149,12 +149,12 @@ describe("Series Functions", () => {
             const data2 = [1, 2, 3, 4, 5, 6];
             const sf1 = new Series(data1);
             const sf2 = new Series(data2);
-            assert.deepEqual((sf1.sub(sf2) as Series).values, [29, 38, 36, -3, -3, -5]);
+            assert.deepEqual((sf1.sub(sf2)).values, [29, 38, 36, -3, -3, -5]);
         });
         it("Return Subtraction of series with a single value (Broadcasting)", function () {
             const data = [1, 2, 3, 4, 5];
             const sf = new Series(data);
-            assert.deepEqual((sf.sub(1) as Series).values, [0, 1, 2, 3, 4]);
+            assert.deepEqual((sf.sub(1)).values, [0, 1, 2, 3, 4]);
         });
         it("Throws type error on Subtraction of string type", function () {
             const data = [1, 2, 3, 4];
@@ -184,12 +184,12 @@ describe("Series Functions", () => {
             const data2 = [1, 2, 3, 4];
             const sf1 = new Series(data1);
             const sf2 = new Series(data2);
-            assert.deepEqual((sf1.mul(sf2) as Series).values, [30, 80, 9, 20]);
+            assert.deepEqual((sf1.mul(sf2)).values, [30, 80, 9, 20]);
         });
         it("Return multiplication of series with a single value (Broadcasting)", function () {
             const data = [1, 2, 3, 4, 5];
             const sf = new Series(data);
-            assert.deepEqual((sf.mul(1) as Series).values, [1, 2, 3, 4, 5]);
+            assert.deepEqual((sf.mul(1)).values, [1, 2, 3, 4, 5]);
         });
         it("Throws type error on multiplication of string type", function () {
             const data = [1, 2, 3, 4]
@@ -214,19 +214,19 @@ describe("Series Functions", () => {
             const data2 = [1, 2, 3, 4];
             const sf1 = new Series(data1);
             const sf2 = new Series(data2);
-            assert.deepEqual((sf1.div(sf2) as Series).values, [30, 20, 1, 1.25]);
+            assert.deepEqual((sf1.div(sf2)).values, [30, 20, 1, 1.25]);
         });
         it("Return integer division of series with another series", function () {
             const data1 = [30, 40, 3, 5];
             const data2 = [1, 2, 3, 4];
             const sf1 = new Series(data1);
             const sf2 = new Series(data2);
-            assert.deepEqual((sf1.div(sf2) as Series).values, [30, 20, 1, 1.25]);
+            assert.deepEqual((sf1.div(sf2)).values, [30, 20, 1, 1.25]);
         });
         it("Return division of series with a single value (Broadcasting)", function () {
             const data = [10, 2, 3, 90];
             const sf = new Series(data);
-            assert.deepEqual((sf.div(2) as Series).values, [5, 1, 1.5, 45]);
+            assert.deepEqual((sf.div(2)).values, [5, 1, 1.5, 45]);
         });
         it("Throws type error on division of string type", function () {
             const data = [1, 2, 3, 4]
@@ -250,12 +250,12 @@ describe("Series Functions", () => {
             const data2 = [1, 2, 3, 0];
             const sf1 = new Series(data1);
             const sf2 = new Series(data2);
-            assert.deepEqual((sf1.pow(sf2) as Series).values, [2, 9, 64, 1]);
+            assert.deepEqual((sf1.pow(sf2)).values, [2, 9, 64, 1]);
         });
         it("Return Exponetial power of series with a single value (Broadcasting)", function () {
             const data = [1, 2, 3, 4, 5];
             const sf = new Series(data);
-            assert.deepEqual((sf.pow(2) as Series).values, [1, 4, 9, 16, 25]);
+            assert.deepEqual((sf.pow(2)).values, [1, 4, 9, 16, 25]);
         });
     });
 
@@ -271,19 +271,19 @@ describe("Series Functions", () => {
                 0.7000000000000002,
                 0.20000000000000018
             ];
-            assert.deepEqual((sf1.mod(sf2) as Series).values, expected);
+            assert.deepEqual((sf1.mod(sf2)).values, expected);
         });
         it("Return modulo of series with another int series", function () {
             const data1 = [2, 30, 4, 5];
             const data2 = [1, 2, 3, 1];
             const sf1 = new Series(data1);
             const sf2 = new Series(data2);
-            assert.deepEqual((sf1.mod(sf2) as Series).values, [0, 0, 1, 0]);
+            assert.deepEqual((sf1.mod(sf2)).values, [0, 0, 1, 0]);
         });
         it("Return modulo power of series with a single value (Broadcasting)", function () {
             const data = [1, 2, 3, 4, 5];
             const sf = new Series(data);
-            assert.deepEqual((sf.mod(2) as Series).values, [1, 0, 1, 0, 1]);
+            assert.deepEqual((sf.mod(2)).values, [1, 0, 1, 0, 1]);
         });
     });
 
@@ -508,17 +508,17 @@ describe("Series Functions", () => {
         it("Rounds elements in a Series to nearest whole number", function () {
             const data1 = [30.21091, 40.190901, 3.564, 5.0212];
             const sf = new Series(data1);
-            assert.deepEqual((sf.round() as Series).values, [30.2, 40.2, 3.6, 5]);
+            assert.deepEqual((sf.round()).values, [30.2, 40.2, 3.6, 5]);
         });
         it("Rounds elements in a Series to 1dp", function () {
             const data1 = [30.21091, 40.190901, 3.564, 5.0212];
             const sf = new Series(data1);
-            assert.deepEqual((sf.round(1) as Series).values, [30.2, 40.2, 3.6, 5.0]);
+            assert.deepEqual((sf.round(1)).values, [30.2, 40.2, 3.6, 5.0]);
         });
         it("Rounds elements in a Series to 2dp", function () {
             const data1 = [30.2191, 40.190901, 3.564, 5.0212];
             const sf = new Series(data1);
-            assert.deepEqual((sf.round(2) as Series).values, [30.22, 40.19, 3.56, 5.02]);
+            assert.deepEqual((sf.round(2)).values, [30.22, 40.19, 3.56, 5.02]);
         });
 
         it("Rounds elements in a Series to 2dp inplace", function () {
@@ -630,14 +630,14 @@ describe("Series Functions", () => {
             const sf = new Series(data);
             const sfVal = ["filled", "boy", "filled", "hey", "Man", "filled"];
             const sfFill = sf.fillNa("filled");
-            assert.deepEqual((sfFill as Series).values, sfVal);
+            assert.deepEqual((sfFill).values, sfVal);
         });
         it("Data is in right format after filling", function () {
             const data = [NaN, "boy", NaN, "hey", "Man", undefined];
             const sf = new Series(data);
             const sfVal = ["filled", "boy", "filled", "hey", "Man", "filled"];
             const sfFill = sf.fillNa("filled");
-            assert.deepEqual((sfFill as Series).values, sfVal);
+            assert.deepEqual((sfFill).values, sfVal);
         });
     });
 
@@ -646,7 +646,7 @@ describe("Series Functions", () => {
             const sf = new Series([20, 30, 1, 2, 4, 57, 89, 0, 4]);
             const result = [0, 1, 2, 4, 4, 20, 30, 57, 89];
             const sortedSf = sf.sortValues();
-            assert.deepEqual((sortedSf as Series).values, result);
+            assert.deepEqual((sortedSf).values, result);
 
         });
         it("confirms that sortValues in ascending order does not happen inplace", function () {
@@ -660,8 +660,8 @@ describe("Series Functions", () => {
         it("Sort values in a Series in Descending order", function () {
             const sf = new Series([20, 30, 1, 2, 4, 57, 89, 0, 4]);
             const result = [89, 57, 30, 20, 4, 4, 2, 1, 0];
-            const sortedSf = sf.sortValues({ascending: false});
-            assert.deepEqual((sortedSf as Series).values, result);
+            const sortedSf = sf.sortValues({ ascending: false });
+            assert.deepEqual((sortedSf).values, result);
         });
         it("confirms that sortValues in descending order happens inplace", function () {
             const sf = new Series([20, 30, 1, 2, 4, 57, 89, 0, 4]);
@@ -672,20 +672,57 @@ describe("Series Functions", () => {
         it("Confirms that series index is sorted in ascending order (not in inplace)", function () {
             const sf = new Series([20, 30, 1, 2, 4, 57, 89, 0, 4]);
             const result = [7, 2, 3, 8, 4, 0, 1, 5, 6];
-            const sortedSf = sf.sortValues() as Series
+            const sortedSf = sf.sortValues()
             assert.deepEqual(sortedSf.index, result);
         });
         it("Confirms that series index is sorted in descending order (not in inplace)", function () {
             const sf = new Series([20, 30, 1, 2, 4, 57, 89, 0, 4]);
             const result = [6, 5, 1, 0, 4, 8, 3, 2, 7];
-            const sortedSf = sf.sortValues({ ascending: false}) as Series
+            const sortedSf = sf.sortValues({ ascending: false })
             assert.deepEqual(sortedSf.index, result);
         });
         it("Sort string values in a Series", function () {
             const sf = new Series(["boy", "zebra", "girl", "man"]);
             const result = ["boy", "girl", "man", "zebra"];
-            const sortedSf = sf.sortValues({ ascending: false}) as Series
+            const sortedSf = sf.sortValues({ ascending: false })
             assert.deepEqual(sortedSf.values, result);
+        });
+        it("Index is retained after sort (ascending=true)", function () {
+            let index = ["apple", "banana", "orange", "grape"];
+            let value = [3, 6, 2, 9];
+
+            let sf = new Series(value, { index });
+            sf.sortValues().print();
+            const expectedValues = [2, 3, 6, 9];
+            const expectedIndex = ["orange", "apple", "banana", "grape"];
+            const sortedSf = sf.sortValues()
+            assert.deepEqual(sortedSf.values, expectedValues);
+            assert.deepEqual(sortedSf.index, expectedIndex);
+        });
+        it("Index is retained after sort (ascending=false)", function () {
+            let index = ["apple", "banana", "orange", "grape"];
+            let value = [3, 6, 2, 9];
+
+            let sf = new Series(value, { index });
+            sf.sortValues().print();
+            const expectedValues = [9, 6, 3, 2];
+            const expectedIndex = ["grape", "banana", "apple", "orange"];
+            const sortedSf = sf.sortValues({ ascending: false })
+            assert.deepEqual(sortedSf.values, expectedValues);
+            assert.deepEqual(sortedSf.index, expectedIndex);
+        });
+
+        it("Index is retained after inplace sort (ascending=false)", function () {
+            let index = ["apple", "banana", "orange", "grape"];
+            let value = [3, 6, 2, 9];
+
+            let sf = new Series(value, { index });
+            sf.sortValues().print();
+            const expectedValues = [9, 6, 3, 2];
+            const expectedIndex = ["grape", "banana", "apple", "orange"];
+            sf.sortValues({ ascending: false, inplace: true });
+            assert.deepEqual(sf.values, expectedValues);
+            assert.deepEqual(sf.index, expectedIndex);
         });
     });
 
@@ -693,7 +730,7 @@ describe("Series Functions", () => {
         it("Computes the descriptive statistics on an int Series", function () {
             const data1 = [10, 45, 56, 25, 23, 20, 10];
             const sf = new Series(data1)
-            assert.deepEqual((sf.describe().round() as Series).values, [
+            assert.deepEqual(sf.describe().round().values, [
                 7,
                 27,
                 17.4,
@@ -706,7 +743,7 @@ describe("Series Functions", () => {
         it("Computes the descriptive statistics on a float Series", function () {
             const data1 = [30.1, 40.2, 3.1, 5.1];
             const sf = new Series(data1);
-            assert.deepEqual((sf.describe().round() as Series).values, [
+            assert.deepEqual(sf.describe().round().values, [
                 4,
                 19.6,
                 18.4,
@@ -739,13 +776,13 @@ describe("Series Functions", () => {
                 { alpha: "C", count: 3 }
             ];
             const df = new Series(data, { index: ["one", "two", "three"] });
-            const dfReset = df.resetIndex() as Series
+            const dfReset = df.resetIndex()
             assert.deepEqual(dfReset.index, [0, 1, 2]);
         });
         it("Reset the index of a Series created from an Array", function () {
             const data = [1, 2, 3, 4, 5, 6];
             const df = new Series(data, { index: ["one", "two", "three", "four", "five", "six"] });
-            const dfNew = df.resetIndex() as Series
+            const dfNew = df.resetIndex()
             assert.deepEqual(dfNew.index, [0, 1, 2, 3, 4, 5]);
         });
         it("checks that the original series changed after reseting new index inplace", function () {
@@ -768,7 +805,7 @@ describe("Series Functions", () => {
                 { alpha: "C", count: 3 }
             ];
             const df = new Series(data);
-            const dfNew = df.setIndex(["one", "two", "three"]) as Series
+            const dfNew = df.setIndex(["one", "two", "three"])
             assert.deepEqual(dfNew.index, ["one", "two", "three"]);
             assert.notDeepEqual(df.index, dfNew.index);
         });
@@ -779,7 +816,7 @@ describe("Series Functions", () => {
                 { alpha: "C", count: 3 }
             ];
             const df = new Series(data);
-            const dfNew = df.setIndex(["one", "two", "three"]) as Series
+            const dfNew = df.setIndex(["one", "two", "three"])
             assert.notDeepEqual(df.index, dfNew.index);
         });
         it("sets the index of an Series inplace", function () {
@@ -805,7 +842,7 @@ describe("Series Functions", () => {
             const sf = new Series([1, 2, 3, 4]);
             const map = { 1: "ok", 2: "okie", 3: "frit", 4: "gop" };
             const rslt = ["ok", "okie", "frit", "gop"];
-            assert.deepEqual((sf.map(map) as Series).values, rslt);
+            assert.deepEqual((sf.map(map)).values, rslt);
         });
         it("map series element to object keys inplace", function () {
             const sf = new Series([1, 2, 3, 4]);
@@ -827,7 +864,7 @@ describe("Series Functions", () => {
                 return x + 1;
             };
             const rslt = [2, 3, 4, 5];
-            assert.deepEqual((sf.map(func_map) as Series).values, rslt);
+            assert.deepEqual((sf.map(func_map)).values, rslt);
         });
 
         it("map series element to a function statement inplace", function () {
@@ -841,14 +878,14 @@ describe("Series Functions", () => {
         });
 
         it("map passes along the index", function () {
-            const sf = new Series([ 1, 2, 3, 4 ]);
+            const sf = new Series([1, 2, 3, 4]);
             const func_map = (x: any, i: any) => {
-              return x + i;
+                return x + i;
             };
-            const rslt = [ 1, 3, 5, 7 ];
+            const rslt = [1, 3, 5, 7];
             sf.map(func_map, { inplace: true });
             assert.deepEqual(sf.values, rslt);
-          });
+        });
     });
 
     describe("Apply", function () {
@@ -859,7 +896,7 @@ describe("Series Functions", () => {
             };
 
             const rslt = [2, 4, 6, 8, 10, 12, 14, 16];
-            assert.deepEqual((sf.apply(applyFunc) as Series).values, rslt);
+            assert.deepEqual((sf.apply(applyFunc)).values, rslt);
         });
 
         it("apply a function to a series element inplace", function () {
@@ -931,12 +968,12 @@ describe("Series Functions", () => {
         it("Returns the absolute values in Series", function () {
             const data1 = [-10, 45, 56, -25, 23, -20, 10];
             const sf = new Series(data1);
-            assert.deepEqual((sf.abs() as Series).values, [10, 45, 56, 25, 23, 20, 10]);
+            assert.deepEqual((sf.abs()).values, [10, 45, 56, 25, 23, 20, 10]);
         });
         it("Computes the descriptive statistics on a float Series", function () {
             const data1 = [-30.1, -40.2, -3.1, -5.1];
             const sf = new Series(data1);
-            assert.deepEqual((sf.abs() as Series).values, [30.1, 40.2, 3.1, 5.1]);
+            assert.deepEqual((sf.abs()).values, [30.1, 40.2, 3.1, 5.1]);
         });
     });
 
@@ -944,7 +981,7 @@ describe("Series Functions", () => {
         it("Return cumulative sum over a Series", function () {
             const data1 = [10, 45, 56, 25, 23, 20, 10];
             const sf = new Series(data1);
-            assert.deepEqual((sf.cumSum() as Series).values, [10, 55, 111, 136, 159, 179, 189]);
+            assert.deepEqual((sf.cumSum()).values, [10, 55, 111, 136, 159, 179, 189]);
         });
         it("Return cumulative sum over a Series inplace", function () {
             const data1 = [10, 45, 56, 25, 23, 20, 10];
@@ -958,7 +995,7 @@ describe("Series Functions", () => {
         it("Return cumulative maximum over a Series", function () {
             const data1 = [10, 45, 56, 25, 23, 20, 10];
             const sf = new Series(data1);
-            assert.deepEqual((sf.cumMax() as Series).values, [10, 45, 56, 56, 56, 56, 56]);
+            assert.deepEqual((sf.cumMax()).values, [10, 45, 56, 56, 56, 56, 56]);
         });
         it("Return cumulative maximum over a Series inplace", function () {
             const data1 = [10, 45, 56, 25, 23, 20, 10];
@@ -972,7 +1009,7 @@ describe("Series Functions", () => {
         it("Return cumulative minimum over a Series", function () {
             const data1 = [10, 45, 56, 25, 23, 20, 10];
             const sf = new Series(data1);
-            assert.deepEqual((sf.cumMin() as Series).values, [10, 10, 10, 10, 10, 10, 10]);
+            assert.deepEqual((sf.cumMin()).values, [10, 10, 10, 10, 10, 10, 10]);
         });
     });
 
@@ -981,7 +1018,7 @@ describe("Series Functions", () => {
             const data1 = [1, 2, 10, 3, 12, 14, 1];
             const sf = new Series(data1);
             const rslt = [1, 2, 20, 60, 720, 10080, 10080];
-            assert.deepEqual((sf.cumProd() as Series).values, rslt);
+            assert.deepEqual((sf.cumProd()).values, rslt);
         });
     });
 
@@ -1122,7 +1159,7 @@ describe("Series Functions", () => {
             const data1 = [10, 45, 56, 25, 23, 20, 10];
             const sf = new Series(data1);
             const expected = [-50, 45, 56, 25, 23, 20, -50];
-            const dfRep = sf.replace(10, -50) as Series
+            const dfRep = sf.replace(10, -50)
             assert.deepEqual(dfRep.values, expected);
         });
 
@@ -1159,7 +1196,7 @@ describe("Series Functions", () => {
             const sf = new Series(data1);
             const expected = [10, 45, 56, 23, 20];
             const expectedIndex = [0, 1, 2, 4, 5];
-            const df_drop = sf.dropDuplicates() as Series
+            const df_drop = sf.dropDuplicates()
             assert.deepEqual(df_drop.values, expected);
             assert.deepEqual(df_drop.index, expectedIndex);
         });
@@ -1169,7 +1206,7 @@ describe("Series Functions", () => {
             const sf = new Series(data1);
             const expected = [45, 56, 23, 20, 10];
             const expectedIndex = [1, 2, 4, 5, 7];
-            const df_drop = sf.dropDuplicates({ keep: "last" }) as Series
+            const df_drop = sf.dropDuplicates({ keep: "last" })
             assert.deepEqual(df_drop.values, expected);
             assert.deepEqual(df_drop.index, expectedIndex);
         });
@@ -1191,7 +1228,7 @@ describe("Series Functions", () => {
             const sf = new Series(data1);
             const expected = [10, 45, 10, 23, 20, 10];
             const expectedIndex = [0, 1, 3, 4, 5, 7];
-            const sfDrop = sf.dropNa() as Series
+            const sfDrop = sf.dropNa()
             assert.deepEqual(sfDrop.values, expected);
             assert.deepEqual(sfDrop.index, expectedIndex);
             assert.deepEqual(sfDrop.shape, [6, 1]);
@@ -1203,7 +1240,7 @@ describe("Series Functions", () => {
             const expected = ["A", "A", "B", "B", "C"];
             const expectedIndex = [0, 2, 3, 4, 6];
 
-            sf.dropNa({ inplace: true }) as Series
+            sf.dropNa({ inplace: true })
             assert.deepEqual(sf.values, expected);
             assert.deepEqual(sf.index, expectedIndex);
             assert.deepEqual(sf.shape, [5, 1]);
@@ -1223,7 +1260,7 @@ describe("Series Functions", () => {
             const data1 = [10.22, 4.5, 2.0, 10, 23.23, 20.1, 30, 11];
             const sf = new Series(data1);
             const expected = [6, 4, 5, 7, 0, 3, 1, 2];
-            const sf_sort = sf.argSort({ ascending: false});
+            const sf_sort = sf.argSort({ ascending: false });
             assert.deepEqual(sf_sort.values, expected);
         });
     });
@@ -1276,20 +1313,20 @@ describe("Series Functions", () => {
             const data = ["lower", "CAPITALS", "this is a sentence", "SwApCaSe"];
             const res = ["lower", "capitals", "this is a sentence", "swapcase"];
             const sf = new Series(data);
-            assert.deepEqual((sf.str.toLowerCase() as Series).values, res);
+            assert.deepEqual((sf.str.toLowerCase()).values, res);
         });
         it("Converts all characters to capital case.", function () {
             const data = ["lower", "CAPITALS", "this is a sentence", "SwApCaSe"];
             const res = ["Lower", "Capitals", "This is a sentence", "Swapcase"];
             const sf = new Series(data);
-            assert.deepEqual((sf.str.capitalize() as Series).values, res);
+            assert.deepEqual((sf.str.capitalize()).values, res);
         });
 
         it("Returns the character at the specified index (position)", function () {
             const data = ["lower", "CAPITALS", "this is a sentence", "SwApCaSe"];
             const res = ["w", "P", "i", "A"];
             const sf = new Series(data);
-            assert.deepEqual((sf.str.charAt(2) as Series).values, res);
+            assert.deepEqual((sf.str.charAt(2)).values, res);
         });
 
         it("Throws error on concat of numeric series", function () {
@@ -1340,7 +1377,7 @@ describe("Series Functions", () => {
         it("set type of float column to int", function () {
             const data = [-20.1, 30, 47.3, -20];
             const ndframe = new Series(data);
-            const df = ndframe.asType("int32") as Series
+            const df = ndframe.asType("int32")
 
             assert.deepEqual(df.dtypes[0], "int32");
             assert.deepEqual(df.values, [-20, 30, 47, -20]);
@@ -1348,14 +1385,14 @@ describe("Series Functions", () => {
         it("set type of int column to float", function () {
             const data = [34, -4, 5, 6];
             const ndframe = new Series(data);
-            const df = ndframe.asType("float32") as Series
+            const df = ndframe.asType("float32")
             assert.deepEqual(df.dtypes[0], "float32");
             assert.deepEqual(df.values, [34, -4, 5, 6]);
         });
         it("set type of string column to int", function () {
             const data = ["20.1", "21", "23.4", "50.78"];
             const ndframe = new Series(data);
-            const df = ndframe.asType("int32") as Series
+            const df = ndframe.asType("int32")
 
             assert.deepEqual(df.dtypes[0], "int32");
             assert.deepEqual(df.values, [20, 21, 23, 50]);
@@ -1363,7 +1400,7 @@ describe("Series Functions", () => {
         it("set type of string column to float", function () {
             const data = ["20.1", "21", "23.4", "50.78"];
             const ndframe = new Series(data);
-            const df = ndframe.asType("float32") as Series
+            const df = ndframe.asType("float32")
 
             assert.deepEqual(df.dtypes[0], "float32");
             assert.deepEqual(df.values, [20.1, 21, 23.4, 50.78]);
@@ -1371,14 +1408,14 @@ describe("Series Functions", () => {
         it("set type of float column to string", function () {
             const data = [-20.1, 30, 47.3, -20];
             const ndframe = new Series(data);
-            const df = ndframe.asType("string") as Series
+            const df = ndframe.asType("string")
             assert.deepEqual(df.dtypes[0], "string");
             assert.deepEqual(df.values, ["-20.1", "30", "47.3", "-20"]);
         });
         it("set type of int column to string", function () {
             const data = [34, -4, 5, 6];
             const ndframe = new Series(data);
-            const df = ndframe.asType("string") as Series
+            const df = ndframe.asType("string")
             assert.deepEqual(df.dtypes[0], "string");
             assert.deepEqual(df.values, ["34", "-4", "5", "6"]);
         });
@@ -1420,7 +1457,7 @@ describe("Series Functions", () => {
             const data = [1, 2, 3, 4, "a", "b", "c"];
             const sf = new Series(data);
             const expected_val = [1, 2, 3, 4, "a", "b", "c", "d"];
-            const sf2 = sf.append("d", 7) as Series
+            const sf2 = sf.append("d", 7)
             assert.deepEqual(sf2.values, expected_val);
         });
         it("Add a new array of values to the end of a Series", function () {
@@ -1429,7 +1466,7 @@ describe("Series Functions", () => {
             const index = [4, 5, 6];
             const sf = new Series(data);
             const expected_val = [1, 2, 3, 4, "a", "b", "c"];
-            const sf2 = sf.append(to_add, index) as Series;
+            const sf2 = sf.append(to_add, index);
             assert.deepEqual(sf2.values, expected_val);
         });
         it("Add a Series to the end of another Series", function () {
@@ -1437,14 +1474,14 @@ describe("Series Functions", () => {
             const sf2 = new Series(["a", "b", "c"]);
             const index = [4, 5, 6];
             const expected_val = [1, 2, 3, 4, "a", "b", "c"];
-            const sf3 = sf1.append(sf2, index) as Series;
+            const sf3 = sf1.append(sf2, index);
             assert.deepEqual(sf3.values, expected_val);
         });
         it("Confirm index Change after append", function () {
             const sf1 = new Series([1, 2, 3, 4]);
             const sf2 = new Series(["a", "b", "c"]);
             const index = [4, 5, 6];
-            const sf3 = sf1.append(sf2, index) as Series;
+            const sf3 = sf1.append(sf2, index);
             assert.deepEqual(sf3.index, [0, 1, 2, 3, 4, 5, 6]);
         });
         it("Confirm index Change after append inplace", function () {

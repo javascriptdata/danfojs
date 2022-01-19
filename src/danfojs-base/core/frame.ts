@@ -3348,7 +3348,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * ```
     */
     iat(row: number, column: number): string | number | boolean | undefined {
-        if(typeof row === 'string' || typeof column === 'string') {
+        if (typeof row === 'string' || typeof column === 'string') {
             throw new Error('ParamError: row and column index must be an integer. Use .at to get a row or column by label.')
         }
 
@@ -3370,7 +3370,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * ```
     */
     at(row: string | number, column: string): string | number | boolean | undefined {
-        if(typeof column !== 'string') {
+        if (typeof column !== 'string') {
             throw new Error('ParamError: column index must be a string. Use .iat to get a row or column by index.')
         }
         return (this.values as ArrayType2D)[this.index.indexOf(row)][this.columns.indexOf(column)]
