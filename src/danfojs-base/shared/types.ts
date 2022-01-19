@@ -338,6 +338,7 @@ export interface DateTime {
     hours(): Series
     seconds(): Series
     minutes(): Series
+    date(): Series
 }
 
 interface CustomConfig extends Config {
