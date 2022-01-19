@@ -688,6 +688,45 @@ describe("Series Functions", () => {
       const sortedSf = sf.sortValues({ ascending: false });
       assert.deepEqual(sortedSf.values, result);
     });
+
+    it("Index is retained after sort (ascending=true)", function () {
+      let index = [ "apple", "banana", "orange", "grape" ];
+      let value = [ 3, 6, 2, 9 ];
+
+      let sf = new dfd.Series(value, { index });
+      sf.sortValues().print();
+      const expectedValues = [ 2, 3, 6, 9 ];
+      const expectedIndex = [ "orange", "apple", "banana", "grape" ];
+      const sortedSf = sf.sortValues();
+      assert.deepEqual(sortedSf.values, expectedValues);
+      assert.deepEqual(sortedSf.index, expectedIndex);
+    });
+    it("Index is retained after sort (ascending=false)", function () {
+      let index = [ "apple", "banana", "orange", "grape" ];
+      let value = [ 3, 6, 2, 9 ];
+
+      let sf = new dfd.Series(value, { index });
+      sf.sortValues().print();
+      const expectedValues = [ 9, 6, 3, 2 ];
+      const expectedIndex = [ "grape", "banana", "apple", "orange" ];
+      const sortedSf = sf.sortValues({ ascending: false });
+      assert.deepEqual(sortedSf.values, expectedValues);
+      assert.deepEqual(sortedSf.index, expectedIndex);
+    });
+
+    it("Index is retained after inplace sort (ascending=false)", function () {
+      let index = [ "apple", "banana", "orange", "grape" ];
+      let value = [ 3, 6, 2, 9 ];
+
+      let sf = new dfd.Series(value, { index });
+      sf.sortValues().print();
+      const expectedValues = [ 9, 6, 3, 2 ];
+      const expectedIndex = [ "grape", "banana", "apple", "orange" ];
+      sf.sortValues({ ascending: false, inplace: true });
+      assert.deepEqual(sf.values, expectedValues);
+      assert.deepEqual(sf.index, expectedIndex);
+    });
+
   });
 
   describe("describe", function () {
