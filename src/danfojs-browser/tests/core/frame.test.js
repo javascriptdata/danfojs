@@ -2742,68 +2742,6 @@ describe("DataFrame", function () {
     });
   });
 
-  // describe("IO outputs", function () {
-  //     it("toExcel works", async function () {
-  //         const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
-  //         const df = new dfd.DataFrame(data, { columns: ["a", "b", "c", "d"] });
-
-  //         const filePath = path.join(process.cwd(), "test", "samples", "test.xlsx");
-  //         df.toExcel({ filePath })
-
-  //         const dfNew = await readExcel(filePath, {});
-  //         assert.equal(fs.existsSync(filePath), true)
-  //         assert.deepEqual(dfNew.columns, [
-  //             'a',
-  //             'b',
-  //             'c',
-  //             'd',
-  //         ]);
-  //         assert.deepEqual(dfNew.dtypes, [
-  //             'int32', 'int32',
-  //             'int32', 'int32',
-  //         ]);
-  //         assert.deepEqual(dfNew.shape, [3, 4])
-  //     });
-
-  //     it("toCSV works for specified seperator", async function () {
-  //         const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
-  //         let df = new dfd.DataFrame(data, { columns: ["a", "b", "c", "d"] });
-  //         assert.deepEqual(df.toCSV({ sep: "+" }), `a+b+c+d\n1+2+3+4\n5+6+7+8\n9+10+11+12\n`);
-  //     });
-  //     it("toCSV write to local file works", async function () {
-  //         const data = [[1, 2, 3, "4"], [5, 6, 7, "8"], [9, 10, 11, "12"]]
-  //         let df = new dfd.DataFrame(data, { columns: ["a", "b", "c", "d"] });
-
-  //         const filePath = path.join(process.cwd(), "test", "samples", "test_write.csv");
-
-  //         df.toCSV({ sep: ",", filePath });
-  //         assert.equal(fs.existsSync(filePath), true);
-  //     });
-  //     it("toJSON works for row format", async function () {
-  //         const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
-  //         const df = new dfd.DataFrame(data, { columns: ["a", "b", "c", "d"] });
-  //         const expected = {
-  //             "a": [1, 5, 9],
-  //             "b": [2, 6, 10],
-  //             "c": [3, 7, 11],
-  //             "d": [4, 8, 12],
-  //         }
-  //         const json = df.toJSON({ format: "row" })
-  //         assert.deepEqual(json, expected);
-  //     });
-  //     it("toJSON writes file to local path", async function () {
-  //         const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
-  //         const df = new dfd.DataFrame(data, { columns: ["a", "b", "c", "d"] });
-
-  //         const rowfilePath = path.join(process.cwd(), "test", "samples", "test_row_write.json");
-  //         const colfilePath = path.join(process.cwd(), "test", "samples", "test_col_write.json");
-
-  //         df.toJSON({ format: "row", filePath: rowfilePath })
-  //         df.toJSON({ format: "column", filePath: colfilePath })
-  //         assert.equal(fs.existsSync(rowfilePath), true);
-  //         assert.equal(fs.existsSync(colfilePath), true);
-  //     });
-  // })
 
   describe("getDummies", function () {
     it("getDummies works on DataFrame", function () {
@@ -2902,5 +2840,51 @@ describe("DataFrame", function () {
     });
   });
 
+  describe("iat", function () {
+    it("iat works on DataFrame", function () {
+      const data = [ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ];
+      const columns = [ "a", "b", "c", "d" ];
+      const df = new dfd.DataFrame(data, { columns });
+      assert.equal(df.iat(0, 0), 1);
+      assert.equal(df.iat(1, 1), 6);
+      assert.equal(df.iat(2, 3), 12);
+    });
+    it("throws error on string indices", function () {
+      const data = [ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ];
+      const columns = [ "a", "b", "c", "d" ];
+      const index = [ "A", "B", "C" ];
+      const df = new dfd.DataFrame(data, { columns, index });
+      /* @ts-ignore */
+      assert.throws(function () { df.iat("A", 0); }, Error, "ParamError: row and column index must be an integer. Use .at to get a row or column by label.");
+      /* @ts-ignore */
+      assert.throws(function () { df.iat(0, "A"); }, Error, "ParamError: row and column index must be an integer. Use .at to get a row or column by label.");
+    });
+  });
 
+  describe("at", function () {
+    it("at works on DataFrame", function () {
+      const data = [ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ];
+      const columns = [ "a", "b", "c", "d" ];
+      const index = [ "A", "B", "C" ];
+      const df = new dfd.DataFrame(data, { columns, index });
+      assert.equal(df.at("A", "a"), 1);
+      assert.equal(df.at("B", "b"), 6);
+      assert.equal(df.at("C", "c"), 11);
+
+    });
+    it("throws error on numeric column index", function () {
+      const data = [ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ], [ 9, 10, 11, 12 ] ];
+      const columns = [ "a", "b", "c", "d" ];
+      const index = [ 0, "B", "C" ];
+      const df = new dfd.DataFrame(data, { columns, index });
+
+      assert.equal(df.at(0, "b"), 2);
+      /* @ts-ignore */
+      assert.throws(function () { df.at(0, 1); }, Error, "ParamError: column index must be a string. Use .iat to get a row or column by index.");
+      /* @ts-ignore */
+      assert.throws(function () { df.at("B", 0); }, Error, "ParamError: column index must be a string. Use .iat to get a row or column by index.");
+
+    });
+
+  });
 });

@@ -2905,5 +2905,52 @@ describe("DataFrame", function () {
         });
     });
 
+    describe("iat", function () {
+        it("iat works on DataFrame", function () {
+            const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]];
+            const columns = ["a", "b", "c", "d"];
+            const df = new DataFrame(data, { columns });
+            assert.equal(df.iat(0, 0), 1);
+            assert.equal(df.iat(1, 1), 6);
+            assert.equal(df.iat(2, 3), 12);
+        });
+        it("throws error on string indices", function () {
+            const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]];
+            const columns = ["a", "b", "c", "d"];
+            const index = ["A", "B", "C"];
+            const df = new DataFrame(data, { columns, index });
+            /* @ts-ignore */
+            assert.throws(function () { df.iat("A", 0); }, Error, "ParamError: row and column index must be an integer. Use .at to get a row or column by label.");
+            /* @ts-ignore */
+            assert.throws(function () { df.iat(0, "A"); }, Error, "ParamError: row and column index must be an integer. Use .at to get a row or column by label.");
+        });
+    })
+
+    describe("at", function () {
+        it("at works on DataFrame", function () {
+            const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]];
+            const columns = ["a", "b", "c", "d"];
+            const index = ["A", "B", "C"]
+            const df = new DataFrame(data, { columns, index });
+            assert.equal(df.at("A", "a"), 1);
+            assert.equal(df.at("B", "b"), 6);
+            assert.equal(df.at("C", "c"), 11);
+
+        });
+        it("throws error on numeric column index", function () {
+            const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]];
+            const columns = ["a", "b", "c", "d"];
+            const index = [0, "B", "C"]
+            const df = new DataFrame(data, { columns, index });
+
+            assert.equal(df.at(0, "b"), 2);
+            /* @ts-ignore */
+            assert.throws(function () { df.at(0, 1); }, Error, "ParamError: column index must be a string. Use .iat to get a row or column by index.");
+            /* @ts-ignore */
+            assert.throws(function () { df.at("B", 0); }, Error, "ParamError: column index must be a string. Use .iat to get a row or column by index.");
+
+        });
+
+    });
 
 });

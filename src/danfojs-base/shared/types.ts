@@ -327,6 +327,8 @@ export interface DataFrameInterface extends NDframeInterface {
     toCSV(options?: CsvOutputOptionsBrowser): string | void
     toJSON(options?: JsonOutputOptionsBrowser): object | void
     toExcel(options?: ExcelOutputOptionsBrowser): void
+    iat(row: number, column: number): string | number | boolean
+    at(row: string | number, column: string): string | number | boolean
 }
 
 export interface DateTime {
