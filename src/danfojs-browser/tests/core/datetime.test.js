@@ -92,12 +92,19 @@ describe("TimeSeries", function () {
   it("Returns date string in standard JS format", function () {
     const data = [ "02Sep2019", "03Aug2019", "04July2019" ];
     const dateTime = dfd.toDateTime(data);
-    const expected = [ "2019-09-02", "2019-08-03", "2019-07-04" ];
+    const expected = [
+      '9/2/2019, 12:00:00 AM',
+      '8/3/2019, 12:00:00 AM',
+      '7/4/2019, 12:00:00 AM'
+    ];
 
-    const data2 = new Series([ "12.30.19", "12.22.19", "11.01.20" ]);
+    const data2 = new dfd.Series([ "12.30.19", "12.22.19", "11.01.20" ]);
     const dateTime2 = dfd.toDateTime(data2);
-    const expected2 = [ "2019-12-30", "2019-12-22", "2020-11-01" ];
-
+    const expected2 = [
+      '12/30/2019, 12:00:00 AM',
+      '12/22/2019, 12:00:00 AM',
+      '11/1/2020, 12:00:00 AM'
+    ];
     assert.deepEqual(dateTime.date().values, expected);
     assert.deepEqual(dateTime2.date().values, expected2);
   });
