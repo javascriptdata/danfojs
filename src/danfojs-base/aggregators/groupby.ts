@@ -231,7 +231,7 @@ export default class Groupby {
   private arithemetic(operation: {[key: string] : Array<string> | string} | string): { [key: string ]: {} } {
 
     const opsName = [ "mean", "sum", "count", "mode", "std", "var", "cumsum", "cumprod",
-    "cummax", "cummin", "median" , "min"];
+    "cummax", "cummin", "median" , "min", "max"];
     if (typeof operation === "string" ) {
       if (!opsName.includes(operation)) {
         throw new Error(`group operation: ${operation} is not valid`)
