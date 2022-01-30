@@ -19,7 +19,7 @@
     "xlsx": "^0.17.2",
     "seedrandom": "^2.4.3",
     "plotly.js-dist-min": "^2.8.0",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.7"
   },
   "devDependencies": {
     "@types/papaparse": "^5.3.1",
