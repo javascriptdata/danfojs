@@ -22,12 +22,12 @@ import { DATA_TYPES } from "./defaults"
 class ErrorThrower {
 
     throwColumnNamesLengthError = (ndframe: NDframe, columns: Array<string>): void => {
-        const msg = `ParamError: Column names length mismatch. You provided a column of length ${columns.length} but Ndframe columns has lenght of ${ndframe.shape[1]}`
+        const msg = `ParamError: Column names length mismatch. You provided a column of length ${columns.length} but Ndframe columns has length of ${ndframe.shape[1]}`
         throw new Error(msg)
     }
 
     throwIndexLengthError = (ndframe: NDframe, index: Array<string | number>): void => {
-        const msg = `IndexError: You provided an index of length ${index.length} but Ndframe rows has lenght of ${ndframe.shape[0]}`
+        const msg = `IndexError: You provided an index of length ${index.length} but Ndframe rows has length of ${ndframe.shape[0]}`
         throw new Error(msg)
     }
 
@@ -42,7 +42,7 @@ class ErrorThrower {
     }
 
     throwDtypesLengthError = (ndframe: NDframe, dtypes: Array<string>): void => {
-        const msg = `DtypeError: You provided a dtype array of length ${dtypes.length} but Ndframe columns has lenght of ${ndframe.shape[1]}`
+        const msg = `DtypeError: You provided a dtype array of length ${dtypes.length} but Ndframe columns has length of ${ndframe.shape[1]}`
         throw new Error(msg)
     }
 
@@ -52,12 +52,12 @@ class ErrorThrower {
     }
 
     throwColumnLengthError = (ndframe: NDframe | DataFrame, arrLen: number): void => {
-        const msg = `ParamError: Column data length mismatch. You provided data with length ${arrLen} but Ndframe has column of lenght ${ndframe.shape[1]}`
+        const msg = `ParamError: Column data length mismatch. You provided data with length ${arrLen} but Ndframe has column of length ${ndframe.shape[1]}`
         throw new Error(msg)
     }
 
     throwRowLengthError = (ndframe: NDframe, arrLen: number): void => {
-        const msg = `ParamError: Row data length mismatch. You provided data with length ${arrLen} but Ndframe has row of lenght ${ndframe.shape[0]}`
+        const msg = `ParamError: Row data length mismatch. You provided data with length ${arrLen} but Ndframe has row of length ${ndframe.shape[0]}`
         throw new Error(msg)
     }
 

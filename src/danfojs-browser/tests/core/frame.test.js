@@ -119,14 +119,14 @@ describe("DataFrame", function () {
       assert.deepEqual(df["count"].values, [ 1, 2, 3, 4 ]);
       assert.deepEqual(df["sum"].values, [ 20.3, 30.456, 40.90, 90.1 ]);
     });
-    it("throw error for wrong column lenght", function () {
+    it("throw error for wrong column length", function () {
       const data = { alpha: [ "A", "B", "C", "D" ], count: [ 1, 2, 3, 4 ], sum: [ 20.3, 30.456, 40.90, 90.1 ] };
       const df = new dfd.DataFrame(data);
 
       assert.throws(function () {
         df.addColumn("new_column", new dfd.Series([ "a", "b", "c" ])),
         Error,
-        'ParamError: Column data length mismatch. You provided data with length 3 but Ndframe has column of lenght 4';
+        'ParamError: Column data length mismatch. You provided data with length 3 but Ndframe has column of length 4';
       });
 
     });
@@ -364,7 +364,7 @@ describe("DataFrame", function () {
       const values = (await df.sample(2)).values;
       assert.deepEqual(values, expected);
     });
-    it("Throw error if n is greater than lenght of Dataframe", async function () {
+    it("Throw error if n is greater than length of Dataframe", async function () {
       const data = [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 20, 30, 40 ], [ 39, 89, 78 ], [ 100, 200, 300 ] ];
       const cols = [ "A", "B", "C" ];
       const df = new dfd.DataFrame(data, { columns: cols });

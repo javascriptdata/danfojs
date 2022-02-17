@@ -75,7 +75,7 @@ export const piePlot = (ndframe: DataFrame | Series, divId: string, plotConfig: 
 
                 if (config['rowPositions']) {
                     if (config['rowPositions'].length != cols.length) {
-                        throw Error(`Lenght of rowPositions array must be equal to number of columns. Got ${config['rowPositions'].length}, expected ${cols.length - 1}`);
+                        throw Error(`length of rowPositions array must be equal to number of columns. Got ${config['rowPositions'].length}, expected ${cols.length - 1}`);
                     }
                 } else {
                     let tempArr = [];
@@ -88,7 +88,7 @@ export const piePlot = (ndframe: DataFrame | Series, divId: string, plotConfig: 
 
                 if (config['columnPositions']) {
                     if (config['columnPositions'].length != cols.length) {
-                        throw Error(`Lenght of columnPositions array must be equal to number of columns. Got ${config['columnPositions'].length}, expected ${cols.length - 1}`);
+                        throw Error(`length of columnPositions array must be equal to number of columns. Got ${config['columnPositions'].length}, expected ${cols.length - 1}`);
                     }
                 } else {
                     let tempArr = [];

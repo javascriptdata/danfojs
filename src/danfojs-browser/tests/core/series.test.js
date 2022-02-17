@@ -60,7 +60,7 @@ describe("Series Functions", () => {
       assert.deepEqual((await sf.sample(-1)).values.length, data.length);
     });
 
-    it("Throw error if n is greater than lenght of Series", async function () {
+    it("Throw error if n is greater than length of Series", async function () {
       const data = [ 1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78 ];
       const sf = new dfd.Series(data);
       try {
@@ -132,7 +132,7 @@ describe("Series Functions", () => {
         "DtypeError: String data type does not support add operation"
       );
     });
-    it("Throws length error if series lenght mixmatch", function () {
+    it("Throws length error if series length mixmatch", function () {
       const data = [ 1, 2, 3, 4 ];
       const data2 = [ 1, 2, 3, 4, 5, 6 ];
       const sf = new dfd.Series(data);
@@ -167,7 +167,7 @@ describe("Series Functions", () => {
         "DtypeError: String data type does not support sub operation"
       );
     });
-    it("Throws length error if series lenght mixmatch", function () {
+    it("Throws length error if series length mixmatch", function () {
       const data = [ 1, 2, 3, 4 ];
       const data2 = [ 1, 2, 3, 4, 5, 6 ];
       const sf = new dfd.Series(data);
@@ -196,7 +196,7 @@ describe("Series Functions", () => {
       const sf2 = new dfd.Series(data2);
       assert.throws(() => { sf.mul(sf2); }, Error, "DtypeError: String data type does not support mul operation");
     });
-    it("Throws length error if series lenght mixmatch", function () {
+    it("Throws length error if series length mixmatch", function () {
       const data = [ 1, 2, 3, 4 ];
       const data2 = [ 1, 2, 3, 4, 5, 6 ];
       const sf = new dfd.Series(data);
@@ -233,7 +233,7 @@ describe("Series Functions", () => {
       const sf2 = new dfd.Series(data2);
       assert.throws(() => { sf.div(sf2); }, Error, `DtypeError: String data type does not support div operation`);
     });
-    it("Throws length error if series lenght mixmatch", function () {
+    it("Throws length error if series length mixmatch", function () {
       const data = [ 1, 2, 3, 4 ];
       const data2 = [ 1, 2, 3, 4, 5, 6 ];
       const sf = new dfd.Series(data);
