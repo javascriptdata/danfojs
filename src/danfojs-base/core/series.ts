@@ -162,6 +162,15 @@ export default class Series extends NDframe implements SeriesInterface {
       * ```
     */
     head(rows: number = 5): Series {
+        if (rows <= 0) {
+            throw new Error("ParamError: Number of rows cannot be less than 1")
+        }
+        if (this.shape[0] <= rows) {
+            return this.copy()
+        }
+        if (this.shape[0] - rows < 0) {
+            throw new Error("ParamError: Number of rows cannot be greater than available rows in data")
+        }
         return this.iloc([`0:${rows}`])
     }
 
@@ -176,6 +185,16 @@ export default class Series extends NDframe implements SeriesInterface {
       * ```
     */
     tail(rows: number = 5): Series {
+        if (rows <= 0) {
+            throw new Error("ParamError: Number of rows cannot be less than 1")
+        }
+        if (this.shape[0] <= rows) {
+            return this.copy()
+        }
+        if (this.shape[0] - rows < 0) {
+            throw new Error("ParamError: Number of rows cannot be greater than available rows in data")
+        }
+        
         const startIdx = this.shape[0] - rows
         return this.iloc([`${startIdx}:`])
     }

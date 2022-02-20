@@ -10,17 +10,16 @@ describe("Series Functions", () => {
       assert.deepEqual(sf.head(2).values, [ 1, 2 ]);
       assert.deepEqual(sf.head(5).values, [ 1, 2, 3, 4, 5 ]);
     });
-    it("throw error when row specified is greater than values", function () {
-      const data = [ "Boy", "Girl", "Man", "Woman", "Tall" ];
-      const cols = [ "Items" ];
-      const sf = new dfd.Series(data, { columns: cols });
-      assert.throws(function () { assert.deepEqual(sf.head(10).values, data); }, Error, `row slice [end] index cannot be bigger than 5`);
-    });
+    it("Returns all rows when DataFrame length is less than rows", function () {
+      const data = [ 1, 2, 5 ];
+      const sf = new dfd.Series(data);
+      assert.deepEqual(sf.head().values, data);
 
+    });
     it("throw error when row specified is less than 0", function () {
       const data = [ 1, 2, 3, 4, 5, 620, 30, 40, 39, 89, 78 ];
       const sf = new dfd.Series(data);
-      assert.throws(function () { assert.deepEqual(sf.head(-1).values, data); }, Error, `ParamError: end must be greater than start`);
+      assert.throws(function () { assert.deepEqual(sf.head(-1).values, data); }, Error, `ParamError: Number of rows cannot be less than 1`);
     });
   });
 
@@ -33,18 +32,17 @@ describe("Series Functions", () => {
       assert.deepEqual(sf.tail(4).values, [ 40, 39, 89, 78 ]);
 
     });
-    it("throw error when row specified is greater than values", function () {
-      const data = [ "Boy", "Girl", "Man", "Woman", "Tall" ];
-      const cols = [ "Items" ];
-      const sf = new dfd.Series(data, { columns: cols });
-      assert.throws(function () { assert.deepEqual(sf.tail(15).values, data); }, Error, `row slice [start] index cannot be less than 0`);
-    });
+    it("Returns all rows when DataFrame length is less than rows", function () {
+      const data = [ 1, 2, 5 ];
+      const sf = new dfd.Series(data);
+      assert.deepEqual(sf.tail().values, data);
 
+    });
     it("throw error when row specified is less than 0", function () {
       const data = [ "Boy", "Girl", "Man", "Woman", "Tall" ];
       const cols = [ "Items" ];
       const sf = new dfd.Series(data, { columns: cols });
-      assert.throws(function () { assert.deepEqual(sf.tail(-1).values, data); }, Error, `ParamError: end must be greater than start`);
+      assert.throws(function () { assert.deepEqual(sf.tail(-1).values, data); }, Error, `ParamError: Number of rows cannot be less than 1`);
     });
   });
 
