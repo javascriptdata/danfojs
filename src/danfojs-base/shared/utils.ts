@@ -334,7 +334,8 @@ export default class Utils {
         if (
             typeof arr[0] == "number" ||
             typeof arr[0] == "string" ||
-            typeof arr[0] == "boolean"
+            typeof arr[0] == "boolean" ||
+            arr[0] === null
         ) {
             return true;
         } else {
