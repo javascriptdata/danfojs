@@ -1449,7 +1449,7 @@ export default class Series extends NDframe implements SeriesInterface {
         }
 
         if (!(lSeries.length === rSeries.length)) {
-            throw new Error("LengthError: Lenght of other must be equal to length of Series");
+            throw new Error("LengthError: length of other must be equal to length of Series");
         }
 
 

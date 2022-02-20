@@ -334,7 +334,7 @@ export default class NDframe implements NDframeInterface {
     }
 
     /**
-     * Returns the shape of the NDFrame. Shape is determined by [row lenght, column length]
+     * Returns the shape of the NDFrame. Shape is determined by [row length, column length]
     */
     get shape(): Array<number> {
         if (this.$data.length === 0) return [0, 0]

@@ -210,7 +210,7 @@ describe("Generic (NDFrame)", function () {
           ndframe.$setValues([ [ 20, 20 ], [ 11.4, 211 ], [ 11.4, 211 ] ]);
         },
         Error,
-        "Row data length mismatch. You provided data with length 3 but Ndframe has row of lenght 2"
+        "Row data length mismatch. You provided data with length 3 but Ndframe has row of length 2"
       );
     });
     it("Throws column length error on invalid data length in DataFrame", function () {
@@ -221,7 +221,7 @@ describe("Generic (NDFrame)", function () {
           ndframe.$setValues([ [ 20, 211 ], [ 20, 20, 11.4, 211 ] ]);
         },
         Error,
-        "Column data length mismatch. You provided data with length 2 but Ndframe has column of lenght 2"
+        "Column data length mismatch. You provided data with length 2 but Ndframe has column of length 2"
       );
     });
     it("retrieves the col data after row data is replaced in a Series", function () {
@@ -254,7 +254,7 @@ describe("Generic (NDFrame)", function () {
           ndframe.$setValues([ 1, 2, 3, 4, 1, 3 ]);
         },
         Error,
-        "Row data length mismatch. You provided data with length 6 but Ndframe has row of lenght 4"
+        "Row data length mismatch. You provided data with length 6 but Ndframe has row of length 4"
       );
     });
 
