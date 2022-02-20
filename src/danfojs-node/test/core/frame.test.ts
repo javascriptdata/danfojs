@@ -308,19 +308,18 @@ describe("DataFrame", function () {
             const df = new DataFrame(data, { columns: cols });
             assert.deepEqual(df.head(2).values, [[1, 2, 3], [4, 5, 6]]);
         });
-        it("Throws error if row specified is greater than values", function () {
-            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-            const cols = ["A", "B", "C"];
-            const df = new DataFrame(data, { columns: cols });
-            assert.throws(() => df.head(10), Error,
-                "ParamError: Number of rows cannot be greater than available rows in data");
-        });
         it("Throws error if row specified is less than 0", function () {
             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
             const cols = ["A", "B", "C"];
             const df = new DataFrame(data, { columns: cols });
             assert.throws(() => df.head(-1), Error,
                 "ParamError: Number of rows cannot be less than 1");
+        });
+        it("Returns all rows when size of DataFrame is less than default (5)", function () {
+            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columns: cols });
+            assert.deepEqual(df.head().values, data);
         });
 
     });
@@ -331,13 +330,6 @@ describe("DataFrame", function () {
             const cols = ["A", "B", "C"];
             const df = new DataFrame(data, { columns: cols });
             assert.deepEqual(df.tail(2).values, [[20, 30, 40], [39, 89, 78]]);
-        });
-        it("Throws error if row specified is greater than values", function () {
-            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
-            const cols = ["A", "B", "C"];
-            const df = new DataFrame(data, { columns: cols });
-            assert.throws(() => df.tail(10), Error,
-                "ParamError: Number of rows cannot be greater than available rows in data");
         });
         it("Throws error if row specified is less than 0", function () {
             const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
@@ -356,6 +348,12 @@ describe("DataFrame", function () {
             const data = [[1, 2, 34, 5, 0, 6, 4, 5, 6, 7], [20, 30, 40, 39, 89, 78, 45, 56, 56, 45]];
             const df = new DataFrame(data);
             assert.deepEqual(df.tail(2).values, [[1, 2, 34, 5, 0, 6, 4, 5, 6, 7], [20, 30, 40, 39, 89, 78, 45, 56, 56, 45]]);
+        });
+        it("Returns all rows when size of DataFrame is less than default (5)", function () {
+            const data = [[1, 2, 3], [4, 5, 6], [20, 30, 40], [39, 89, 78]];
+            const cols = ["A", "B", "C"];
+            const df = new DataFrame(data, { columns: cols });
+            assert.deepEqual(df.tail().values, data);
         });
     });
 

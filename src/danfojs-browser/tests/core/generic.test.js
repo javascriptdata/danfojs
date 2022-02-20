@@ -74,6 +74,19 @@ describe("Generic (NDFrame)", function () {
         "IndexError: Row index must contain unique values";
       });
     });
+
+    it("Successfully create a 2D Frame when first value is empty", function () {
+      let data = [ [ null, 20, 1 ], [ 20, 25, 3 ] ];
+      let ndframe = new dfd.NDframe({ data, isSeries: false });
+      //@ts-ignore
+      assert.deepEqual(ndframe.values, data);
+    });
+    it("Successfully create a 1D Frame when first value is empty", function () {
+      let data = [ null, 'bval2', 'bval3', 'bval4' ];
+      let ndframe = new dfd.NDframe({ data, isSeries: true });
+      //@ts-ignore
+      assert.deepEqual(ndframe.values, data);
+    });
   });
 
   describe("NDframe Created from JavaScript Object", function () {

@@ -525,11 +525,15 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
       * ```
     */
     head(rows: number = 5): DataFrame {
-        if (rows > this.shape[0]) {
-            throw new Error("ParamError: Number of rows cannot be greater than available rows in data")
-        }
+
         if (rows <= 0) {
             throw new Error("ParamError: Number of rows cannot be less than 1")
+        }
+        if (this.shape[0] <= rows) {
+            return this.copy()
+        }
+        if (this.shape[0] - rows < 0) {
+            throw new Error("ParamError: Number of rows cannot be greater than available rows in data")
         }
 
         return this.iloc({ rows: [`0:${rows}`] })
@@ -545,12 +549,17 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
       * ```
     */
     tail(rows: number = 5): any {
-        if (rows > this.shape[0]) {
-            throw new Error("ParamError: Number of rows cannot be greater than available rows in data")
-        }
+
         if (rows <= 0) {
             throw new Error("ParamError: Number of rows cannot be less than 1")
         }
+        if (this.shape[0] <= rows) {
+            return this.copy()
+        }
+        if (this.shape[0] - rows < 0) {
+            throw new Error("ParamError: Number of rows cannot be greater than available rows in data")
+        }
+
         rows = this.shape[0] - rows
         return this.iloc({ rows: [`${rows}:`] })
     }
