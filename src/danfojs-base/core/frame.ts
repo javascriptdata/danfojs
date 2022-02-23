@@ -3162,9 +3162,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     groupby(col: Array<string>): Groupby {
         const columns = this.columns
         const colIndex = col.map((val) => columns.indexOf(val))
-        const colDtype = this.dtypes.filter((val, index) => {
-            return colIndex.includes(index)
-        })
+        const colDtype = this.dtypes
 
         return new Groupby(
             col,

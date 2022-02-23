@@ -353,4 +353,19 @@ describe("groupby", function () {
     ];
     assert.deepEqual(group_df.size().values, rslt);
   });
+  it("issue 396: fix groupby when first column is int", function () {
+    let data = {
+      'hours': [5, 6, 2, 8, 4, 3],
+      'worker': ["david", "david", "john", "alice", "john", "david"],
+      'day': ["monday", "tuesday", "wednesday", "thursday", "friday", "friday"]
+    };
+    let df = new dfd.DataFrame(data);
+    let group_df = df.groupby(["worker"]);
+    let rslt = [
+      ["david", 3, 3],
+      ["john", 2, 2],
+      ["alice", 1, 1]
+    ];
+    assert.deepEqual(group_df.count().values, rslt);
+  });
 });

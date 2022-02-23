@@ -262,7 +262,8 @@ export default class Groupby {
         let colName = groupColNames[colKey]
         let colIndex = this.columnName.indexOf(colName)
         let colDtype = this.colDtype[colIndex]
-        if (colDtype === "string") throw new Error(`Can't perform math operation on column ${colName}`)
+        let operationVal = (typeof operation === "string") ? operation : operation[colName]
+        if (colDtype === "string" && operationVal !== "count") throw new Error(`Can't perform math operation on column ${colName}`)
 
         if (typeof operation === "string") {
           let colName2 = `${colName}_${operation}`
