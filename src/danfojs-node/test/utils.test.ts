@@ -1,5 +1,6 @@
 import { assert } from "chai";
 import { describe, it } from "mocha";
+import { ArrayType1D } from "../dist/danfojs-base/shared/types";
 import { Utils, __version } from "../dist/danfojs-node/src";
 import packagejson from "../package.json";
 
@@ -147,13 +148,13 @@ describe("Utils", function () {
 
     describe("replaceUndefinedWithNaN", function () {
         it("replace undefined in Series with NaN", function () {
-            let data = [10.01, 2.2, undefined, 20.505, 20.22, undefined];
+            let data = [10.01, 2.2, undefined, 20.505, 20.22, undefined] as ArrayType1D;
             assert.deepEqual(utils.replaceUndefinedWithNaN(data, true), [10.01, 2.2, NaN, 20.505, 20.22, NaN]);
         });
 
         it("replace undefined in DataFrame with NaN", function () {
-            let data = [[10.01, 2.2, undefined, 20.505, 20.22, undefined],
-            [10.01, undefined, undefined, 20.505, 20, undefined]];
+            let data = [[10.01, 2.2, undefined, 20.505, 20.22, undefined] as ArrayType1D,
+            [10.01, undefined, undefined, 20.505, 20, undefined] as ArrayType1D];
 
             let result = [[10.01, 2.2, NaN, 20.505, 20.22, NaN],
             [10.01, NaN, NaN, 20.505, 20, NaN]];
@@ -161,13 +162,13 @@ describe("Utils", function () {
         });
 
         it("replace null in Series with NaN", function () {
-            let data = [10.01, 2.2, null, 20.505, 20.22, null];
+            let data = [10.01, 2.2, null, 20.505, 20.22, null] as ArrayType1D;
             assert.deepEqual(utils.replaceUndefinedWithNaN(data, true), [10.01, 2.2, NaN, 20.505, 20.22, NaN]);
         });
 
         it("replace null in DataFrame with NaN", function () {
-            let data = [[10.01, 2.2, null, 20.505, 20.22, null],
-            [10.01, null, null, 20.505, 20, null]];
+            let data = [[10.01, 2.2, null, 20.505, 20.22, null] as ArrayType1D,
+            [10.01, null, null, 20.505, 20, null] as ArrayType1D];
 
             let result = [[10.01, 2.2, NaN, 20.505, 20.22, NaN],
             [10.01, NaN, NaN, 20.505, 20, NaN]];
