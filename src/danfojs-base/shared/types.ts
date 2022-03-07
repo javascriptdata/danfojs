@@ -184,8 +184,8 @@ export interface SeriesInterface extends NDframeInterface {
     toCSV(options?: CsvOutputOptionsBrowser): string | void
     toJSON(options?: JsonOutputOptionsBrowser): object | void
     toExcel(options?: ExcelOutputOptionsBrowser): void
-    iat(index: number): number | string | boolean | undefined 
-    at(index: string | number): number | string | boolean | undefined 
+    iat(index: number): number | string | boolean | undefined
+    at(index: string | number): number | string | boolean | undefined
 }
 
 //Start of DataFrame class types
@@ -218,6 +218,7 @@ export interface DataFrameInterface extends NDframeInterface {
     div(other: DataFrame | Series | number | number[], options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
     pow(other: DataFrame | Series | number | number[], options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
     mod(other: DataFrame | Series | number | number[], options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
+    diff(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
     mean(options?: { axis?: 0 | 1 }): Series
     median(options?: { axis?: 0 | 1 }): Series
     mode(options?: { axis?: 0 | 1, keep?: number }): Series
@@ -329,8 +330,8 @@ export interface DataFrameInterface extends NDframeInterface {
     toCSV(options?: CsvOutputOptionsBrowser): string | void
     toJSON(options?: JsonOutputOptionsBrowser): object | void
     toExcel(options?: ExcelOutputOptionsBrowser): void
-    iat(row: number, column: number): number | string | boolean | undefined 
-    at(row: string | number, column: string): number | string | boolean | undefined 
+    iat(row: number, column: number): number | string | boolean | undefined
+    at(row: string | number, column: string): number | string | boolean | undefined
 }
 
 export interface DateTime {
