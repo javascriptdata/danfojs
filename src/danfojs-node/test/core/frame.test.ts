@@ -992,6 +992,45 @@ describe("DataFrame", function () {
 
     });
 
+    describe("diff", function () {
+        it("Return difference of DataFrame with previous row", function () {
+            const data = [[0, 2, 4], [10, 10, 10], [1, 2, 3]];
+            const df = new DataFrame(data);
+            assert.deepEqual((df.diff(1) as DataFrame).values, [[NaN, NaN, NaN], [10, 8, 6], [-9, -8, -7]]);
+        });
+        it("Return difference of DataFrame with following row", function () {
+            const data = [[0, 2, 4], [10, 10, 10], [1, 2, 3]];
+            const df = new DataFrame(data);
+            assert.deepEqual((df.diff(-1) as DataFrame).values, [[-2, 0, 2], [8, 8, 8], [-1, 0, 1]]);
+        });
+        it("Return difference of a DataFrame with a Series along default axis 1", function () {
+            const data = [[0, 2, 4], [10, 10, 10], [1, 2, 3]];
+            const sf = new Series([1, 2, 1]);
+            const df = new DataFrame(data);
+            assert.deepEqual((df.diff(sf) as DataFrame).values, [[-1, 0, 3], [9, 8, 9], [0, 0, 2]]);
+        });
+        it("Return difference of a DataFrame with along axis 0 (column-wise), previous column", function () {
+            const data = [[0, 2, 4], [10, 10, 10], [1, 2, 3]];
+            const df = new DataFrame(data);
+            assert.deepEqual((df.diff(1, { axis: 0 }) as DataFrame).values, [[NaN, 2, 2], [NaN, 0, 0], [NaN, 1, 1]]);
+        });
+        it("Return difference of a DataFrame with along axis 0 (column-wise), following column", function () {
+            const data = [[0, 2, 4], [10, 10, 10], [1, 2, 3]];
+            const df = new DataFrame(data);
+            assert.deepEqual((df.diff(1, { axis: 0 }) as DataFrame).values, [[-2, 2, NaN], [0, 0, NaN], [1, 1, NaN]]);
+        });
+        it("Return difference of a DataFrame with another DataFrame along default axis 1", function () {
+            const df1 = new DataFrame([[0, 2, 4], [3, 10, 4]]);
+            const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
+            assert.deepEqual((df1.diff(df2) as DataFrame).values, [[-1, 0, 0], [-7, 5, 4]]);
+        });
+        it("Return difference of a DataFrame with another DataFrame along axis 0", function () {
+            const df1 = new DataFrame([[0, 2, 4], [3, 10, 4]]);
+            const df2 = new DataFrame([[1, 2, 4], [10, 5, 0]]);
+            assert.deepEqual((df1.diff(df2, { axis: 0 }) as DataFrame).values, [[-1, 0, 0], [-7, 5, 4]]);
+        });
+    });
+
     describe("mod", function () {
         it("Return modulus of DataFrame with a single Number", function () {
             const data = [[0, 2, 4], [360, 180, 360]];
