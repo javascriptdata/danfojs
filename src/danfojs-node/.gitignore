@@ -10,3 +10,4 @@ lib/*
 dist
 *.xlsx
 tensorflowlib.ts
+samples/
