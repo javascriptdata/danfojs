@@ -219,6 +219,7 @@ export interface DataFrameInterface extends NDframeInterface {
     divNoNan(other: DataFrame | Series | number | number[], options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
     pow(other: DataFrame | Series | number | number[], options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
     mod(other: DataFrame | Series | number | number[], options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
+    pctChange(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
     diff(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void
     mean(options?: { axis?: 0 | 1 }): Series
     median(options?: { axis?: 0 | 1 }): Series
