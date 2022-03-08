@@ -1037,6 +1037,51 @@ describe("DataFrame", function () {
         });
     });
 
+    describe("pct_change", function () {
+        it("Return same DataFrame if other === 0", function () {
+            const data = [[0, 2, 4], [10, 10, 10], [1, 2, 3]];
+            const df = new DataFrame(data);
+            assert.deepEqual((df.pct_change(0) as DataFrame).values, [[0, 2, 4], [10, 10, 10], [1, 2, 3]]);
+        });
+        it("Return difference in percentage of DataFrame with previous row", function () {
+            const data = [[90], [91], [85]];
+            const df = new DataFrame(data);
+            assert.deepEqual((df.pct_change(1) as DataFrame).values, [[NaN], [0.011111], [-0.065934]]);
+        });
+        it("Return difference in percentage of DataFrame with following row", function () {
+            const data = [[0, 2, 4], [10, 10, 10], [1, 2, 3]];
+            const df = new DataFrame(data);
+            assert.deepEqual((df.pct_change(-1) as DataFrame).values, [[-1, -0.8, -0.6], [9, 4, 2.333333], [NaN, NaN, NaN]]);
+        });
+        it("Return difference in percentage of a DataFrame with a Series along default axis 1", function () {
+            const data = [[0, 2, 4], [10, 10, 10], [1, 2, 3]];
+            const sf = new Series([1, 2, 1]);
+            const df = new DataFrame(data);
+            assert.deepEqual((df.pct_change(sf) as DataFrame).values, [[-1, 0, 3], [9, 4, 9], [0, 0, 2]]);
+        });
+        it("Return difference in percentage of a DataFrame with along axis 0 (column-wise), previous column", function () {
+            const data = [[0, 2, 4], [10, 10, 10], [1, 2, 3]];
+            const df = new DataFrame(data);
+            assert.deepEqual((df.pct_change(1, { axis: 0 }) as DataFrame).values, [[NaN, -1, 1], [NaN, 0, 0], [NaN, 1, 0.5]]);
+        });
+        it("Return difference in percentage of a DataFrame with along axis 0 (column-wise), following column", function () {
+            const data = [[0, 2, 4], [10, 10, 10], [1, 2, 3]];
+            const df = new DataFrame(data);
+            assert.deepEqual((df.pct_change(-1, { axis: 0 }) as DataFrame).values, [[-1, -0.5, NaN], [0, 0, NaN], [-0.5, -0.333333, NaN]]);
+        });
+        it("Return difference in percentage of a DataFrame with another DataFrame along default axis 1", function () {
+            const df1 = new DataFrame([[0, 2, 4], [3, 10, 4]]);
+            const df2 = new DataFrame([[-1, -2, 4], [10, 5, 0]]);
+            assert.deepEqual((df1.pct_change(df2) as DataFrame).values, [[-1, -2, 0], [-0.7, 1, -1]]);
+        });
+        it("Throw error if DataFrame for pct_change contains string", function () {
+            const df = new DataFrame([["words", "words", "words"], ["words", "words", "words"]]);
+            assert.throws(() => {
+                df.pct_change(1);
+            }, Error, "TypeError: pct_change operation is not supported for string dtypes");
+        });
+    });
+
     describe("mod", function () {
         it("Return modulus of DataFrame with a single Number", function () {
             const data = [[0, 2, 4], [360, 180, 360]];
