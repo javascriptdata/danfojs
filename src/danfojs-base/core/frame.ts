@@ -1375,23 +1375,23 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * ```
      * const df = new DataFrame([[1, 2, 3, 4, 5, 6], [1, 1, 2, 3, 5, 8], [1, 4, 9, 16, 25, 36]], { columns: ['A', 'B', 'C'] })
      * 
-     * // Difference with previous row
+     * // Percentage difference with previous row
      * const df0 = df.pctChange(1)
      * console.log(df0)
      * 
-     * // Difference with previous column
+     * // Percentage difference with previous column
      * const df1 = df.pctChange(1, {axis: 0})
      * console.log(df1)
      * 
-     * // Difference with previous 3rd previous row
+     * // Percentage difference with previous 3rd previous row
      * const df2 = df.pctChange(3)
      * console.log(df2)
      * 
-     * // Difference with following row
+     * // Percentage difference with following row
      * const df3 = df.pctChange(-1)
      * console.log(df3)
      * 
-     * // Difference with another DataFrame
+     * // Percentage difference with another DataFrame
      * const df4 = df.pctChange(df3)
      * console.log(df4)
      * ```
