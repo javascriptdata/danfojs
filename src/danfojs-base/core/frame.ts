@@ -1379,29 +1379,12 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             return this;
         }
 
-        if (typeof other === "number" && axis === 1) {
-            const originalTensor = this.tensor.clone();
-            const unit = new Array(originalTensor.shape[originalTensor.rank - 1]).fill(NaN);
-            let diffArray: any[] = originalTensor.arraySync();
-            if (other > 0) {
-                for (let i = 0; i < other; i++) {
-                    diffArray.unshift(unit);
-                    diffArray.pop();
-                }
+        if (typeof other === "number") {
+            let origDF = this.copy() as DataFrame;
+            if (axis === 0) {
+                origDF = origDF.T;
             }
-            else if (other < 0) {
-                for (let i = 0; i > other; i--) {
-                    diffArray.push(unit);
-                    diffArray.shift();
-                }
-            }
-            const diffTensor = tensorflow.tensor2d(diffArray, originalTensor.shape);
-            return this.$MathOps([originalTensor, diffTensor], "sub", inplace);
-        }
-
-        if (typeof other === "number" && axis === 0) {
-            const origDF = this.copy() as DataFrame;
-            const originalTensor = origDF.T.tensor.clone();
+            const originalTensor = origDF.tensor.clone();
             const unit = new Array(originalTensor.shape[originalTensor.rank - 1]).fill(NaN);
             let diffArray: any[] = originalTensor.arraySync();
             if (other > 0) {
@@ -1418,7 +1401,10 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             }
             const diffTensor = tensorflow.tensor2d(diffArray, originalTensor.shape);
             const diffDF = this.$MathOps([originalTensor, diffTensor], "sub", inplace) as DataFrame;
-            return diffDF.T;
+            if (axis === 0) {
+                return diffDF.T;
+            }
+            return diffDF;
         }
 
         if (other instanceof DataFrame || other instanceof Series) {
