@@ -101,7 +101,7 @@ describe("DataFrame", function () {
       assert.deepEqual(df.dtypes, [ "string", "int32", "float32", "string" ]);
       assert.deepEqual(df.index, [ 0, 1, 2, 3 ]);
     });
-    it("Add new Series to DataFrame works", function () {
+    it("Add new dfd.Series to DataFrame works", function () {
       let data = { alpha: [ "A", "B", "C", "D" ], count: [ 1, 2, 3, 4 ], sum: [ 20.3, 30.456, 40.90, 90.1 ] };
       let df = new dfd.DataFrame(data);
       const newdf = df.addColumn("new_column", new dfd.Series([ "a", "b", "c", "d" ]));
@@ -1016,6 +1016,51 @@ describe("DataFrame", function () {
       assert.deepEqual(df1.mod(df2).values, [ [ 0, 0, 0 ], [ 0, 0, NaN ] ]);
     });
 
+  });
+
+  describe("diff", function () {
+    it("Return same DataFrame if other === 0", function () {
+      const data = [ [ 0, 2, 4 ], [ 10, 10, 10 ], [ 1, 2, 3 ] ];
+      const df = new dfd.DataFrame(data);
+      assert.deepEqual((df.diff(0)).values, [ [ 0, 2, 4 ], [ 10, 10, 10 ], [ 1, 2, 3 ] ]);
+    });
+    it("Return difference of DataFrame with previous row", function () {
+      const data = [ [ 0, 2, 4 ], [ 10, 10, 10 ], [ 1, 2, 3 ] ];
+      const df = new dfd.DataFrame(data);
+      assert.deepEqual((df.diff(1)).values, [ [ NaN, NaN, NaN ], [ 10, 8, 6 ], [ -9, -8, -7 ] ]);
+    });
+    it("Return difference of DataFrame with following row", function () {
+      const data = [ [ 0, 2, 4 ], [ 10, 10, 10 ], [ 1, 2, 3 ] ];
+      const df = new dfd.DataFrame(data);
+      assert.deepEqual((df.diff(-1)).values, [ [ -10, -8, -6 ], [ 9, 8, 7 ], [ NaN, NaN, NaN ] ]);
+    });
+    it("Return difference of a DataFrame with a Series along default axis 1", function () {
+      const data = [ [ 0, 2, 4 ], [ 10, 10, 10 ], [ 1, 2, 3 ] ];
+      const sf = new dfd.Series([ 1, 2, 1 ]);
+      const df = new dfd.DataFrame(data);
+      assert.deepEqual((df.diff(sf)).values, [ [ -1, 0, 3 ], [ 9, 8, 9 ], [ 0, 0, 2 ] ]);
+    });
+    it("Return difference of a DataFrame with along axis 0 (column-wise), previous column", function () {
+      const data = [ [ 0, 2, 4 ], [ 10, 10, 10 ], [ 1, 2, 3 ] ];
+      const df = new dfd.DataFrame(data);
+      assert.deepEqual((df.diff(1, { axis: 0 })).values, [ [ NaN, 2, 2 ], [ NaN, 0, 0 ], [ NaN, 1, 1 ] ]);
+    });
+    it("Return difference of a DataFrame with along axis 0 (column-wise), following column", function () {
+      const data = [ [ 0, 2, 4 ], [ 10, 10, 10 ], [ 1, 2, 3 ] ];
+      const df = new dfd.DataFrame(data);
+      assert.deepEqual((df.diff(-1, { axis: 0 })).values, [ [ -2, -2, NaN ], [ 0, 0, NaN ], [ -1, -1, NaN ] ]);
+    });
+    it("Return difference of a DataFrame with another DataFrame along default axis 1", function () {
+      const df1 = new dfd.DataFrame([ [ 0, 2, 4 ], [ 3, 10, 4 ] ]);
+      const df2 = new dfd.DataFrame([ [ -1, -2, 4 ], [ 10, 5, 0 ] ]);
+      assert.deepEqual((df1.diff(df2)).values, [ [ 1, 4, 0 ], [ -7, 5, 4 ] ]);
+    });
+    it("Throw error if DataFrame for diff contains string", function () {
+      const df = new dfd.DataFrame([ [ "words", "words", "words" ], [ "words", "words", "words" ] ]);
+      assert.throws(() => {
+        df.diff(1);
+      }, Error, "TypeError: diff operation is not supported for string dtypes");
+    });
   });
 
   describe("mean", function () {
