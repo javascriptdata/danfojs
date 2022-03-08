@@ -1380,51 +1380,45 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         }
 
         if (typeof other === "number" && axis === 1) {
-            const orig_tensor = this.tensor.clone();
-            let unit = [NaN];
-            for (let i = 1; i < orig_tensor.shape[orig_tensor.rank - 1]; i++) {
-                unit.push(NaN);
-            }
-            let diff_array: any[] = orig_tensor.arraySync();
+            const originalTensor = this.tensor.clone();
+            const unit = new Array(originalTensor.shape[originalTensor.rank - 1]).fill(NaN);
+            let diffArray: any[] = originalTensor.arraySync();
             if (other > 0) {
                 for (let i = 0; i < other; i++) {
-                    diff_array.unshift(unit);
-                    diff_array.pop();
+                    diffArray.unshift(unit);
+                    diffArray.pop();
                 }
             }
             else if (other < 0) {
                 for (let i = 0; i > other; i--) {
-                    diff_array.push(unit);
-                    diff_array.shift();
+                    diffArray.push(unit);
+                    diffArray.shift();
                 }
             }
-            const diff_tensor = tensorflow.tensor2d(diff_array, orig_tensor.shape);
-            return this.$MathOps([orig_tensor, diff_tensor], "sub", inplace);
+            const diffTensor = tensorflow.tensor2d(diffArray, originalTensor.shape);
+            return this.$MathOps([originalTensor, diffTensor], "sub", inplace);
         }
 
         if (typeof other === "number" && axis === 0) {
-            const orig_df = new DataFrame(this.tensor.clone());
-            const orig_tensor = orig_df.T.tensor.clone();
-            let unit = [NaN];
-            for (let i = 1; i < orig_tensor.shape[orig_tensor.rank - 1]; i++) {
-                unit.push(NaN);
-            }
-            let diff_array: any[] = orig_tensor.arraySync();
+            const origDF = this.copy() as DataFrame;
+            const originalTensor = origDF.T.tensor.clone();
+            const unit = new Array(originalTensor.shape[originalTensor.rank - 1]).fill(NaN);
+            let diffArray: any[] = originalTensor.arraySync();
             if (other > 0) {
                 for (let i = 0; i < other; i++) {
-                    diff_array.unshift(unit);
-                    diff_array.pop();
+                    diffArray.unshift(unit);
+                    diffArray.pop();
                 }
             }
             else if (other < 0) {
                 for (let i = 0; i > other; i--) {
-                    diff_array.push(unit);
-                    diff_array.shift();
+                    diffArray.push(unit);
+                    diffArray.shift();
                 }
             }
-            const diff_tensor = tensorflow.tensor2d(diff_array, orig_tensor.shape);
-            const diff_df = this.$MathOps([orig_tensor, diff_tensor], "sub", inplace) as DataFrame;
-            return diff_df.T;
+            const diffTensor = tensorflow.tensor2d(diffArray, originalTensor.shape);
+            const diffDF = this.$MathOps([originalTensor, diffTensor], "sub", inplace) as DataFrame;
+            return diffDF.T;
         }
 
         if (other instanceof DataFrame || other instanceof Series) {
