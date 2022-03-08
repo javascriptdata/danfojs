@@ -1036,7 +1036,7 @@ describe("DataFrame", function () {
     });
     it("Return difference in percentage of a DataFrame with a Series along default axis 1", function () {
       const data = [ [ 0, 2, 4 ], [ 10, 10, 10 ], [ 1, 2, 3 ] ];
-      const sf = new Series([ 1, 2, 1 ]);
+      const sf = new dfd.Series([ 1, 2, 1 ]);
       const df = new dfd.DataFrame(data);
       assert.deepEqual((df.pctChange(sf)).values, [ [ -1, 0, 3 ], [ 9, 4, 9 ], [ 0, 0, 2 ] ]);
     });
