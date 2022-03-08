@@ -65,7 +65,7 @@ describe("Generic (NDFrame)", function () {
     });
 
     it("Throws error on duplicate index", function () {
-      let data = [ [ 21, 20, 1 ], [ 20, 25, 3 ] ];
+      let data = [ [ 21, 20, 1 ], [ 20, 25, 3 ], [ 19, 30, 5 ] ];
       assert.throws(
         () => new dfd.NDframe({ data, isSeries: false, index: [ 1, 1, 2 ] }), Error,
         "IndexError: Row index must contain unique values");
