@@ -1412,60 +1412,38 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             return this;
         }
 
-        if (typeof other === "number" && axis === 1) {
-            const orig_tensor = this.tensor.clone();
-            let unit = [NaN];
-            for (let i = 1; i < orig_tensor.shape[orig_tensor.rank - 1]; i++) {
-                unit.push(NaN);
+        if (typeof other === "number") {
+            let origDF = this.copy() as DataFrame;
+            if (axis === 0) {
+                origDF = origDF.T;
             }
-            let pct_array: any[] = orig_tensor.arraySync();
+            const originalTensor = origDF.tensor.clone();
+            const unit = new Array(originalTensor.shape[originalTensor.rank - 1]).fill(NaN);
+            let pctArray: any[] = originalTensor.arraySync();
             if (other > 0) {
                 for (let i = 0; i < other; i++) {
-                    pct_array.unshift(unit);
-                    pct_array.pop();
+                    pctArray.unshift(unit);
+                    pctArray.pop();
                 }
             }
             else if (other < 0) {
                 for (let i = 0; i > other; i--) {
-                    pct_array.push(unit);
-                    pct_array.shift();
+                    pctArray.push(unit);
+                    pctArray.shift();
                 }
             }
-            const pct_tensor = tensorflow.tensor2d(pct_array, orig_tensor.shape);
-            const pct_df = (this.$MathOps([orig_tensor, pct_tensor], "divNoNan", inplace) as DataFrame).sub(1);
-            return pct_df;
-        }
-
-        if (typeof other === "number" && axis === 0) {
-            const orig_df = new DataFrame(this.tensor.clone());
-            const orig_tensor = orig_df.T.tensor.clone();
-            let unit = [NaN];
-            for (let i = 1; i < orig_tensor.shape[orig_tensor.rank - 1]; i++) {
-                unit.push(NaN);
+            const pctTensor = tensorflow.tensor2d(pctArray, originalTensor.shape);
+            const pctDF = (this.$MathOps([originalTensor, pctTensor], "divNoNan", inplace) as DataFrame).sub(1);
+            if (axis === 0) {
+                return pctDF.T;
             }
-            let pct_array: any[] = orig_tensor.arraySync();
-            if (other > 0) {
-                for (let i = 0; i < other; i++) {
-                    pct_array.unshift(unit);
-                    pct_array.pop();
-                }
-            }
-            else if (other < 0) {
-                for (let i = 0; i > other; i--) {
-                    pct_array.push(unit);
-                    pct_array.shift();
-                }
-            }
-            const pct_tensor = tensorflow.tensor2d(pct_array, orig_tensor.shape);
-            const pct_df_flipped = (this.$MathOps([orig_tensor, pct_tensor], "divNoNan", inplace) as DataFrame).sub(1);
-            const pct_df = pct_df_flipped.T;
-            return pct_df;
+            return pctDF;
         }
 
         if (other instanceof DataFrame || other instanceof Series) {
             const tensors = this.$getTensorsForArithmeticOperationByAxis(other, axis);
-            const pct_df = (this.$MathOps(tensors, "divNoNan", inplace) as DataFrame).sub(1);
-            return pct_df;
+            const pctDF = (this.$MathOps(tensors, "divNoNan", inplace) as DataFrame).sub(1);
+            return pctDF;
         }
     }
 
