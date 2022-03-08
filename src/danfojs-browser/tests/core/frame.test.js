@@ -101,7 +101,7 @@ describe("DataFrame", function () {
       assert.deepEqual(df.dtypes, [ "string", "int32", "float32", "string" ]);
       assert.deepEqual(df.index, [ 0, 1, 2, 3 ]);
     });
-    it("Add new dfd.Series to DataFrame works", function () {
+    it("Add new Series to DataFrame works", function () {
       let data = { alpha: [ "A", "B", "C", "D" ], count: [ 1, 2, 3, 4 ], sum: [ 20.3, 30.456, 40.90, 90.1 ] };
       let df = new dfd.DataFrame(data);
       const newdf = df.addColumn("new_column", new dfd.Series([ "a", "b", "c", "d" ]));
