@@ -1018,6 +1018,51 @@ describe("DataFrame", function () {
 
   });
 
+  describe("pctChange", function () {
+    it("Return same DataFrame if other === 0", function () {
+      const data = [ [ 0, 2, 4 ], [ 10, 10, 10 ], [ 1, 2, 3 ] ];
+      const df = new dfd.DataFrame(data);
+      assert.deepEqual((df.pctChange(0)).values, [ [ 0, 2, 4 ], [ 10, 10, 10 ], [ 1, 2, 3 ] ]);
+    });
+    it("Return difference in percentage of DataFrame with previous row", function () {
+      const data = [ [ 90 ], [ 900 ], [ 900 ] ];
+      const df = new dfd.DataFrame(data);
+      assert.deepEqual((df.pctChange(1)).values, [ [ NaN ], [ 9 ], [ 0 ] ]);
+    });
+    it("Return difference in percentage of DataFrame with following row", function () {
+      const data = [ [ 0, 5, 15 ], [ 10, 10, 10 ], [ 1, 2, 5 ] ];
+      const df = new dfd.DataFrame(data);
+      assert.deepEqual((df.pctChange(-1)).values, [ [ -1, -0.5, 0.5 ], [ 9, 4, 1 ], [ NaN, NaN, NaN ] ]);
+    });
+    it("Return difference in percentage of a DataFrame with a Series along default axis 1", function () {
+      const data = [ [ 0, 2, 4 ], [ 10, 10, 10 ], [ 1, 2, 3 ] ];
+      const sf = new Series([ 1, 2, 1 ]);
+      const df = new dfd.DataFrame(data);
+      assert.deepEqual((df.pctChange(sf)).values, [ [ -1, 0, 3 ], [ 9, 4, 9 ], [ 0, 0, 2 ] ]);
+    });
+    it("Return difference in percentage of a DataFrame with along axis 0 (column-wise), previous column", function () {
+      const data = [ [ 0, 2, 4 ], [ 10, 10, 10 ], [ 1, 2, 3 ] ];
+      const df = new dfd.DataFrame(data);
+      assert.deepEqual((df.pctChange(1, { axis: 0 })).values, [ [ NaN, -1, 1 ], [ NaN, 0, 0 ], [ NaN, 1, 0.5 ] ]);
+    });
+    it("Return difference in percentage of a DataFrame with along axis 0 (column-wise), following column", function () {
+      const data = [ [ 0, 2, 4 ], [ 10, 10, 10 ], [ 1, 2, 8 ] ];
+      const df = new dfd.DataFrame(data);
+      assert.deepEqual((df.pctChange(-1, { axis: 0 })).values, [ [ -1, -0.5, NaN ], [ 0, 0, NaN ], [ -0.5, -0.75, NaN ] ]);
+    });
+    it("Return difference in percentage of a DataFrame with another DataFrame along default axis 1", function () {
+      const df1 = new dfd.DataFrame([ [ 0, 2, 4 ], [ 3, 10, 4 ] ]);
+      const df2 = new dfd.DataFrame([ [ -1, -2, 4 ], [ 6, 5, 0 ] ]);
+      assert.deepEqual((df1.pctChange(df2)).values, [ [ -1, -2, 0 ], [ -0.5, 1, -1 ] ]);
+    });
+    it("Throw error if DataFrame for pctChange contains string", function () {
+      const df = new dfd.DataFrame([ [ "words", "words", "words" ], [ "words", "words", "words" ] ]);
+      assert.throws(() => {
+        df.pctChange(1);
+      }, Error, "TypeError: pctChange operation is not supported for string dtypes");
+    });
+  });
+
   describe("mean", function () {
     it("Returns the mean of a DataFrame (Default axis is [1:column])", function () {
       const data = [ [ 0, 2, 4 ],
