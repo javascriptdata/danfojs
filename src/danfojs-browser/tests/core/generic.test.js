@@ -59,20 +59,16 @@ describe("Generic (NDFrame)", function () {
 
     it("Throws error on duplicate column name", function () {
       let data = [ [ 21, 20, 1 ], [ 20, 25, 3 ] ];
-      assert.throws(() => {
-        new dfd.NDframe({ data, isSeries: false, columns: [ "A", "A", "C" ] }),
-        Error,
-        "ColumnIndexError: Column index must contain unique values";
-      });
+      assert.throws(
+        () => new dfd.NDframe({ data, isSeries: false, columns: [ "A", "A", "C" ] }), Error,
+        "ColumnIndexError: Column index must contain unique values");
     });
 
     it("Throws error on duplicate index", function () {
       let data = [ [ 21, 20, 1 ], [ 20, 25, 3 ] ];
-      assert.throws(() => {
-        new dfd.NDframe({ data, isSeries: false, index: [ 1, 1, 2 ] }),
-        Error,
-        "IndexError: Row index must contain unique values";
-      });
+      assert.throws(
+        () => new dfd.NDframe({ data, isSeries: false, index: [ 1, 1, 2 ] }), Error,
+        "IndexError: Row index must contain unique values");
     });
 
     it("Successfully create a 2D Frame when first value is empty", function () {
