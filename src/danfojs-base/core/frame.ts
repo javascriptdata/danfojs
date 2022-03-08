@@ -1376,32 +1376,32 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * const df = new DataFrame([[1, 2, 3, 4, 5, 6], [1, 1, 2, 3, 5, 8], [1, 4, 9, 16, 25, 36]], { columns: ['A', 'B', 'C'] })
      * 
      * // Difference with previous row
-     * const df0 = df.pct_change(1)
+     * const df0 = df.pctChange(1)
      * console.log(df0)
      * 
      * // Difference with previous column
-     * const df1 = df.pct_change(1, {axis: 0})
+     * const df1 = df.pctChange(1, {axis: 0})
      * console.log(df1)
      * 
      * // Difference with previous 3rd previous row
-     * const df2 = df.pct_change(3)
+     * const df2 = df.pctChange(3)
      * console.log(df2)
      * 
      * // Difference with following row
-     * const df3 = df.pct_change(-1)
+     * const df3 = df.pctChange(-1)
      * console.log(df3)
      * 
      * // Difference with another DataFrame
-     * const df4 = df.pct_change(df3)
+     * const df4 = df.pctChange(df3)
      * console.log(df4)
      * ```
     */
-    pct_change(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame
-    pct_change(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
+    pctChange(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame
+    pctChange(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
         const { inplace, axis } = { inplace: false, axis: 1, ...options }
 
         if (this.$frameIsNotCompactibleForArithmeticOperation()) {
-            throw Error("TypeError: pct_change operation is not supported for string dtypes");
+            throw Error("TypeError: pctChange operation is not supported for string dtypes");
         }
 
         if ([0, 1].indexOf(axis) === -1) {
