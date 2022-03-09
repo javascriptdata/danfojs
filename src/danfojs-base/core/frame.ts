@@ -1334,6 +1334,86 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     }
 
     /**
+     * Return difference of DataFrame with other.
+     * @param other DataFrame, Series, Array or Scalar number (positive numbers are preceding rows, negative are following rows) to compare difference with.
+     * @param options.axis 0 or 1. If 0, compute the difference column-wise, if 1, row-wise
+     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2, 3, 4, 5, 6], [1, 1, 2, 3, 5, 8], [1, 4, 9, 16, 25, 36]], { columns: ['A', 'B', 'C'] })
+     * 
+     * // Difference with previous row
+     * const df0 = df.diff(1)
+     * console.log(df0)
+     * 
+     * // Difference with previous column
+     * const df1 = df.diff(1, {axis: 0})
+     * console.log(df1)
+     * 
+     * // Difference with previous 3rd previous row
+     * const df2 = df.diff(3)
+     * console.log(df2)
+     * 
+     * // Difference with following row
+     * const df3 = df.diff(-1)
+     * console.log(df3)
+     * 
+     * // Difference with another DataFrame
+     * const df4 = df.diff(df3)
+     * console.log(df4)
+     * ```
+    */
+    diff(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame
+    diff(other: DataFrame | Series | number[] | number, options?: { axis?: 0 | 1, inplace?: boolean }): DataFrame | void {
+        const { inplace, axis } = { inplace: false, axis: 1, ...options }
+
+        if (this.$frameIsNotCompactibleForArithmeticOperation()) {
+            throw Error("TypeError: diff operation is not supported for string dtypes");
+        }
+
+        if ([0, 1].indexOf(axis) === -1) {
+            throw Error("ParamError: Axis must be 0 or 1");
+        }
+
+        if (other === 0) {
+            return this;
+        }
+
+        if (typeof other === "number") {
+            let origDF = this.copy() as DataFrame;
+            if (axis === 0) {
+                origDF = origDF.T;
+            }
+            const originalTensor = origDF.tensor.clone();
+            const unit = new Array(originalTensor.shape[originalTensor.rank - 1]).fill(NaN);
+            let diffArray: any[] = originalTensor.arraySync();
+            if (other > 0) {
+                for (let i = 0; i < other; i++) {
+                    diffArray.unshift(unit);
+                    diffArray.pop();
+                }
+            }
+            else if (other < 0) {
+                for (let i = 0; i > other; i--) {
+                    diffArray.push(unit);
+                    diffArray.shift();
+                }
+            }
+            const diffTensor = tensorflow.tensor2d(diffArray, originalTensor.shape);
+            const diffDF = this.$MathOps([originalTensor, diffTensor], "sub", inplace) as DataFrame;
+            if (axis === 0) {
+                return diffDF.T;
+            }
+            return diffDF;
+        }
+
+        if (other instanceof DataFrame || other instanceof Series) {
+            const tensors = this.$getTensorsForArithmeticOperationByAxis(other, axis);
+            return this.$MathOps(tensors, "sub", inplace);
+        }
+    }
+
+    /**
      * Return the absolute value of elements in a DataFrame. 
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
      * @example
