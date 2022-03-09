@@ -408,6 +408,22 @@ describe("Iloc and Loc based Indexing", function () {
       assert.deepEqual(subDf.values, result);
 
     });
+
+    it("loc with no matches create a Empty DataFrame conserving columns information", function () {
+      const data = {
+        "Name": [ "Apples", "Mango", "Banana", "Pear" ],
+        "Count": [ 21, 5, 30, 10 ],
+        "Price": [ 200, 300, 40, 250 ]
+      };
+      const df = new dfd.DataFrame(data);
+      const subDf = df.loc({ rows: df["Count"].gt(50) });
+
+      assert.deepEqual(subDf.values, []);
+      assert.deepEqual(subDf.shape, [ 0, 3 ]);
+      assert.deepEqual(subDf.columns, [ "Name", "Count", "Price" ]);
+      assert.deepEqual(subDf.dtypes, [ "string", "int32", "int32" ]);
+
+    });
   });
 
 });

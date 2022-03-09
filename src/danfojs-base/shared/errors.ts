@@ -51,6 +51,11 @@ class ErrorThrower {
         throw new Error(msg)
     }
 
+    throwDtypeWithoutColumnError = (): void => {
+        const msg = `DtypeError: columns parameter must be provided when dtypes parameter is provided`
+        throw new Error(msg)
+    }
+
     throwColumnLengthError = (ndframe: NDframe | DataFrame, arrLen: number): void => {
         const msg = `ParamError: Column data length mismatch. You provided data with length ${arrLen} but Ndframe has column of length ${ndframe.shape[1]}`
         throw new Error(msg)

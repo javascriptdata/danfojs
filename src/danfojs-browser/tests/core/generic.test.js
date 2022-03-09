@@ -407,7 +407,12 @@ describe("Generic (NDFrame)", function () {
   describe("Empty NDFrame", function () {
     it("Can successfully create an empty NDframe from empty array", function () {
       let data = [];
-      let sf = new dfd.NDframe({ data, isSeries: false });
+      let df = new dfd.NDframe({ data, isSeries: false });
+      assert.deepEqual(df.shape, [ 0, 0 ]);
+      assert.deepEqual(df.columns, []);
+      assert.deepEqual(df.dtypes, []);
+      assert.deepEqual(df.values, []);
+      let sf = new dfd.NDframe({ data, isSeries: true });
       assert.deepEqual(sf.shape, [ 0, 0 ]);
       assert.deepEqual(sf.columns, []);
       assert.deepEqual(sf.dtypes, []);
@@ -415,6 +420,11 @@ describe("Generic (NDFrame)", function () {
     });
     it("Can successfully create an empty NDframe from undefined data", function () {
       let data = undefined;
+      let df = new dfd.NDframe({ data, isSeries: false });
+      assert.deepEqual(df.shape, [ 0, 0 ]);
+      assert.deepEqual(df.columns, []);
+      assert.deepEqual(df.dtypes, []);
+      assert.deepEqual(df.values, []);
       let sf = new dfd.NDframe({ data, isSeries: true });
       assert.deepEqual(sf.shape, [ 0, 0 ]);
       assert.deepEqual(sf.columns, []);
@@ -423,12 +433,60 @@ describe("Generic (NDFrame)", function () {
     });
 
     it("Can successfully create an empty NDframe", function () {
+      let df = new dfd.NDframe({ isSeries: false });
+      assert.deepEqual(df.shape, [ 0, 0 ]);
+      assert.deepEqual(df.columns, []);
+      assert.deepEqual(df.dtypes, []);
+      assert.deepEqual(df.values, []);
       let sf = new dfd.NDframe({ isSeries: true });
       assert.deepEqual(sf.shape, [ 0, 0 ]);
       assert.deepEqual(sf.columns, []);
       assert.deepEqual(sf.dtypes, []);
       assert.deepEqual(sf.values, []);
     });
+
+    it("Can successfully create an empty NDframe with columns names", function () {
+      let data = [];
+      let df = new dfd.NDframe({ data, columns: [ "A", "B", "C" ], isSeries: false });
+      assert.deepEqual(df.shape, [ 0, 3 ]);
+      assert.deepEqual(df.columns, [ "A", "B", "C" ]);
+      assert.deepEqual(df.dtypes, []);
+      assert.deepEqual(df.values, []);
+      let sf = new dfd.NDframe({ data, columns: [ "A" ], isSeries: true });
+      assert.deepEqual(sf.shape, [ 0, 1 ]);
+      assert.deepEqual(sf.columns, [ "A" ]);
+      assert.deepEqual(sf.dtypes, []);
+      assert.deepEqual(sf.values, []);
+    });
+
+    it("Can successfully create an empty NDframe with columns names and dtypes", function () {
+      let data = [];
+      let df = new dfd.NDframe({ data, columns: [ "A", "B", "C" ], dtypes: [ "string", "string", "int32" ], isSeries: false });
+      assert.deepEqual(df.shape, [ 0, 3 ]);
+      assert.deepEqual(df.columns, [ "A", "B", "C" ]);
+      assert.deepEqual(df.dtypes, [ "string", "string", "int32" ]);
+      assert.deepEqual(df.values, []);
+      let sf = new dfd.NDframe({ data, columns: [ "A" ], dtypes: [ "string" ], isSeries: true });
+      assert.deepEqual(sf.shape, [ 0, 1 ]);
+      assert.deepEqual(sf.columns, [ "A" ]);
+      assert.deepEqual(sf.dtypes, [ "string" ]);
+      assert.deepEqual(sf.values, []);
+    });
+
+    it("Cannot successfully create an empty NDframe with only columns dtypes", function () {
+      let data = [];
+      assert.throws(
+        () => new dfd.NDframe({ data, dtypes: [ "string", "string", "int32" ], isSeries: false }),
+        Error,
+        "DtypeError: columns parameter must be provided when dtypes parameter is provided"
+      );
+      assert.throws(
+        () => new dfd.NDframe({ data, dtypes: [ "string" ], isSeries: true }),
+        Error,
+        "DtypeError: columns parameter must be provided when dtypes parameter is provided"
+      );
+    });
+
   });
 
 });
