@@ -124,8 +124,10 @@ describe("DataFrame", function () {
       const df = new dfd.DataFrame(data);
 
       assert.throws(
-        () => df.addColumn("new_column", new dfd.Series([ "a", "b", "c" ])), Error,
-        'ParamError: Column data length mismatch. You provided data with length 3 but Ndframe has column of length 4');
+        () => df.addColumn("new_column", new dfd.Series([ "a", "b", "c" ])),
+        Error,
+        'ParamError: Column data length mismatch. You provided data with length 3 but Ndframe has column of length 4'
+      );
 
     });
     it("Ensure add column does not mutate parent when not in place", function () {
