@@ -72,7 +72,10 @@ export default class NDframe implements NDframeInterface {
         }
 
         if (data === undefined || (Array.isArray(data) && data.length === 0)) {
-            this.loadArrayIntoNdframe({ data: [], index: [], columns: [], dtypes: [] });
+            if (columns === undefined) columns = [];
+            if (dtypes === undefined) dtypes = [];
+            if (columns.length === 0 && dtypes.length !== 0) ErrorThrower.throwDtypeWithoutColumnError();
+            this.loadArrayIntoNdframe({ data: [], index: [], columns: columns, dtypes: dtypes });
         } else if (utils.is1DArray(data)) {
             this.loadArrayIntoNdframe({ data, index, columns, dtypes });
         } else {
@@ -306,6 +309,7 @@ export default class NDframe implements NDframeInterface {
     */
     $setColumnNames(columns?: string[]) {
 
+        // console.log(columns);
         if (this.$isSeries) {
             if (columns) {
                 if (this.$data.length != 0 && columns.length != 1 && typeof columns != 'string') {
@@ -322,7 +326,7 @@ export default class NDframe implements NDframeInterface {
 
                     ErrorThrower.throwColumnNamesLengthError(this, columns)
                 }
-                if (Array.from(new Set(columns)).length !== this.shape[1]) {
+                if (Array.from(new Set(columns)).length !== columns.length) {
                     ErrorThrower.throwColumnDuplicateError()
                 }
 
@@ -337,7 +341,10 @@ export default class NDframe implements NDframeInterface {
      * Returns the shape of the NDFrame. Shape is determined by [row length, column length]
     */
     get shape(): Array<number> {
-        if (this.$data.length === 0) return [0, 0]
+        if (this.$data.length === 0) {
+            if (this.$columns.length === 0) return [0, 0];
+            else return [0, this.$columns.length];
+        }
         if (this.$isSeries) {
             return [this.$data.length, 1];
         } else {

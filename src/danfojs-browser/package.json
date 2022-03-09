@@ -1,9 +1,10 @@
 {
   "name": "danfojs",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
   "main": "dist/danfojs-browser/src/index.js",
   "types": "dist/danfojs-browser/src/index.d.ts",
+  "module": "lib/bundle-esm.js",
   "directories": {
     "test": "tests"
   },
@@ -89,7 +90,7 @@
     "ify-loader": "^1.1.0",
     "install-peers": "^1.0.3",
     "json-loader": "^0.5.7",
-    "karma": "6.3.14",
+    "karma": "6.3.16",
     "karma-browserify": "7.0.0",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^3.1.0",
@@ -99,8 +100,8 @@
     "source-map-loader": "^3.0.0",
     "ts-loader": "^9.2.6",
     "typescript": "^4.4.2",
-    "webpack": "5.21.2",
-    "webpack-cli": "4.5.0",
+    "webpack": "5.69.1",
+    "webpack-cli": "4.9.2",
     "yarn": "^1.22.10"
   },
   "nyc": {

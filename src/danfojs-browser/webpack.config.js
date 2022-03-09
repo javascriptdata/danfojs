@@ -2,7 +2,7 @@
 const path = require("path");
 const webpack = require("webpack");
 
-const createConfig = (target) => {
+const createConfig = ({ target, filename = "bundle.js", library = "dfd", experiments = undefined }) => {
   return {
     mode: "production",
     devtool: "source-map",
@@ -13,8 +13,8 @@ const createConfig = (target) => {
     target: target,
     output: {
       path: path.resolve(__dirname, "lib"),
-      filename: `bundle.js`,
-      library: "dfd"
+      filename: filename,
+      library: library
     },
     plugins: [
       // Work around for Buffer is undefined:
@@ -51,8 +51,9 @@ const createConfig = (target) => {
         "net": false,
         "tls": false
       }
-    }
+    },
+    experiments: experiments
   };
 };
 
-module.exports = [ createConfig("web") ];
+module.exports = [ createConfig({ target: "web" }), createConfig({ target: "web", filename: "bundle-esm.js", library: { type: "module" }, experiments: { outputModule: true } }) ];
