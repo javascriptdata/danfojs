@@ -1014,6 +1014,12 @@ describe("DataFrame", function () {
             const df = new DataFrame(data);
             assert.deepEqual((df.diff(sf) as DataFrame).values, [[-1, 0, 3], [9, 8, 9], [0, 0, 2]]);
         });
+        it("Return difference of a DataFrame with a Series along axis 0", function () {
+            const data = [[0, 2, 4], [10, 10, 10], [1, 2, 3]];
+            const sf = new Series([1, 2, 1]);
+            const df = new DataFrame(data);
+            assert.deepEqual((df.diff(sf, {axis: 0}) as DataFrame).values, [[-1, 1, 3], [8, 8, 8], [0, 1, 2]]);
+        });
         it("Return difference of a DataFrame with along axis 0 (column-wise), previous column", function () {
             const data = [[0, 2, 4], [10, 10, 10], [1, 2, 3]];
             const df = new DataFrame(data);
