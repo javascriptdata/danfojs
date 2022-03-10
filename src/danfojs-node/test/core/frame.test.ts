@@ -1065,6 +1065,12 @@ describe("DataFrame", function () {
             const df = new DataFrame(data);
             assert.deepEqual((df.pctChange(sf) as DataFrame).values, [[-1, 0, 3], [9, 4, 9], [0, 0, 2]]);
         });
+        it("Return difference in percentage of a DataFrame with a Series along axis 0", function () {
+            const data = [[0, 2, 4], [10, 10, 10], [1, 2, 3]];
+            const sf = new Series([1, 2, 1]);
+            const df = new DataFrame(data);
+            assert.deepEqual((df.pctChange(sf, {axis: 0})).values, [[-1, 1, 3], [4, 4, 4], [0, 1, 2]]);
+          });
         it("Return difference in percentage of a DataFrame with along axis 0 (column-wise), previous column", function () {
             const data = [[0, 2, 4], [10, 10, 10], [1, 2, 3]];
             const df = new DataFrame(data);
