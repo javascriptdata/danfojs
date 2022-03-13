@@ -74,10 +74,12 @@ For use directly in HTML files, you can add the latest script tag from [JsDelivr
 ```
 See all available versions [here](https://www.jsdelivr.com/package/npm/danfojs)
 
+### Quick Examples
+* [Danfojs with HTML and vanilla JavaScript on CodePen](https://codepen.io/risingodegua/pen/bGpwyYW)
+* [Danfojs with React](https://danfo.jsdata.org/examples/using-danfojs-in-react)
+* [Danfojs on ObservableHq](https://observablehq.com/@risingodegua/using-danfojs-on-observablehq)
+
 ### Example Usage in the Browser
-
-> Run in [Code Sandbox](https://codepen.io/risingodegua/pen/bGwPGMG)
-
 ```html
 
 <!DOCTYPE html>
@@ -197,8 +199,8 @@ Output in Node Console:
 
 ![](assets/node-rec.gif)
 ## Notebook support
-* You can use Danfo.js on Dnotebooks playground [here](https://playnotebook.jsdata.org/demo)
 * VsCode nodejs notebook extension now supports Danfo.js. See guide [here](https://marketplace.visualstudio.com/items?itemName=donjayamanne.typescript-notebook)
+* ObservableHQ Notebooks. See example notebook [here](https://observablehq.com/@risingodegua/using-danfojs-on-observablehq)
 
 #### [See the Official Getting Started Guide](https://danfo.jsdata.org/getting-started)
 
