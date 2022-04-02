@@ -24,7 +24,6 @@
     "node-fetch": "^2.6.1",
     "papaparse": "^5.3.1",
     "request": "^2.88.2",
-    "seedrandom": "^2.4.3",
     "stream-json": "^1.7.3",
     "table": "6.7.1"
   },
