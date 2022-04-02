@@ -1,6 +1,6 @@
 {
   "name": "danfojs-base",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Base package used in danfojs-node and danfojs-browser",
   "main": "index.ts",
   "scripts": {
