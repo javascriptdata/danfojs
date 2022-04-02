@@ -33,7 +33,7 @@
   },
   "scripts": {
     "test": "nyc mocha --require ts-node/register test/**/*.test.ts",
-    "test:clean": "yarn build:clean && yarn test",
+    "test:clean": "yarn build:clean && yarn add xlsx@0.17.2 -P && yarn test",
     "dev": "nodemon",
     "build": "tsc",
     "build:clean": "rm -rf ./dist && node ./scripts/prebuild.js && tsc",
