@@ -69,39 +69,26 @@ export default class Series extends BaseSeries implements ExtendedSeriesInterfac
     * 
     * @example
     * ```
-    * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+    * const df = new Series([1, 2, 3, 4])
     * const csv = df.toCSV()
     * console.log(csv)
-    * //output
-    * "A","B"
-    * 1,2
-    * 3,4
     * ```
     * 
     * @example
     * ```
-    * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+    * const df = new Series([1, 2, 3, 4])
     * const csv = df.toCSV({ header: false })
-    * console.log(csv)
-    * //output
-    * 1,2
-    * 3,4
     * ```
     * 
     * @example
     * ```
-    * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+    * const df = new Series([1, 2, 3, 4])
     * const csv = df.toCSV({ sep: ';' })
-    * console.log(csv)
-    * //output
-    * "A";"B"
-    * 1;2
-    * 3;4
     * ```
     * 
     * @example
     * ```
-    * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+    * const df = new Series([1, 2, 3, 4])
     * df.toCSV({ fileName: 'data.csv', download: true }) //Downloads file in Browser
     * ```
     * 
@@ -113,7 +100,7 @@ export default class Series extends BaseSeries implements ExtendedSeriesInterfac
     }
 
     /**
-     * Converts a DataFrame to JSON. 
+     * Converts a Series to JSON. 
      * @param options Configuration object. Supported options:
      * - `fileName`: The name of the JSON file. Defaults to `data.json`. Option is only available in Browser.
      * - `download`: If true, the JSON will be downloaded. Defaults to false. Option is only available in Browser.
@@ -121,31 +108,25 @@ export default class Series extends BaseSeries implements ExtendedSeriesInterfac
      * 
      * @example
      * ```
-     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * const df = new Series([1, 2, 3, 4])
      * const json = df.toJSON()
      * ```
      * 
      * @example
      * ```
-     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * const df = new Series([1, 2, 3, 4])
      * const json = df.toJSON({ format: 'row' })
-     * console.log(json)
-     * //output
-     * [{"A":1,"B":2},{"A":3,"B":4}]
      * ```
      * 
      * @example
      * ```
-     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * const df = new Series([1, 2, 3, 4])
      * const json = df.toJSON({ format: "column" })
-     * console.log(json)
-     * //output
-     * {"A":[1,3],"B":[2,4]}
      * ```
      *
      * @example
      * ```
-     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * const df = new Series([1, 2, 3, 4])
      * df.toJSON({ fileName: 'data.json', download: true }) // downloads file browser
      * ```
      */
@@ -156,7 +137,7 @@ export default class Series extends BaseSeries implements ExtendedSeriesInterfac
 
 
     /**
-     * Converts a DataFrame to Excel file format. 
+     * Converts a Series to Excel file format. 
      * @param options Configuration object. Supported options:
      * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
      * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`. Option is only available in NodeJs
@@ -164,19 +145,19 @@ export default class Series extends BaseSeries implements ExtendedSeriesInterfac
      * 
      * @example
      * ```
-     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * const df = new Series([1, 2, 3, 4])
      * df.toExcel({ filePath: './output.xlsx' }) // writes to local file system as output.xlsx in NodeJS
      * ```
      * 
      * @example
      * ```
-     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * const df = new Series([1, 2, 3, 4])
      * df.toExcel({ fileName: 'output.xlsx', download: true }) // downloads file browser
      * ```
      * 
      * @example
      * ```
-     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * const df = new Series([1, 2, 3, 4])
      * df.toExcel({ sheetName: 'Sheet2' }) // writes to Sheet2 in Excel
      * ```
      * 
