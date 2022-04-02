@@ -12,8 +12,21 @@
 * limitations under the License.
 * ==========================================================================
 */
-import { BaseDataOptionType } from "../../../danfojs-base/shared/types";
 import BaseSeries from "../../../danfojs-base/core/series"
+import { toCSVBrowser, toJSONBrowser, toExcelBrowser } from "../../../danfojs-base/io/browser";
+import {
+    BaseDataOptionType,
+    SeriesInterface,
+    CsvOutputOptionsBrowser,
+    JsonOutputOptionsBrowser,
+    ExcelOutputOptionsBrowser,
+} from "../../../danfojs-base/shared/types";
+
+type ExtendedSeriesInterface = SeriesInterface & {
+    toCSV(options?: CsvOutputOptionsBrowser): string | void
+    toJSON(options?: JsonOutputOptionsBrowser): object | void
+    toExcel(options?: ExcelOutputOptionsBrowser): void
+}
 
 
 /**
@@ -26,9 +39,135 @@ import BaseSeries from "../../../danfojs-base/core/series"
  * @param options.dtypes Data types of the Series data. If not specified, dtypes is inferred.
  * @param options.config General configuration object for extending or setting Series behavior.      
  */
-export default class Series extends BaseSeries {
+export default class Series extends BaseSeries implements ExtendedSeriesInterface {
     [key: string]: any
     constructor(data?: any, options: BaseDataOptionType = {}) {
         super(data, options)
+    }
+
+    /**
+    * Converts a Series to CSV. 
+    * @param options Configuration object. Supports the following options:
+    * - `fileName`: Name of the CSV file. Defaults to `data.csv`. Option is only available in Browser.
+    * - `download`: If true, the CSV will be downloaded. Defaults to false. Option is only available in Browser.
+    * - `header`: Boolean indicating whether to include a header row in the CSV file.
+    * - `sep`: Character to be used as a separator in the CSV file.
+    * 
+    * @example
+    * ```
+    * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+    * const csv = df.toCSV()
+    * console.log(csv)
+    * //output
+    * "A","B"
+    * 1,2
+    * 3,4
+    * ```
+    * 
+    * @example
+    * ```
+    * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+    * const csv = df.toCSV({ header: false })
+    * console.log(csv)
+    * //output
+    * 1,2
+    * 3,4
+    * ```
+    * 
+    * @example
+    * ```
+    * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+    * const csv = df.toCSV({ sep: ';' })
+    * console.log(csv)
+    * //output
+    * "A";"B"
+    * 1;2
+    * 3;4
+    * ```
+    * 
+    * @example
+    * ```
+    * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+    * df.toCSV({ fileName: 'data.csv', download: true }) //Downloads file in Browser
+    * ```
+    * 
+    */
+    toCSV(options?: CsvOutputOptionsBrowser): string
+    toCSV(options?: CsvOutputOptionsBrowser): string | void {
+        return toCSVBrowser(this, options)
+
+    }
+
+    /**
+     * Converts a DataFrame to JSON. 
+     * @param options Configuration object. Supported options:
+     * - `fileName`: The name of the JSON file. Defaults to `data.json`. Option is only available in Browser.
+     * - `download`: If true, the JSON will be downloaded. Defaults to false. Option is only available in Browser.
+     * - `format`: The format of the JSON. Supported values are `'column'` and `'row'`. Defaults to `'column'`.
+     * 
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * const json = df.toJSON()
+     * ```
+     * 
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * const json = df.toJSON({ format: 'row' })
+     * console.log(json)
+     * //output
+     * [{"A":1,"B":2},{"A":3,"B":4}]
+     * ```
+     * 
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * const json = df.toJSON({ format: "column" })
+     * console.log(json)
+     * //output
+     * {"A":[1,3],"B":[2,4]}
+     * ```
+     *
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.toJSON({ fileName: 'data.json', download: true }) // downloads file browser
+     * ```
+     */
+    toJSON(options?: JsonOutputOptionsBrowser): object
+    toJSON(options?: JsonOutputOptionsBrowser): object | void {
+        return toJSONBrowser(this, options)
+    }
+
+
+    /**
+     * Converts a DataFrame to Excel file format. 
+     * @param options Configuration object. Supported options:
+     * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
+     * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`. Option is only available in NodeJs
+     * - `fileName`: The fileName to be written to. Defaults to `'output.xlsx'`. Option is only available in Browser
+     * 
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.toExcel({ filePath: './output.xlsx' }) // writes to local file system as output.xlsx in NodeJS
+     * ```
+     * 
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.toExcel({ fileName: 'output.xlsx', download: true }) // downloads file browser
+     * ```
+     * 
+     * @example
+     * ```
+     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
+     * df.toExcel({ sheetName: 'Sheet2' }) // writes to Sheet2 in Excel
+     * ```
+     * 
+     */
+    toExcel(options?: ExcelOutputOptionsBrowser): void {
+        return toExcelBrowser(this, options)
     }
 }

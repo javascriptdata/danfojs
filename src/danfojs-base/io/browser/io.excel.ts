@@ -19,7 +19,15 @@ import {
     ExcelInputOptionsBrowser
 } from "../../shared/types"
 import { DataFrame, NDframe, Series } from '../../'
-import XLSX from 'xlsx';
+
+let XLSX: any;
+
+try {
+    XLSX = require("xlsx");
+} catch (err) {
+    console.info(`xlsx not found. Please run "npm install xlsx" or "yarn add xlsx" in order to work with Excel files.`)
+
+}
 
 /**
  * Reads a JSON file from local or remote location into a DataFrame.
@@ -85,13 +93,13 @@ const $readExcel = async (file: any, options?: ExcelInputOptionsBrowser) => {
  * @param df DataFrame or Series to be converted to JSON.
  * @param options Configuration object. Supported options:
  * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
- * - `file`: The file to be written to. Defaults to `'./output.xlsx'`.
+ * - `fileName`: The file to be written to. Defaults to `'./output.xlsx'`.
  * @example
  * ```
  * import { toExcel } from "danfojs-node"
  * const df = new DataFrame([[1, 2, 3], [4, 5, 6]])
  * toExcel(df, {
- *     file: "./data/sample.xlsx",
+ *     fileName: "./data/sample.xlsx",
  *     sheetName: "MySheet",
  *   })
  * ```
