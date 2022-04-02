@@ -180,10 +180,6 @@ export interface SeriesInterface extends NDframeInterface {
         prefixSeparator?: string | Array<string>,
         inplace?: boolean
     }): DataFrame
-    plot(divId: string): IPlotlyLib
-    toCSV(options?: CsvOutputOptionsBrowser): string | void
-    toJSON(options?: JsonOutputOptionsBrowser): object | void
-    toExcel(options?: ExcelOutputOptionsBrowser): void
     iat(index: number): number | string | boolean | undefined
     at(index: string | number): number | string | boolean | undefined
 }
@@ -328,10 +324,6 @@ export interface DataFrameInterface extends NDframeInterface {
         prefixSeparator?: string | Array<string>,
         inplace?: boolean
     }): DataFrame | void
-    plot(divId: string): IPlotlyLib
-    toCSV(options?: CsvOutputOptionsBrowser): string | void
-    toJSON(options?: JsonOutputOptionsBrowser): object | void
-    toExcel(options?: ExcelOutputOptionsBrowser): void
     iat(row: number, column: number): number | string | boolean | undefined
     at(row: string | number, column: string): number | string | boolean | undefined
 }

@@ -15,8 +15,12 @@
 import { ArrayType1D, ArrayType2D, ExcelInputOptionsNode, ExcelOutputOptionsNode } from "../../shared/types"
 import { DataFrame, NDframe, Series } from '../../'
 import fetch from "node-fetch";
-import XLSX from 'xlsx';
-
+import {
+    read,
+    writeFile,
+    readFile,
+    utils
+} from "xlsx";
 /**
  * Reads a JSON file from local or remote location into a DataFrame.
  * @param filePath URL or local file path to JSON file.
@@ -57,9 +61,9 @@ const $readExcel = async (filePath: string, options: ExcelInputOptionsNode = {})
                 }
                 response.arrayBuffer().then(arrBuf => {
                     const arrBufInt8 = new Uint8Array(arrBuf);
-                    const workbook = XLSX.read(arrBufInt8, { type: "array" })
+                    const workbook = read(arrBufInt8, { type: "array" })
                     const worksheet = workbook.Sheets[workbook.SheetNames[sheet]];
-                    const data = XLSX.utils.sheet_to_json(worksheet);
+                    const data = utils.sheet_to_json(worksheet);
                     const df = new DataFrame(data, frameConfig);
                     resolve(df);
                 });
@@ -70,9 +74,9 @@ const $readExcel = async (filePath: string, options: ExcelInputOptionsNode = {})
 
     } else {
         return new Promise(resolve => {
-            const workbook = XLSX.readFile(filePath);
+            const workbook = readFile(filePath);
             const worksheet = workbook.Sheets[workbook.SheetNames[sheet]];
-            const data = XLSX.utils.sheet_to_json(worksheet);
+            const data = utils.sheet_to_json(worksheet);
             const df = new DataFrame(data, frameConfig);
             resolve(df);
         });
@@ -113,10 +117,10 @@ const $toExcel = (df: NDframe | DataFrame | Series, options?: ExcelOutputOptions
         data = [cols, ...row]
     }
 
-    const worksheet = XLSX.utils.aoa_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, worksheet, sheetName);
-    XLSX.writeFile(wb, `${filePath}`)
+    const worksheet = utils.aoa_to_sheet(data);
+    const wb = utils.book_new();
+    utils.book_append_sheet(wb, worksheet, sheetName);
+    writeFile(wb, `${filePath}`)
 };
 
 export {

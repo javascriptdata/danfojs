@@ -13,9 +13,21 @@
 * ==========================================================================
 */
 
-import { BaseDataOptionType } from "../../../danfojs-base/shared/types";
 import BaseSeries from "../../../danfojs-base/core/series"
+import { toCSVNode, toExcelNode, toJSONNode } from "../../../danfojs-base/io/node";
+import {
+    BaseDataOptionType,
+    SeriesInterface,
+    CsvOutputOptionsNode,
+    JsonOutputOptionsNode,
+    ExcelOutputOptionsNode
+} from "../../../danfojs-base/shared/types";
 
+type ExtendedSeriesInterface = SeriesInterface & {
+    toCSV(options?: CsvOutputOptionsNode): string | void
+    toJSON(options?: JsonOutputOptionsNode): object | void
+    toExcel(options?: ExcelOutputOptionsNode): void
+}
 
 
 /**
@@ -28,9 +40,110 @@ import BaseSeries from "../../../danfojs-base/core/series"
  * @param options.dtypes Data types of the Series data. If not specified, dtypes is inferred.
  * @param options.config General configuration object for extending or setting Series behavior.      
  */
-export default class Series extends BaseSeries {
+export default class Series extends BaseSeries implements ExtendedSeriesInterface {
     [key: string]: any
     constructor(data?: any, options: BaseDataOptionType = {}) {
         super(data, options)
+    }
+
+    /**
+    * Converts a Series to CSV. 
+    * @param options Configuration object. Supports the following options:
+    * - `filePath`: Local file path to write the CSV file. If not specified, the CSV will be returned as a string. Option is only available in NodeJS.
+    * - `fileName`: Name of the CSV file. Defaults to `data.csv`. Option is only available in Browser.
+    * - `download`: If true, the CSV will be downloaded. Defaults to false. Option is only available in Browser.
+    * - `header`: Boolean indicating whether to include a header row in the CSV file.
+    * - `sep`: Character to be used as a separator in the CSV file.
+    * 
+    * @example
+    * ```
+    * const df = new Series([1, 2, 3, 4])
+    * const csv = df.toCSV()
+    * ```
+    * 
+    * @example
+    * ```
+    * const df = new Series([1, 2, 3, 4])
+    * const csv = df.toCSV({ header: false })
+    * ```
+    * 
+    * @example
+    * ```
+    * const df = new Series([1, 2, 3, 4])
+    * const csv = df.toCSV({ sep: ';' })
+    * ```
+    * 
+    * @example
+    * ```
+    * const df = new Series([1, 2, 3, 4])
+    * df.toCSV({ filePath: './data.csv' }) //write to local file in NodeJS
+    * ```
+    */
+    toCSV(options?: CsvOutputOptionsNode): string
+    toCSV(options?: CsvOutputOptionsNode): string | void {
+        return toCSVNode(this, options as CsvOutputOptionsNode)
+
+    }
+
+    /**
+     * Converts a Series to JSON. 
+     * @param options Configuration object. Supported options:
+     * - `filePath`: The file path to write the JSON to. If not specified, the JSON object is returned. Option is only available in NodeJS.
+     * - `fileName`: The name of the JSON file. Defaults to `data.json`. Option is only available in Browser.
+     * - `download`: If true, the JSON will be downloaded. Defaults to false. Option is only available in Browser.
+     * - `format`: The format of the JSON. Supported values are `'column'` and `'row'`. Defaults to `'column'`.
+     * 
+     * @example
+     * ```
+     * const df = new Series([1, 2, 3, 4])
+     * const json = df.toJSON()
+     * ```
+     * 
+     * @example
+     * ```
+     * const df = new Series([1, 2, 3, 4])
+     * const json = df.toJSON({ format: 'row' })
+     * ```
+     * 
+     * @example
+     * ```
+     * const df = new Series([1, 2, 3, 4])
+     * const json = df.toJSON({ format: "column" })
+     * ```
+     * 
+     * @example
+     * ```
+     * const df = new Series([1, 2, 3, 4])
+     * df.toJSON({ filePath: './data.json' }) // downloads to local file system as data.json in NodeJS
+     * ```
+     */
+    toJSON(options?: JsonOutputOptionsNode): object
+    toJSON(options?: JsonOutputOptionsNode): object | void {
+        return toJSONNode(this, options as JsonOutputOptionsNode)
+    }
+
+
+    /**
+     * Converts a Series to Excel file format. 
+     * @param options Configuration object. Supported options:
+     * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
+     * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`. Option is only available in NodeJs
+     * - `fileName`: The fileName to be written to. Defaults to `'output.xlsx'`. Option is only available in Browser
+     * 
+     * @example
+     * ```
+     * const df = new Series([1, 2, 3, 4])
+     * df.toExcel({ filePath: './output.xlsx' }) // writes to local file system as output.xlsx in NodeJS
+     * ```
+     * 
+     * @example
+     * ```
+     * const df = new Series([1, 2, 3, 4])
+     * df.toExcel({ sheetName: 'Sheet2' }) // writes to Sheet2 in Excel
+     * ```
+     * 
+     */
+    toExcel(options?: ExcelOutputOptionsNode): void {
+        return toExcelNode(this, options as ExcelOutputOptionsNode)
     }
 }

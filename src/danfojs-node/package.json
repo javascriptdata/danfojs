@@ -24,18 +24,16 @@
     "node-fetch": "^2.6.1",
     "papaparse": "^5.3.1",
     "request": "^2.88.2",
-    "seedrandom": "^2.4.3",
     "stream-json": "^1.7.3",
     "table": "6.7.1",
-    "xlsx": "^0.17.2",
-    "plotly.js-dist-min": "^2.8.0"
+    "xlsx": "0.17.2"
   },
   "scripts": {
     "test": "nyc mocha --require ts-node/register test/**/*.test.ts",
     "test:clean": "yarn build:clean && yarn test",
     "dev": "nodemon",
     "build": "tsc",
-    "build:clean": "rimraf ./build && node ./scripts/prebuild.js && tsc",
+    "build:clean": "rm -rf ./dist && node ./scripts/prebuild.js && tsc",
     "lint": "eslint ./src",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",

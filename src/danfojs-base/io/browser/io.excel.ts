@@ -19,7 +19,11 @@ import {
     ExcelInputOptionsBrowser
 } from "../../shared/types"
 import { DataFrame, NDframe, Series } from '../../'
-import XLSX from 'xlsx';
+import {
+    read,
+    writeFile,
+    utils
+} from "xlsx";
 
 /**
  * Reads a JSON file from local or remote location into a DataFrame.
@@ -56,9 +60,9 @@ const $readExcel = async (file: any, options?: ExcelInputOptionsBrowser) => {
                 }
                 response.arrayBuffer().then(arrBuf => {
                     const arrBufInt8 = new Uint8Array(arrBuf);
-                    const workbook = XLSX.read(arrBufInt8, { type: "array" })
+                    const workbook = read(arrBufInt8, { type: "array" })
                     const worksheet = workbook.Sheets[workbook.SheetNames[sheet]];
-                    const data = XLSX.utils.sheet_to_json(worksheet);
+                    const data = utils.sheet_to_json(worksheet);
                     const df = new DataFrame(data, frameConfig);
                     resolve(df);
                 });
@@ -70,9 +74,9 @@ const $readExcel = async (file: any, options?: ExcelInputOptionsBrowser) => {
     } else if (file instanceof File) {
         const arrBuf = await file.arrayBuffer()
         const arrBufInt8 = new Uint8Array(arrBuf);
-        const workbook = XLSX.read(arrBufInt8, { type: "array" })
+        const workbook = read(arrBufInt8, { type: "array" })
         const worksheet = workbook.Sheets[workbook.SheetNames[sheet]];
-        const data = XLSX.utils.sheet_to_json(worksheet);
+        const data = utils.sheet_to_json(worksheet);
         const df = new DataFrame(data, frameConfig);
         return df;
     } else {
@@ -85,13 +89,13 @@ const $readExcel = async (file: any, options?: ExcelInputOptionsBrowser) => {
  * @param df DataFrame or Series to be converted to JSON.
  * @param options Configuration object. Supported options:
  * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
- * - `file`: The file to be written to. Defaults to `'./output.xlsx'`.
+ * - `fileName`: The file to be written to. Defaults to `'./output.xlsx'`.
  * @example
  * ```
  * import { toExcel } from "danfojs-node"
  * const df = new DataFrame([[1, 2, 3], [4, 5, 6]])
  * toExcel(df, {
- *     file: "./data/sample.xlsx",
+ *     fileName: "./data/sample.xlsx",
  *     sheetName: "MySheet",
  *   })
  * ```
@@ -114,10 +118,10 @@ const $toExcel = (df: NDframe | DataFrame | Series, options?: ExcelOutputOptions
         data = [cols, ...row]
     }
 
-    const worksheet = XLSX.utils.aoa_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, worksheet, sheetName);
-    XLSX.writeFile(wb, `${fileName}`)
+    const worksheet = utils.aoa_to_sheet(data);
+    const wb = utils.book_new();
+    utils.book_append_sheet(wb, worksheet, sheetName);
+    writeFile(wb, `${fileName}`)
 };
 
 export {

@@ -12,8 +12,6 @@
 * limitations under the License.
 * ==========================================================================
 */
-import { toCSVBrowser, toExcelBrowser, toJSONBrowser } from "../io/browser";
-import { toCSVNode, toExcelNode, toJSONNode } from "../io/node";
 import dummyEncode from "../transformers/encoders/dummy.encoder";
 import { variance, std, median, mode, mean } from 'mathjs';
 import tensorflow from '../shared/tensorflowlib'
@@ -22,7 +20,6 @@ import { _genericMathOp } from "./math.ops";
 import Groupby from '../aggregators/groupby';
 import ErrorThrower from "../shared/errors"
 import { _iloc, _loc } from "./indexing";
-import { PlotlyLib } from "../plotting";
 import Utils from "../shared/utils"
 import NDframe from "./generic";
 import { table } from "table";
@@ -32,12 +29,6 @@ import {
     ArrayType2D,
     DataFrameInterface,
     BaseDataOptionType,
-    CsvOutputOptionsBrowser,
-    ExcelOutputOptionsBrowser,
-    JsonOutputOptionsBrowser,
-    CsvOutputOptionsNode,
-    ExcelOutputOptionsNode,
-    JsonOutputOptionsNode
 } from "../shared/types";
 
 const utils = new Utils();
@@ -3366,172 +3357,6 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             colIndex
         ).group()
 
-    }
-
-    /**
-     * Exposes functions for creating charts from a DataFrame. 
-     * Charts are created using the Plotly.js library, so all Plotly's configuration parameters are available.
-     * @param divId name of the HTML Div to render the chart in.
-    */
-    plot(divId: string) {
-        //TODO: Add support for check plot library to use. So we can support other plot library like d3, vega, etc
-        if (utils.isBrowserEnv()) {
-            const plt = new PlotlyLib(this, divId);
-            return plt;
-        } else {
-            throw new Error("Not supported in NodeJS");
-        }
-    }
-
-    /**
-     * Converts a DataFrame to CSV. 
-     * @param options Configuration object. Supports the following options:
-     * - `filePath`: Local file path to write the CSV file. If not specified, the CSV will be returned as a string. Option is only available in NodeJS.
-     * - `fileName`: Name of the CSV file. Defaults to `data.csv`. Option is only available in Browser.
-     * - `download`: If true, the CSV will be downloaded. Defaults to false. Option is only available in Browser.
-     * - `header`: Boolean indicating whether to include a header row in the CSV file.
-     * - `sep`: Character to be used as a separator in the CSV file.
-     * 
-     * @example
-     * ```
-     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
-     * const csv = df.toCSV()
-     * console.log(csv)
-     * //output
-     * "A","B"
-     * 1,2
-     * 3,4
-     * ```
-     * 
-     * @example
-     * ```
-     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
-     * const csv = df.toCSV({ header: false })
-     * console.log(csv)
-     * //output
-     * 1,2
-     * 3,4
-     * ```
-     * 
-     * @example
-     * ```
-     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
-     * const csv = df.toCSV({ sep: ';' })
-     * console.log(csv)
-     * //output
-     * "A";"B"
-     * 1;2
-     * 3;4
-     * ```
-     * 
-     * @example
-     * ```
-     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
-     * df.toCSV({ filePath: './data.csv' }) //write to local file in NodeJS
-     * ```
-     * 
-     * @example
-     * ```
-     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
-     * df.toCSV({ fileName: 'data.csv', download: true }) //Downloads file in Browser
-     * ```
-     * 
-     */
-    toCSV(options?: CsvOutputOptionsBrowser | CsvOutputOptionsNode): string
-    toCSV(options?: CsvOutputOptionsBrowser | CsvOutputOptionsNode): string | void {
-        if (utils.isBrowserEnv()) {
-            return toCSVBrowser(this, options as CsvOutputOptionsBrowser)
-        } else {
-            return toCSVNode(this, options as CsvOutputOptionsNode)
-        }
-    }
-
-    /**
-     * Converts a DataFrame to JSON. 
-     * @param options Configuration object. Supported options:
-     * - `filePath`: The file path to write the JSON to. If not specified, the JSON object is returned. Option is only available in NodeJS.
-     * - `fileName`: The name of the JSON file. Defaults to `data.json`. Option is only available in Browser.
-     * - `download`: If true, the JSON will be downloaded. Defaults to false. Option is only available in Browser.
-     * - `format`: The format of the JSON. Supported values are `'column'` and `'row'`. Defaults to `'column'`.
-     * 
-     * @example
-     * ```
-     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
-     * const json = df.toJSON()
-     * ```
-     * 
-     * @example
-     * ```
-     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
-     * const json = df.toJSON({ format: 'row' })
-     * console.log(json)
-     * //output
-     * [{"A":1,"B":2},{"A":3,"B":4}]
-     * ```
-     * 
-     * @example
-     * ```
-     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
-     * const json = df.toJSON({ format: "column" })
-     * console.log(json)
-     * //output
-     * {"A":[1,3],"B":[2,4]}
-     * ```
-     * 
-     * @example
-     * ```
-     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
-     * df.toJSON({ filePath: './data.json' }) // downloads to local file system as data.json in NodeJS
-     * ```
-     * 
-     * @example
-     * ```
-     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
-     * df.toJSON({ fileName: 'data.json', download: true }) // downloads file browser
-     * ```
-     */
-    toJSON(options?: JsonOutputOptionsBrowser | JsonOutputOptionsNode): object
-    toJSON(options?: JsonOutputOptionsBrowser | JsonOutputOptionsNode): object | void {
-        if (utils.isBrowserEnv()) {
-            return toJSONBrowser(this, options as JsonOutputOptionsBrowser)
-        } else {
-            return toJSONNode(this, options as JsonOutputOptionsNode)
-        }
-    }
-
-
-    /**
-     * Converts a DataFrame to Excel file format. 
-     * @param options Configuration object. Supported options:
-     * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
-     * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`. Option is only available in NodeJs
-     * - `fileName`: The fileName to be written to. Defaults to `'output.xlsx'`. Option is only available in Browser
-     * 
-     * @example
-     * ```
-     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
-     * df.toExcel({ filePath: './output.xlsx' }) // writes to local file system as output.xlsx in NodeJS
-     * ```
-     * 
-     * @example
-     * ```
-     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
-     * df.toExcel({ fileName: 'output.xlsx', download: true }) // downloads file browser
-     * ```
-     * 
-     * @example
-     * ```
-     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
-     * df.toExcel({ sheetName: 'Sheet2' }) // writes to Sheet2 in Excel
-     * ```
-     * 
-     */
-    toExcel(options?: ExcelOutputOptionsBrowser | ExcelOutputOptionsNode): void {
-        if (utils.isBrowserEnv()) {
-            toExcelBrowser(this, options as ExcelOutputOptionsBrowser)
-        } else {
-            return toExcelNode(this, options as ExcelOutputOptionsNode)
-        }
     }
 
     /**
