@@ -25,15 +25,12 @@
     "papaparse": "^5.3.1",
     "request": "^2.88.2",
     "stream-json": "^1.7.3",
-    "table": "6.7.1"
-  },
-  "peerDependencies": {
-    "plotly.js-dist-min": "^2.8.0",
+    "table": "6.7.1",
     "xlsx": "0.17.2"
   },
   "scripts": {
     "test": "nyc mocha --require ts-node/register test/**/*.test.ts",
-    "test:clean": "yarn build:clean && yarn add xlsx@0.17.2 -P && yarn test",
+    "test:clean": "yarn build:clean && yarn test",
     "dev": "nodemon",
     "build": "tsc",
     "build:clean": "rm -rf ./dist && node ./scripts/prebuild.js && tsc",

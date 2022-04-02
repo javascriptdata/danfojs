@@ -19,7 +19,6 @@ import { DATA_TYPES } from '../shared/defaults'
 import { _genericMathOp } from "./math.ops";
 import ErrorThrower from "../shared/errors"
 import { _iloc, _loc } from "./indexing";
-import { PlotlyLib } from "../plotting";
 import Utils from "../shared/utils"
 import NDframe from "./generic";
 import { table } from "table";
@@ -30,12 +29,6 @@ import {
     ArrayType1D,
     BaseDataOptionType,
     SeriesInterface,
-    CsvOutputOptionsBrowser,
-    ExcelOutputOptionsBrowser,
-    JsonOutputOptionsBrowser,
-    CsvOutputOptionsNode,
-    ExcelOutputOptionsNode,
-    JsonOutputOptionsNode,
     mapParam
 } from "../shared/types";
 
@@ -192,7 +185,7 @@ export default class Series extends NDframe implements SeriesInterface {
         if (this.shape[0] - rows < 0) {
             throw new Error("ParamError: Number of rows cannot be greater than available rows in data")
         }
-        
+
         const startIdx = this.shape[0] - rows
         return this.iloc([`${startIdx}:`])
     }
@@ -2133,28 +2126,6 @@ export default class Series extends NDframe implements SeriesInterface {
         prefixSeparator?: string,
     }): DataFrame {
         return dummyEncode(this, options)
-    }
-
-
-    /**
-     * Exposes functions for creating charts from a Series. 
-     * Charts are created using the Plotly.js library, so all Plotly's configuration parameters are available.
-     * @param divId name of the HTML Div to render the chart in.
-     * @example
-     * ```
-     * const sf = new Series([1, 2, 3, 4, 5]);
-     * sf.plot("myDiv").line() //renders the chart in the div with id "myDiv"
-     * ```
-    */
-    plot(divId: string) {
-        //TODO: Add support for check plot library to use
-        // So we can support other plot library like d3, vega, etc
-        if (utils.isBrowserEnv()) {
-            const plt = new PlotlyLib(this, divId);
-            return plt;
-        } else {
-            throw new Error("Not supported in NodeJS");
-        }
     }
 
     /**

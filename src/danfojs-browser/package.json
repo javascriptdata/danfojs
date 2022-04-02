@@ -23,20 +23,18 @@
     "@tensorflow/tfjs": "^3.13.0",
     "mathjs": "9.4.4",
     "papaparse": "^5.3.1",
-    "table": "6.7.1"
-  },
-  "peerDependencies": {
+    "table": "6.7.1",
     "plotly.js-dist-min": "2.8.0",
     "xlsx": "0.17.2"
   },
   "scripts": {
     "test": "karma start --single-run --browsers ChromeHeadless karma.conf.js",
-    "test:clean": "yarn build:clean && yarn add xlsx@0.17.2 -P && yarn run test",
+    "test:clean": "yarn build:clean && yarn run test",
     "build": "node ./scripts/prebuild.js && tsc && yarn run bundle",
     "build:clean": "rimraf ./dist && rimraf ./lib && node ./scripts/prebuild.js && yarn run build",
     "dev": "nodemon",
     "lint": "eslint ./src",
-    "bundle": "webpack --mode production",
+    "bundle": "webpack --mode development",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
     "patch": "npm version patch"

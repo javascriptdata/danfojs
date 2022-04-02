@@ -13,6 +13,7 @@
 * ==========================================================================
 */
 import BaseSeries from "../../../danfojs-base/core/series"
+import { PlotlyLib } from "../../../danfojs-base/plotting";
 import { toCSVBrowser, toJSONBrowser, toExcelBrowser } from "../../../danfojs-base/io/browser";
 import {
     BaseDataOptionType,
@@ -20,9 +21,11 @@ import {
     CsvOutputOptionsBrowser,
     JsonOutputOptionsBrowser,
     ExcelOutputOptionsBrowser,
+    IPlotlyLib
 } from "../../../danfojs-base/shared/types";
 
 type ExtendedSeriesInterface = SeriesInterface & {
+    plot(divId: string): IPlotlyLib
     toCSV(options?: CsvOutputOptionsBrowser): string | void
     toJSON(options?: JsonOutputOptionsBrowser): object | void
     toExcel(options?: ExcelOutputOptionsBrowser): void
@@ -44,6 +47,17 @@ export default class Series extends BaseSeries implements ExtendedSeriesInterfac
     constructor(data?: any, options: BaseDataOptionType = {}) {
         super(data, options)
     }
+
+    /**
+     * Exposes functions for creating charts from a DataFrame. 
+     * Charts are created using the Plotly.js library, so all Plotly's configuration parameters are available.
+     * @param divId name of the HTML Div to render the chart in.
+    */
+    plot(divId: string) {
+        const plt = new PlotlyLib(this, divId);
+        return plt;
+    }
+
 
     /**
     * Converts a Series to CSV. 

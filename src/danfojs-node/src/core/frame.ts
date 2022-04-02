@@ -19,7 +19,7 @@ import {
     DataFrameInterface,
     CsvOutputOptionsNode,
     JsonOutputOptionsNode,
-    ExcelOutputOptionsNode
+    ExcelOutputOptionsNode,
 } from "../../../danfojs-base/shared/types";
 
 type ExtendedDataFrameInterface = DataFrameInterface & {
