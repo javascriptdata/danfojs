@@ -12,8 +12,6 @@
 * limitations under the License.
 * ==========================================================================
 */
-import { toCSVBrowser, toExcelBrowser, toJSONBrowser } from "../io/browser";
-import { toCSVNode, toExcelNode, toJSONNode } from "../io/node";
 import dummyEncode from "../transformers/encoders/dummy.encoder";
 import { variance, std, median, mode } from 'mathjs';
 import tensorflow from '../shared/tensorflowlib'
@@ -2156,114 +2154,6 @@ export default class Series extends NDframe implements SeriesInterface {
             return plt;
         } else {
             throw new Error("Not supported in NodeJS");
-        }
-    }
-
-    /**
-     * Converts a Series to CSV. 
-     * @param options Configuration object. Supports the following options:
-     * - `filePath`: Local file path to write the CSV file. If not specified, the CSV will be returned as a string. Option is only available in NodeJS.
-     * - `fileName`: Name of the CSV file. Defaults to `data.csv`. Option is only available in Browser.
-     * - `download`: If true, the CSV will be downloaded. Defaults to false. Option is only available in Browser.
-     * 
-     * @example
-     * ```
-     * const df = new Series([1, 2, 3, 4])
-     * const csv = df.toCSV()
-     * console.log(csv)
-     * //output "1,2,3,4"
-     * ```
-     * 
-     * @example
-     * ```
-     * const df = new Series([1, 2, 3, 4])
-     * df.toCSV({ filePath: './data.csv' }) //write to local file in NodeJS
-     * ```
-     * 
-     * @example
-     * ```
-     * const df = new Series([1, 2, 3, 4])
-     * df.toCSV({ fileName: 'data.csv', download: true }) //Downloads file in Browser
-     * ```
-     * 
-    */
-    toCSV(options?: CsvOutputOptionsBrowser | CsvOutputOptionsNode): string
-    toCSV(options?: CsvOutputOptionsBrowser | CsvOutputOptionsNode): string | void {
-        if (utils.isBrowserEnv()) {
-            return toCSVBrowser(this, options as CsvOutputOptionsBrowser)
-        } else {
-            return toCSVNode(this, options as CsvOutputOptionsNode)
-        }
-    }
-
-    /**
-     * Converts a Series to JSON. 
-     * @param options Configuration object. Supported options:
-     * - `filePath`: The file path to write the JSON to. If not specified, the JSON object is returned. Option is only available in NodeJS.
-     * - `fileName`: The name of the JSON file. Defaults to `data.json`. Option is only available in Browser.
-     * - `download`: If true, the JSON will be downloaded. Defaults to false. Option is only available in Browser.
-     * 
-     * @example
-     * ```
-     * const df = new Series([[1, 2, 3, 4]], { columns: ['A']})
-     * const json = df.toJSON()
-     * console.log(json)
-     * //output { A: [ '1,2,3,4' ] }
-     * ```
-     * 
-     * @example
-     * ```
-     * const df = new Series([1, 2, 3, 4])
-     * df.toJSON({ filePath: './data.json' }) // downloads to local file system as data.json in NodeJS
-     * ```
-     * 
-     * @example
-     * ```
-     * const df = new Series([1, 2, 3, 4])
-     * df.toJSON({ fileName: 'data.json', download: true }) // downloads file browser
-     * ```
-    */
-    toJSON(options?: JsonOutputOptionsBrowser | JsonOutputOptionsNode): object
-    toJSON(options?: JsonOutputOptionsBrowser | JsonOutputOptionsNode): object | void {
-        if (utils.isBrowserEnv()) {
-            return toJSONBrowser(this, options as JsonOutputOptionsBrowser)
-        } else {
-            return toJSONNode(this, options as JsonOutputOptionsNode)
-        }
-    }
-
-
-    /**
-     * Converts a Series to Excel file format. 
-     * @param options Configuration object. Supported options:
-     * - `sheetName`: The sheet name to be written to. Defaults to `'Sheet1'`.
-     * - `filePath`: The filePath to be written to. Defaults to `'./output.xlsx'`. Option is only available in NodeJs
-     * - `fileName`: The fileName to be written to. Defaults to `'output.xlsx'`. Option is only available in Browser
-     * 
-     * @example
-     * ```
-     * const df = new Series([1, 2, 3, 4])
-     * df.toExcel({ filePath: './output.xlsx' }) // writes to local file system as output.xlsx in NodeJS
-     * ```
-     * 
-     * @example
-     * ```
-     * const df = new Series([1, 2, 3, 4])
-     * df.toExcel({ fileName: 'output.xlsx', download: true }) // downloads file browser
-     * ```
-     * 
-     * @example
-     * ```
-     * const df = new Series([1, 2, 3, 4])
-     * df.toExcel({ sheetName: 'Sheet2' }) // writes to Sheet2 in Excel
-     * ```
-     * 
-    */
-    toExcel(options?: ExcelOutputOptionsBrowser | ExcelOutputOptionsNode): void {
-        if (utils.isBrowserEnv()) {
-            toExcelBrowser(this, options as ExcelOutputOptionsBrowser)
-        } else {
-            return toExcelNode(this, options as ExcelOutputOptionsNode)
         }
     }
 
