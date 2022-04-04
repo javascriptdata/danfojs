@@ -182,6 +182,7 @@ export interface SeriesInterface extends NDframeInterface {
     }): DataFrame
     iat(index: number): number | string | boolean | undefined
     at(index: string | number): number | string | boolean | undefined
+    plot(divId: string): IPlotlyLib
 }
 
 //Start of DataFrame class types
@@ -326,6 +327,7 @@ export interface DataFrameInterface extends NDframeInterface {
     }): DataFrame | void
     iat(row: number, column: number): number | string | boolean | undefined
     at(row: string | number, column: string): number | string | boolean | undefined
+    plot(divId: string): IPlotlyLib
 }
 
 export interface DateTime {

@@ -29,8 +29,10 @@ import {
     ArrayType1D,
     BaseDataOptionType,
     SeriesInterface,
-    mapParam
+    mapParam,
+    IPlotlyLib
 } from "../shared/types";
+import { PlotlyLib } from "../../danfojs-base/plotting";
 
 const utils = new Utils();
 
@@ -2166,5 +2168,20 @@ export default class Series extends NDframe implements SeriesInterface {
             throw new Error('ParamError: row index must be a string. Use .iat to get a row by index.')
         }
         return (this.values as ArrayType1D)[this.index.indexOf(row)];
+    }
+
+    /**
+     * Exposes functions for creating charts from a DataFrame. 
+     * Charts are created using the Plotly.js library, so all Plotly's configuration parameters are available.
+     * @param divId name of the HTML Div to render the chart in.
+    */
+    plot(divId: string): IPlotlyLib {
+        //TODO: Add support for check plot library to use. So we can support other plot library like d3, vega, etc
+        if (utils.isBrowserEnv()) {
+            const plt = new PlotlyLib(this, divId);
+            return plt;
+        } else {
+            throw new Error("Not supported in NodeJS");
+        }
     }
 }

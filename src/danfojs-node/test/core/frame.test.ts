@@ -2857,69 +2857,6 @@ describe("DataFrame", function () {
         });
     });
 
-    describe("IO outputs", function () {
-        it("toExcel works", async function () {
-            const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
-            const df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
-
-            const filePath = path.join(process.cwd(), "test", "samples", "test.xlsx");
-            df.toExcel({ filePath })
-
-            const dfNew: any = await readExcel(filePath, {});
-            assert.equal(fs.existsSync(filePath), true)
-            assert.deepEqual(dfNew.columns, [
-                'a',
-                'b',
-                'c',
-                'd',
-            ]);
-            assert.deepEqual(dfNew.dtypes, [
-                'int32', 'int32',
-                'int32', 'int32',
-            ]);
-            assert.deepEqual(dfNew.shape, [3, 4])
-        });
-
-        it("toCSV works for specified seperator", async function () {
-            const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
-            let df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
-            assert.deepEqual(df.toCSV({ sep: "+" }), `a+b+c+d\n1+2+3+4\n5+6+7+8\n9+10+11+12\n`);
-        });
-        it("toCSV write to local file works", async function () {
-            const data = [[1, 2, 3, "4"], [5, 6, 7, "8"], [9, 10, 11, "12"]]
-            let df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
-
-            const filePath = path.join(process.cwd(), "test", "samples", "test_write.csv");
-
-            df.toCSV({ sep: ",", filePath });
-            assert.equal(fs.existsSync(filePath), true);
-        });
-        it("toJSON works for row format", async function () {
-            const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
-            const df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
-            const expected: any = {
-                "a": [1, 5, 9],
-                "b": [2, 6, 10],
-                "c": [3, 7, 11],
-                "d": [4, 8, 12],
-            }
-            const json = df.toJSON({ format: "row" })
-            assert.deepEqual(json, expected);
-        });
-        it("toJSON writes file to local path", async function () {
-            const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]]
-            const df: any = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
-
-            const rowfilePath = path.join(process.cwd(), "test", "samples", "test_row_write.json");
-            const colfilePath = path.join(process.cwd(), "test", "samples", "test_col_write.json");
-
-            df.toJSON({ format: "row", filePath: rowfilePath })
-            df.toJSON({ format: "column", filePath: colfilePath })
-            assert.equal(fs.existsSync(rowfilePath), true);
-            assert.equal(fs.existsSync(colfilePath), true);
-        });
-    })
-
     describe("getDummies", function () {
         it("getDummies works on DataFrame", function () {
 
