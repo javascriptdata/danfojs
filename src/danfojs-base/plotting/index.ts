@@ -25,8 +25,13 @@ import {
 import Series from "../core/series";
 import DataFrame from "../core/frame";
 import { PlotConfigObject, IPlotlyLib } from "../shared/types"
-import Plotly from "plotly.js-dist-min";
+let Plotly: IPlotlyLib;
 
+if (typeof window !== "undefined") {
+    //check if in browser environment and require "plotly.js-dist-min" module
+    Plotly = require("plotly.js-dist-min") as IPlotlyLib;
+
+}
 
 class PlotlyLib implements IPlotlyLib {
     divId: string;
