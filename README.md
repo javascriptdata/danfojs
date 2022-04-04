@@ -78,6 +78,7 @@ See all available versions [here](https://www.jsdelivr.com/package/npm/danfojs)
 * [Danfojs with HTML and vanilla JavaScript on CodePen](https://codepen.io/risingodegua/pen/bGpwyYW)
 * [Danfojs with React on Code Sandbox](https://codesandbox.io/s/using-danfojs-in-react-dwpv54?file=/src/App.js)
 * [Danfojs on ObservableHq](https://observablehq.com/@risingodegua/using-danfojs-on-observablehq)
+* [Danfojs in Nodejs on Replit](https://replit.com/@RisingOdegua/Danfojs-in-Nodejs)
 
 ### Example Usage in the Browser
 ```html
