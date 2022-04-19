@@ -55,6 +55,7 @@ const $readCSV = async (filePath: string, options?: CsvInputOptionsNode): Promis
       const optionsWithDefaults = {
         header: true,
         dynamicTyping: true,
+        skipEmptyLines: 'greedy',
         ...options,
       }
 

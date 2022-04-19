@@ -52,6 +52,7 @@ const $readCSV = async (file: any, options?: CsvInputOptionsBrowser): Promise<Da
     Papa.parse(file, {
       header: true,
       dynamicTyping: true,
+      skipEmptyLines: 'greedy',
       ...options,
       download: true,
       complete: results => {
