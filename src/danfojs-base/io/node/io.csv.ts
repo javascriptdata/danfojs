@@ -55,11 +55,12 @@ const $readCSV = async (filePath: string, options?: CsvInputOptionsNode): Promis
       const optionsWithDefaults = {
         header: true,
         dynamicTyping: true,
+        skipEmptyLines: 'greedy',
         ...options,
       }
 
       const dataStream = request.get(filePath);
-      const parseStream: any = Papa.parse(Papa.NODE_STREAM_INPUT, optionsWithDefaults);
+      const parseStream: any = Papa.parse(Papa.NODE_STREAM_INPUT, optionsWithDefaults as any);
       dataStream.pipe(parseStream);
 
       const data: any = [];
