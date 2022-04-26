@@ -70,7 +70,7 @@ yarn add danfojs
 For use directly in HTML files, you can add the latest script tag from [JsDelivr](https://www.jsdelivr.com/package/npm/danfojs) to your HTML file:
 
 ```html
-    <script src="https://cdn.jsdelivr.net/npm/danfojs@1.1.0/lib/bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/danfojs@1.1.1/lib/bundle.js"></script>
 ```
 See all available versions [here](https://www.jsdelivr.com/package/npm/danfojs)
 
@@ -78,6 +78,7 @@ See all available versions [here](https://www.jsdelivr.com/package/npm/danfojs)
 * [Danfojs with HTML and vanilla JavaScript on CodePen](https://codepen.io/risingodegua/pen/bGpwyYW)
 * [Danfojs with React on Code Sandbox](https://codesandbox.io/s/using-danfojs-in-react-dwpv54?file=/src/App.js)
 * [Danfojs on ObservableHq](https://observablehq.com/@risingodegua/using-danfojs-on-observablehq)
+* [Danfojs in Nodejs on Replit](https://replit.com/@RisingOdegua/Danfojs-in-Nodejs)
 
 ### Example Usage in the Browser
 ```html
@@ -87,7 +88,7 @@ See all available versions [here](https://www.jsdelivr.com/package/npm/danfojs)
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://cdn.jsdelivr.net/npm/danfojs@1.1.0/lib/bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/danfojs@1.1.1/lib/bundle.js"></script>
 
     <title>Document</title>
   </head>
@@ -130,69 +131,62 @@ Output in Browser:
 ### Example usage in Nodejs
 
 ```javascript
+const dfd = require("danfojs-node");
 
-const dfd = require("danfojs-node")
+const file_url =
+  "https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/titanic.csv";
+dfd
+  .readCSV(file_url)
+  .then((df) => {
+    //prints the first five columns
+    df.head().print();
 
-const file_url = "https://web.stanford.edu/class/archive/cs/cs109/cs109.1166/stuff/titanic.csv"
-dfd.readCSV(file_url)
-    .then(df => {
-        //prints the first five columns
-        df.head().print()
+    // Calculate descriptive statistics for all numerical columns
+    df.describe().print();
 
-        // Calculate descriptive statistics for all numerical columns
-        df.describe().print()
+    //prints the shape of the data
+    console.log(df.shape);
 
-        //prints the shape of the data
-        console.log(df.shape);
+    //prints all column names
+    console.log(df.columns);
 
-        //prints all column names
-        console.log(df.columns);
+    // //prints the inferred dtypes of each column
+    df.ctypes.print();
 
-        // //prints the inferred dtypes of each column
-        df.ctypes.print()
+    //selecting a column by subsetting
+    df["Name"].print();
 
-        //selecting a column by subsetting
-        df['Name'].print()
+    //drop columns by names
+    let cols_2_remove = ["Age", "Pclass"];
+    let df_drop = df.drop({ columns: cols_2_remove, axis: 1 });
+    df_drop.print();
 
-        //drop columns by names
-        cols_2_remove = ['Age', 'Pclass']
-        df_drop = df.drop({ columns: cols_2_remove, axis: 1 })
-        df_drop.print()
+    //select columns by dtypes
+    let str_cols = df_drop.selectDtypes(["string"]);
+    let num_cols = df_drop.selectDtypes(["int32", "float32"]);
+    str_cols.print();
+    num_cols.print();
 
+    //add new column to Dataframe
 
-        //select columns by dtypes
-        let str_cols = df_drop.selectDtypes(["string"])
-        let num_cols = df_drop.selectDtypes(["int32", "float32"])
-        str_cols.print()
-        num_cols.print()
+    let new_vals = df["Fare"].round(1);
+    df_drop.addColumn("fare_round", new_vals, { inplace: true });
+    df_drop.print();
 
-        //select columns by dtypes
-        let str_cols = df_drop.select_dtypes(["string"])
-        let num_cols = df_drop.select_dtypes(["int32", "float32"])
-        str_cols.print()
-        num_cols.print()
+    df_drop["fare_round"].round(2).print(5);
 
-        //add new column to Dataframe
+    //prints the number of occurence each value in the column
+    df_drop["Survived"].valueCounts().print();
 
-        let new_vals = df['Fare'].round(1)
-        df_drop.addColumn("fare_round", new_vals, { inplace: true })
-        df_drop.print()
+    //print the last ten elementa of a DataFrame
+    df_drop.tail(10).print();
 
-        df_drop['fare_round'].round(2).print(5)
-
-        //prints the number of occurence each value in the column
-        df_drop['Survived'].valueCounts().print()
-
-        //print the last ten elementa of a DataFrame
-        df_drop.tail(10).print()
-
-        //prints the number of missing values in a DataFrame
-        df_drop.isNa().sum().print()
-
-    }).catch(err => {
-        console.log(err);
-    })
-
+    //prints the number of missing values in a DataFrame
+    df_drop.isNa().sum().print();
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
 ```
 Output in Node Console:
