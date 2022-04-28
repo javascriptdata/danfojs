@@ -32,7 +32,7 @@
     "test": "karma start --single-run --browsers ChromeHeadless karma.conf.js",
     "test:clean": "yarn build:clean && yarn run test",
     "build": "node ./scripts/prebuild.js && tsc && yarn run build:es5-bundle && yarn run build:esm-bundle",
-    "build:es5-bundle": "webpack --mode development",
+    "build:es5-bundle": "webpack --mode production",
     "build:esm-bundle": "esbuild src/index.ts --bundle --format=esm --platform=browser --target=esnext --minify --legal-comments=none --outfile=lib/bundle.esm.js",
     "build:clean": "rimraf ./dist && rimraf ./lib && node ./scripts/prebuild.js && yarn run build",
     "dev": "nodemon",
