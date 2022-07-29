@@ -57,7 +57,7 @@ class ErrorThrower {
     }
 
     throwColumnLengthError = (ndframe: NDframe | DataFrame, arrLen: number): void => {
-        const msg = `ParamError: Column data length mismatch. You provided data with length ${arrLen} but Ndframe has column of length ${ndframe.shape[1]}`
+        const msg = `ParamError: Column data length mismatch. You provided data with length ${arrLen} but Ndframe has column of length ${ndframe.shape[0]}`
         throw new Error(msg)
     }
 

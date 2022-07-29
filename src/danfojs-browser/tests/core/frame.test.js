@@ -123,11 +123,11 @@ describe("DataFrame", function () {
       const data = { alpha: [ "A", "B", "C", "D" ], count: [ 1, 2, 3, 4 ], sum: [ 20.3, 30.456, 40.90, 90.1 ] };
       const df = new dfd.DataFrame(data);
 
-      assert.throws(function () {
-        df.addColumn("new_column", new dfd.Series([ "a", "b", "c" ])),
+      assert.throws(
+        () => df.addColumn("new_column", new dfd.Series([ "a", "b", "c" ])),
         Error,
-        'ParamError: Column data length mismatch. You provided data with length 3 but Ndframe has column of length 4';
-      });
+        'ParamError: Column data length mismatch. You provided data with length 3 but Ndframe has column of length 4'
+      );
 
     });
     it("Ensure add column does not mutate parent when not in place", function () {
