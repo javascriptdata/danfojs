@@ -4,6 +4,7 @@
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
   "main": "dist/danfojs-browser/src/index.js",
   "types": "dist/danfojs-browser/src/index.d.ts",
+  "module": "lib/bundle-esm.js",
   "directories": {
     "test": "tests"
   },
@@ -30,11 +31,12 @@
   "scripts": {
     "test": "karma start --single-run --browsers ChromeHeadless karma.conf.js",
     "test:clean": "yarn build:clean && yarn run test",
-    "build": "node ./scripts/prebuild.js && tsc && yarn run bundle",
+    "build": "node ./scripts/prebuild.js && tsc && yarn run build:es5-bundle && yarn run build:esm-bundle",
+    "build:es5-bundle": "webpack --mode production",
+    "build:esm-bundle": "esbuild src/index.ts --bundle --format=esm --platform=browser --target=esnext --minify --legal-comments=none --outfile=lib/bundle.esm.js",
     "build:clean": "rimraf ./dist && rimraf ./lib && node ./scripts/prebuild.js && yarn run build",
     "dev": "nodemon",
     "lint": "eslint ./src",
-    "bundle": "webpack --mode production",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
     "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
     "patch": "npm version patch"
@@ -82,6 +84,7 @@
     "chai": "^4.2.0",
     "coveralls": "^3.1.0",
     "dotenv": "^10.0.0",
+    "esbuild": "^0.14.38",
     "eslint": "^7.1.0",
     "ify-loader": "^1.1.0",
     "install-peers": "^1.0.3",
