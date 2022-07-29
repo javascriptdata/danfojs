@@ -2523,7 +2523,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * Objects passed to the function are Series values whose 
      * index is either the DataFrame’s index (axis=0) or the DataFrame’s columns (axis=1)
      * @param callable Function to apply to each column or row.
-     * @param options.axis 0 or 1. If 0, compute the power column-wise, if 1, row-wise
+     * @param options.axis 0 or 1. If 0, apply the function column-wise, if 1, row-wise
      * 
      * @example
      * ```
