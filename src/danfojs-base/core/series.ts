@@ -1855,8 +1855,8 @@ export default class Series extends NDframe implements SeriesInterface {
     ): Series | void {
         const { inplace } = { inplace: false, ...options }
 
-        if (!newValue && typeof newValue !== "boolean") {
-            throw Error("Param Error: newValues cannot be null or undefined");
+        if (!newValue && typeof newValue !== "boolean" && typeof newValue !== "number") {
+            throw Error("Param Error: newValue cannot be null or undefined");
         }
 
         if (!index) {
