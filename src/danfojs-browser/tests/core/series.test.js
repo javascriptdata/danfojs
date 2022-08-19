@@ -1491,6 +1491,13 @@ describe("Series Functions", () => {
       sf1.append(sf2, index, { inplace: true });
       assert.deepEqual(sf1.index, [ 0, 1, 2, 3, 4, 5, 6 ]);
     });
+    it("Can append a value of zero", function() {
+      const data = [ 1, 2, 3, 4, "a", "b", "c" ];
+      const sf = new dfd.Series(data);
+      const expected_val = [ 1, 2, 3, 4, "a", "b", "c", 0 ];
+      sf.append(0, 7, { inplace: true });
+      assert.deepEqual(sf.values, expected_val);
+    });
   });
 
   describe("and", function () {
