@@ -31,33 +31,33 @@ describe("pipeCsvTransform", function () {
     //     streamCsvTransformer(inputFilePath, transformer, { outputFilePath, inputStreamOptions: { header: true } })
     // });
 
-    it("streamCsvTransformer works for custom writers", async function () {
-        const inputFilePath = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/titanic.csv"
-        const transformer = (df: DataFrame) => {
-            const titles = df["Name"].map((name: string) => name.split(".")[0]);
-            const names = df["Name"].map((name: string) => name.split(".")[1]);
-            df["Name"] = names
-            df.addColumn("titles", titles, { inplace: true })
-            return df
-        }
-        let count = 0
+    // it("streamCsvTransformer works for custom writers", async function () {
+    //     const inputFilePath = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/titanic.csv"
+    //     const transformer = (df: DataFrame) => {
+    //         const titles = df["Name"].map((name: string) => name.split(".")[0]);
+    //         const names = df["Name"].map((name: string) => name.split(".")[1]);
+    //         df["Name"] = names
+    //         df.addColumn("titles", titles, { inplace: true })
+    //         return df
+    //     }
+    //     let count = 0
 
-        const customWriter = function () {
-            const csvOutputStream = new stream.Writable({ objectMode: true })
-            csvOutputStream._write = (chunk: DataFrame | Series, encoding, callback) => {
-                count += 1
-                callback()
+    //     const customWriter = function () {
+    //         const csvOutputStream = new stream.Writable({ objectMode: true })
+    //         csvOutputStream._write = (chunk: DataFrame | Series, encoding, callback) => {
+    //             count += 1
+    //             callback()
 
-            }
-            return csvOutputStream
-        }
+    //         }
+    //         return csvOutputStream
+    //     }
 
-        streamCsvTransformer(
-            inputFilePath,
-            transformer,
-            {
-                customCSVStreamWriter: customWriter,
-                inputStreamOptions: { header: true }
-            })
-    });
+    //     streamCsvTransformer(
+    //         inputFilePath,
+    //         transformer,
+    //         {
+    //             customCSVStreamWriter: customWriter,
+    //             inputStreamOptions: { header: true }
+    //         })
+    // });
 })
