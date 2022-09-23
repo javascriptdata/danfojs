@@ -18,18 +18,18 @@ describe("pipeCsvTransform", function () {
         streamCsvTransformer(inputFilePath, transformer, { outputFilePath, inputStreamOptions: { header: false } })
     });
 
-    it("streamCsvTransformer works for remote files", async function () {
-        const inputFilePath = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/titanic.csv"
-        const outputFilePath = path.join(process.cwd(), "test", "samples", "titanicOutRemote.csv");
-        const transformer = (df: DataFrame) => {
-            const titles = df["Name"].map((name: string) => name.split(".")[0]);
-            const names = df["Name"].map((name: string) => name.split(".")[1]);
-            df["Name"] = names
-            df.addColumn("titles", titles, { inplace: true })
-            return df
-        }
-        streamCsvTransformer(inputFilePath, transformer, { outputFilePath, inputStreamOptions: { header: true } })
-    });
+    // it("streamCsvTransformer works for remote files", async function () {
+    //     const inputFilePath = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/titanic.csv"
+    //     const outputFilePath = path.join(process.cwd(), "test", "samples", "titanicOutRemote.csv");
+    //     const transformer = (df: DataFrame) => {
+    //         const titles = df["Name"].map((name: string) => name.split(".")[0]);
+    //         const names = df["Name"].map((name: string) => name.split(".")[1]);
+    //         df["Name"] = names
+    //         df.addColumn("titles", titles, { inplace: true })
+    //         return df
+    //     }
+    //     streamCsvTransformer(inputFilePath, transformer, { outputFilePath, inputStreamOptions: { header: true } })
+    // });
 
     it("streamCsvTransformer works for custom writers", async function () {
         const inputFilePath = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/titanic.csv"
