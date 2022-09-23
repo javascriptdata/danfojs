@@ -76,7 +76,7 @@ describe("streamJSON", function () {
 
     // it("Streaming remote json file with callback works", async function () {
     //     const remoteFile = "https://raw.githubusercontent.com/javascriptdata/danfojs/dev/src/danfojs-node/test/samples/book.json"
-    //     await streamJSON(remoteFile, { header: true }, (df: any) => {
+    //     await streamJSON(remoteFile, (df: any) => {
     //         if (df) {
     //             df.print();
     //             assert.deepEqual(df.shape, [1, 4])

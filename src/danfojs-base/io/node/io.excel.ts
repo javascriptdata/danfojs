@@ -21,6 +21,8 @@ import {
     readFile,
     utils
 } from "xlsx";
+import fs from 'fs'
+
 /**
  * Reads a JSON file from local or remote location into a DataFrame.
  * @param filePath URL or local file path to JSON file.
@@ -54,7 +56,7 @@ const $readExcel = async (filePath: string, options: ExcelInputOptionsNode = {})
 
     if (filePath.startsWith("http") || filePath.startsWith("https")) {
 
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
             fetch(filePath, { method, headers }).then(response => {
                 if (response.status !== 200) {
                     throw new Error(`Failed to load ${filePath}`)
@@ -68,17 +70,23 @@ const $readExcel = async (filePath: string, options: ExcelInputOptionsNode = {})
                     resolve(df);
                 });
             }).catch((err) => {
-                throw new Error(err)
+                reject(err)
             })
         })
 
     } else {
-        return new Promise(resolve => {
-            const workbook = readFile(filePath);
-            const worksheet = workbook.Sheets[workbook.SheetNames[sheet]];
-            const data = utils.sheet_to_json(worksheet);
-            const df = new DataFrame(data, frameConfig);
-            resolve(df);
+        return new Promise((resolve, reject) => {
+            fs.access(filePath, fs.constants.F_OK, (err) => {
+                if (err) {
+                    reject("ENOENT: no such file or directory");
+                }
+
+                const workbook = readFile(filePath);
+                const worksheet = workbook.Sheets[workbook.SheetNames[sheet]];
+                const data = utils.sheet_to_json(worksheet);
+                const df = new DataFrame(data, frameConfig);
+                resolve(df);
+            })
         });
     }
 };

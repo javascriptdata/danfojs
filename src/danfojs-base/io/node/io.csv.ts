@@ -51,7 +51,7 @@ const $readCSV = async (filePath: string, options?: CsvInputOptionsNode): Promis
   const frameConfig = options?.frameConfig || {}
 
   if (filePath.startsWith("http") || filePath.startsWith("https")) {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       const optionsWithDefaults = {
         header: true,
         dynamicTyping: true,
@@ -60,6 +60,13 @@ const $readCSV = async (filePath: string, options?: CsvInputOptionsNode): Promis
       }
 
       const dataStream = request.get(filePath);
+      // reject any non-2xx status codes
+      dataStream.on('response', (response: any) => {
+        if (response.statusCode < 200 || response.statusCode >= 300) {
+          reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
+        }
+      });
+
       const parseStream: any = Papa.parse(Papa.NODE_STREAM_INPUT, optionsWithDefaults as any);
       dataStream.pipe(parseStream);
 
@@ -74,17 +81,24 @@ const $readCSV = async (filePath: string, options?: CsvInputOptionsNode): Promis
     });
 
   } else {
-    return new Promise(resolve => {
-      const fileStream = fs.createReadStream(filePath)
-      Papa.parse(fileStream, {
-        header: true,
-        dynamicTyping: true,
-        ...options,
-        complete: results => {
-          const df = new DataFrame(results.data, frameConfig);
-          resolve(df);
+    return new Promise((resolve, reject) => {
+      fs.access(filePath, fs.constants.F_OK, (err) => {
+        if (err) {
+          reject("ENOENT: no such file or directory");
         }
-      });
+
+        const fileStream = fs.createReadStream(filePath)
+
+        Papa.parse(fileStream, {
+          header: true,
+          dynamicTyping: true,
+          ...options,
+          complete: results => {
+            const df = new DataFrame(results.data, frameConfig);
+            resolve(df);
+          }
+        });
+      })
     });
   }
 };
@@ -113,9 +127,17 @@ const $streamCSV = async (filePath: string, callback: (df: DataFrame) => void, o
       dynamicTyping: true,
       ...options,
     }
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       let count = -1
       const dataStream = request.get(filePath);
+
+      // reject any non-2xx status codes
+      dataStream.on('response', (response: any) => {
+        if (response.statusCode < 200 || response.statusCode >= 300) {
+          reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
+        }
+      });
+
       const parseStream: any = Papa.parse(Papa.NODE_STREAM_INPUT, optionsWithDefaults);
       dataStream.pipe(parseStream);
 
@@ -130,19 +152,26 @@ const $streamCSV = async (filePath: string, callback: (df: DataFrame) => void, o
 
     });
   } else {
-    const fileStream = fs.createReadStream(filePath)
 
-    return new Promise(resolve => {
-      let count = -1
-      Papa.parse(fileStream, {
-        header: true,
-        dynamicTyping: true,
-        ...options,
-        step: results => {
-          const df = new DataFrame([results.data], { ...frameConfig, index: [count++] });
-          callback(df);
-        },
-        complete: () => resolve(null)
+    return new Promise((resolve, reject) => {
+      fs.access(filePath, fs.constants.F_OK, (err) => {
+        if (err) {
+          reject("ENOENT: no such file or directory");
+        }
+
+        const fileStream = fs.createReadStream(filePath)
+
+        let count = -1
+        Papa.parse(fileStream, {
+          header: true,
+          dynamicTyping: true,
+          ...options,
+          step: results => {
+            const df = new DataFrame([results.data], { ...frameConfig, index: [count++] });
+            callback(df);
+          },
+          complete: () => resolve(null)
+        });
       });
     });
   }
@@ -228,6 +257,14 @@ const $openCsvInputStream = (filePath: string, options: CsvInputOptionsNode) => 
 
   if (filePath.startsWith("http") || filePath.startsWith("https")) {
     const dataStream = request.get(filePath);
+
+    // reject any non-2xx status codes
+    dataStream.on('response', (response: any) => {
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`);
+      }
+    });
+
     const parseStream: any = Papa.parse(Papa.NODE_STREAM_INPUT, { header, dynamicTyping: true, ...options });
     dataStream.pipe(parseStream);
     let count = -1
@@ -258,37 +295,44 @@ const $openCsvInputStream = (filePath: string, options: CsvInputOptionsNode) => 
     return csvInputStream;
   } else {
     const fileStream = fs.createReadStream(filePath)
-    let count = -1
-    Papa.parse(fileStream, {
-      ...{ header, dynamicTyping: true, ...options },
-      step: results => {
-        if (isFirstChunk) {
-          if (header === true) {
-            ndFrameColumnNames = results.meta.fields || []
-          } else {
-            ndFrameColumnNames = results.data
-          }
-          isFirstChunk = false
-          return
-        }
 
-        const df = new DataFrame([results.data], {
-          columns: ndFrameColumnNames,
-          index: [count++]
-        })
-
-        csvInputStream.push(df);
-      },
-      complete: (result: any) => {
-        csvInputStream.push(null);
-        return null
-      },
-      error: (err) => {
-        csvInputStream.emit("error", err);
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+      if (err) {
+        throw new Error("ENOENT: no such file or directory");
       }
-    });
 
-    return csvInputStream;
+      let count = -1
+      Papa.parse(fileStream, {
+        ...{ header, dynamicTyping: true, ...options },
+        step: results => {
+          if (isFirstChunk) {
+            if (header === true) {
+              ndFrameColumnNames = results.meta.fields || []
+            } else {
+              ndFrameColumnNames = results.data
+            }
+            isFirstChunk = false
+            return
+          }
+
+          const df = new DataFrame([results.data], {
+            columns: ndFrameColumnNames,
+            index: [count++]
+          })
+
+          csvInputStream.push(df);
+        },
+        complete: (result: any) => {
+          csvInputStream.push(null);
+          return null
+        },
+        error: (err) => {
+          csvInputStream.emit("error", err);
+        }
+      });
+
+      return csvInputStream;
+    });
   }
 };
 
@@ -314,39 +358,45 @@ const $openCsvInputStream = (filePath: string, options: CsvInputOptionsNode) => 
  * ```
  */
 const $writeCsvOutputStream = (filePath: string, options: CsvInputOptionsNode) => {
-  let isFirstRow = true
-  const fileOutputStream = fs.createWriteStream(filePath)
-  const csvOutputStream = new stream.Writable({ objectMode: true })
-
-  csvOutputStream._write = (chunk: DataFrame | Series, encoding, callback) => {
-
-    if (chunk instanceof DataFrame) {
-
-      if (isFirstRow) {
-        isFirstRow = false
-        fileOutputStream.write($toCSV(chunk, { header: true, ...options }));
-        callback();
-      } else {
-        fileOutputStream.write($toCSV(chunk, { header: false, ...options }));
-        callback();
-      }
-
-    } else if (chunk instanceof Series) {
-
-      fileOutputStream.write($toCSV(chunk));
-      callback();
-
-    } else {
-      csvOutputStream.emit("error", new Error("ValueError: Intermediate chunk must be either a Series or DataFrame"))
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      throw new Error("ENOENT: no such file or directory");
     }
 
-  }
+    let isFirstRow = true
+    const fileOutputStream = fs.createWriteStream(filePath)
+    const csvOutputStream = new stream.Writable({ objectMode: true })
 
-  csvOutputStream.on("finish", () => {
-    fileOutputStream.end()
-  })
+    csvOutputStream._write = (chunk: DataFrame | Series, encoding, callback) => {
 
-  return csvOutputStream
+      if (chunk instanceof DataFrame) {
+
+        if (isFirstRow) {
+          isFirstRow = false
+          fileOutputStream.write($toCSV(chunk, { header: true, ...options }));
+          callback();
+        } else {
+          fileOutputStream.write($toCSV(chunk, { header: false, ...options }));
+          callback();
+        }
+
+      } else if (chunk instanceof Series) {
+
+        fileOutputStream.write($toCSV(chunk));
+        callback();
+
+      } else {
+        csvOutputStream.emit("error", new Error("ValueError: Intermediate chunk must be either a Series or DataFrame"))
+      }
+
+    }
+
+    csvOutputStream.on("finish", () => {
+      fileOutputStream.end()
+    })
+
+    return csvOutputStream
+  });
 }
 
 

@@ -38,7 +38,7 @@ const $readJSON = async (filePath: string, options: JsonInputOptionsNode = {}) =
 
     if (filePath.startsWith("http") || filePath.startsWith("https")) {
 
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
             fetch(filePath, { method, headers }).then(response => {
                 if (response.status !== 200) {
                     throw new Error(`Failed to load ${filePath}`)
@@ -47,15 +47,20 @@ const $readJSON = async (filePath: string, options: JsonInputOptionsNode = {}) =
                     resolve(new DataFrame(json, frameConfig));
                 });
             }).catch((err) => {
-                throw new Error(err)
+                reject(err)
             })
         })
 
     } else {
-        return new Promise(resolve => {
-            const file = fs.readFileSync(filePath, "utf8")
-            const df = new DataFrame(JSON.parse(file), frameConfig);
-            resolve(df);
+        return new Promise((resolve, reject) => {
+            fs.access(filePath, fs.constants.F_OK, (err) => {
+                if (err) {
+                    reject("ENOENT: no such file or directory");
+                }
+                const file = fs.readFileSync(filePath, "utf8")
+                const df = new DataFrame(JSON.parse(file), frameConfig);
+                resolve(df);
+            })
         });
     }
 };
@@ -82,9 +87,18 @@ const $streamJSON = async (
 ) => {
     const { method, headers, frameConfig } = { method: "GET", headers: {}, frameConfig: {}, ...options }
     if (filePath.startsWith("http") || filePath.startsWith("https")) {
-        return new Promise(resolve => {
-            let count = -1
+        return new Promise((resolve, reject) => {
+            let count = 0;
             const dataStream = request({ url: filePath, method, headers })
+
+            // reject any non-2xx status codes
+            dataStream.on('response', (response: any) => {
+                if (response.statusCode < 200 || response.statusCode >= 300) {
+                    reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
+                }
+            });
+
+
             const pipeline = dataStream.pipe(parser()).pipe(streamArray());
             pipeline.on('data', ({ value }) => {
                 const df = new DataFrame([value], { ...frameConfig, index: [count++] });
@@ -94,15 +108,21 @@ const $streamJSON = async (
 
         });
     } else {
-        return new Promise(resolve => {
-            let count = -1
-            const fileStream = fs.createReadStream(filePath)
-            const pipeline = fileStream.pipe(parser()).pipe(streamArray());
-            pipeline.on('data', ({ value }) => {
-                const df = new DataFrame([value], { ...frameConfig, index: [count++] });
-                callback(df);
+        return new Promise((resolve, reject) => {
+            fs.access(filePath, fs.constants.F_OK, (err) => {
+                if (err) {
+                    reject("ENOENT: no such file or directory");
+                }
+
+                let count = 0
+                const fileStream = fs.createReadStream(filePath)
+                const pipeline = fileStream.pipe(parser()).pipe(streamArray());
+                pipeline.on('data', ({ value }) => {
+                    const df = new DataFrame([value], { ...frameConfig, index: [count++] });
+                    callback(df);
+                });
+                pipeline.on('end', () => resolve(null));
             });
-            pipeline.on('end', () => resolve(null));
         })
     }
 };
