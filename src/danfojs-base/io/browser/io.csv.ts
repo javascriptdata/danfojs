@@ -82,7 +82,7 @@ const $streamCSV = async (file: string, callback: (df: DataFrame) => void, optio
   const frameConfig = options?.frameConfig || {}
 
   return new Promise(resolve => {
-    let count = -1
+    let count = 0
     Papa.parse(file, {
       ...options,
       dynamicTyping: true,

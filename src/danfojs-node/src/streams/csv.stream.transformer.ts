@@ -90,20 +90,16 @@ const streamCsvTransformer = (
     }
 
     if (customCSVStreamWriter) {
-        // @ts-ignore
-        openCsvInputStreamNode(inputFilePath, inputStreamOptions)
-            .pipe(convertFunctionTotransformer(transformer))
+        openCsvInputStreamNode(inputFilePath, inputStreamOptions)?.pipe(convertFunctionTotransformer(transformer))
             .pipe(customCSVStreamWriter())
             .on("error", (err: any) => {
                 console.error("An error occurred while transforming the CSV file")
                 console.error(err)
             })
     } else {
+        openCsvInputStreamNode(inputFilePath, inputStreamOptions)?.pipe(convertFunctionTotransformer(transformer))
         // @ts-ignore
-        openCsvInputStreamNode(inputFilePath, inputStreamOptions)
-            .pipe(convertFunctionTotransformer(transformer))
-            // @ts-ignore
-            .pipe(writeCsvOutputStreamNode(outputFilePath, outputStreamOptions))
+        .pipe(writeCsvOutputStreamNode(outputFilePath, outputStreamOptions))
             .on("error", (err: any) => {
                 console.error("An error occurred while transforming the CSV file")
                 console.error(err)

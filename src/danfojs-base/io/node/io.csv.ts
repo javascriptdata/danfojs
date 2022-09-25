@@ -128,7 +128,7 @@ const $streamCSV = async (filePath: string, callback: (df: DataFrame) => void, o
       ...options,
     }
     return new Promise((resolve, reject) => {
-      let count = -1
+      let count = 0
       const dataStream = request.get(filePath);
 
       // reject any non-2xx status codes
@@ -161,7 +161,7 @@ const $streamCSV = async (filePath: string, callback: (df: DataFrame) => void, o
 
         const fileStream = fs.createReadStream(filePath)
 
-        let count = -1
+        let count = 0
         Papa.parse(fileStream, {
           header: true,
           dynamicTyping: true,
@@ -267,7 +267,7 @@ const $openCsvInputStream = (filePath: string, options: CsvInputOptionsNode) => 
 
     const parseStream: any = Papa.parse(Papa.NODE_STREAM_INPUT, { header, dynamicTyping: true, ...options });
     dataStream.pipe(parseStream);
-    let count = -1
+    let count = 0
 
     parseStream.on("data", (chunk: any) => {
       if (isFirstChunk) {
@@ -301,7 +301,7 @@ const $openCsvInputStream = (filePath: string, options: CsvInputOptionsNode) => 
         throw new Error("ENOENT: no such file or directory");
       }
 
-      let count = -1
+      let count = 0
       Papa.parse(fileStream, {
         ...{ header, dynamicTyping: true, ...options },
         step: results => {
