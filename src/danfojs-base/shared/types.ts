@@ -411,9 +411,9 @@ export type JsonInputOptionsNode = {
 }
 
 export type CsvOutputOptionsBrowser = { fileName?: string, sep?: string, header?: boolean, download?: boolean };
-export type ExcelOutputOptionsBrowser = { fileName?: string, sheetName?: string, writingOptions: WritingOptions };
+export type ExcelOutputOptionsBrowser = { fileName?: string, sheetName?: string, writingOptions?: WritingOptions };
 export type JsonOutputOptionsBrowser = { fileName?: string, format?: "row" | "column", download?: boolean };
 
 export type CsvOutputOptionsNode = { filePath?: string, sep?: string, header?: boolean }
 export type JsonOutputOptionsNode = { format?: "row" | "column", filePath?: string }
-export type ExcelOutputOptionsNode = { filePath?: string, sheetName?: string, writingOptions: WritingOptions }
+export type ExcelOutputOptionsNode = { filePath?: string, sheetName?: string, writingOptions?: WritingOptions }
