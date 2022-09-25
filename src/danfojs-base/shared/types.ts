@@ -22,6 +22,7 @@ import DataFrame from '../core/frame';
 import Series from '../core/series';
 import Str from '../core/strings';
 import Dt from '../core/datetime';
+import { ParsingOptions, WritingOptions } from "xlsx";
 
 export type DTYPES = "float32" | "int32" | "string" | "boolean" | "undefined"
 
@@ -384,6 +385,7 @@ export type ExcelInputOptionsBrowser = {
     method?: string,
     headers?: any,
     frameConfig?: BaseDataOptionType
+    parsingOptions?: ParsingOptions
 }
 export type JsonInputOptionsBrowser = {
     method?: string,
@@ -400,6 +402,7 @@ export type ExcelInputOptionsNode = {
     method?: string,
     headers?: HeadersInit
     frameConfig?: BaseDataOptionType
+    parsingOptions?: ParsingOptions
 }
 export type JsonInputOptionsNode = {
     method?: string,
@@ -408,9 +411,9 @@ export type JsonInputOptionsNode = {
 }
 
 export type CsvOutputOptionsBrowser = { fileName?: string, sep?: string, header?: boolean, download?: boolean };
-export type ExcelOutputOptionsBrowser = { fileName?: string, sheetName?: string };
+export type ExcelOutputOptionsBrowser = { fileName?: string, sheetName?: string, writingOptions: WritingOptions };
 export type JsonOutputOptionsBrowser = { fileName?: string, format?: "row" | "column", download?: boolean };
 
 export type CsvOutputOptionsNode = { filePath?: string, sep?: string, header?: boolean }
 export type JsonOutputOptionsNode = { format?: "row" | "column", filePath?: string }
-export type ExcelOutputOptionsNode = { filePath?: string, sheetName?: string }
+export type ExcelOutputOptionsNode = { filePath?: string, sheetName?: string, writingOptions: WritingOptions }
