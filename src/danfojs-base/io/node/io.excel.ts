@@ -52,7 +52,13 @@ import fs from 'fs'
  * ```
  */
 const $readExcel = async (filePath: string, options: ExcelInputOptionsNode = {}) => {
-    const { sheet, method, headers, frameConfig } = { sheet: 0, method: "GET", headers: {}, frameConfig: {}, ...options }
+    const {
+        sheet,
+        method,
+        headers,
+        frameConfig,
+        parsingOptions
+    } = { sheet: 0, method: "GET", headers: {}, frameConfig: {}, parsingOptions: {}, ...options }
 
     if (filePath.startsWith("http") || filePath.startsWith("https")) {
 
@@ -63,7 +69,7 @@ const $readExcel = async (filePath: string, options: ExcelInputOptionsNode = {})
                 }
                 response.arrayBuffer().then(arrBuf => {
                     const arrBufInt8 = new Uint8Array(arrBuf);
-                    const workbook = read(arrBufInt8, { type: "array" })
+                    const workbook = read(arrBufInt8, { type: "array", ...parsingOptions });
                     const worksheet = workbook.Sheets[workbook.SheetNames[sheet]];
                     const data = utils.sheet_to_json(worksheet);
                     const df = new DataFrame(data, frameConfig);
@@ -81,7 +87,7 @@ const $readExcel = async (filePath: string, options: ExcelInputOptionsNode = {})
                     reject("ENOENT: no such file or directory");
                 }
 
-                const workbook = readFile(filePath);
+                const workbook = readFile(filePath, parsingOptions);
                 const worksheet = workbook.Sheets[workbook.SheetNames[sheet]];
                 const data = utils.sheet_to_json(worksheet);
                 const df = new DataFrame(data, frameConfig);
@@ -108,7 +114,11 @@ const $readExcel = async (filePath: string, options: ExcelInputOptionsNode = {})
  * ```
  */
 const $toExcel = (df: NDframe | DataFrame | Series, options?: ExcelOutputOptionsNode) => {
-    let { filePath, sheetName } = { filePath: "./output.xlsx", sheetName: "Sheet1", ...options }
+    let {
+        filePath,
+        sheetName,
+        writingOptions
+    } = { filePath: "./output.xlsx", sheetName: "Sheet1", ...options }
 
     if (!(filePath.endsWith(".xlsx"))) {
         filePath = filePath + ".xlsx"
@@ -128,7 +138,7 @@ const $toExcel = (df: NDframe | DataFrame | Series, options?: ExcelOutputOptions
     const worksheet = utils.aoa_to_sheet(data);
     const wb = utils.book_new();
     utils.book_append_sheet(wb, worksheet, sheetName);
-    writeFile(wb, `${filePath}`)
+    writeFile(wb, `${filePath}`, writingOptions);
 };
 
 export {
