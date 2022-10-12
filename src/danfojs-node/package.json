@@ -1,6 +1,6 @@
 {
   "name": "danfojs-node",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
   "main": "dist/danfojs-node/src/index.js",
   "types": "dist/danfojs-node/src/index.d.ts",
