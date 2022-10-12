@@ -421,4 +421,21 @@ describe("Generic (NDFrame)", function () {
           });
 
     });
+
+    describe("DataFrame supports date object", function (){
+        it("Can successfully create a DataFrame from an Array with date object", function () {
+            let data = [["Alice", 2, new Date(2019, 1, 1)],
+                        ["Bob", 5, new Date(2019, 1, 2)],
+                        ["Charlie", 30, new Date(2019, 1, 3)],
+                        ["Dennis", 89, new Date(2019, 1, 4)]];
+            let columns = ["Name", "Count", "Date"];
+
+            let df = new NDframe({ data, columns, isSeries: false });
+            let dfDtypes = ['string', 'int32', 'datetime']
+            assert.deepEqual(df.dtypes, dfDtypes);
+            // @ts-ignore
+            assert.deepEqual(df.values, data);
+            assert.deepEqual(df.columns, columns);
+        });
+    })
 });

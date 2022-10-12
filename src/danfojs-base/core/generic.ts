@@ -79,7 +79,6 @@ export default class NDframe implements NDframeInterface {
         } else if (utils.is1DArray(data)) {
             this.loadArrayIntoNdframe({ data, index, columns, dtypes });
         } else {
-
             if (Array.isArray(data) && utils.isObject(data[0])) {
                 this.loadObjectIntoNdframe({ data, type: 1, index, columns, dtypes });
 
@@ -91,6 +90,8 @@ export default class NDframe implements NDframeInterface {
                 utils.isNumber((data)[0]) ||
                 utils.isString((data)[0])
             ) {
+                this.loadArrayIntoNdframe({ data, index, columns, dtypes });
+            } else if (Array.isArray(data) && data.length > 0 && utils.isDate(data[0])) {
                 this.loadArrayIntoNdframe({ data, index, columns, dtypes });
             } else {
                 throw new Error("File format not supported!");

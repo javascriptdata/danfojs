@@ -40,6 +40,16 @@ describe("Utils", function () {
         assert.isTrue(utils.isUndefined(arr));
     });
 
+    it("Checks if value is a valid Date object", function () {
+        let date1 = new Date();
+        let date2 = "2021-01-01 00:00:00";
+        let isoDate = "2021-01-01T00:00:00.000Z";
+
+        assert.isTrue(utils.isDate(date1));
+        assert.isTrue(utils.isDate(date2));
+        assert.isTrue(utils.isDate(isoDate));    
+    });
+
     it("Generate numbers between two set of values [both inclusive]", function () {
         let start = 0;
         let end = 5;
