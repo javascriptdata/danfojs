@@ -36,7 +36,7 @@ export default class Configs {
             tableDisplayConfig: {},
             tableMaxRow: 10,
             tableMaxColInConsole: 10,
-            dtypeTestLim: 20,
+            dtypeTestLim: 500,
             lowMemoryMode: false,
             ...options
         }

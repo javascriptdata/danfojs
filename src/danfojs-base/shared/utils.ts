@@ -95,6 +95,15 @@ export default class Utils {
     }
 
     /**
+     * Checks if a value is a date object
+     * @param value A date object
+     * @returns boolean
+     */
+    isDate(value: any): boolean {
+        return value instanceof Date;
+    }
+
+    /**
      * Generates an array of integers between specified range
      * @param start The starting number.
      * @param end The ending number.
@@ -259,6 +268,7 @@ export default class Utils {
         let floatTracker: Array<boolean> = [];
         let stringTracker: Array<boolean> = [];
         let boolTracker: Array<boolean> = [];
+        let dateTracker: Array<boolean> = [];
 
         if (arr.length < config.getDtypeTestLim) {
             lim = arr.length;
@@ -275,28 +285,39 @@ export default class Utils {
                 intTracker.push(false);
                 stringTracker.push(false);
                 boolTracker.push(true);
+                dateTracker.push(false);
             } else if (this.isEmpty(ele)) {
                 floatTracker.push(true);
                 intTracker.push(false);
                 stringTracker.push(false);
                 boolTracker.push(false);
+                dateTracker.push(false);
+            } else if (this.isDate(ele)) {
+                    floatTracker.push(false);
+                    intTracker.push(false);
+                    stringTracker.push(false);
+                    boolTracker.push(false);
+                    dateTracker.push(true);
             } else if (!isNaN(Number(ele))) {
                 if ((ele as unknown as string).toString().includes(".")) {
                     floatTracker.push(true);
                     intTracker.push(false);
                     stringTracker.push(false);
                     boolTracker.push(false);
+                    dateTracker.push(false);
                 } else {
                     floatTracker.push(false);
                     intTracker.push(true);
                     stringTracker.push(false);
                     boolTracker.push(false);
+                    dateTracker.push(false);
                 }
-            } else {
+            }  else {
                 floatTracker.push(false);
                 intTracker.push(false);
                 stringTracker.push(true);
                 boolTracker.push(false);
+                dateTracker.push(false);
             }
         }
 
@@ -310,6 +331,8 @@ export default class Utils {
             dtypes = "int32";
         } else if (boolTracker.some(even)) {
             dtypes = "boolean";
+        } else if (dateTracker.some(even)) {
+            dtypes = "datetime";
         } else {
             dtypes = "undefined";
         }

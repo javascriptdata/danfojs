@@ -1962,7 +1962,7 @@ export default class Series extends NDframe implements SeriesInterface {
       * ```
     */
     get dt() {
-        if (this.dtypes[0] == "string") {
+        if (["string", "datetime"].includes(this.dtypes[0])) {
             return new Dt(this)
         } else {
             throw new Error("Cannot call accessor dt on non-string type");

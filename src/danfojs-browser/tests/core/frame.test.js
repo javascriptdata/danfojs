@@ -2999,4 +2999,60 @@ describe("DataFrame", function () {
     });
 
   });
+
+  describe("DateTime datetime is supported", function () {
+    it("DateTime datetime is supported", function () {
+      let data = [ [ "Alice", 2, new Date(2029, 1, 1) ],
+        [ "Bob", 5, new Date(2019, 1, 2) ],
+        [ "Charlie", 30, new Date(2019, 1, 3) ],
+        [ "Dennis", 89, new Date(2019, 1, 4) ] ];
+
+      let columns = [ "Name", "Count", "Date" ];
+
+      let df = new dfd.DataFrame(data, { columns: columns });
+      assert.deepEqual(df.dtypes, [ "string", "int32", "datetime" ]);
+
+      const dateValues = [ new Date(2029, 1, 1), new Date(2019, 1, 2), new Date(2019, 1, 3), new Date(2019, 1, 4) ];
+      assert.deepEqual(df["Date"].values, dateValues);
+    });
+
+    it("datetime column properties can be accessed", function () {
+      let data = [ [ "Alice", 2, new Date("2029-01-01 01:00:00") ],
+        [ "Bob", 5, new Date("2019-01-02") ],
+        [ "Charlie", 30, new Date("2020-01-03 01:00:20") ],
+        [ "Dennis", 89, new Date("2022-02-04 02:16:00") ] ];
+
+      let columns = [ "Name", "Count", "Date" ];
+
+      let df = new dfd.DataFrame(data, { columns: columns });
+
+      assert.deepEqual(df["Date"].dt.year().values, [ 2029, 2019, 2020, 2022 ]);
+      assert.deepEqual(df["Date"].dt.month().values, [ 0, 0, 0, 1 ]);
+      assert.deepEqual(df["Date"].dt.dayOfMonth().values, [ 1, 2, 3, 4 ]);
+      assert.deepEqual(df["Date"].dt.hours().values, [ 1, 0, 1, 2 ]);
+      assert.deepEqual(df["Date"].dt.minutes().values, [ 0, 0, 0, 16 ]);
+      assert.deepEqual(df["Date"].dt.seconds().values, [ 0, 0, 20, 0 ]);
+
+    });
+
+    it("datetime column created from dtype passed", function () {
+      let data = [ [ "Alice", 2, "2029-01-01 01:00:00" ],
+        [ "Bob", 5, "2019-01-02" ],
+        [ "Charlie", 30, "2020-01-03 01:00:20" ],
+        [ "Dennis", 89, "2022-02-04 02:16:00" ] ];
+
+      let columns = [ "Name", "Count", "Date" ];
+      let dtypes = [ "string", "int32", "datetime" ];
+
+      let df = new dfd.DataFrame(data, { columns, dtypes });
+
+      assert.deepEqual(df["Date"].dt.year().values, [ 2029, 2019, 2020, 2022 ]);
+      assert.deepEqual(df["Date"].dt.month().values, [ 0, 0, 0, 1 ]);
+      assert.deepEqual(df["Date"].dt.dayOfMonth().values, [ 1, 2, 3, 4 ]);
+      assert.deepEqual(df["Date"].dt.hours().values, [ 1, 0, 1, 2 ]);
+      assert.deepEqual(df["Date"].dt.minutes().values, [ 0, 0, 0, 16 ]);
+      assert.deepEqual(df["Date"].dt.seconds().values, [ 0, 0, 20, 0 ]);
+
+    });
+  });
 });
