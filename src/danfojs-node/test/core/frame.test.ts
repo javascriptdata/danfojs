@@ -2163,12 +2163,10 @@ describe("DataFrame", function () {
                 assert.deepEqual(df_rep.values, expected);
             });
 
-            it("Replace oldValue supports falsy numbers (NaN)", function () {
+            it("Replace oldValue does not support NaN", function () {
                 const data1 = [[NaN, 19, 84, NaN], [65, NaN, NaN, 37]];
                 const df = new DataFrame(data1);
-                const expected = [[1, 19, 84, 1], [65, 1, 1, 37]];
-                const df_rep = df.replace(NaN, 1) as DataFrame;
-                assert.deepEqual(df_rep.values, expected);
+                assert.throws(() => df.replace(NaN, 1), Error, "Params Error: Param 'oldValue' does not support NaN. Use DataFrame.fillNa() instead.");
             });
 
             it("Replace oldValue supports falsy strings", function () {
@@ -2218,7 +2216,7 @@ describe("DataFrame", function () {
                 const df_rep = df.replace(true, false) as DataFrame;
                 assert.deepEqual(df_rep.values, expected);
             });
-            
+
         });
 
         describe("sum", function () {

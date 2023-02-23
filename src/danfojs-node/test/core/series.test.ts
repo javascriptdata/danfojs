@@ -1188,12 +1188,11 @@ describe("Series Functions", () => {
             assert.deepEqual(dfRep.values, expected);
         });
 
-        it("Replace oldValue supports falsy numbers (NaN)", function () {
+        it("Replace oldValue does not support NaN", function () {
             const data1 = [NaN, 45, 56, 25, 23, 20, NaN];
             const sf = new Series(data1);
-            const expected = [1, 45, 56, 25, 23, 20, 1];
-            const dfRep = sf.replace(NaN, 1)
-            assert.deepEqual(dfRep.values, expected);
+            assert.throws(() => sf.replace(NaN, 1), Error, "Params Error: Param 'oldValue' does not support NaN. Use Series.fillNa() instead.");
+
         });
 
         it("Replace oldValue supports falsy strings", function () {
