@@ -2155,6 +2155,70 @@ describe("DataFrame", function () {
                 assert.deepEqual(df.values, expected);
             });
 
+            it("Replace oldValue supports falsy numbers (0)", function () {
+                const data1 = [[0, 19, 84, 0], [65, 0, 0, 37]];
+                const df = new DataFrame(data1);
+                const expected = [[1, 19, 84, 1], [65, 1, 1, 37]];
+                const df_rep = df.replace(0, 1) as DataFrame;
+                assert.deepEqual(df_rep.values, expected);
+            });
+
+            it("Replace oldValue supports falsy numbers (NaN)", function () {
+                const data1 = [[NaN, 19, 84, NaN], [65, NaN, NaN, 37]];
+                const df = new DataFrame(data1);
+                const expected = [[1, 19, 84, 1], [65, 1, 1, 37]];
+                const df_rep = df.replace(NaN, 1) as DataFrame;
+                assert.deepEqual(df_rep.values, expected);
+            });
+
+            it("Replace oldValue supports falsy strings", function () {
+                const data1 = [['', 'hello', 'world', ''], ['foo', '', '', 'bar']];
+                const df = new DataFrame(data1);
+                const expected = [['danfo', 'hello', 'world', 'danfo'], ['foo', 'danfo', 'danfo', 'bar']];
+                const df_rep = df.replace('', 'danfo') as DataFrame;
+                assert.deepEqual(df_rep.values, expected);
+            });
+
+            it("Replace oldValue supports falsy booleans", function () {
+                const data1 = [[false, 'hello', 'world', false], ['foo', false, false, 'bar']];
+                const df = new DataFrame(data1);
+                const expected = [[true, 'hello', 'world', true], ['foo', true, true, 'bar']];
+                const df_rep = df.replace(false, true) as DataFrame;
+                assert.deepEqual(df_rep.values, expected);
+            });
+
+            it("Replace newValue supports falsy numbers (0)", function () {
+                const data1 = [[1, 19, 84, 1], [65, 1, 1, 37]];
+                const df = new DataFrame(data1);
+                const expected = [[0, 19, 84, 0], [65, 0, 0, 37]];
+                const df_rep = df.replace(1, 0) as DataFrame;
+                assert.deepEqual(df_rep.values, expected);
+            });
+
+            it("Replace newValue supports falsy numbers (NaN)", function () {
+                const data1 = [[1, 19, 84, 1], [65, 1, 1, 37]];
+                const df = new DataFrame(data1);
+                const expected = [[NaN, 19, 84, NaN], [65, NaN, NaN, 37]];
+                const df_rep = df.replace(1, NaN) as DataFrame;
+                assert.deepEqual(df_rep.values, expected);
+            });
+
+            it("Replace newValue supports falsy strings", function () {
+                const data1 = [['danfo', 'hello', 'world', 'danfo'], ['foo', 'danfo', 'danfo', 'bar']];
+                const df = new DataFrame(data1);
+                const expected = [['', 'hello', 'world', ''], ['foo', '', '', 'bar']];
+                const df_rep = df.replace('danfo', '') as DataFrame;
+                assert.deepEqual(df_rep.values, expected);
+            });
+
+            it("Replace newValue supports falsy booleans", function () {
+                const data1 = [[true, 'hello', 'world', true],  ['foo', true, true, 'bar']];
+                const df = new DataFrame(data1);
+                const expected = [[false, 'hello', 'world', false], ['foo', false, false, 'bar']];
+                const df_rep = df.replace(true, false) as DataFrame;
+                assert.deepEqual(df_rep.values, expected);
+            });
+            
         });
 
         describe("sum", function () {
