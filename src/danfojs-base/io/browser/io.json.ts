@@ -174,7 +174,7 @@ const $toJSON = (df: NDframe | DataFrame | Series, options?: JsonOutputOptionsBr
  */
 const $downloadFileInBrowser = (content: any, fileName: string) => {
     var hiddenElement = document.createElement('a');
-    hiddenElement.href = 'data:text/json;charset=utf-8,' + encodeURI(JSON.stringify(content));
+    hiddenElement.href = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(content));
     hiddenElement.target = '_blank';
     hiddenElement.download = fileName;
     hiddenElement.click();
