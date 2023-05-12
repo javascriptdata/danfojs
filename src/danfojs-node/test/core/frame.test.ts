@@ -173,12 +173,28 @@ describe("DataFrame", function () {
                     Error,
                     'ParamError: specified column "3" not found in columns');
             });
+            it("ignore missing column name if errors is set to ignore", function () {
+                const data = [ [ 1, 2, 3 ], [ 4, 5, 6 ] ];
+                const cols = [ "A", "B", "C" ];
+                const df = new DataFrame(data, { columns: cols });
+                assert.doesNotThrow(function () {
+                  df.drop({ columns: [ "3" ], errors: "ignore" });
+                },
+                'Errors must not be thrown when `errors=ignore`');
+            });
             it("throw error for wrong row index", function () {
                 const data = [[1, 2, 3], [4, 5, 6]];
                 const cols = ["A", "B", "C"];
                 const df = new DataFrame(data, { columns: cols });
                 assert.throws(function () { df.drop({ index: [10] }); },
                     Error, 'ParamError: specified index "10" not found in indices');
+            });
+            it("ignore missing wrong index if `errors` is set to ignore", function () {
+                const data = [ [ 1, 2, 3 ], [ 4, 5, 6 ] ];
+                const cols = [ "A", "B", "C" ];
+                const df = new DataFrame(data, { columns: cols });
+                assert.doesNotThrow(function () { df.drop({ index: [ 10, 11 ], errors: "ignore" }); },
+                'Missing index errors must be ignored when `errors` is set to "ignore"');
             });
 
             it("drop a column inplace", function () {

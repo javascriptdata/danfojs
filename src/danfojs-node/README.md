@@ -155,7 +155,7 @@ dfd.readCSV(file_url)
 
         //drop columns by names
         cols_2_remove = ['Age', 'Pclass']
-        df_drop = df.drop({ columns: cols_2_remove, axis: 1 })
+        df_drop = df.drop({ columns: cols_2_remove, axis: 1, errors: "raise"})
         df_drop.print()
 
 
