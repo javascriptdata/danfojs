@@ -26,6 +26,13 @@ describe("TimeSeries", function () {
         assert.deepEqual(dateTime.monthName().values, expected);
     });
 
+    it("Return week of the year generated", function () {
+        const data = ["12-31-02022", "01-03-2022", "02-28-2019", "2024-05-12", "2022-06-15", "2023-12-07"];
+        const dateTime = toDateTime(data);
+        const expected = [52, 1, 9, 19, 24, 49];
+        dateTime.weekOfYear().values.forEach((value, index) => assert.closeTo(Number(value), expected[index], 1));
+    })
+
     it("Return day of the week generated", function () {
         const data = ["06-30-02019", "07-29-2019", "08-28-2019"];
         const dateTime = toDateTime(data);

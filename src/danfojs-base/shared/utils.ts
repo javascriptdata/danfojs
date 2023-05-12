@@ -104,6 +104,16 @@ export default class Utils {
     }
 
     /**
+     * Calculates Week Of Year given an input date
+     * @param date A date object
+     * @returns number
+     */    
+    getWeekNumberFromDate(date: Date): number {
+        const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+        return Math.ceil((((date.getTime() - yearStart.getTime()) / 86400000) + yearStart.getDay() + 1) / 7);
+    }
+
+    /**
      * Generates an array of integers between specified range
      * @param start The starting number.
      * @param end The ending number.
