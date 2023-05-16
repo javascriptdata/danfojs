@@ -26,7 +26,7 @@
     "request": "^2.88.2",
     "stream-json": "^1.7.3",
     "table": "6.7.1",
-    "xlsx": "0.17.2"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz"
   },
   "scripts": {
     "test": "nyc mocha --require ts-node/register test/**/*.test.ts",

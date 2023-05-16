@@ -133,7 +133,7 @@ export default class NDframe implements NDframeInterface {
     */
     private loadObjectIntoNdframe({ data, type, index, columns, dtypes }: LoadObjectDataType): void {
         if (type === 1 && Array.isArray(data)) {
-            const _data = (data).map((item) => {
+            const _data: ArrayType1D | ArrayType2D | any[] | any[][] = (data).map((item) => {
                 return Object.values(item);
             });
 

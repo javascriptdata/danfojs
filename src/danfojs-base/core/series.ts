@@ -712,10 +712,32 @@ export default class Series extends NDframe implements SeriesInterface {
       * console.log(sf.std());
       * //output 1.8708286933869707
       * ```
+      * 
     */
+   /*
+        node ./scripts/prebuild.js && tsc && yarn run build:es5-bundle && yarn run build:esm-bundle
+        ../danfojs-base/core/series.ts:718:9 - error TS2322: Type 'number[]' is not assignable to type 'number'.
+
+   */
+    // FIXME: check is this is OK
     std(): number {
-        const values = this.$checkAndCleanValues(this.values as ArrayType1D, "max")
-        return std(values);
+        const values : number[] = this.$checkAndCleanValues(this.values as ArrayType1D, "max")
+
+        const mean = values.reduce((sum, num) => sum + num, 0) / values.length;
+        const squaredDifferences = values.map((value) => (value - mean) ** 2);
+        const sumSquaredDifferences = squaredDifferences.reduce((sum, num) => sum + num, 0);
+        const unbiasedVariance = sumSquaredDifferences / (values.length - 1);
+        const stdev = Math.sqrt(unbiasedVariance);
+        
+        /*        
+        const mean = values.reduce((sum, num) => sum + num, 0) / values.length;
+        const squaredDifferences = values.map((value) => (value - mean) ** 2);
+        const variance = squaredDifferences.reduce((sum, num) => sum + num, 0) / values.length;
+        const stdev = Math.sqrt(variance);
+        */
+        // const stdev  = std(values)  old
+
+        return stdev //std(values);
     }
 
     /**
@@ -727,9 +749,21 @@ export default class Series extends NDframe implements SeriesInterface {
       * //output 3.5
       * ```
     */
+   /*
+../danfojs-base/core/series.ts:732:9 - error TS2322: Type 'number[]' is not assignable to type 'number'.
+
+   */
+    // FIXME: check is this is OK
     var(): number {
         const values = this.$checkAndCleanValues(this.values as ArrayType1D, "max")
-        return variance(values);
+
+        const mean = values.reduce((sum, num) => sum + num, 0) / values.length;
+        const squaredDifferences = values.map((value) => (value - mean) ** 2);
+        const sumSquaredDifferences = squaredDifferences.reduce((sum, num) => sum + num, 0);
+        const variance = squaredDifferences.reduce((sum, num) => sum + num, 0) / values.length;
+        const unbiasedVariance = sumSquaredDifferences / (values.length - 1);
+      
+        return unbiasedVariance // variance //(values);
     }
 
     /**
