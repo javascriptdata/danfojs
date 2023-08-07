@@ -163,7 +163,7 @@ const $toCSV = (df: NDframe | DataFrame | Series, options?: CsvOutputOptionsBrow
  */
 const $downloadFileInBrowser = (content: any, fileName: string) => {
   var hiddenElement = document.createElement('a');
-  hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(content);
+  hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(content);
   hiddenElement.target = '_blank';
   hiddenElement.download = fileName;
   hiddenElement.click();
