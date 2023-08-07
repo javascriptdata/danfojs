@@ -2759,11 +2759,15 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     ): DataFrame | void {
         const { columns, inplace } = { inplace: false, ...options }
 
-        if (!oldValue && typeof oldValue !== 'boolean') {
+        if (typeof oldValue === 'number' && isNaN(oldValue)) {
+            throw Error(`Params Error: Param 'oldValue' does not support NaN. Use DataFrame.fillNa() instead.`);
+        }
+
+        if (!oldValue && typeof oldValue !== 'boolean' && typeof oldValue !== 'number' && typeof oldValue !== 'string') {
             throw Error(`Params Error: Must specify param 'oldValue' to replace`);
         }
 
-        if (!newValue && typeof newValue !== 'boolean') {
+        if (!newValue && typeof newValue !== 'boolean' && typeof newValue !== 'number' && typeof newValue !== 'string') {
             throw Error(`Params Error: Must specify param 'newValue' to replace with`);
         }
 
