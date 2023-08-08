@@ -445,6 +445,7 @@ export default class NDframe implements NDframeInterface {
     *     sep: "+"
     *   })
      */
+    toCSV(options?: any): string
     toCSV(options?: any): string | void {
         throw new Error("`toCSV` function is deprecated. Use `toCSV` function directly instead. e.g. `dfd.toCSV(df)`")
     }
@@ -468,6 +469,7 @@ export default class NDframe implements NDframeInterface {
     *   })
     * ```
     */
+    toJSON(options?: any): object
     toJSON(options?: any): object | void {
         throw new Error("`toJSON` function is deprecated. Use `toJSON` function directly instead. e.g. `dfd.toJSON(df, { format: 'row' })`")
     }
