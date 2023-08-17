@@ -194,6 +194,7 @@ export interface DataFrameInterface extends NDframeInterface {
             {
                 columns?: string | Array<string>,
                 index?: Array<string | number>,
+                errors?: "raise" | "ignore",
                 inplace?: boolean
             }
     ): DataFrame | void

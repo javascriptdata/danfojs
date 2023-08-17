@@ -2177,6 +2177,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     * Drop specified columns or rows.
     * @param options.columns Array of column names to drop.
     * @param options.index Array of index to drop.
+    * @param options.errors String denoting whether to ignore or raise an error when a column specified is missing
     * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false.
     * @example
     * ```
@@ -2195,6 +2196,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         {
             columns?: string | Array<string>,
             index?: Array<string | number>,
+            errors?: "raise" | "ignore",
             inplace?: boolean
         }
     ): DataFrame
@@ -2202,10 +2204,11 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         {
             columns?: string | Array<string>,
             index?: Array<string | number>,
+            errors?: "raise" | "ignore",
             inplace?: boolean
         }
     ): DataFrame | void {
-        let { columns, index, inplace } = { inplace: false, ...options }
+        let { columns, index, inplace, errors } = { errors: "raise", inplace: false, ...options }
 
         if (!columns && !index) {
             throw Error('ParamError: Must specify one of columns or index');
@@ -2215,6 +2218,10 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             throw Error('ParamError: Can only specify one of columns or index');
         }
 
+        if (!(["raise", "ignore"].includes(errors))) {
+            throw Error(`Params Error: Keep must be one of 'raise' or 'ignore'`);
+        }
+
         if (columns) {
             const columnIndices: Array<number> = []
 
@@ -2222,10 +2229,11 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                 columnIndices.push(this.columns.indexOf(columns))
             } else if (Array.isArray(columns)) {
                 for (let column of columns) {
-                    if (this.columns.indexOf(column) === -1) {
+                    if (this.columns.indexOf(column) === -1 && errors === "raise") {
                         throw Error(`ParamError: specified column "${column}" not found in columns`);
+                    } else {
+                        columnIndices.push(this.columns.indexOf(column))
                     }
-                    columnIndices.push(this.columns.indexOf(column))
                 }
 
             } else {
@@ -2278,10 +2286,11 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                 rowIndices.push(this.index.indexOf(index))
             } else if (Array.isArray(index)) {
                 for (let indx of index) {
-                    if (this.index.indexOf(indx) === -1) {
+                    if (this.index.indexOf(indx) === -1 && errors === "raise") {
                         throw Error(`ParamError: specified index "${indx}" not found in indices`);
+                    } else {
+                        rowIndices.push(this.index.indexOf(indx));
                     }
-                    rowIndices.push(this.index.indexOf(indx));
                 }
             } else {
                 throw Error('ParamError: index must be an array of indices or a scalar index');

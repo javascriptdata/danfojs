@@ -13,10 +13,13 @@
 * ==========================================================================
 */
 import { ArrayType1D, DateTime } from "../shared/types";
+import Utils from "../shared/utils"
 import Series from "./series";
 
 const WEEK_NAME = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const MONTH_NAME = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+const utils = new Utils();
 
 /**
  * Format and handle all datetime operations on Series or Array of date strings
@@ -61,6 +64,28 @@ export default class TimeSeries implements DateTime {
     */
     month(): Series {
         const newValues = this.$dateObjectArray.map(date => date.getMonth())
+        return new Series(newValues);
+    }
+
+    /**
+     * Returns the week of the year
+     * @example
+     * ```
+     * import { Series } from "danfojs-node"
+     * const data = [
+     * "2023-11-09", 
+     * "2024-07-03", 
+     * "2024-05-12", 
+     * "2022-06-15", 
+     * "2023-12-07", 
+     * ]
+     * const df = new Series(data)
+     * const weekOfYear = df.dt.weekOfYear()
+     * console.log(weekOfYear.values)
+     * ```
+     */
+    weekOfYear() {
+        const newValues = this.$dateObjectArray.map(utils.getWeekNumberFromDate);
         return new Series(newValues);
     }
 
