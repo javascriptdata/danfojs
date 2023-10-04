@@ -2,9 +2,13 @@
   "name": "danfojs",
   "version": "1.1.2",
   "description": "JavaScript library providing high performance, intuitive, and easy to use data structures for manipulating and processing structured data.",
-  "main": "dist/danfojs-browser/src/index.js",
-  "types": "dist/danfojs-browser/src/index.d.ts",
-  "module": "lib/bundle-esm.js",
+  "exports": {
+    ".": {
+      "types": "./dist/danfojs-browser/src/index.d.ts",
+      "node": "./dist/danfojs-browser/src/index.js",
+      "default": "./lib/bundle.esm.js"
+    }
+  },
   "directories": {
     "test": "tests"
   },
