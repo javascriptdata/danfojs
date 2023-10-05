@@ -12,7 +12,7 @@ const createConfig = () => {
     target: "web",
     output: {
       path: path.resolve(__dirname, "lib"),
-      filename: "bundle-esm.js",
+      filename: "bundle.js",
       library: "dfd"
     },
     module: {
