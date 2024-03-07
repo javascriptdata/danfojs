@@ -16,7 +16,7 @@
     "request": "^2.88.2",
     "stream-json": "^1.7.3",
     "table": "6.7.1",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.1/xlsx-0.20.1.tgz",
     "seedrandom": "^2.4.3",
     "plotly.js-dist-min": "^2.8.0",
     "node-fetch": "^2.6.7"
