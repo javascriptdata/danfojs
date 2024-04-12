@@ -48,12 +48,13 @@ import Papa from 'papaparse'
 const $readCSV = async (file: any, options?: CsvInputOptionsBrowser): Promise<DataFrame> => {
   const frameConfig = options?.frameConfig || {}
 
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     Papa.parse(file, {
       header: true,
       dynamicTyping: true,
       skipEmptyLines: 'greedy',
       ...options,
+      error: (error, file) => reject(error,file),
       download: true,
       complete: results => {
         const df = new DataFrame(results.data, frameConfig);
@@ -81,7 +82,7 @@ const $readCSV = async (file: any, options?: CsvInputOptionsBrowser): Promise<Da
 const $streamCSV = async (file: string, callback: (df: DataFrame) => void, options: CsvInputOptionsBrowser,): Promise<null> => {
   const frameConfig = options?.frameConfig || {}
 
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     let count = 0
     Papa.parse(file, {
       ...options,
@@ -92,7 +93,8 @@ const $streamCSV = async (file: string, callback: (df: DataFrame) => void, optio
         const df = new DataFrame([results.data], { ...frameConfig, index: [count++] });
         callback(df);
       },
-      complete: () => resolve(null)
+      complete: () => resolve(null),
+      error: (error, file) => reject(error,file)
     });
   });
 };
