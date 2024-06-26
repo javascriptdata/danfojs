@@ -123,9 +123,18 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         } else {
             const data = this.$dataIncolumnFormat[columnIndex]
             if (returnSeries) {
-                return data
+                return new Series(data, {
+                    dtypes,
+                    index,
+                    columns,
+                    config
+                })
             } else {
-                return (data as Series).values
+                if(data instanceof Series){
+                    return data.values
+                }else{
+                    return data
+                }
             }
         }
 
