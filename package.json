@@ -3,8 +3,8 @@
     "version": "2.0.1",
     "private": true,
     "workspaces": [
-        "src/danfojs-node",
-        "src/danfojs-browser"
+        "danfojs-node/**",
+        "danfojs-browser/**"
     ],
     "scripts": {
         "install": "cd src/danfojs-base && yarn && cd ../danfojs-browser && yarn && cd ../danfojs-node && yarn",
