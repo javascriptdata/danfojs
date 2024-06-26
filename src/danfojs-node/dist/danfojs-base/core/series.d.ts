@@ -605,6 +605,7 @@ export default class Series extends NDframe implements SeriesInterface {
     */
     map(callable: mapParam, options?: {
         inplace?: boolean;
+        convert?: boolean;
     }): Series;
     /**
        * Applies a function to each element of a Series

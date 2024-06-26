@@ -14,6 +14,7 @@
 */
 import Configs from "../shared/config";
 import { NDframeInterface, NdframeInputDataType, AxisType, ArrayType1D, ArrayType2D } from '../shared/types';
+import Series from './series';
 /**
  * N-Dimension data structure. Stores multi-dimensional
  * data in a size-mutable, labeled data structure. Analogous to the Python Pandas DataFrame.
@@ -35,7 +36,7 @@ import { NDframeInterface, NdframeInputDataType, AxisType, ArrayType1D, ArrayTyp
 export default class NDframe implements NDframeInterface {
     $isSeries: boolean;
     protected $data: any;
-    protected $dataIncolumnFormat: ArrayType1D | ArrayType2D;
+    protected $dataIncolumnFormat: ArrayType1D | ArrayType2D | Array<Series>;
     protected $index: Array<string | number>;
     protected $columns: string[];
     protected $dtypes: Array<string>;
@@ -135,7 +136,7 @@ export default class NDframe implements NDframeInterface {
       * Returns the underlying data in Array column format.
       * Similar to this.values, but in column format.
     */
-    get getColumnData(): ArrayType1D | ArrayType2D;
+    get getColumnData(): ArrayType1D | ArrayType2D | Series[];
     /**
      * Returns the size of the NDFrame object
      *

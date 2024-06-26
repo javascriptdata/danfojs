@@ -754,7 +754,7 @@ var Series = /** @class */ (function (_super) {
         }
     };
     Series.prototype.map = function (callable, options) {
-        var inplace = __assign({ inplace: false }, options).inplace;
+        var _a = __assign({ inplace: false, convert: true }, options), inplace = _a.inplace, convert = _a.convert;
         var isCallable = utils.isFunction(callable);
         var data = this.values.map(function (val, i) {
             if (isCallable) {
@@ -773,13 +773,18 @@ var Series = /** @class */ (function (_super) {
                 throw new Error("Param Error: callable must either be a function or an object");
             }
         });
-        if (inplace) {
-            this.$setValues(data);
+        if (convert) {
+            if (inplace) {
+                this.$setValues(data);
+            }
+            else {
+                var sf = this.copy();
+                sf.$setValues(data);
+                return sf;
+            }
         }
         else {
-            var sf = this.copy();
-            sf.$setValues(data);
-            return sf;
+            return data;
         }
     };
     Series.prototype.apply = function (callable, options) {

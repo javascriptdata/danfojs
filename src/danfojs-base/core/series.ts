@@ -995,9 +995,9 @@ export default class Series extends NDframe implements SeriesInterface {
        * //output [ -99, 2, -99, 4, -99, 6 ]
        * ```
     */
-    map(callable: mapParam, options?: { inplace?: boolean }): Series
-    map(callable: mapParam, options?: { inplace?: boolean }): Series | void {
-        const { inplace } = { inplace: false, ...options }
+    map(callable: mapParam, options?: { inplace?: boolean, convert?: boolean }): Series
+    map(callable: mapParam, options?: { inplace?: boolean, convert?: boolean }): Series | void | Array<any> {
+        const { inplace, convert } = { inplace: false, convert: true, ...options }
 
         const isCallable = utils.isFunction(callable);
 
@@ -1016,13 +1016,18 @@ export default class Series extends NDframe implements SeriesInterface {
             }
         });
 
-        if (inplace) {
-            this.$setValues(data)
-        } else {
-            const sf = this.copy();
-            sf.$setValues(data)
-            return sf;
+        if(convert){
+            if (inplace) {
+                this.$setValues(data)
+            } else {
+                const sf = this.copy();
+                sf.$setValues(data)
+                return sf;
+            }
+        }else{
+            return data
         }
+        
     }
 
     /**

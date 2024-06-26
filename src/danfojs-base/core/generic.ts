@@ -28,6 +28,7 @@ import {
 import ErrorThrower from '../shared/errors';
 import { BASE_CONFIG, DATA_TYPES } from '../shared/defaults';
 import tensorflow from '../shared/tensorflowlib'
+import Series from './series';
 
 
 const utils = new Utils();
@@ -53,7 +54,7 @@ const utils = new Utils();
 export default class NDframe implements NDframeInterface {
     $isSeries: boolean;
     protected $data: any
-    protected $dataIncolumnFormat: ArrayType1D | ArrayType2D = []
+    protected $dataIncolumnFormat: ArrayType1D | ArrayType2D | Array<Series> = []
     protected $index: Array<string | number> = []
     protected $columns: string[] = []
     protected $dtypes: Array<string> = []
