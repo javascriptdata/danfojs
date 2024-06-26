@@ -2539,10 +2539,12 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             throw Error(`ParamError: axis must be 0 or 1`);
         }
 
-        const valuesForFunc = this.$getDataByAxisWithMissingValuesRemoved(axis)
+        //Add index cho map function and keep NaN value
+        // const valuesForFunc = this.$getDataByAxisWithMissingValuesRemoved(axis)
+        const valuesForFunc = this.$getDataArraysByAxis(axis)
 
-        const result = valuesForFunc.map(row => {
-            return callable(row)
+        const result = valuesForFunc.map((row, index) => {
+            return callable(row, index)
         })
 
         if (axis === 0) {
