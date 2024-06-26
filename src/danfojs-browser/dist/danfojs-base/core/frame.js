@@ -193,10 +193,20 @@ var DataFrame = /** @class */ (function (_super) {
         else {
             var data = this.$dataIncolumnFormat[columnIndex];
             if (returnSeries) {
-                return data;
+                return new series_1.default(data, {
+                    dtypes: dtypes,
+                    index: index,
+                    columns: columns,
+                    config: config
+                });
             }
             else {
-                return data.values;
+                if (data instanceof series_1.default) {
+                    return data.values;
+                }
+                else {
+                    return data;
+                }
             }
         }
     };
