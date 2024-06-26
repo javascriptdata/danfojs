@@ -5,9 +5,9 @@ coverage
 danfojs/data
 .DS_Store
 .idea/
-build
-lib/*
-dist
+# build
+# lib/*
+# dist
 *.xlsx
 tensorflowlib.ts
 samples/
