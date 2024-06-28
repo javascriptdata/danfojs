@@ -17,7 +17,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports._loc = exports._iloc = void 0;
+exports._iloc = _iloc;
+exports._loc = _loc;
 var series_1 = __importDefault(require("./series"));
 var utils_1 = __importDefault(require("../shared/utils"));
 var frame_1 = __importDefault(require("./frame"));
@@ -61,19 +62,19 @@ function _iloc(_a) {
             throw new Error("row slice [start] index cannot be less than 0");
         }
         if (end > ndFrame.shape[0]) {
-            throw new Error("row slice [end] index cannot be bigger than " + ndFrame.shape[0]);
+            throw new Error("row slice [end] index cannot be bigger than ".concat(ndFrame.shape[0]));
         }
         _rowIndexes = utils.range(start, end - 1);
     }
     else {
         var _formatedRows = [];
         for (var i = 0; i < rows.length; i++) {
-            var _indexToUse = rows[i];
+            var _indexToUse = Number(rows[i]);
             if (_indexToUse > ndFrame.shape[0]) {
-                throw new Error("Invalid row parameter: Specified index " + _indexToUse + " cannot be bigger than index length " + ndFrame.shape[0]);
+                throw new Error("Invalid row parameter: Specified index ".concat(_indexToUse, " cannot be bigger than index length ").concat(ndFrame.shape[0]));
             }
             if (typeof _indexToUse !== "number" && typeof _indexToUse !== "boolean") {
-                throw new Error("Invalid row parameter: row index " + _indexToUse + " must be a number or boolean");
+                throw new Error("Invalid row parameter: row index ".concat(_indexToUse, " must be a number or boolean"));
             }
             if (typeof _indexToUse === "boolean" && _indexToUse === true) {
                 _formatedRows.push(_index[i]);
@@ -104,18 +105,18 @@ function _iloc(_a) {
             throw new Error("column slice [start] index cannot be less than 0");
         }
         if (end > ndFrame.shape[1]) {
-            throw new Error("column slice [end] index cannot be bigger than " + ndFrame.shape[1]);
+            throw new Error("column slice [end] index cannot be bigger than ".concat(ndFrame.shape[1]));
         }
         _columnIndexes = utils.range(start, end - 1);
     }
     else {
         for (var i = 0; i < columns.length; i++) {
-            var _indexToUse = columns[i];
+            var _indexToUse = Number(columns[i]);
             if (_indexToUse > ndFrame.shape[1]) {
-                throw new Error("Invalid column parameter: Specified index " + _indexToUse + " cannot be bigger than index length " + ndFrame.shape[1]);
+                throw new Error("Invalid column parameter: Specified index ".concat(_indexToUse, " cannot be bigger than index length ").concat(ndFrame.shape[1]));
             }
             if (typeof _indexToUse != "number") {
-                throw new Error("Invalid column parameter: column index " + _indexToUse + " must be a number");
+                throw new Error("Invalid column parameter: column index ".concat(_indexToUse, " must be a number"));
             }
         }
         _columnIndexes = columns;
@@ -166,7 +167,6 @@ function _iloc(_a) {
         return df;
     }
 }
-exports._iloc = _iloc;
 /**
 * Internal function to slice a Series/DataFrame by specified string location based labels
 * @param Object
@@ -199,7 +199,7 @@ function _loc(_a) {
                 temp = _index.indexOf(Number(rows[0]));
             }
             if (temp === -1) {
-                throw new Error("IndexError: Specified index (" + rows[0] + ") not found");
+                throw new Error("IndexError: Specified index (".concat(rows[0], ") not found"));
             }
             _rowIndexes = [temp];
         }
@@ -253,7 +253,7 @@ function _loc(_a) {
             if (!isBoolean) {
                 var rowIndex = _index.indexOf(rows[i]);
                 if (rowIndex === -1) {
-                    throw new Error("IndexError: Specified index (" + rows[i] + ") not found");
+                    throw new Error("IndexError: Specified index (".concat(rows[i], ") not found"));
                 }
                 rowsIndexToUse.push(rowIndex);
             }
@@ -291,7 +291,7 @@ function _loc(_a) {
     else { // Input type ==> ["A", "B"] or ["col1", "col2"]
         for (var i = 0; i < columns.length; i++) {
             if (_columnNames.indexOf(columns[i]) === -1) {
-                throw new Error("ColumnIndexError: Specified column (" + columns[i] + ") not found");
+                throw new Error("ColumnIndexError: Specified column (".concat(columns[i], ") not found"));
             }
         }
         _columnIndexes = columns.map(function (columnName) { return _columnNames.indexOf(columnName); });
@@ -342,4 +342,3 @@ function _loc(_a) {
         return df;
     }
 }
-exports._loc = _loc;

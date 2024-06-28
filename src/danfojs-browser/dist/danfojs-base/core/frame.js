@@ -40,7 +40,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -218,38 +218,43 @@ var DataFrame = /** @class */ (function (_super) {
     DataFrame.prototype.$setColumnData = function (column, arr) {
         var columnIndex = this.$columns.indexOf(column);
         if (columnIndex == -1) {
-            throw new Error("ParamError: column " + column + " not found in " + this.$columns + ". If you need to add a new column, use the df.addColumn method. ");
+            throw new Error("ParamError: column ".concat(column, " not found in ").concat(this.$columns, ". If you need to add a new column, use the df.addColumn method. "));
         }
         var colunmValuesToAdd;
         if (arr instanceof series_1.default) {
             colunmValuesToAdd = arr.values;
         }
-        else if (Array.isArray(arr)) {
+        else {
             colunmValuesToAdd = arr;
         }
-        else {
-            throw new Error("ParamError: specified value not supported. It must either be an Array or a Series of the same length");
-        }
-        if (colunmValuesToAdd.length !== this.shape[0]) {
-            errors_1.default.throwColumnLengthError(this, colunmValuesToAdd.length);
-        }
-        if (this.$config.isLowMemoryMode) {
-            //Update row ($data) array
-            for (var i = 0; i < this.$data.length; i++) {
-                this.$data[i][columnIndex] = colunmValuesToAdd[i];
+        if (Array.isArray(colunmValuesToAdd)) {
+            if (colunmValuesToAdd.length !== this.shape[0]) {
+                errors_1.default.throwColumnLengthError(this, colunmValuesToAdd.length);
             }
-            //Update the dtypes
-            this.$dtypes[columnIndex] = utils.inferDtype(colunmValuesToAdd)[0];
-        }
-        else {
             //Update row ($data) array
             for (var i = 0; i < this.values.length; i++) {
                 this.$data[i][columnIndex] = colunmValuesToAdd[i];
             }
-            //Update column ($dataIncolumnFormat) array since it's available in object
-            this.$dataIncolumnFormat[columnIndex] = arr;
+            if (!this.$config.isLowMemoryMode) {
+                //Update column ($dataIncolumnFormat) array since it's available in object
+                this.$dataIncolumnFormat[columnIndex] = arr;
+            }
             //Update the dtypes
             this.$dtypes[columnIndex] = utils.inferDtype(colunmValuesToAdd)[0];
+        }
+        else {
+            var addArray = [];
+            //Update row ($data) array
+            for (var i = 0; i < this.$data.length; i++) {
+                this.$data[i][columnIndex] = colunmValuesToAdd;
+                addArray.push(colunmValuesToAdd);
+            }
+            if (!this.$config.isLowMemoryMode) {
+                //Update column ($dataIncolumnFormat) array since it's available in object
+                this.$dataIncolumnFormat[columnIndex] = addArray;
+            }
+            //Update the dtypes
+            this.$dtypes[columnIndex] = utils.inferDtype([colunmValuesToAdd])[0];
         }
     };
     /**
@@ -332,7 +337,7 @@ var DataFrame = /** @class */ (function (_super) {
     DataFrame.prototype.$getColumnDtype = function (column) {
         var columnIndex = this.columns.indexOf(column);
         if (columnIndex === -1) {
-            throw Error("ColumnNameError: Column \"" + column + "\" does not exist");
+            throw Error("ColumnNameError: Column \"".concat(column, "\" does not exist"));
         }
         return this.dtypes[columnIndex];
     };
@@ -489,12 +494,12 @@ var DataFrame = /** @class */ (function (_super) {
             if (this.values.length > maxRow) {
                 //slice Object to show [max_rows]
                 var dfSubset1 = this.iloc({
-                    rows: ["0:" + maxRow],
+                    rows: ["0:".concat(maxRow)],
                     columns: ["0:4"]
                 });
                 var dfSubset2 = this.iloc({
-                    rows: ["0:" + maxRow],
-                    columns: [colLen - 3 + ":"]
+                    rows: ["0:".concat(maxRow)],
+                    columns: ["".concat(colLen - 3, ":")]
                 });
                 subIdx = this.index.slice(0, maxRow);
                 firstHalfValues = dfSubset1.values;
@@ -502,7 +507,7 @@ var DataFrame = /** @class */ (function (_super) {
             }
             else {
                 var dfSubset1 = this.iloc({ columns: ["0:4"] });
-                var dfSubset2 = this.iloc({ columns: [colLen - 3 + ":"] });
+                var dfSubset2 = this.iloc({ columns: ["".concat(colLen - 3, ":")] });
                 subIdx = this.index.slice(0, maxRow);
                 firstHalfValues = dfSubset1.values;
                 lastHalfValueS = dfSubset2.values;
@@ -521,7 +526,7 @@ var DataFrame = /** @class */ (function (_super) {
             var values = void 0;
             if (this.values.length > maxRow) {
                 //slice Object to show a max of [max_rows]
-                var data = this.iloc({ rows: ["0:" + maxRow] });
+                var data = this.iloc({ rows: ["0:".concat(maxRow)] });
                 subIdx = data.index;
                 values = data.values;
             }
@@ -564,7 +569,7 @@ var DataFrame = /** @class */ (function (_super) {
         if (this.shape[0] - rows < 0) {
             throw new Error("ParamError: Number of rows cannot be greater than available rows in data");
         }
-        return this.iloc({ rows: ["0:" + rows] });
+        return this.iloc({ rows: ["0:".concat(rows)] });
     };
     /**
       * Returns the last n values in a DataFrame
@@ -587,7 +592,7 @@ var DataFrame = /** @class */ (function (_super) {
             throw new Error("ParamError: Number of rows cannot be greater than available rows in data");
         }
         rows = this.shape[0] - rows;
-        return this.iloc({ rows: [rows + ":"] });
+        return this.iloc({ rows: ["".concat(rows, ":")] });
     };
     /**
      * Gets n number of random rows in a dataframe. Sample is reproducible if seed is provided.
@@ -604,10 +609,10 @@ var DataFrame = /** @class */ (function (_super) {
      * const df2 = await df.sample(1, { seed: 1 })
      * ```
     */
-    DataFrame.prototype.sample = function (num, options) {
-        if (num === void 0) { num = 5; }
-        return __awaiter(this, void 0, void 0, function () {
+    DataFrame.prototype.sample = function () {
+        return __awaiter(this, arguments, void 0, function (num, options) {
             var seed, shuffledIndex, df;
+            if (num === void 0) { num = 5; }
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -618,7 +623,7 @@ var DataFrame = /** @class */ (function (_super) {
                         if (num <= 0) {
                             throw new Error("ParamError: Sample size cannot be less than 1");
                         }
-                        return [4 /*yield*/, tensorflowlib_1.default.data.array(this.index).shuffle(num, "" + seed).take(num).toArray()];
+                        return [4 /*yield*/, tensorflowlib_1.default.data.array(this.index).shuffle(num, "".concat(seed)).take(num).toArray()];
                     case 1:
                         shuffledIndex = _a.sent();
                         df = this.iloc({ rows: shuffledIndex });
@@ -1486,7 +1491,7 @@ var DataFrame = /** @class */ (function (_super) {
         var _a = __assign({ inplace: false, atIndex: this.columns.length }, options), inplace = _a.inplace, atIndex = _a.atIndex;
         if (typeof atIndex === "string") {
             if (!(this.columns.includes(atIndex))) {
-                throw new Error(atIndex + " not a column");
+                throw new Error("".concat(atIndex, " not a column"));
             }
             atIndex = this.columns.indexOf(atIndex);
         }
@@ -1502,21 +1507,27 @@ var DataFrame = /** @class */ (function (_super) {
             if (values instanceof series_1.default) {
                 colunmValuesToAdd = values.values;
             }
-            else if (Array.isArray(values)) {
-                colunmValuesToAdd = values;
-            }
             else {
-                throw new Error("ParamError: specified value not supported. It must either be an Array or a Series of the same length");
-            }
-            if (colunmValuesToAdd.length !== this.shape[0]) {
-                errors_1.default.throwColumnLengthError(this, colunmValuesToAdd.length);
+                colunmValuesToAdd = values;
             }
             var newData = [];
             var oldValues = this.$data;
-            for (var i = 0; i < oldValues.length; i++) {
-                var innerArr = __spreadArray([], oldValues[i], true);
-                innerArr.splice(atIndex, 0, colunmValuesToAdd[i]);
-                newData.push(innerArr);
+            if (Array.isArray(colunmValuesToAdd)) {
+                if (colunmValuesToAdd.length !== this.shape[0]) {
+                    errors_1.default.throwColumnLengthError(this, colunmValuesToAdd.length);
+                }
+                for (var i = 0; i < oldValues.length; i++) {
+                    var innerArr = __spreadArray([], oldValues[i], true);
+                    innerArr.splice(atIndex, 0, colunmValuesToAdd[i]);
+                    newData.push(innerArr);
+                }
+            }
+            else {
+                for (var i = 0; i < oldValues.length; i++) {
+                    var innerArr = __spreadArray([], oldValues[i], true);
+                    innerArr.splice(atIndex, 0, colunmValuesToAdd);
+                    newData.push(innerArr);
+                }
             }
             if (inplace) {
                 this.$setValues(newData, true, false);
@@ -1531,7 +1542,6 @@ var DataFrame = /** @class */ (function (_super) {
                 var df = new DataFrame(newData, {
                     index: __spreadArray([], this.index, true),
                     columns: columns,
-                    dtypes: __spreadArray(__spreadArray([], this.dtypes, true), [utils.inferDtype(colunmValuesToAdd)[0]], false),
                     config: __assign({}, this.$config)
                 });
                 return df;
@@ -1604,7 +1614,7 @@ var DataFrame = /** @class */ (function (_super) {
             }
             columns.forEach(function (col) {
                 if (!_this.columns.includes(col)) {
-                    throw Error("ValueError: Specified column \"" + col + "\" must be one of " + _this.columns);
+                    throw Error("ValueError: Specified column \"".concat(col, "\" must be one of ").concat(_this.columns));
                 }
             });
         }
@@ -1672,7 +1682,7 @@ var DataFrame = /** @class */ (function (_super) {
                 for (var _i = 0, columns_1 = columns; _i < columns_1.length; _i++) {
                     var column = columns_1[_i];
                     if (this.columns.indexOf(column) === -1) {
-                        throw Error("ParamError: specified column \"" + column + "\" not found in columns");
+                        throw Error("ParamError: specified column \"".concat(column, "\" not found in columns"));
                     }
                     columnIndices.push(this.columns.indexOf(column));
                 }
@@ -1723,7 +1733,7 @@ var DataFrame = /** @class */ (function (_super) {
                 for (var _b = 0, index_1 = index; _b < index_1.length; _b++) {
                     var indx = index_1[_b];
                     if (this.index.indexOf(indx) === -1) {
-                        throw Error("ParamError: specified index \"" + indx + "\" not found in indices");
+                        throw Error("ParamError: specified index \"".concat(indx, "\" not found in indices"));
                     }
                     rowIndices.push(this.index.indexOf(indx));
                 }
@@ -1766,7 +1776,7 @@ var DataFrame = /** @class */ (function (_super) {
             throw Error("ParamError: must specify a column to sort by");
         }
         if (this.columns.indexOf(column) === -1) {
-            throw Error("ParamError: specified column \"" + column + "\" not found in columns");
+            throw Error("ParamError: specified column \"".concat(column, "\" not found in columns"));
         }
         var columnValues = this.$getColumnData(column, false);
         var index = __spreadArray([], this.index, true);
@@ -2084,7 +2094,7 @@ var DataFrame = /** @class */ (function (_super) {
             throw Error("Params Error: column not found in columns");
         }
         if (!(defaults_1.DATA_TYPES.includes(dtype))) {
-            throw Error("dtype " + dtype + " not supported. dtype must be one of " + defaults_1.DATA_TYPES);
+            throw Error("dtype ".concat(dtype, " not supported. dtype must be one of ").concat(defaults_1.DATA_TYPES));
         }
         var data = this.values;
         var newData = data.map(function (row) {
@@ -2159,7 +2169,7 @@ var DataFrame = /** @class */ (function (_super) {
             var colsAdded_2 = [];
             var newColumns = this.columns.map(function (col) {
                 if (mapper[col] !== undefined) {
-                    var newCol = "" + mapper[col];
+                    var newCol = "".concat(mapper[col]);
                     colsAdded_2.push(newCol);
                     return newCol;
                 }
@@ -2349,6 +2359,8 @@ var DataFrame = /** @class */ (function (_super) {
      */
     DataFrame.prototype.groupby = function (col) {
         var columns = this.columns;
+        if (typeof col == 'string')
+            col = [col];
         var colIndex = col.map(function (val) { return columns.indexOf(val); });
         var colDtype = this.dtypes;
         return new groupby_1.default(col, this.values, columns, colDtype, colIndex).group();

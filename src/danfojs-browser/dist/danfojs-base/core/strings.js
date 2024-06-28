@@ -32,7 +32,7 @@ var Str = /** @class */ (function () {
                 newArr.push(NaN);
             }
             else {
-                newArr.push(("" + val).toLowerCase());
+                newArr.push("".concat(val).toLowerCase());
             }
         });
         if (inplace) {
@@ -53,7 +53,7 @@ var Str = /** @class */ (function () {
                 newArr.push(NaN);
             }
             else {
-                newArr.push(("" + val).toUpperCase());
+                newArr.push("".concat(val).toUpperCase());
             }
         });
         if (inplace) {
@@ -74,9 +74,9 @@ var Str = /** @class */ (function () {
                 newArr.push(NaN);
             }
             else {
-                var firstChar = ("" + val).slice(0, 1);
-                var leftChar = ("" + val).slice(1);
-                var newStr = "" + firstChar.toUpperCase() + leftChar.toLowerCase();
+                var firstChar = "".concat(val).slice(0, 1);
+                var leftChar = "".concat(val).slice(1);
+                var newStr = "".concat(firstChar.toUpperCase()).concat(leftChar.toLowerCase());
                 newArr.push(newStr);
             }
         });
@@ -99,7 +99,7 @@ var Str = /** @class */ (function () {
                 newArr.push(NaN);
             }
             else {
-                newArr.push(("" + val).charAt(index));
+                newArr.push("".concat(val).charAt(index));
             }
         });
         if (inplace) {
@@ -118,8 +118,8 @@ var Str = /** @class */ (function () {
         var newArr = [];
         if (Array.isArray(other)) {
             for (var i = 0; i < other.length; i++) {
-                var leftStr = "" + this.values[i];
-                var rightStr = "" + other[i];
+                var leftStr = "".concat(this.values[i]);
+                var rightStr = "".concat(other[i]);
                 if (position == 1) {
                     newArr.push(leftStr.concat(rightStr));
                 }
@@ -135,7 +135,7 @@ var Str = /** @class */ (function () {
                         newArr.push(NaN);
                     }
                     else {
-                        newArr.push(("" + val).concat("" + other));
+                        newArr.push("".concat(val).concat("".concat(other)));
                     }
                 }
                 else {
@@ -143,7 +143,7 @@ var Str = /** @class */ (function () {
                         newArr.push(NaN);
                     }
                     else {
-                        newArr.push(other.concat("" + val));
+                        newArr.push(other.concat("".concat(val)));
                     }
                 }
             });
@@ -167,7 +167,7 @@ var Str = /** @class */ (function () {
                 newArr.push(NaN);
             }
             else {
-                newArr.push(("" + val).startsWith(str));
+                newArr.push("".concat(val).startsWith(str));
             }
         });
         if (inplace) {
@@ -189,7 +189,7 @@ var Str = /** @class */ (function () {
                 newArr.push(NaN);
             }
             else {
-                newArr.push(("" + val).endsWith(str));
+                newArr.push("".concat(val).endsWith(str));
             }
         });
         if (inplace) {
@@ -211,7 +211,7 @@ var Str = /** @class */ (function () {
                 newArr.push(NaN);
             }
             else {
-                newArr.push(("" + val).includes(str));
+                newArr.push("".concat(val).includes(str));
             }
         });
         if (inplace) {
@@ -233,7 +233,7 @@ var Str = /** @class */ (function () {
                 newArr.push(NaN);
             }
             else {
-                newArr.push(("" + val).indexOf(str));
+                newArr.push("".concat(val).indexOf(str));
             }
         });
         if (inplace) {
@@ -255,7 +255,7 @@ var Str = /** @class */ (function () {
                 newArr.push(NaN);
             }
             else {
-                newArr.push(("" + val).lastIndexOf(str));
+                newArr.push("".concat(val).lastIndexOf(str));
             }
         });
         if (inplace) {
@@ -278,7 +278,7 @@ var Str = /** @class */ (function () {
                 newArr.push(NaN);
             }
             else {
-                newArr.push(("" + val).replace(searchValue, replaceValue));
+                newArr.push("".concat(val).replace(searchValue, replaceValue));
             }
         });
         if (inplace) {
@@ -300,7 +300,7 @@ var Str = /** @class */ (function () {
                 newArr.push(NaN);
             }
             else {
-                newArr.push(("" + val).repeat(num));
+                newArr.push("".concat(val).repeat(num));
             }
         });
         if (inplace) {
@@ -322,7 +322,7 @@ var Str = /** @class */ (function () {
                 newArr.push(NaN);
             }
             else {
-                newArr.push(("" + val).search(str));
+                newArr.push("".concat(val).search(str));
             }
         });
         if (inplace) {
@@ -345,7 +345,7 @@ var Str = /** @class */ (function () {
                 newArr.push(NaN);
             }
             else {
-                newArr.push(("" + val).slice(startIndex, endIndex));
+                newArr.push("".concat(val).slice(startIndex, endIndex));
             }
         });
         if (inplace) {
@@ -367,7 +367,7 @@ var Str = /** @class */ (function () {
                 newArr.push(NaN);
             }
             else {
-                newArr.push("" + String(val).split(splitVal));
+                newArr.push("".concat(String(val).split(splitVal)));
             }
         });
         if (inplace) {
@@ -390,7 +390,7 @@ var Str = /** @class */ (function () {
                 newArr.push(NaN);
             }
             else {
-                newArr.push("" + String(val).substr(startIndex, num));
+                newArr.push("".concat(String(val).substr(startIndex, num)));
             }
         });
         if (inplace) {
@@ -413,7 +413,7 @@ var Str = /** @class */ (function () {
                 newArr.push(NaN);
             }
             else {
-                newArr.push("" + String(val).substring(startIndex, endIndex));
+                newArr.push("".concat(String(val).substring(startIndex, endIndex)));
             }
         });
         if (inplace) {
@@ -434,7 +434,7 @@ var Str = /** @class */ (function () {
                 newArr.push(NaN);
             }
             else {
-                newArr.push(("" + val).trim());
+                newArr.push("".concat(val).trim());
             }
         });
         if (inplace) {
@@ -459,7 +459,7 @@ var Str = /** @class */ (function () {
             else {
                 var leftChar = val;
                 var rightChar = valToJoin;
-                var new_char = "" + leftChar + joinChar + rightChar;
+                var new_char = "".concat(leftChar).concat(joinChar).concat(rightChar);
                 newArr.push(new_char);
             }
         });
@@ -481,7 +481,7 @@ var Str = /** @class */ (function () {
                 newArr.push(NaN);
             }
             else {
-                newArr.push(("" + val).length);
+                newArr.push("".concat(val).length);
             }
         });
         if (inplace) {

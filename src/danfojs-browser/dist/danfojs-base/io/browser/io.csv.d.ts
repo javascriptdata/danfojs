@@ -42,7 +42,7 @@ import { DataFrame, NDframe, Series } from '../../';
  * const df = await readCSV("./data/sample.csv")
  * ```
  */
-declare const $readCSV: (file: any, options?: CsvInputOptionsBrowser | undefined) => Promise<DataFrame>;
+declare const $readCSV: (file: any, options?: CsvInputOptionsBrowser) => Promise<DataFrame>;
 /**
  * Streams a CSV file from local or remote location in chunks. Intermediate chunks is passed as a DataFrame to the callback function.
  * @param filePath URL or local file path to CSV file. `readCSV` uses PapaParse to parse the CSV file,
@@ -83,5 +83,5 @@ declare const $streamCSV: (file: string, callback: (df: DataFrame) => void, opti
  *   })
  * ```
  */
-declare const $toCSV: (df: NDframe | DataFrame | Series, options?: CsvOutputOptionsBrowser | undefined) => string | void;
+declare const $toCSV: (df: NDframe | DataFrame | Series, options?: CsvOutputOptionsBrowser) => string | void;
 export { $readCSV, $streamCSV, $toCSV, };

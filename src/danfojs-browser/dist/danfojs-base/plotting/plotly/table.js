@@ -18,7 +18,7 @@ var tablePlot = function (ndframe, divId, plotConfig, Plotly) {
     if (config['columns']) {
         config['columns'].forEach(function (cname) {
             if (!ndframe.columns.includes(cname)) {
-                throw Error("Column Error: " + cname + " not found in columns. Columns should be one of [ " + ndframe.columns + " ]");
+                throw Error("Column Error: ".concat(cname, " not found in columns. Columns should be one of [ ").concat(ndframe.columns, " ]"));
             }
             var idx = ndframe.columns.indexOf(cname);
             colsData.push(ndframe.getColumnData[idx]);

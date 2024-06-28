@@ -13,7 +13,7 @@
 * ==========================================================================
 */
 import DataFrame from "../core/frame";
-declare type mergeParam = {
+type mergeParam = {
     left: DataFrame;
     right: DataFrame;
     on: Array<string>;

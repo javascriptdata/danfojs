@@ -40,7 +40,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -100,6 +100,7 @@ var generic_1 = __importDefault(require("./generic"));
 var table_1 = require("table");
 var strings_1 = __importDefault(require("./strings"));
 var datetime_1 = __importDefault(require("./datetime"));
+var rolling_1 = __importDefault(require("../rolling/rolling"));
 var plotting_1 = require("../../danfojs-base/plotting");
 var utils = new utils_1.default();
 /**
@@ -232,7 +233,7 @@ var Series = /** @class */ (function (_super) {
         if (this.shape[0] - rows < 0) {
             throw new Error("ParamError: Number of rows cannot be greater than available rows in data");
         }
-        return this.iloc(["0:" + rows]);
+        return this.iloc(["0:".concat(rows)]);
     };
     /**
       * Returns the last n values in a Series
@@ -256,7 +257,37 @@ var Series = /** @class */ (function (_super) {
             throw new Error("ParamError: Number of rows cannot be greater than available rows in data");
         }
         var startIdx = this.shape[0] - rows;
-        return this.iloc([startIdx + ":"]);
+        return this.iloc(["".concat(startIdx, ":")]);
+    };
+    Series.prototype.shift = function (step, options) {
+        if (step === void 0) { step = 1; }
+        var inplace = __assign({ inplace: false }, options).inplace;
+        var newData = __spreadArray([], this.$data, true);
+        if (step < 0) {
+            var times = -step;
+            for (var i = 0; i < times; i++) {
+                newData.shift();
+                newData.push(NaN);
+            }
+        }
+        else if (step > 0) {
+            var times = step;
+            for (var i = 0; i < times; i++) {
+                newData.pop();
+                newData.unshift(NaN);
+            }
+        }
+        if (inplace) {
+            this.$setValues(newData);
+            return this;
+        }
+        else {
+            return utils.createNdframeFromNewDataWithOldProps({
+                ndFrame: this,
+                newData: newData,
+                isSeries: true
+            });
+        }
     };
     /**
      * Returns specified number of random rows in a Series
@@ -275,10 +306,10 @@ var Series = /** @class */ (function (_super) {
      * df2.print()
      * ```
     */
-    Series.prototype.sample = function (num, options) {
-        if (num === void 0) { num = 5; }
-        return __awaiter(this, void 0, void 0, function () {
+    Series.prototype.sample = function () {
+        return __awaiter(this, arguments, void 0, function (num, options) {
             var seed, shuffledIndex, sf;
+            if (num === void 0) { num = 5; }
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -290,7 +321,7 @@ var Series = /** @class */ (function (_super) {
                             throw new Error("Sample size cannot be less than -1 or be equal to 0");
                         }
                         num = num === -1 ? this.shape[0] : num;
-                        return [4 /*yield*/, tensorflowlib_1.default.data.array(this.index).shuffle(num, "" + seed).take(num).toArray()];
+                        return [4 /*yield*/, tensorflowlib_1.default.data.array(this.index).shuffle(num, "".concat(seed)).take(num).toArray()];
                     case 1:
                         shuffledIndex = _a.sent();
                         sf = this.iloc(shuffledIndex);
@@ -847,11 +878,11 @@ var Series = /** @class */ (function (_super) {
         var dataDict = {};
         for (var i = 0; i < sData.length; i++) {
             var val = sData[i];
-            if ("" + val in dataDict) {
-                dataDict["" + val] = dataDict["" + val] + 1;
+            if ("".concat(val) in dataDict) {
+                dataDict["".concat(val)] = dataDict["".concat(val)] + 1;
             }
             else {
-                dataDict["" + val] = 1;
+                dataDict["".concat(val)] = 1;
             }
         }
         var index = Object.keys(dataDict).map(function (x) {
@@ -1287,7 +1318,7 @@ var Series = /** @class */ (function (_super) {
             throw Error("Param Error: Please specify dtype to cast to");
         }
         if (!(defaults_1.DATA_TYPES.includes(dtype))) {
-            throw Error("dtype " + dtype + " not supported. dtype must be one of " + defaults_1.DATA_TYPES);
+            throw Error("dtype ".concat(dtype, " not supported. dtype must be one of ").concat(defaults_1.DATA_TYPES));
         }
         var oldValues = __spreadArray([], this.values, true);
         var newValues = [];
@@ -1456,7 +1487,7 @@ var Series = /** @class */ (function (_super) {
         var values = [];
         if (this.shape[0] > maxRow) {
             //slice rows to show [max_rows] rows
-            var sfSlice = this.iloc(["0:" + maxRow]);
+            var sfSlice = this.iloc(["0:".concat(maxRow)]);
             indx = sfSlice.index;
             values = sfSlice.values;
         }
@@ -1636,6 +1667,9 @@ var Series = /** @class */ (function (_super) {
         else {
             throw new Error("Not supported in NodeJS");
         }
+    };
+    Series.prototype.rolling = function (windowSize) {
+        return new rolling_1.default(this, windowSize);
     };
     return Series;
 }(generic_1.default));

@@ -57,11 +57,11 @@ var piePlot = function (ndframe, divId, plotConfig, Plotly) {
     else {
         if (config["labels"]) {
             if (!ndframe.columns.includes(config['labels'])) {
-                throw Error("Column Error: " + config['labels'] + " not found in columns. Param \"labels\" name must be one of [ " + ndframe.columns + "]");
+                throw Error("Column Error: ".concat(config['labels'], " not found in columns. Param \"labels\" name must be one of [ ").concat(ndframe.columns, "]"));
             }
             if (config["values"]) {
                 if (!ndframe.columns.includes(config['values'])) {
-                    throw Error("Column Error: " + config['values'] + " not found in columns. Param \"values\" name must be one of [ " + ndframe.columns + "]");
+                    throw Error("Column Error: ".concat(config['values'], " not found in columns. Param \"values\" name must be one of [ ").concat(ndframe.columns, "]"));
                 }
                 var trace = {
                     values: ndframe[config['values']].values,
@@ -78,7 +78,7 @@ var piePlot = function (ndframe, divId, plotConfig, Plotly) {
                 var cols = config["columns"] ? (0, utils_1.checkIfColsExist)(ndframe, config['columns']) : ndframe.columns;
                 if (config['rowPositions']) {
                     if (config['rowPositions'].length != cols.length) {
-                        throw Error("length of rowPositions array must be equal to number of columns. Got " + config['rowPositions'].length + ", expected " + (cols.length - 1));
+                        throw Error("length of rowPositions array must be equal to number of columns. Got ".concat(config['rowPositions'].length, ", expected ").concat(cols.length - 1));
                     }
                 }
                 else {
@@ -90,7 +90,7 @@ var piePlot = function (ndframe, divId, plotConfig, Plotly) {
                 }
                 if (config['columnPositions']) {
                     if (config['columnPositions'].length != cols.length) {
-                        throw Error("length of columnPositions array must be equal to number of columns. Got " + config['columnPositions'].length + ", expected " + (cols.length - 1));
+                        throw Error("length of columnPositions array must be equal to number of columns. Got ".concat(config['columnPositions'].length, ", expected ").concat(cols.length - 1));
                     }
                 }
                 else {

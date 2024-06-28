@@ -100,6 +100,7 @@ var generic_1 = __importDefault(require("./generic"));
 var table_1 = require("table");
 var strings_1 = __importDefault(require("./strings"));
 var datetime_1 = __importDefault(require("./datetime"));
+var rolling_1 = __importDefault(require("../rolling/rolling"));
 var plotting_1 = require("../../danfojs-base/plotting");
 var utils = new utils_1.default();
 /**
@@ -257,6 +258,36 @@ var Series = /** @class */ (function (_super) {
         }
         var startIdx = this.shape[0] - rows;
         return this.iloc([startIdx + ":"]);
+    };
+    Series.prototype.shift = function (step, options) {
+        if (step === void 0) { step = 1; }
+        var inplace = __assign({ inplace: false }, options).inplace;
+        var newData = __spreadArray([], this.$data, true);
+        if (step < 0) {
+            var times = -step;
+            for (var i = 0; i < times; i++) {
+                newData.shift();
+                newData.push(NaN);
+            }
+        }
+        else if (step > 0) {
+            var times = step;
+            for (var i = 0; i < times; i++) {
+                newData.pop();
+                newData.unshift(NaN);
+            }
+        }
+        if (inplace) {
+            this.$setValues(newData);
+            return this;
+        }
+        else {
+            return utils.createNdframeFromNewDataWithOldProps({
+                ndFrame: this,
+                newData: newData,
+                isSeries: true
+            });
+        }
     };
     /**
      * Returns specified number of random rows in a Series
@@ -1636,6 +1667,9 @@ var Series = /** @class */ (function (_super) {
         else {
             throw new Error("Not supported in NodeJS");
         }
+    };
+    Series.prototype.rolling = function (windowSize) {
+        return new rolling_1.default(this, windowSize);
     };
     return Series;
 }(generic_1.default));

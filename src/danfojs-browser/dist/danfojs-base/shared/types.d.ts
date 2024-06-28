@@ -22,10 +22,10 @@ import Series from '../core/series';
 import Str from '../core/strings';
 import Dt from '../core/datetime';
 import { ParsingOptions, WritingOptions } from "xlsx";
-export declare type DTYPES = "float32" | "int32" | "string" | "boolean" | "undefined";
-export declare type ArrayType2D = Array<number[] | string[] | boolean[] | (number | string | boolean)[]>;
-export declare type ArrayType1D = Array<number | string | boolean | (number | string | boolean)>;
-export declare type ConfigsType = {
+export type DTYPES = "float32" | "int32" | "string" | "boolean" | "undefined";
+export type ArrayType2D = Array<number[] | string[] | boolean[] | (number | string | boolean)[]>;
+export type ArrayType1D = Array<number | string | boolean | (number | string | boolean)>;
+export type ConfigsType = {
     tableDisplayConfig?: BaseUserConfig & TableUserConfig;
     tableMaxRow?: number;
     tableMaxColInConsole?: number;
@@ -62,7 +62,7 @@ export interface LoadObjectDataType {
     columns?: string[];
     dtypes?: Array<string>;
 }
-export declare type AxisType = {
+export type AxisType = {
     index: Array<string | number>;
     columns: Array<string | number>;
 };
@@ -83,8 +83,8 @@ export interface NDframeInterface {
     get size(): number;
     print(): void;
 }
-declare type mapFunc = (val: any, i: number) => any[];
-export declare type mapParam = object | mapFunc;
+type mapFunc = (val: any, i: number) => any[];
+export type mapParam = object | mapFunc;
 export interface SeriesInterface extends NDframeInterface {
     iloc(rows: Array<string | number> | boolean[]): Series;
     head(rows: number): Series;
@@ -427,11 +427,11 @@ interface CustomConfig extends Config {
     tableCellStyle: any;
     columns: string[];
 }
-export declare type PlotConfigObject = {
+export type PlotConfigObject = {
     config?: Partial<CustomConfig>;
     layout?: Partial<Layout>;
 };
-export declare type InternalPlotConfigObject = {
+export type InternalPlotConfigObject = {
     config: Partial<CustomConfig>;
     layout: Partial<Layout>;
 };
@@ -448,14 +448,14 @@ export interface IPlotlyLib {
 export interface CsvInputOptionsBrowser extends ParseConfig {
     frameConfig?: BaseDataOptionType;
 }
-export declare type ExcelInputOptionsBrowser = {
+export type ExcelInputOptionsBrowser = {
     sheet?: number;
     method?: string;
     headers?: any;
     frameConfig?: BaseDataOptionType;
     parsingOptions?: ParsingOptions;
 };
-export declare type JsonInputOptionsBrowser = {
+export type JsonInputOptionsBrowser = {
     method?: string;
     headers?: any;
     frameConfig?: BaseDataOptionType;
@@ -463,44 +463,44 @@ export declare type JsonInputOptionsBrowser = {
 export interface CsvInputOptionsNode extends ParseConfig {
     frameConfig?: BaseDataOptionType;
 }
-export declare type ExcelInputOptionsNode = {
+export type ExcelInputOptionsNode = {
     sheet?: number;
     method?: string;
     headers?: HeadersInit;
     frameConfig?: BaseDataOptionType;
     parsingOptions?: ParsingOptions;
 };
-export declare type JsonInputOptionsNode = {
+export type JsonInputOptionsNode = {
     method?: string;
     headers?: HeadersInit;
     frameConfig?: BaseDataOptionType;
 };
-export declare type CsvOutputOptionsBrowser = {
+export type CsvOutputOptionsBrowser = {
     fileName?: string;
     sep?: string;
     header?: boolean;
     download?: boolean;
 };
-export declare type ExcelOutputOptionsBrowser = {
+export type ExcelOutputOptionsBrowser = {
     fileName?: string;
     sheetName?: string;
     writingOptions?: WritingOptions;
 };
-export declare type JsonOutputOptionsBrowser = {
+export type JsonOutputOptionsBrowser = {
     fileName?: string;
     format?: "row" | "column";
     download?: boolean;
 };
-export declare type CsvOutputOptionsNode = {
+export type CsvOutputOptionsNode = {
     filePath?: string;
     sep?: string;
     header?: boolean;
 };
-export declare type JsonOutputOptionsNode = {
+export type JsonOutputOptionsNode = {
     format?: "row" | "column";
     filePath?: string;
 };
-export declare type ExcelOutputOptionsNode = {
+export type ExcelOutputOptionsNode = {
     filePath?: string;
     sheetName?: string;
     writingOptions?: WritingOptions;

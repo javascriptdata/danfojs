@@ -197,7 +197,7 @@ var Utils = /** @class */ (function () {
                 return JSON.stringify(val);
             }
             else {
-                return "" + val;
+                return "".concat(val);
             }
         });
         return newArr;
@@ -541,7 +541,7 @@ var Utils = /** @class */ (function () {
         }
         var truthy = function (element) { return element == false; };
         if (bool.some(truthy)) {
-            throw Error("Params Error: Required parameter not found. Your params must include the following [" + paramsNeeded + "]");
+            throw Error("Params Error: Required parameter not found. Your params must include the following [".concat(paramsNeeded, "]"));
         }
     };
     /**

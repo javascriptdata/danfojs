@@ -868,7 +868,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * df.addColumn('C', [5, 6], { inplace: true, atIndex: 0 }).print()
      * ```
     */
-    addColumn(column: string, values: Series | ArrayType1D, options?: {
+    addColumn(column: string, values: Series | ArrayType1D | any, options?: {
         inplace?: boolean;
         atIndex?: number | string;
     }): DataFrame;
@@ -1353,7 +1353,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * let df = new dfd.DataFrame(data, { columns: cols });
      * let groupDf = df.groupby([ "A" ]);
      */
-    groupby(col: Array<string>): Groupby;
+    groupby(col: Array<string> | string): Groupby;
     /**
      * Access a single value for a row/column pair by integer position.
      * Similar to {@link iloc}, in that both provide integer-based lookups.

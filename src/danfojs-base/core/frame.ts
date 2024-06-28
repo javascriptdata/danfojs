@@ -77,7 +77,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                     get() {
                         return self.$getColumnData(column)
                     },
-                    set(arr: ArrayType1D | Series) {
+                    set(arr: ArrayType1D | Series | any) {
                         self.$setColumnData(column, arr);
                     }
                 })
@@ -130,9 +130,9 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                     config
                 })
             } else {
-                if(data instanceof Series){
+                if (data instanceof Series) {
                     return data.values
-                }else{
+                } else {
                     return data
                 }
             }
@@ -146,7 +146,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param column The name of the column to update.
      * @param arr The new column data
      */
-    private $setColumnData(column: string, arr: ArrayType1D | Series): void {
+    private $setColumnData(column: string, arr: ArrayType1D | Series | any): void {
 
         const columnIndex = this.$columns.indexOf(column)
 
@@ -154,37 +154,46 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             throw new Error(`ParamError: column ${column} not found in ${this.$columns}. If you need to add a new column, use the df.addColumn method. `)
         }
 
-        let colunmValuesToAdd: ArrayType1D
+        let colunmValuesToAdd: ArrayType1D | any
 
         if (arr instanceof Series) {
             colunmValuesToAdd = arr.values as ArrayType1D
-        } else if (Array.isArray(arr)) {
+        } else {
             colunmValuesToAdd = arr;
-        } else {
-            throw new Error("ParamError: specified value not supported. It must either be an Array or a Series of the same length")
         }
 
-        if (colunmValuesToAdd.length !== this.shape[0]) {
-            ErrorThrower.throwColumnLengthError(this, colunmValuesToAdd.length)
-        }
-
-        if (this.$config.isLowMemoryMode) {
-            //Update row ($data) array
-            for (let i = 0; i < this.$data.length; i++) {
-                (this.$data as any)[i][columnIndex] = colunmValuesToAdd[i]
+        if (Array.isArray(colunmValuesToAdd)) {
+            if (colunmValuesToAdd.length !== this.shape[0]) {
+                ErrorThrower.throwColumnLengthError(this, colunmValuesToAdd.length)
             }
-            //Update the dtypes
-            this.$dtypes[columnIndex] = utils.inferDtype(colunmValuesToAdd)[0]
-        } else {
+
             //Update row ($data) array
             for (let i = 0; i < this.values.length; i++) {
                 (this.$data as any)[i][columnIndex] = colunmValuesToAdd[i]
             }
-            //Update column ($dataIncolumnFormat) array since it's available in object
-            (this.$dataIncolumnFormat as any)[columnIndex] = arr
+            if (!this.$config.isLowMemoryMode) {
+                //Update column ($dataIncolumnFormat) array since it's available in object
+                (this.$dataIncolumnFormat as any)[columnIndex] = arr
+            }
 
             //Update the dtypes
             this.$dtypes[columnIndex] = utils.inferDtype(colunmValuesToAdd)[0]
+
+        } else {
+
+            let addArray = []
+            //Update row ($data) array
+            for (let i = 0; i < this.$data.length; i++) {
+                (this.$data as any)[i][columnIndex] = colunmValuesToAdd
+                addArray.push(colunmValuesToAdd)
+            }
+
+            if (!this.$config.isLowMemoryMode) {
+                //Update column ($dataIncolumnFormat) array since it's available in object
+                (this.$dataIncolumnFormat as any)[columnIndex] = addArray
+            }
+            //Update the dtypes
+            this.$dtypes[columnIndex] = utils.inferDtype([colunmValuesToAdd])[0]
         }
 
     }
@@ -1938,12 +1947,12 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     */
     addColumn(
         column: string,
-        values: Series | ArrayType1D,
+        values: Series | ArrayType1D| any,
         options?: { inplace?: boolean, atIndex?: number | string }
     ): DataFrame
     addColumn(
         column: string,
-        values: Series | ArrayType1D,
+        values: Series | ArrayType1D | any,
         options?: { inplace?: boolean, atIndex?: number | string }
     ): DataFrame | void {
         let { inplace, atIndex } = { inplace: false, atIndex: this.columns.length, ...options };
@@ -1965,27 +1974,38 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         const columnIndex = this.$columns.indexOf(column)
 
         if (columnIndex === -1) {
-            let colunmValuesToAdd: ArrayType1D
+            let colunmValuesToAdd: ArrayType1D | any
 
             if (values instanceof Series) {
                 colunmValuesToAdd = values.values as ArrayType1D
-            } else if (Array.isArray(values)) {
-                colunmValuesToAdd = values;
             } else {
-                throw new Error("ParamError: specified value not supported. It must either be an Array or a Series of the same length")
-            }
-
-            if (colunmValuesToAdd.length !== this.shape[0]) {
-                ErrorThrower.throwColumnLengthError(this, colunmValuesToAdd.length)
+                colunmValuesToAdd = values;
             }
 
             const newData = []
             const oldValues = this.$data
-            for (let i = 0; i < oldValues.length; i++) {
-                const innerArr = [...oldValues[i]] as ArrayType1D
-                innerArr.splice(atIndex, 0, colunmValuesToAdd[i])
-                newData.push(innerArr)
+
+            if (Array.isArray(colunmValuesToAdd)){
+                if (colunmValuesToAdd.length !== this.shape[0]) {
+                    ErrorThrower.throwColumnLengthError(this, colunmValuesToAdd.length)
+                }
+
+                for (let i = 0; i < oldValues.length; i++) {
+                    const innerArr = [...oldValues[i]] as ArrayType1D
+                    innerArr.splice(atIndex, 0, colunmValuesToAdd[i])
+                    newData.push(innerArr)
+                }
+            }else{
+                for (let i = 0; i < oldValues.length; i++) {
+                    const innerArr = [...oldValues[i]] as ArrayType1D
+                    innerArr.splice(atIndex, 0, colunmValuesToAdd)
+                    newData.push(innerArr)
+                }
             }
+            
+
+            
+            
 
             if (inplace) {
                 this.$setValues(newData, true, false)
@@ -1997,11 +2017,9 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
             } else {
                 let columns = [...this.columns]
                 columns.splice(atIndex, 0, column)
-
                 const df = new DataFrame(newData, {
                     index: [...this.index],
                     columns: columns,
-                    dtypes: [...this.dtypes, utils.inferDtype(colunmValuesToAdd)[0]],
                     config: { ...this.$config }
                 })
                 return df
@@ -3352,8 +3370,9 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * let df = new dfd.DataFrame(data, { columns: cols });
      * let groupDf = df.groupby([ "A" ]);
      */
-    groupby(col: Array<string>): Groupby {
+    groupby(col: Array<string>|string): Groupby {
         const columns = this.columns
+        if(typeof col == 'string') col = [col]
         const colIndex = col.map((val) => columns.indexOf(val))
         const colDtype = this.dtypes
 

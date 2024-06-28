@@ -18,6 +18,34 @@
 structures designed to make working with "relational" or "labeled" data both
 easy and intuitive. It is heavily inspired by [Pandas](https://pandas.pydata.org/pandas-docs/stable/) library, and provides a similar API. This means that users familiar with [Pandas](https://pandas.pydata.org/pandas-docs/stable/), can easily pick up danfo.js. 
 
+## New update
+  - Allow to add or edit column by a number or string
+  - Allow to shift left or right for a Series
+  - Support rolling with sum, mean, max, min, any (any value is True), all (all values is True)
+  - Example:
+  ```javascript
+    let data = [[1, 1, 2, 2], [1, 5, 6, 8], [20, 30, 40, 60], [20, 89, 78, 70]];
+    let cols = ["A", "B", "C", "D"];
+    let df:any = new dfd.DataFrame(data, { columns: cols });
+
+    df.addColumn("E", 5, {inplace: true})
+    df.print()
+
+    df.addColumn("F", df['A'].shift(2), {inplace: true})
+    df.print()
+
+    df.addColumn("K", df['A'].rolling(3).sum(), {inplace: true})
+    df.print()
+
+    let grouped = df.groupby('A').agg({
+        B: 'last',
+        C: 'first',
+        D: 'mean',
+        E: 'sum'
+    })
+    grouped.print()
+  ```
+
 ## Main Features
 
   - Danfo.js is fast and supports Tensorflow.js tensors out of the box. This means you can [convert Danfo data structure](https://danfo.jsdata.org/api-reference/dataframe/dataframe.tensor) to Tensors.

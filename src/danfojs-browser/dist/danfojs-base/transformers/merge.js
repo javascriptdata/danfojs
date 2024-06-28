@@ -26,6 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = merge;
 var frame_1 = __importDefault(require("../core/frame"));
 var utils_1 = __importDefault(require("../shared/utils"));
 var utils = new utils_1.default();
@@ -138,7 +139,7 @@ var Merge = /** @class */ (function () {
         for (var i = 0; i < tempColumn.length; i++) {
             var col = tempColumn[i];
             if (utils.keyInObject(duplicateColumn, col)) {
-                var columnName = col + "_" + duplicateColumn[col];
+                var columnName = "".concat(col, "_").concat(duplicateColumn[col]);
                 this.columns.push(columnName);
                 duplicateColumn[col] += 1;
             }
@@ -358,4 +359,3 @@ function merge(params) {
     var mergeClass = new Merge(params);
     return mergeClass.operation();
 }
-exports.default = merge;

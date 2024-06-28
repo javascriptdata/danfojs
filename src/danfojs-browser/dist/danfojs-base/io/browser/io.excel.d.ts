@@ -37,7 +37,7 @@ import { DataFrame, NDframe, Series } from '../../';
  * })
  * ```
  */
-declare const $readExcel: (file: any, options?: ExcelInputOptionsBrowser | undefined) => Promise<unknown>;
+declare const $readExcel: (file: any, options?: ExcelInputOptionsBrowser) => Promise<unknown>;
 /**
  * Converts a DataFrame or Series to Excel Sheet.
  * @param df DataFrame or Series to be converted to JSON.
@@ -54,5 +54,5 @@ declare const $readExcel: (file: any, options?: ExcelInputOptionsBrowser | undef
  *   })
  * ```
  */
-declare const $toExcel: (df: NDframe | DataFrame | Series, options?: ExcelOutputOptionsBrowser | undefined) => void;
+declare const $toExcel: (df: NDframe | DataFrame | Series, options?: ExcelOutputOptionsBrowser) => void;
 export { $readExcel, $toExcel };

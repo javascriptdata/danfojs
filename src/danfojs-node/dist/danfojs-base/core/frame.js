@@ -224,32 +224,37 @@ var DataFrame = /** @class */ (function (_super) {
         if (arr instanceof series_1.default) {
             colunmValuesToAdd = arr.values;
         }
-        else if (Array.isArray(arr)) {
+        else {
             colunmValuesToAdd = arr;
         }
-        else {
-            throw new Error("ParamError: specified value not supported. It must either be an Array or a Series of the same length");
-        }
-        if (colunmValuesToAdd.length !== this.shape[0]) {
-            errors_1.default.throwColumnLengthError(this, colunmValuesToAdd.length);
-        }
-        if (this.$config.isLowMemoryMode) {
-            //Update row ($data) array
-            for (var i = 0; i < this.$data.length; i++) {
-                this.$data[i][columnIndex] = colunmValuesToAdd[i];
+        if (Array.isArray(colunmValuesToAdd)) {
+            if (colunmValuesToAdd.length !== this.shape[0]) {
+                errors_1.default.throwColumnLengthError(this, colunmValuesToAdd.length);
             }
-            //Update the dtypes
-            this.$dtypes[columnIndex] = utils.inferDtype(colunmValuesToAdd)[0];
-        }
-        else {
             //Update row ($data) array
             for (var i = 0; i < this.values.length; i++) {
                 this.$data[i][columnIndex] = colunmValuesToAdd[i];
             }
-            //Update column ($dataIncolumnFormat) array since it's available in object
-            this.$dataIncolumnFormat[columnIndex] = arr;
+            if (!this.$config.isLowMemoryMode) {
+                //Update column ($dataIncolumnFormat) array since it's available in object
+                this.$dataIncolumnFormat[columnIndex] = arr;
+            }
             //Update the dtypes
             this.$dtypes[columnIndex] = utils.inferDtype(colunmValuesToAdd)[0];
+        }
+        else {
+            var addArray = [];
+            //Update row ($data) array
+            for (var i = 0; i < this.$data.length; i++) {
+                this.$data[i][columnIndex] = colunmValuesToAdd;
+                addArray.push(colunmValuesToAdd);
+            }
+            if (!this.$config.isLowMemoryMode) {
+                //Update column ($dataIncolumnFormat) array since it's available in object
+                this.$dataIncolumnFormat[columnIndex] = addArray;
+            }
+            //Update the dtypes
+            this.$dtypes[columnIndex] = utils.inferDtype([colunmValuesToAdd])[0];
         }
     };
     /**
@@ -1502,21 +1507,27 @@ var DataFrame = /** @class */ (function (_super) {
             if (values instanceof series_1.default) {
                 colunmValuesToAdd = values.values;
             }
-            else if (Array.isArray(values)) {
-                colunmValuesToAdd = values;
-            }
             else {
-                throw new Error("ParamError: specified value not supported. It must either be an Array or a Series of the same length");
-            }
-            if (colunmValuesToAdd.length !== this.shape[0]) {
-                errors_1.default.throwColumnLengthError(this, colunmValuesToAdd.length);
+                colunmValuesToAdd = values;
             }
             var newData = [];
             var oldValues = this.$data;
-            for (var i = 0; i < oldValues.length; i++) {
-                var innerArr = __spreadArray([], oldValues[i], true);
-                innerArr.splice(atIndex, 0, colunmValuesToAdd[i]);
-                newData.push(innerArr);
+            if (Array.isArray(colunmValuesToAdd)) {
+                if (colunmValuesToAdd.length !== this.shape[0]) {
+                    errors_1.default.throwColumnLengthError(this, colunmValuesToAdd.length);
+                }
+                for (var i = 0; i < oldValues.length; i++) {
+                    var innerArr = __spreadArray([], oldValues[i], true);
+                    innerArr.splice(atIndex, 0, colunmValuesToAdd[i]);
+                    newData.push(innerArr);
+                }
+            }
+            else {
+                for (var i = 0; i < oldValues.length; i++) {
+                    var innerArr = __spreadArray([], oldValues[i], true);
+                    innerArr.splice(atIndex, 0, colunmValuesToAdd);
+                    newData.push(innerArr);
+                }
             }
             if (inplace) {
                 this.$setValues(newData, true, false);
@@ -1531,7 +1542,6 @@ var DataFrame = /** @class */ (function (_super) {
                 var df = new DataFrame(newData, {
                     index: __spreadArray([], this.index, true),
                     columns: columns,
-                    dtypes: __spreadArray(__spreadArray([], this.dtypes, true), [utils.inferDtype(colunmValuesToAdd)[0]], false),
                     config: __assign({}, this.$config)
                 });
                 return df;
@@ -2349,6 +2359,8 @@ var DataFrame = /** @class */ (function (_super) {
      */
     DataFrame.prototype.groupby = function (col) {
         var columns = this.columns;
+        if (typeof col == 'string')
+            col = [col];
         var colIndex = col.map(function (val) { return columns.indexOf(val); });
         var colDtype = this.dtypes;
         return new groupby_1.default(col, this.values, columns, colDtype, colIndex).group();

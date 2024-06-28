@@ -41,7 +41,7 @@ import { DataFrame, NDframe, Series } from '../../';
  * const df = await readJSON("./data/sample.json")
  * ```
  */
-declare const $readJSON: (file: any, options?: JsonInputOptionsBrowser | undefined) => Promise<unknown>;
+declare const $readJSON: (file: any, options?: JsonInputOptionsBrowser) => Promise<unknown>;
 /**
  * Converts a DataFrame or Series to JSON.
  * @param df DataFrame or Series to be converted to JSON.
@@ -74,5 +74,5 @@ declare const $readJSON: (file: any, options?: JsonInputOptionsBrowser | undefin
  *   })
  * ```
  */
-declare const $toJSON: (df: NDframe | DataFrame | Series, options?: JsonOutputOptionsBrowser | undefined) => object | void;
+declare const $toJSON: (df: NDframe | DataFrame | Series, options?: JsonOutputOptionsBrowser) => object | void;
 export { $readJSON, $toJSON };

@@ -1,6 +1,6 @@
 import { assert } from "chai";
 import { describe, it } from "mocha";
-import { DataFrame } from '../../dist/danfojs-node/src';
+import { DataFrame } from '../../src';
 
 
 describe("groupby", function () {

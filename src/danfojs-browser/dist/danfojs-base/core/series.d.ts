@@ -3,6 +3,7 @@ import Str from './strings';
 import Dt from './datetime';
 import DataFrame from "./frame";
 import { ArrayType1D, BaseDataOptionType, SeriesInterface, mapParam, IPlotlyLib } from "../shared/types";
+import Rolling from '../rolling/rolling';
 /**
  * One-dimensional ndarray with axis labels.
  * The object supports both integer- and label-based indexing and provides a host of methods for performing operations involving the index.
@@ -102,6 +103,9 @@ export default class Series extends NDframe implements SeriesInterface {
       * ```
     */
     tail(rows?: number): Series;
+    shift(step?: number, options?: {
+        inplace?: boolean;
+    }): Series;
     /**
      * Returns specified number of random rows in a Series
      * @param num The number of rows to return
@@ -1187,4 +1191,5 @@ export default class Series extends NDframe implements SeriesInterface {
      * @param divId name of the HTML Div to render the chart in.
     */
     plot(divId: string): IPlotlyLib;
+    rolling(windowSize: number): Rolling;
 }

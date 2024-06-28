@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports._genericMathOp = void 0;
+exports._genericMathOp = _genericMathOp;
 /**
 *  @license
 * Copyright 2022 JsData. All rights reserved.
@@ -62,7 +62,7 @@ function _genericMathOp(_a) {
                 newData = ndFrame.values.map((function (ele) { return Math.max(ele, other); }));
                 return newData;
             default:
-                throw new Error(operation + " is not implemented");
+                throw new Error("".concat(operation, " is not implemented"));
         }
     }
     else if (other instanceof series_1.default) {
@@ -94,7 +94,7 @@ function _genericMathOp(_a) {
                 newData = ndFrame.values.map(function (ele, index) { return Math.max(ele, other.values[index]); });
                 return newData;
             default:
-                throw new Error(operation + " is not implemented");
+                throw new Error("".concat(operation, " is not implemented"));
         }
     }
     else if (Array.isArray(other)) {
@@ -133,4 +133,3 @@ function _genericMathOp(_a) {
         throw new Error("ParamError: value for other not supported. It must be either a scalar, Array or Series");
     }
 }
-exports._genericMathOp = _genericMathOp;

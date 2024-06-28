@@ -7,11 +7,11 @@ var defaults_1 = require("./defaults");
 var ErrorThrower = /** @class */ (function () {
     function ErrorThrower() {
         this.throwColumnNamesLengthError = function (ndframe, columns) {
-            var msg = "ParamError: Column names length mismatch. You provided a column of length " + columns.length + " but Ndframe columns has length of " + ndframe.shape[1];
+            var msg = "ParamError: Column names length mismatch. You provided a column of length ".concat(columns.length, " but Ndframe columns has length of ").concat(ndframe.shape[1]);
             throw new Error(msg);
         };
         this.throwIndexLengthError = function (ndframe, index) {
-            var msg = "IndexError: You provided an index of length " + index.length + " but Ndframe rows has length of " + ndframe.shape[0];
+            var msg = "IndexError: You provided an index of length ".concat(index.length, " but Ndframe rows has length of ").concat(ndframe.shape[0]);
             throw new Error(msg);
         };
         this.throwIndexDuplicateError = function () {
@@ -23,11 +23,11 @@ var ErrorThrower = /** @class */ (function () {
             throw new Error(msg);
         };
         this.throwDtypesLengthError = function (ndframe, dtypes) {
-            var msg = "DtypeError: You provided a dtype array of length " + dtypes.length + " but Ndframe columns has length of " + ndframe.shape[1];
+            var msg = "DtypeError: You provided a dtype array of length ".concat(dtypes.length, " but Ndframe columns has length of ").concat(ndframe.shape[1]);
             throw new Error(msg);
         };
         this.throwDtypeNotSupportedError = function (dtype) {
-            var msg = "DtypeError: Dtype \"" + dtype + "\" not supported. dtype must be one of \"" + defaults_1.DATA_TYPES + "\"";
+            var msg = "DtypeError: Dtype \"".concat(dtype, "\" not supported. dtype must be one of \"").concat(defaults_1.DATA_TYPES, "\"");
             throw new Error(msg);
         };
         this.throwDtypeWithoutColumnError = function () {
@@ -35,15 +35,15 @@ var ErrorThrower = /** @class */ (function () {
             throw new Error(msg);
         };
         this.throwColumnLengthError = function (ndframe, arrLen) {
-            var msg = "ParamError: Column data length mismatch. You provided data with length " + arrLen + " but Ndframe has column of length " + ndframe.shape[0];
+            var msg = "ParamError: Column data length mismatch. You provided data with length ".concat(arrLen, " but Ndframe has column of length ").concat(ndframe.shape[0]);
             throw new Error(msg);
         };
         this.throwRowLengthError = function (ndframe, arrLen) {
-            var msg = "ParamError: Row data length mismatch. You provided data with length " + arrLen + " but Ndframe has row of length " + ndframe.shape[0];
+            var msg = "ParamError: Row data length mismatch. You provided data with length ".concat(arrLen, " but Ndframe has row of length ").concat(ndframe.shape[0]);
             throw new Error(msg);
         };
         this.throwColumnNotFoundError = function (ndframe) {
-            var msg = "ParamError: Column not found!. Column name must be one of " + ndframe.columns;
+            var msg = "ParamError: Column not found!. Column name must be one of ".concat(ndframe.columns);
             throw new Error(msg);
         };
         this.throwNotImplementedError = function () {
@@ -59,11 +59,11 @@ var ErrorThrower = /** @class */ (function () {
             throw new Error(msg);
         };
         this.throwStringDtypeOperationError = function (operation) {
-            var msg = "DtypeError: String data type does not support " + operation + " operation";
+            var msg = "DtypeError: String data type does not support ".concat(operation, " operation");
             throw new Error(msg);
         };
         this.throwSeriesMathOpLengthError = function (ndframe, other) {
-            var msg = "ParamError: Row length mismatch. Length of other (" + other.shape[0] + "), must be the same as Ndframe (" + ndframe.shape[0] + ")";
+            var msg = "ParamError: Row length mismatch. Length of other (".concat(other.shape[0], "), must be the same as Ndframe (").concat(ndframe.shape[0], ")");
             throw new Error(msg);
         };
     }

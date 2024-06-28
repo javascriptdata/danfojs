@@ -97,7 +97,7 @@ function dummyEncode(data, options) {
     else if (Array.isArray(columns)) {
         if (prefix) {
             if (Array.isArray(prefix) && prefix.length !== columns.length) {
-                throw new Error("ParamError: prefix and data array must be of the same length. If you need to use the same prefix, then pass a string param instead. e.g {prefix: \"" + prefix + "\"}");
+                throw new Error("ParamError: prefix and data array must be of the same length. If you need to use the same prefix, then pass a string param instead. e.g {prefix: \"".concat(prefix, "\"}"));
             }
             if (typeof prefix === "string") {
                 prefix = columns.map(function (_) { return prefix; });
@@ -105,7 +105,7 @@ function dummyEncode(data, options) {
         }
         if (prefixSeparator) {
             if (Array.isArray(prefixSeparator) && prefixSeparator.length !== columns.length) {
-                throw new Error("ParamError: prefixSeparator and data array must be of the same length. If you need to use the same prefix separator, then pass a string param instead. e.g {prefixSeparator: \"" + prefixSeparator + "\"}");
+                throw new Error("ParamError: prefixSeparator and data array must be of the same length. If you need to use the same prefix separator, then pass a string param instead. e.g {prefixSeparator: \"".concat(prefixSeparator, "\"}"));
             }
             if (typeof prefixSeparator === "string") {
                 prefixSeparator = columns.map(function (_) { return prefixSeparator; });
@@ -126,7 +126,7 @@ function dummyEncode(data, options) {
         }
         for (var i = 0; i < uniqueValues.length; i++) {
             var prefixToAdd = prefix ? prefix[0] : i;
-            newColumnNames.push("" + prefixToAdd + prefixSeparator[0] + uniqueValues[i]);
+            newColumnNames.push("".concat(prefixToAdd).concat(prefixSeparator[0]).concat(uniqueValues[i]));
         }
         return new frame_1.default(oneHotArr, { columns: newColumnNames });
     }
@@ -143,7 +143,7 @@ function dummyEncode(data, options) {
                 var index = uniqueValues.indexOf(colData[j]);
                 oneHotArr[j][index] = 1;
                 var prefixToAdd = prefix ? prefix[i] : column;
-                var newColName = "" + prefixToAdd + prefixSeparator[i] + colData[j];
+                var newColName = "".concat(prefixToAdd).concat(prefixSeparator[i]).concat(colData[j]);
                 if (!newColumnNames.includes(newColName)) {
                     newColumnNames.push(newColName);
                 }

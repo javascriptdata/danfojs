@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = dateRange;
 /**
 *  @license
 * Copyright 2022 JsData. All rights reserved.
@@ -30,17 +31,17 @@ var DateRange = /** @class */ (function () {
         this.freqList = ["M", "D", "s", "H", "m", "Y"];
         if (this.freq.length == 1) {
             if (!this.freqList.includes(this.freq)) {
-                throw new Error("invalid freq " + this.freq);
+                throw new Error("invalid freq ".concat(this.freq));
             }
         }
         else {
             this.offset = parseInt(this.freq.slice(0, -1));
             if (!Number.isFinite(this.offset)) {
-                throw new Error("invalid freq offset " + this.freq.slice(0, -1));
+                throw new Error("invalid freq offset ".concat(this.freq.slice(0, -1)));
             }
             this.freq = this.freq.slice(-1);
             if (!this.freqList.includes(this.freq)) {
-                throw new Error("invalid freq " + this.freq);
+                throw new Error("invalid freq ".concat(this.freq));
             }
         }
     }
@@ -242,4 +243,3 @@ function dateRange(param) {
     var dateRange = new DateRange(param);
     return dateRange.range();
 }
-exports.default = dateRange;

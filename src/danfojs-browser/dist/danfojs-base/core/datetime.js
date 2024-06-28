@@ -25,7 +25,7 @@ var TimeSeries = /** @class */ (function () {
      * @param dateArray An array of date strings
     */
     TimeSeries.prototype.processData = function (dateArray) {
-        var values = dateArray.map(function (dateString) { return new Date("" + dateString); });
+        var values = dateArray.map(function (dateString) { return new Date("".concat(dateString)); });
         return values;
     };
     /**

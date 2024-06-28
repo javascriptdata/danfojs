@@ -68,7 +68,7 @@ function _iloc(_a) {
     else {
         var _formatedRows = [];
         for (var i = 0; i < rows.length; i++) {
-            var _indexToUse = rows[i];
+            var _indexToUse = Number(rows[i]);
             if (_indexToUse > ndFrame.shape[0]) {
                 throw new Error("Invalid row parameter: Specified index " + _indexToUse + " cannot be bigger than index length " + ndFrame.shape[0]);
             }
@@ -110,7 +110,7 @@ function _iloc(_a) {
     }
     else {
         for (var i = 0; i < columns.length; i++) {
-            var _indexToUse = columns[i];
+            var _indexToUse = Number(columns[i]);
             if (_indexToUse > ndFrame.shape[1]) {
                 throw new Error("Invalid column parameter: Specified index " + _indexToUse + " cannot be bigger than index length " + ndFrame.shape[1]);
             }

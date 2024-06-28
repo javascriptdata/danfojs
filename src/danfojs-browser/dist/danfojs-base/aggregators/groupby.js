@@ -167,7 +167,7 @@ var Groupby = /** @class */ (function () {
         var self = this;
         colNames.forEach(function (val) {
             if (!self.columnName.includes(val))
-                throw new Error("Column " + val + " does not exist in groups");
+                throw new Error("Column ".concat(val, " does not exist in groups"));
         });
         var colDict = __assign({}, this.colDict);
         for (var _i = 0, _a = Object.entries(colDict); _i < _a.length; _i++) {
@@ -228,10 +228,10 @@ var Groupby = /** @class */ (function () {
      */
     Groupby.prototype.arithemetic = function (operation) {
         var opsName = ["mean", "sum", "count", "mode", "std", "var", "cumsum", "cumprod",
-            "cummax", "cummin", "median", "min", "max"];
+            "cummax", "cummin", "median", "min", "max", "first", "last"];
         if (typeof operation === "string") {
             if (!opsName.includes(operation)) {
-                throw new Error("group operation: " + operation + " is not valid");
+                throw new Error("group operation: ".concat(operation, " is not valid"));
             }
         }
         else {
@@ -241,13 +241,13 @@ var Groupby = /** @class */ (function () {
                     for (var _i = 0, ops_1 = ops; _i < ops_1.length; _i++) {
                         var op = ops_1[_i];
                         if (!opsName.includes(op)) {
-                            throw new Error("group operation: " + op + " for column " + key + " is not valid");
+                            throw new Error("group operation: ".concat(op, " for column ").concat(key, " is not valid"));
                         }
                     }
                 }
                 else {
                     if (!opsName.includes(ops)) {
-                        throw new Error("group operation: " + ops + " for column " + key + " is not valid");
+                        throw new Error("group operation: ".concat(ops, " for column ").concat(key, " is not valid"));
                     }
                 }
             });
@@ -264,22 +264,22 @@ var Groupby = /** @class */ (function () {
                 var colDtype = this.colDtype[colIndex];
                 var operationVal = (typeof operation === "string") ? operation : operation[colName];
                 if (colDtype === "string" && operationVal !== "count")
-                    throw new Error("Can't perform math operation on column " + colName);
+                    throw new Error("Can't perform math operation on column ".concat(colName));
                 if (typeof operation === "string") {
-                    var colName2 = colName + "_" + operation;
+                    var colName2 = "".concat(colName, "_").concat(operation);
                     colVal[colName2] = this.groupMathLog(keyVal[colName], operation);
                 }
                 else {
                     if (Array.isArray(operation[colName])) {
                         for (var _c = 0, _d = operation[colName]; _c < _d.length; _c++) {
                             var ops = _d[_c];
-                            var colName2 = colName + "_" + ops;
+                            var colName2 = "".concat(colName, "_").concat(ops);
                             colVal[colName2] = this.groupMathLog(keyVal[colName], ops);
                         }
                     }
                     else {
                         var ops = operation[colName];
-                        var colName2 = colName + "_" + ops;
+                        var colName2 = "".concat(colName, "_").concat(ops);
                         colVal[colName2] = this.groupMathLog(keyVal[colName], ops);
                     }
                 }
@@ -296,6 +296,12 @@ var Groupby = /** @class */ (function () {
     Groupby.prototype.groupMathLog = function (colVal, ops) {
         var data = [];
         switch (ops) {
+            case "first":
+                data.push(colVal[0]);
+                break;
+            case "last":
+                data.push(colVal[colVal.length - 1]);
+                break;
             case "max":
                 var max = colVal.reduce(function (prev, curr) {
                     if (prev > curr) {
@@ -569,7 +575,7 @@ var Groupby = /** @class */ (function () {
                     copyDf.addColumn(keyName, dfValue, { inplace: true, atIndex: atIndex });
                 }
                 else {
-                    copyDf.addColumn(keyName + "_Group", dfValue, { inplace: true, atIndex: atIndex });
+                    copyDf.addColumn("".concat(keyName, "_Group"), dfValue, { inplace: true, atIndex: atIndex });
                 }
             }
             data.push(copyDf);

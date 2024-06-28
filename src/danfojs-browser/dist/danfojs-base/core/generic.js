@@ -195,7 +195,7 @@ var NDframe = /** @class */ (function () {
                 if (this.$data.length != 0 && dtypes.length != 1) {
                     errors_1.default.throwDtypesLengthError(this, dtypes);
                 }
-                if (!(defaults_1.DATA_TYPES.includes("" + dtypes[0]))) {
+                if (!(defaults_1.DATA_TYPES.includes("".concat(dtypes[0])))) {
                     errors_1.default.throwDtypeNotSupportedError(dtypes[0]);
                 }
                 this.$dtypes = dtypes;
@@ -345,7 +345,7 @@ var NDframe = /** @class */ (function () {
                 this.$columns = columns;
             }
             else {
-                this.$columns = (utils.range(0, this.shape[1] - 1)).map(function (val) { return "" + val; }); //generate columns
+                this.$columns = (utils.range(0, this.shape[1] - 1)).map(function (val) { return "".concat(val); }); //generate columns
             }
         }
     };

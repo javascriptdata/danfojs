@@ -32,7 +32,9 @@ import {
     mapParam,
     IPlotlyLib
 } from "../shared/types";
+import Rolling from '../rolling/rolling'
 import { PlotlyLib } from "../../danfojs-base/plotting";
+// import * as calculator from './math.tensor'
 
 const utils = new Utils();
 
@@ -190,6 +192,35 @@ export default class Series extends NDframe implements SeriesInterface {
 
         const startIdx = this.shape[0] - rows
         return this.iloc([`${startIdx}:`])
+    }
+
+    shift(step: number=1,  options?: { inplace?: boolean }): Series {
+        const { inplace } = { inplace: false, ...options }
+        let newData = [...this.$data]
+        if(step < 0){
+            let times = -step
+            for (let i = 0; i < times; i++) {
+                newData.shift()
+                newData.push(NaN);
+            }
+        }else if (step > 0){
+            let times = step
+            for (let i = 0; i < times; i++) {
+                newData.pop()
+                newData.unshift(NaN);
+            }
+        }
+        if (inplace) {
+            this.$setValues(newData)
+            return this
+        } else {
+            return utils.createNdframeFromNewDataWithOldProps({
+                ndFrame: this,
+                newData: newData,
+                isSeries: true
+            }) as Series
+        }
+
     }
 
     /**
@@ -2188,5 +2219,10 @@ export default class Series extends NDframe implements SeriesInterface {
         } else {
             throw new Error("Not supported in NodeJS");
         }
+    }
+
+
+    rolling(windowSize:number){
+        return new Rolling(this, windowSize)
     }
 }

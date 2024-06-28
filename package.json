@@ -10,5 +10,9 @@
         "install": "cd src/danfojs-base && yarn && cd ../danfojs-browser && yarn && cd ../danfojs-node && yarn",
         "build": "cd src/danfojs-node && yarn build:clean && cd ../danfojs-browser && yarn build:clean",
         "test": "cd src/danfojs-base && yarn && cd ../danfojs-node && yarn && yarn test:clean && cd ../danfojs-browser && yarn && yarn test:clean"
+    },
+    "devDependencies": {
+        "chai": "^5.1.1",
+        "mocha": "^10.5.2"
     }
 }

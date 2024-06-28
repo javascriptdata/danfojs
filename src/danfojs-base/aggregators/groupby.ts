@@ -231,7 +231,7 @@ export default class Groupby {
   private arithemetic(operation: {[key: string] : Array<string> | string} | string): { [key: string ]: {} } {
 
     const opsName = [ "mean", "sum", "count", "mode", "std", "var", "cumsum", "cumprod",
-    "cummax", "cummin", "median" , "min", "max"];
+    "cummax", "cummin", "median" , "min", "max", "first", "last"];
     if (typeof operation === "string" ) {
       if (!opsName.includes(operation)) {
         throw new Error(`group operation: ${operation} is not valid`)
@@ -296,6 +296,14 @@ export default class Groupby {
   private groupMathLog(colVal: Array<number>, ops: string): Array<number>{
     let data = []
     switch(ops) {
+      case "first":
+        data.push(colVal[0])
+        break;
+
+      case "last":
+        data.push(colVal[colVal.length - 1])
+        break;
+
       case "max":
         let max = colVal.reduce((prev, curr)=> {
           if (prev > curr) {

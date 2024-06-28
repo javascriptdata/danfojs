@@ -18,7 +18,7 @@ exports.throwErrorOnWrongColName = exports.checkIfColsExist = void 0;
 var checkIfColsExist = function (ndframe, cols) {
     cols.forEach(function (col) {
         if (!ndframe.columns.includes(col)) {
-            throw Error("Column Error: " + col + " not found in columns. Columns should be one of [ " + ndframe.columns + " ]");
+            throw Error("Column Error: ".concat(col, " not found in columns. Columns should be one of [ ").concat(ndframe.columns, " ]"));
         }
     });
     return cols;
@@ -26,7 +26,7 @@ var checkIfColsExist = function (ndframe, cols) {
 exports.checkIfColsExist = checkIfColsExist;
 var throwErrorOnWrongColName = function (ndframe, colName) {
     if (!ndframe.columns.includes(colName)) {
-        throw Error("ParamError: specified column " + colName + " not found in columns");
+        throw Error("ParamError: specified column ".concat(colName, " not found in columns"));
     }
 };
 exports.throwErrorOnWrongColName = throwErrorOnWrongColName;

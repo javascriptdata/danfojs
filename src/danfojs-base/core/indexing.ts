@@ -79,7 +79,7 @@ export function _iloc({ ndFrame, rows, columns }: {
     } else {
         const _formatedRows = []
         for (let i = 0; i < rows.length; i++) {
-            let _indexToUse = rows[i];
+            let _indexToUse = Number(rows[i]);
             if (_indexToUse > ndFrame.shape[0]) {
                 throw new Error(`Invalid row parameter: Specified index ${_indexToUse} cannot be bigger than index length ${ndFrame.shape[0]}`);
             }
@@ -131,7 +131,7 @@ export function _iloc({ ndFrame, rows, columns }: {
     } else {
 
         for (let i = 0; i < columns.length; i++) {
-            const _indexToUse = columns[i];
+            const _indexToUse = Number(columns[i]);
             if (_indexToUse > ndFrame.shape[1]) {
                 throw new Error(`Invalid column parameter: Specified index ${_indexToUse} cannot be bigger than index length ${ndFrame.shape[1]}`);
             }

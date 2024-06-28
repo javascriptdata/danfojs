@@ -228,7 +228,7 @@ var Groupby = /** @class */ (function () {
      */
     Groupby.prototype.arithemetic = function (operation) {
         var opsName = ["mean", "sum", "count", "mode", "std", "var", "cumsum", "cumprod",
-            "cummax", "cummin", "median", "min", "max"];
+            "cummax", "cummin", "median", "min", "max", "first", "last"];
         if (typeof operation === "string") {
             if (!opsName.includes(operation)) {
                 throw new Error("group operation: " + operation + " is not valid");
@@ -296,6 +296,12 @@ var Groupby = /** @class */ (function () {
     Groupby.prototype.groupMathLog = function (colVal, ops) {
         var data = [];
         switch (ops) {
+            case "first":
+                data.push(colVal[0]);
+                break;
+            case "last":
+                data.push(colVal[colVal.length - 1]);
+                break;
             case "max":
                 var max = colVal.reduce(function (prev, curr) {
                     if (prev > curr) {
