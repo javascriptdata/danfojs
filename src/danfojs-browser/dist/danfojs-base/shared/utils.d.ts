@@ -234,7 +234,7 @@ export default class Utils {
         ndFrame: Series;
         newData: any;
         isSeries: boolean;
-    }): DataFrame | Series;
+    }): Series | DataFrame;
     /**
     * Checks if two series are compatible for a mathematical operation
     * @param object

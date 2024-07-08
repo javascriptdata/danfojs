@@ -522,8 +522,10 @@ export default class Series extends NDframe implements SeriesInterface {
      * ```
     */
     mean(): number {
-        const values = this.$checkAndCleanValues(this.values as ArrayType1D, "mean")
-        return (values.reduce((a, b) => a + b) / values.length) as number
+        let sum = this.sum()
+        let length = this.count()
+        if(length == 0) return NaN
+        return sum/length
     }
 
 
@@ -538,6 +540,7 @@ export default class Series extends NDframe implements SeriesInterface {
     */
     median(): number {
         const values = this.$checkAndCleanValues(this.values as ArrayType1D, "median")
+        if(values.length == 0) return NaN
         return median(values);
     }
 
@@ -560,6 +563,7 @@ export default class Series extends NDframe implements SeriesInterface {
     */
     mode() {
         const values = this.$checkAndCleanValues(this.values as ArrayType1D, "mode")
+        if(values.length == 0) return NaN
         return mode(values);
     }
 
@@ -575,6 +579,7 @@ export default class Series extends NDframe implements SeriesInterface {
     */
     min(): number {
         const values = this.$checkAndCleanValues(this.values as ArrayType1D, "min")
+        if(values.length == 0) return NaN
         let smallestValue = values[0]
         for (let i = 0; i < values.length; i++) {
             smallestValue = smallestValue < values[i] ? smallestValue : values[i]
@@ -593,6 +598,7 @@ export default class Series extends NDframe implements SeriesInterface {
     */
     max(): number {
         const values = this.$checkAndCleanValues(this.values as ArrayType1D, "max")
+        if(values.length == 0) return NaN
         let biggestValue = values[0]
         for (let i = 0; i < values.length; i++) {
             biggestValue = biggestValue > values[i] ? biggestValue : values[i]
@@ -631,8 +637,7 @@ export default class Series extends NDframe implements SeriesInterface {
        * ```
     */
     count(): number {
-        const values = utils.removeMissingValuesFromArray(this.values as ArrayType1D)
-        return values.length
+        return this.values.length
     }
 
     /**
@@ -746,6 +751,7 @@ export default class Series extends NDframe implements SeriesInterface {
     */
     std(): number {
         const values = this.$checkAndCleanValues(this.values as ArrayType1D, "max")
+        if(values.length == 0) return NaN
         return std(values);
     }
 
@@ -760,6 +766,7 @@ export default class Series extends NDframe implements SeriesInterface {
     */
     var(): number {
         const values = this.$checkAndCleanValues(this.values as ArrayType1D, "max")
+        if(values.length == 0) return NaN
         return variance(values);
     }
 

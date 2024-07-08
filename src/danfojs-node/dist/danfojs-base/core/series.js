@@ -102,6 +102,7 @@ var strings_1 = __importDefault(require("./strings"));
 var datetime_1 = __importDefault(require("./datetime"));
 var rolling_1 = __importDefault(require("../rolling/rolling"));
 var plotting_1 = require("../../danfojs-base/plotting");
+// import * as calculator from './math.tensor'
 var utils = new utils_1.default();
 /**
  * One-dimensional ndarray with axis labels.
@@ -425,8 +426,11 @@ var Series = /** @class */ (function (_super) {
      * ```
     */
     Series.prototype.mean = function () {
-        var values = this.$checkAndCleanValues(this.values, "mean");
-        return (values.reduce(function (a, b) { return a + b; }) / values.length);
+        var sum = this.sum();
+        var length = this.count();
+        if (length == 0)
+            return NaN;
+        return sum / length;
     };
     /**
       * Returns the median of elements in Series
@@ -439,6 +443,8 @@ var Series = /** @class */ (function (_super) {
     */
     Series.prototype.median = function () {
         var values = this.$checkAndCleanValues(this.values, "median");
+        if (values.length == 0)
+            return NaN;
         return (0, mathjs_1.median)(values);
     };
     /**
@@ -460,6 +466,8 @@ var Series = /** @class */ (function (_super) {
     */
     Series.prototype.mode = function () {
         var values = this.$checkAndCleanValues(this.values, "mode");
+        if (values.length == 0)
+            return NaN;
         return (0, mathjs_1.mode)(values);
     };
     /**
@@ -474,6 +482,8 @@ var Series = /** @class */ (function (_super) {
     */
     Series.prototype.min = function () {
         var values = this.$checkAndCleanValues(this.values, "min");
+        if (values.length == 0)
+            return NaN;
         var smallestValue = values[0];
         for (var i = 0; i < values.length; i++) {
             smallestValue = smallestValue < values[i] ? smallestValue : values[i];
@@ -491,6 +501,8 @@ var Series = /** @class */ (function (_super) {
     */
     Series.prototype.max = function () {
         var values = this.$checkAndCleanValues(this.values, "max");
+        if (values.length == 0)
+            return NaN;
         var biggestValue = values[0];
         for (var i = 0; i < values.length; i++) {
             biggestValue = biggestValue > values[i] ? biggestValue : values[i];
@@ -527,8 +539,7 @@ var Series = /** @class */ (function (_super) {
        * ```
     */
     Series.prototype.count = function () {
-        var values = utils.removeMissingValuesFromArray(this.values);
-        return values.length;
+        return this.values.length;
     };
     /**
       * Return maximum of series and other.
@@ -617,6 +628,8 @@ var Series = /** @class */ (function (_super) {
     */
     Series.prototype.std = function () {
         var values = this.$checkAndCleanValues(this.values, "max");
+        if (values.length == 0)
+            return NaN;
         return (0, mathjs_1.std)(values);
     };
     /**
@@ -630,6 +643,8 @@ var Series = /** @class */ (function (_super) {
     */
     Series.prototype.var = function () {
         var values = this.$checkAndCleanValues(this.values, "max");
+        if (values.length == 0)
+            return NaN;
         return (0, mathjs_1.variance)(values);
     };
     /**
