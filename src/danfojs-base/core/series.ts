@@ -1210,6 +1210,11 @@ export default class Series extends NDframe implements SeriesInterface {
         return this.cumOps("min", ops);
     }
 
+    countDistinct(options?: { inplace?: boolean; }): Series | void {
+        const ops = { inplace: false, ...options }
+        return this.cumOps("countdistinct", ops);
+    }
+
 
     /**
        * Returns cumulative maximum over a Series
