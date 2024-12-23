@@ -125,6 +125,19 @@ export default class Utils {
     }
 
     /**
+     * Generates an array of integers between specified range with exclusive end
+     * @param start The starting number.
+     * @param end The exclusive end number.
+     */
+    erange(start: number, end: number): Array<number> {
+         const arr = [];
+         for (let i = start; i < end; i++) {
+             arr.push(i);
+         }
+         return arr;
+     }
+
+    /**
      * Checks if object has the specified key
      * @param obj The object to check.
      * @param key The key to find.

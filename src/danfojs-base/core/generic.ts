@@ -285,7 +285,7 @@ export default class NDframe implements NDframeInterface {
 
             this.$index = index
         } else {
-            this.$index = utils.range(0, this.shape[0] - 1) //generate index
+            this.$index = utils.erange(0, this.shape[0]) //generate index
         }
     }
 
@@ -293,7 +293,7 @@ export default class NDframe implements NDframeInterface {
      * Internal function to reset the index of the NDFrame using a range of indices.
     */
     $resetIndex(): void {
-        this.$index = utils.range(0, this.shape[0] - 1)
+        this.$index = utils.erange(0, this.shape[0])
     }
 
     /**
@@ -333,7 +333,7 @@ export default class NDframe implements NDframeInterface {
 
                 this.$columns = columns
             } else {
-                this.$columns = (utils.range(0, this.shape[1] - 1)).map((val) => `${val}`) //generate columns
+                this.$columns = (utils.erange(0, this.shape[1])).map((val) => `${val}`) //generate columns
             }
         }
     }
