@@ -1171,6 +1171,7 @@ describe("Series Functions", () => {
             sf.replace("A", "boy", { inplace: true });
             assert.deepEqual(sf.values, expected);
         });
+
         it("Replace values given in replace param with value (boolean type)", function () {
             const data1 = [true, true, false, false];
             const sf = new Series(data1);
@@ -1178,6 +1179,70 @@ describe("Series Functions", () => {
             sf.replace(true, false, { inplace: true });
             assert.deepEqual(sf.values, expected);
         });
+
+        it("Replace oldValue supports falsy numbers (0)", function () {
+            const data1 = [0, 45, 56, 25, 23, 20, 0];
+            const sf = new Series(data1);
+            const expected = [1, 45, 56, 25, 23, 20, 1];
+            const dfRep = sf.replace(0, 1)
+            assert.deepEqual(dfRep.values, expected);
+        });
+
+        it("Replace oldValue does not support NaN", function () {
+            const data1 = [NaN, 45, 56, 25, 23, 20, NaN];
+            const sf = new Series(data1);
+            assert.throws(() => sf.replace(NaN, 1), Error, "Params Error: Param 'oldValue' does not support NaN. Use Series.fillNa() instead.");
+
+        });
+
+        it("Replace oldValue supports falsy strings", function () {
+            const data1 = ['', 'bar', 'baz'];
+            const sf = new Series(data1);
+            const expected = ['foo', 'bar', 'baz'];
+            const dfRep = sf.replace('', 'foo')
+            assert.deepEqual(dfRep.values, expected);
+        });
+
+        it("Replace oldValue supports falsy booleans", function () {
+            const data1 = [true, false, true, false];
+            const sf = new Series(data1);
+            const expected = [true, true, true, true];
+            const dfRep = sf.replace(false, true)
+            assert.deepEqual(dfRep.values, expected);
+        });
+
+        it("Replace newValue supports falsy numbers (0)", function () {
+            const data1 = [1, 45, 56, 25, 23, 20, 1];
+            const sf = new Series(data1);
+            const expected = [0, 45, 56, 25, 23, 20, 0];
+            const dfRep = sf.replace(1, 0)
+            assert.deepEqual(dfRep.values, expected);
+        });
+
+        it("Replace newValue supports falsy numbers (NaN)", function () {
+            const data1 = [1, 45, 56, 25, 23, 20, 1];
+            const sf = new Series(data1);
+            const expected = [NaN, 45, 56, 25, 23, 20, NaN];
+            const dfRep = sf.replace(1, NaN)
+            assert.deepEqual(dfRep.values, expected);
+        });
+
+        it("Replace newValue supports falsy strings", function () {
+            const data1 = ['foo', 'bar', 'baz'];
+            const sf = new Series(data1);
+            const expected = ['', 'bar', 'baz'];
+            const dfRep = sf.replace('foo', '')
+            assert.deepEqual(dfRep.values, expected);
+        });
+
+        it("Replace newValue supports falsy booleans", function () {
+            const data1 = [true, false, true, false];
+            const sf = new Series(data1);
+            const expected = [false, false, false, false];
+            const dfRep = sf.replace(true, false)
+            assert.deepEqual(dfRep.values, expected);
+        });
+
         // it("Throw error on wrong param passed", function () {
         //     const data1 = ["A", "A", "A", "B", "B", "C", "C", "D"];
         //     const sf = new Series(data1);
