@@ -8,7 +8,7 @@ module.exports = function (config) {
     frameworks: [ "mocha", "chai", "browserify" ],
 
     // list of files / patterns to load in the browser
-    files: [ "lib/bundle.js", "tests/**/*.test.js" ],
+    files: [ "lib/bundle-esm.js", "tests/**/*.test.js" ],
 
     // list of files / patterns to exclude
     exclude: [],
