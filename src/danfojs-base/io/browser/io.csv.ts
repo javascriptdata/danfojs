@@ -48,14 +48,16 @@ import Papa from 'papaparse'
  */
 const $readCSV = async (file: any, options?: CsvInputOptionsBrowser): Promise<DataFrame> => {
   const frameConfig = options?.frameConfig || {}
+  const hasStringType = frameConfig.dtypes?.includes("string")
 
   return new Promise((resolve, reject) => {
     let hasError = false;
 
     Papa.parse(file, {
       header: true,
-      dynamicTyping: true,
+      dynamicTyping: !hasStringType,
       skipEmptyLines: 'greedy',
+      delimiter: ",",
       ...options,
       error: (error) => {
         hasError = true;
@@ -108,12 +110,13 @@ const $streamCSV = async (file: string, callback: (df: DataFrame) => void, optio
   return new Promise((resolve, reject) => {
     let count = 0
     let hasError = false;
-
+    const hasStringType = frameConfig.dtypes?.includes("string")
     Papa.parse(file, {
-      ...options,
-      dynamicTyping: true,
       header: true,
       download: true,
+      dynamicTyping: !hasStringType,
+      delimiter: ",",
+      ...options,
       step: results => {
         if (hasError) return;
         try {

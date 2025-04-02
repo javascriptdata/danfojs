@@ -50,14 +50,16 @@ import fs from 'fs'
  */
 const $readCSV = async (filePath: string, options?: CsvInputOptionsNode): Promise<DataFrame> => {
   const frameConfig = options?.frameConfig || {}
+  const hasStringType = frameConfig.dtypes?.includes("string")
 
   if (filePath.startsWith("http") || filePath.startsWith("https")) {
     return new Promise((resolve, reject) => {
       let hasError = false;
       const optionsWithDefaults = {
         header: true,
-        dynamicTyping: true,
+        dynamicTyping: !hasStringType,
         skipEmptyLines: 'greedy',
+        delimiter: ",",
         ...options,
       }
 
@@ -116,7 +118,8 @@ const $readCSV = async (filePath: string, options?: CsvInputOptionsNode): Promis
 
         Papa.parse(fileStream, {
           header: true,
-          dynamicTyping: true,
+          dynamicTyping: !hasStringType,
+          delimiter: ",",
           ...options,
           error: (error) => {
             hasError = true;
