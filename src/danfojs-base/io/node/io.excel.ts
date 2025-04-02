@@ -71,7 +71,7 @@ const $readExcel = async (filePath: string, options: ExcelInputOptionsNode = {})
                     const arrBufInt8 = new Uint8Array(arrBuf);
                     const workbook = read(arrBufInt8, { type: "array", ...parsingOptions });
                     const worksheet = workbook.Sheets[workbook.SheetNames[sheet]];
-                    const data = utils.sheet_to_json(worksheet);
+                    const data = utils.sheet_to_json(worksheet,{'defval':null});
                     const df = new DataFrame(data, frameConfig);
                     resolve(df);
                 });
@@ -89,7 +89,7 @@ const $readExcel = async (filePath: string, options: ExcelInputOptionsNode = {})
 
                 const workbook = readFile(filePath, parsingOptions);
                 const worksheet = workbook.Sheets[workbook.SheetNames[sheet]];
-                const data = utils.sheet_to_json(worksheet);
+                const data = utils.sheet_to_json(worksheet,{'defval':null});
                 const df = new DataFrame(data, frameConfig);
                 resolve(df);
             })
