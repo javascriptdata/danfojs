@@ -4,283 +4,209 @@
 
 **Table of contents:**
 
-* **TL:DR**
-* Where to start?
-* Working with the code
-  * Version control, Git, and GitHub
-  * Getting started with Git
-  * Forking
-  * Creating a development environment
-* Documentation Guidelines
-* Writing tests
-  * Using mocha
-  * Running the test suite
-* Contributing your changes to danfojs
-  * Committing your code
-  * Pushing your changes
-  * Review your code and finally, make the pull request
-* Danfojs internal (Brief)
+* [TL;DR](#tldr)
+* [Where to start?](#where-to-start)
+* [Project Structure](#project-structure)
+* [Development Setup](#development-setup)
+  * [Prerequisites](#prerequisites)
+  * [Installation](#installation)
+  * [Building](#building)
+  * [Testing](#testing)
+* [Working with Git](#working-with-git)
+* [Documentation Guidelines](#documentation-guidelines)
+* [Making Changes](#making-changes)
+* [Creating Pull Requests](#creating-pull-requests)
 
-## TL:DR
+## TL;DR
 
 All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome.
 
-For contributors familiar with open-source, below is a quick guide to setting up danfojs locally.
+Quick setup for experienced contributors:
 
-```
+```bash
 git clone https://github.com/javascriptdata/danfojs.git
 cd danfojs
-git checkout -b <your-branch-name>
-```
-
-There are three main folders in the `src` folder, **danfojs-base**, **danfojs-browser,** and **danfojs-node**.&#x20;
-
-The **danfojs-base** folder holds all shared classes, modules, and functions used by both danfojs-browser and danfojs-node. So features or bug fixes that work the same way in both versions will generally be done in the **danfojs-base** folder.&#x20;
-
-## Where to start?
-
-For first-time contributors, you can find pending issues on the GitHub “issues” page. There are a number of issues listed and "good first issue" where you could start out. Once you’ve found an interesting issue, and have an improvement in mind, next thing is to set up your development environment.
-
-## Working with the code
-
-If you have an issue you want to fix, an enhancement to add, or documentation to improve, you need to learn how to work with GitHub and the Danfojs code base.
-
-### **Version control, Git, and GitHub**
-
-Danfojs code is hosted on GitHub. To contribute you will need to sign up for a free GitHub account. We use Git for version control to allow many people to work together on this project.
-
-Some great resources for learning Git:
-
-* Official [GitHub pages](http://help.github.com).
-
-### **Getting started with Git**
-
-Find [Instructions](http://help.github.com/set-up-git-redirect) for installing git, setting up your SSH key, and configuring git. These steps need to be completed before you can work seamlessly between your local repository and GitHub.
-
-## **Forking the Danfojs repo**
-
-You will need your own fork to work on the code. Go to the danfojs [project page](https://github.com/opensource9ja/danfojs) and hit the Fork button.
-
-Next, you will clone your fork to your local machine:
-
-```
-git clone https://github.com/javascriptdata/danfojs.git
-cd danfojs
-```
-
-This creates the directory danfojs and connects your repository to the upstream (main project) repository.
-
-Some Javascript features are supported both in the browser and node environment, and it is recommended to add features in the **danfojs-base** folder.&#x20;
-
-For features that work differently or only in a specific environment, you can add them in the corresponding danfojs-node or danfojs-browser folder.&#x20;
-
-
-
-## **Creating a development environment**
-
-To test out code changes, you’ll need to build danfojs, which requires a Nodejs environment.
-
-```python
-git clone https://github.com/javascriptdata/danfojs.git
-cd danfojs
-yarn install ## automatically installs all required packages
-yarn test ##Runs test in both node and browser folder
-```
-
-> Now you can start adding features or fixing bugs!
-
-## Documentation Guidelines
-
-Documentation helps clarify what a function or a method is doing. It also gives insight to users of the function or methods on what parameters to pass in and know what the function will return.
-
-Sample documentation:
-
-```javascript
- /**
- * Add two series of the same length
- * @param {series1} series1 [Series]
- * @param {series2} series2 [Series]
- * @returns Series
- */
-function add_series(series1, series2){
-
-        ...................
-
-        return new Series()
-}
-```
-
-And for functions that contain more than two arguments, a keyword argument can be used. Parsing of keyword argument is also applicable to most of the methods in a class
-
-```javascript
-/**
- * Join two or more dataframe together along an axis
- * @param {kwargs} kwargs --> {
- *                      df_list: [Array of DataFrame],
- *                      axis : int {0 or 1},
- *                      by_column : String {name of a column},
- *                    }
- * @returns DataFrame 
- */
-function join_df(kwargs){
-        ........
-
-        return DataFrame
-}
-```
-
-## **Writing tests**
-
-We strongly encourage contributors to write tests for their code. Like many packages, Danfojs uses mocha.&#x20;
-
-All tests should go into the tests subdirectory and placed in the corresponding module. The tests folder contains some current examples of tests, and we suggest looking to these for inspiration.
-
-Below is the general Framework to write a test for each module.
-
-{% tabs %}
-{% tab title="JavaScript" %}
-```javascript
-import { assert } from "chai"
-import { DataFrame } from '../../src/core/frame'
-
-describe("Name of the class|module", function(){
- 
-  it("name of the methods| expected result",function(){
-    
-       //write your test code here
-       //use assert.{proprty} to test your code
-   })
-
-});
-```
-{% endtab %}
-{% endtabs %}
-
-For a class with lots of methods.
-
-```python
-import { assert } from "chai"
-import { DataFrame } from '../../src/core/frame'
-
-describe("Name of the class|module", function(){
- 
- describe("method name 1", function(){
- 
-   it("expected result",function(){
-     
-        //write your test code here
-        //use assert.{proprty} to test your code
-    })
-  })
-  
-  describe("method name 2", function(){
- 
-   it("expected result",function(){
-     
-        //write your test code here
-        //use assert.{proprty} to test your code
-    })
-  })
-  .......
-});
-```
-
-**Example**: Let write a test, to test if the values in a dataframe are off a certain length. Assuming the method to obtain length is values\_len()
-
-```javascript
-import { assert } from "chai"
-import { DataFrame } from '../../src/core/frame'
-
-describe("DataFrame", function(){
-    
-  describe("value_len", function(){
- 
-   it("check dataframe length",function(){
-     
-       let data = [[1,2],[4,5]]
-       let columns = ["A","B"]
-       let df = new DataFrame(data,{columns: columns})
-       
-       let expected_result = 2
-       
-       assert.deepEqual(sf.value_len(), expected_result))
-       
-       
-    })
-  })
-
-});
-```
-
-### **Running the test case**
-
-To run the test for the module you created,
-
-**1)** Open the package.json
-
-**2)** change the name of the test script to the file name you want to test.
-
-```python
-"scripts": {
-    "test": "....... danfojs/tests/sub_directory_name/filename",
-```
-
-**3)** run the test, in the danfojs directory terminal
-
-```python
+yarn install
+yarn build
 yarn test
 ```
 
-Learn more about mocha [here](https://mochajs.org)
+## Where to start?
 
-## Contributing your changes to danfojs
+For first-time contributors:
 
-### **Committing your code**
+1. Look for issues labeled ["good first issue"](https://github.com/javascriptdata/danfojs/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+2. Read through our [Documentation](https://danfo.jsdata.org/getting-started)
 
-Once you’ve made changes, you can see them by typing:
 
+## Project Structure
+
+The project is organized into three main packages:
+
+- **danfojs-base**: Core functionality shared between browser and Node.js versions
+- **danfojs-browser**: Browser-specific implementation
+- **danfojs-node**: Node.js-specific implementation
+
+Most new features should be added to **danfojs-base** unless they are environment-specific.
+
+## Development Setup
+
+### Prerequisites
+
+- Node.js (v16.x or later)
+- Yarn package manager
+- Git
+
+### Installation
+
+1. Fork the repository on GitHub
+2. Clone your fork locally:
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/danfojs.git
+   cd danfojs
+   ```
+
+3. Install dependencies:
+   ```bash
+   yarn install
+   ```
+
+### Building
+
+Build all packages:
+```bash
+yarn build
 ```
-git status
+
+Build specific package:
+```bash
+cd src/danfojs-browser
+yarn build
 ```
 
-Next, you can track your changes using
-
-```
-git add .
-```
-
-Next, you commit changes using:
-
-```
-git commit -m "Enter any commit message here"
+Watch mode for development:
+```bash
+yarn dev
 ```
 
-### **Pushing your changes**
+### Testing
 
-When you want your changes to appear publicly on your GitHub page, you can push to your forked repo with:
-
+Run all tests:
+```bash
+yarn test
 ```
-git push
+
+Run specific test file:
+```bash
+yarn test tests/core/frame.test.js
 ```
 
-### Review your code and finally, make a pull request
+Run tests matching a pattern:
+```bash
+yarn test -g "DataFrame.add"
+```
 
-If everything looks good, you are ready to make a pull request. A pull request is how code from a local repository becomes available to the GitHub community and can be reviewed and eventually merged into the master version. To submit a pull request:
+Run tests in watch mode:
+```bash
+yarn test --watch
+```
 
-1. Navigate to your repository on GitHub
-2. Click on the Pull Request button
-3. Write a description of your changes in the Preview Discussion tab
-4. Click Send Pull Request.
+## Working with Git
 
-This request then goes to the repository maintainers, and they will review the code and everything looks good, merge it with the master.
+1. Create a new branch:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
 
-**Hooray! You're now a contributor to danfojs. Now go bask in the euphoria!**
+2. Make your changes and commit:
+   ```bash
+   git add .
+   git commit -m "feat: add new feature"
+   ```
 
-## **Danfojs Internals**
+   We follow [Conventional Commits](https://www.conventionalcommits.org/) for commit messages:
+   - `feat:` for new features
+   - `fix:` for bug fixes
+   - `docs:` for documentation changes
+   - `test:` for adding tests
+   - `refactor:` for code refactoring
 
-In other to contribute to the code base of danfojs, there are some functions and properties provided to make implementation easy.
+3. Push to your fork:
+   ```bash
+   git push origin feature/your-feature-name
+   ```
 
-The folder **danfojs-base** contains the bulk of Danfojs modules, and these are simply extended or exported by the **danfojs-browser** and **danfojs-node** folders. The base class for Frames and Series is the NdFrame class which is found in the `danfojs-base/core/generic` file.&#x20;
+## Documentation Guidelines
+
+Good documentation includes:
+
+1. JSDoc comments for all public methods
+2. Clear parameter descriptions
+3. Return value documentation
+4. Usage examples
+
+Example:
+```javascript
+/**
+ * Add two series of the same length
+ * @param {Series} series1 - First series to add
+ * @param {Series} series2 - Second series to add
+ * @returns {Series} New series containing the sum
+ * 
+ * @example
+ * const s1 = new Series([1, 2, 3])
+ * const s2 = new Series([4, 5, 6])
+ * const result = add_series(s1, s2)
+ * // result: Series([5, 7, 9])
+ */
+function add_series(series1, series2) {
+    // Implementation
+}
+```
+
+For methods with multiple options, use an options object:
+
+```javascript
+/**
+ * Join two or more dataframes
+ * @param {Object} options - Join options
+ * @param {DataFrame[]} options.df_list - Array of DataFrames to join
+ * @param {number} options.axis - Join axis (0: index, 1: columns)
+ * @param {string} options.by_column - Column to join on
+ * @returns {DataFrame} Joined DataFrame
+ */
+function join_df(options) {
+    // Implementation
+}
+```
+
+## Making Changes
+
+1. Write tests for new functionality
+2. Ensure all tests pass
+3. Update documentation if needed
+4. Add an entry to CHANGELOG.md
+5. Run linter: `yarn lint`
+
+## Creating Pull Requests
+
+1. Push your changes to your fork
+2. Go to the [danfojs repository](https://github.com/javascriptdata/danfojs)
+3. Click "Pull Request"
+4. Fill out the PR template:
+   - Clear description of changes
+   - Link to related issue
+   - Screenshots/examples if relevant
+   - Checklist of completed items
+
+Your PR will be reviewed by maintainers. Address any feedback and update your PR accordingly.
+
+---
+
+## Need Help?
 
 
+- Check our [Documentation](https://danfo.jsdata.org)
+- Ask in GitHub Issues
 
+Thank you for contributing to danfojs! 🎉
