@@ -97,6 +97,41 @@ describe("readCSV", function () {
       assert.ok(error instanceof Error);
     }
   });
+
+  it("Preserves leading zeros when dtype is string", async function () {
+    // Create a CSV file with leading zeros
+    const csvContent = "codes\n012345\n001234";
+    const file = new File([ csvContent ], "leading_zeros.csv", { type: "text/csv" });
+
+    const df = await dfd.readCSV(file, {
+      frameConfig: {
+        dtypes: [ "string" ]
+      }
+    });
+
+    assert.deepEqual(df.values, [ [ "012345" ], [ "001234" ] ]);
+    assert.deepEqual(df.dtypes, [ "string" ]);
+
+    // Verify the values are actually strings
+    const jsonData = dfd.toJSON(df);
+    assert.deepEqual(jsonData, [ { codes: "012345" }, { codes: "001234" } ]);
+  });
+
+  it("Converts to numbers when dtype is not string", async function () {
+    // Create a CSV file with leading zeros
+    const csvContent = "codes\n012345\n001234";
+    const file = new File([ csvContent ], "leading_zeros.csv", { type: "text/csv" });
+
+    const df = await dfd.readCSV(file); // default behavior without string dtype
+
+    // Values should be converted to numbers
+    assert.deepEqual(df.values, [ [ 12345 ], [ 1234 ] ]);
+    assert.deepEqual(df.dtypes, [ "int32" ]);
+
+    // Verify JSON output
+    const jsonData = dfd.toJSON(df);
+    assert.deepEqual(jsonData, [ { codes: 12345 }, { codes: 1234 } ]);
+  });
 });
 
 // describe("streamCSV", function () {

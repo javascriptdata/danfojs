@@ -2,7 +2,7 @@ import path from "path";
 import chai, { assert, expect } from "chai";
 import { describe, it } from "mocha";
 import chaiAsPromised from "chai-as-promised";
-import { DataFrame, readCSV, Series, streamCSV, toCSV } from "../../dist/danfojs-node/src";
+import { DataFrame, readCSV, Series, streamCSV, toCSV, toJSON } from "../../dist/danfojs-node/src";
 import fs from 'fs';
 import process from 'process';
 
@@ -111,6 +111,59 @@ describe("readCSV", function () {
   it("Throws error when DataFrame creation fails", async function () {
     const filePath = path.join(testSamplesDir, "invalid.csv");
     await expect(readCSV(filePath)).to.be.rejectedWith("ENOENT: no such file or directory");
+  });
+
+  it("Preserves leading zeros when dtype is string", async function () {
+    const filePath = path.join(testSamplesDir, "leading_zeros.csv");
+    // Create test CSV file
+    fs.writeFileSync(filePath, "codes\n012345\n001234");
+
+    try {
+      const df = await readCSV(filePath, {
+        frameConfig: {
+          dtypes: ["string"]
+        }
+      });
+
+      assert.deepEqual(df.values, [["012345"], ["001234"]]);
+      assert.deepEqual(df.dtypes, ["string"]);
+
+      // Verify the values are actually strings
+      const jsonData = toJSON(df);
+      assert.deepEqual(jsonData, [{ codes: "012345" }, { codes: "001234" }]);
+
+      // Clean up
+      fs.unlinkSync(filePath);
+    } catch (error) {
+      // Clean up even if test fails
+      fs.unlinkSync(filePath);
+      throw error;
+    }
+  });
+
+  it("Converts to numbers when dtype is not string", async function () {
+    const filePath = path.join(testSamplesDir, "leading_zeros.csv");
+    // Create test CSV file
+    fs.writeFileSync(filePath, "codes\n012345\n001234");
+
+    try {
+      const df = await readCSV(filePath); // default behavior without string dtype
+
+      // Values should be converted to numbers
+      assert.deepEqual(df.values, [[12345], [1234]]);
+      assert.deepEqual(df.dtypes, ["int32"]);
+
+      // Verify JSON output
+      const jsonData = toJSON(df);
+      assert.deepEqual(jsonData, [{ codes: 12345 }, { codes: 1234 }]);
+
+      // Clean up
+      fs.unlinkSync(filePath);
+    } catch (error) {
+      // Clean up even if test fails
+      fs.unlinkSync(filePath);
+      throw error;
+    }
   });
 });
 
