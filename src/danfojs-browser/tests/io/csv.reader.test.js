@@ -68,6 +68,35 @@ describe("readCSV", function () {
     assert.deepEqual(df.values, values);
   });
 
+  it("Should throw error when reading non-existent remote file", async function () {
+    const remoteFile = "https://raw.githubusercontent.com/javascriptdata/danfojs/dev/nonexistent.csv";
+    try {
+      await dfd.readCSV(remoteFile);
+      assert.fail("Should have thrown an error");
+    } catch (error) {
+      assert.ok(error instanceof Error);
+    }
+  });
+
+  it("Should throw error when reading malformed CSV", async function () {
+    const malformedCSV = new File([ "a,b,c\n1,2\n3,4,5,6" ], "malformed.csv", { type: "text/csv" });
+    try {
+      await dfd.readCSV(malformedCSV);
+      assert.fail("Should have thrown an error");
+    } catch (error) {
+      assert.ok(error instanceof Error);
+    }
+  });
+
+  it("Should throw error when reading invalid file type", async function () {
+    const invalidFile = new File([ "not a csv" ], "test.txt", { type: "text/plain" });
+    try {
+      await dfd.readCSV(invalidFile);
+      assert.fail("Should have thrown an error");
+    } catch (error) {
+      assert.ok(error instanceof Error);
+    }
+  });
 });
 
 // describe("streamCSV", function () {
@@ -114,5 +143,4 @@ describe("toCSV", function () {
     let df = new dfd.Series(data);
     assert.deepEqual(dfd.toCSV(df, { sep: "+", download: false }), `1+2+3+4+5+6+7+8+9+10+11+12`);
   });
-
 });

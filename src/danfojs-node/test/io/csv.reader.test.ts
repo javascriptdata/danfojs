@@ -3,13 +3,18 @@ import chai, { assert, expect } from "chai";
 import { describe, it } from "mocha";
 import chaiAsPromised from "chai-as-promised";
 import { DataFrame, readCSV, Series, streamCSV, toCSV } from "../../dist/danfojs-node/src";
+import fs from 'fs';
+import process from 'process';
 
 chai.use(chaiAsPromised);
 
 describe("readCSV", function () {
   this.timeout(10000);
+
+  const testSamplesDir = path.join(process.cwd(), "test", "samples");
+
   it("Read local csv file works", async function () {
-    const filePath = path.join(process.cwd(), "test", "samples", "titanic.csv");
+    const filePath = path.join(testSamplesDir, "titanic.csv");
     let df = await readCSV(filePath, { header: true, preview: 5 });
     assert.deepEqual(df.shape, [5, 8]);
     assert.deepEqual(df.columns, [
@@ -29,8 +34,9 @@ describe("readCSV", function () {
       'int32', 'float32'
     ]);
   });
+
   it("Read local CSV file with config works", async function () {
-    const filePath = path.join(process.cwd(), "test", "samples", "titanic.csv");
+    const filePath = path.join(testSamplesDir, "titanic.csv");
     const frameConfig = {
       columns: [
         'A',
@@ -62,8 +68,9 @@ describe("readCSV", function () {
       'int32', 'float32'
     ]);
   });
+
   it("Read local csv with correct types and format works", async function () {
-    const filePath = path.join(process.cwd(), "test", "samples", "iris.csv");
+    const filePath = path.join(testSamplesDir, "iris.csv");
     let df = await readCSV(filePath, { header: true, preview: 5 });
     const values = [
       [5.1, 3.5, 1.4, 0.2, 0.0],
@@ -72,47 +79,48 @@ describe("readCSV", function () {
       [4.6, 3.1, 1.5, 0.2, 0.0],
       [5.0, 3.6, 1.4, 0.2, 0.0]
     ];
-    console.log(df.values);
     assert.deepEqual(df.values, values);
   });
+
   it("Throws error if file not found", async function () {
     const filePath = "notfound.csv";
-    // assert.isRejected(readCSV(filePath, { header: true, preview: 5 }));
-    await expect(readCSV(filePath, { header: true, preview: 5 })).to.be.rejectedWith("ENOENT: no such file or directory");
+    await expect(readCSV(filePath)).to.be.rejectedWith("ENOENT: no such file or directory");
   });
+
   it("Throws error if file not found over http", async function () {
     const filePath = "https://getdata.com/notfound.csv";
-    // assert.isRejected(readCSV(filePath, { header: true, preview: 5 }));
-    await expect(readCSV(filePath)).to.be.rejected;
+    await expect(readCSV(filePath)).to.be.rejectedWith(/HTTP \d+:/);
   });
-  //   it("Read remote csv file works", async function () {
-  //     const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/titanic.csv";
-  //     let df = await readCSV(remoteFile, { header: true, preview: 5 });
-  //     assert.deepEqual(df.shape, [5, 8]);
-  //     assert.deepEqual(df.columns, [
-  //       'Survived',
-  //       'Pclass',
-  //       'Name',
-  //       'Sex',
-  //       'Age',
-  //       'Siblings/Spouses Aboard',
-  //       'Parents/Children Aboard',
-  //       'Fare'
-  //     ]);
-  //     assert.deepEqual(df.dtypes, [
-  //       'int32', 'int32',
-  //       'string', 'string',
-  //       'int32', 'int32',
-  //       'int32', 'float32'
-  //     ]);
-  //   });
 
+  it("Throws error when reading empty CSV file", async function () {
+    const filePath = path.join(testSamplesDir, "empty.csv");
+    // Create empty file
+    fs.writeFileSync(filePath, "");
+    await expect(readCSV(filePath)).to.be.rejectedWith("No data found in CSV file");
+    fs.unlinkSync(filePath); // Clean up
+  });
+
+  it("Throws error when reading malformed CSV", async function () {
+    const filePath = path.join(testSamplesDir, "malformed.csv");
+    // Create malformed CSV file
+    fs.writeFileSync(filePath, "a,b,c\n1,2\n3,4,5,6");
+    await expect(readCSV(filePath)).to.be.rejectedWith("CSV parsing errors");
+    fs.unlinkSync(filePath); // Clean up
+  });
+
+  it("Throws error when DataFrame creation fails", async function () {
+    const filePath = path.join(testSamplesDir, "invalid.csv");
+    await expect(readCSV(filePath)).to.be.rejectedWith("ENOENT: no such file or directory");
+  });
 });
 
 describe("streamCSV", function () {
   this.timeout(100000);
+
+  const testSamplesDir = path.join(process.cwd(), "test", "samples");
+
   it("Streaming local csv file with callback works", async function () {
-    const filePath = path.join(process.cwd(), "test", "samples", "titanic.csv");
+    const filePath = path.join(testSamplesDir, "titanic.csv");
     await streamCSV(filePath, (df) => {
       if (df) {
         assert.deepEqual(df.shape, [1, 8]);
@@ -130,60 +138,55 @@ describe("streamCSV", function () {
         assert.deepEqual(df, null);
       }
     }, { header: true });
-
   });
 
-  //   it("Streaming remote csv file with callback works", async function () {
-  //     const remoteFile = "https://raw.githubusercontent.com/opensource9ja/danfojs/dev/danfojs-node/tests/samples/titanic.csv";
-  //     await streamCSV(remoteFile, (df) => {
-  //       if (df) {
-  //         assert.deepEqual(df.shape, [1, 8]);
-  //         assert.deepEqual(df.columns, [
-  //           'Survived',
-  //           'Pclass',
-  //           'Name',
-  //           'Sex',
-  //           'Age',
-  //           'Siblings/Spouses Aboard',
-  //           'Parents/Children Aboard',
-  //           'Fare'
-  //         ]);
-  //       } else {
-  //         assert.deepEqual(df, null);
-  //       }
-  //     }, { header: true });
+  it("Throws error when streaming non-existent file", async function () {
+    const filePath = "notfound.csv";
+    await expect(streamCSV(filePath, () => {})).to.be.rejectedWith("ENOENT: no such file or directory");
+  });
 
-  //   });
-
+  it("Throws error when streaming malformed CSV", async function () {
+    const filePath = path.join(testSamplesDir, "malformed_stream.csv");
+    // Create malformed CSV file
+    fs.writeFileSync(filePath, "a,b,c\n1,2\n3,4,5,6");
+    await expect(streamCSV(filePath, () => {})).to.be.rejectedWith("CSV parsing errors");
+    fs.unlinkSync(filePath); // Clean up
+  });
 });
 
-
 describe("toCSV", function () {
+  const testSamplesDir = path.join(process.cwd(), "test", "samples");
+
   it("toCSV works", async function () {
     const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]];
     let df = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
     assert.deepEqual(toCSV(df, {}), `a,b,c,d\n1,2,3,4\n5,6,7,8\n9,10,11,12\n`);
   });
-  it("toCSV works for specified seperator", async function () {
+
+  it("toCSV works for specified separator", async function () {
     const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]];
     let df = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
     assert.deepEqual(toCSV(df, { sep: "+" }), `a+b+c+d\n1+2+3+4\n5+6+7+8\n9+10+11+12\n`);
   });
+
   it("toCSV write to local file works", async function () {
     const data = [[1, 2, 3, "4"], [5, 6, 7, "8"], [9, 10, 11, "12"]];
     let df = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
-    const filePath = path.join(process.cwd(), "test", "samples", "test_write.csv");
+    const filePath = path.join(testSamplesDir, "test_write.csv");
     toCSV(df, { sep: ",", filePath });
+    // Clean up
+    fs.unlinkSync(filePath);
   });
+
   it("toCSV works for series", async function () {
     const data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     let df = new Series(data);
     assert.deepEqual(toCSV(df, { sep: "+" }), `1+2+3+4+5+6+7+8+9+10+11+12`);
   });
+
   it("calling df.toCSV works", async function () {
     const data = [[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]];
     let df = new DataFrame(data, { columns: ["a", "b", "c", "d"] });
     assert.deepEqual(df.toCSV(), `a,b,c,d\n1,2,3,4\n5,6,7,8\n9,10,11,12\n`);
   });
-
 });

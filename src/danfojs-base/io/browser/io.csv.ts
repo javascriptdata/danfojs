@@ -23,6 +23,7 @@ import Papa from 'papaparse'
  * hence all PapaParse options are supported.
  * @param options Configuration object. Supports all Papaparse parse config options.
  * @returns DataFrame containing the parsed CSV file.
+ * @throws {Error} If file cannot be read or parsed
  * @example
  * ```
  * import { readCSV } from "danfojs-node"
@@ -49,16 +50,38 @@ const $readCSV = async (file: any, options?: CsvInputOptionsBrowser): Promise<Da
   const frameConfig = options?.frameConfig || {}
 
   return new Promise((resolve, reject) => {
+    let hasError = false;
+
     Papa.parse(file, {
       header: true,
       dynamicTyping: true,
       skipEmptyLines: 'greedy',
       ...options,
-      error: (error, file) => reject(error,file),
+      error: (error) => {
+        hasError = true;
+        reject(new Error(`Failed to parse CSV: ${error.message}`));
+      },
       download: true,
-      complete: results => {
-        const df = new DataFrame(results.data, frameConfig);
-        resolve(df);
+      complete: (results) => {
+        if (hasError) return; // Skip if error already occurred
+        
+        if (!results.data || results.data.length === 0) {
+          reject(new Error('No data found in CSV file'));
+          return;
+        }
+
+        if (results.errors && results.errors.length > 0) {
+          reject(new Error(`CSV parsing errors: ${results.errors.map(e => e.message).join(', ')}`));
+          return;
+        }
+
+        try {
+          const df = new DataFrame(results.data, frameConfig);
+          resolve(df);
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+          reject(new Error(`Failed to create DataFrame from CSV: ${errorMessage}`));
+        }
       }
     });
   });
@@ -84,17 +107,33 @@ const $streamCSV = async (file: string, callback: (df: DataFrame) => void, optio
 
   return new Promise((resolve, reject) => {
     let count = 0
+    let hasError = false;
+
     Papa.parse(file, {
       ...options,
       dynamicTyping: true,
       header: true,
       download: true,
       step: results => {
-        const df = new DataFrame([results.data], { ...frameConfig, index: [count++] });
-        callback(df);
+        if (hasError) return;
+        try {
+          const df = new DataFrame([results.data], { ...frameConfig, index: [count++] });
+          callback(df);
+        } catch (error) {
+          hasError = true;
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+          reject(new Error(`Failed to process CSV chunk: ${errorMessage}`));
+        }
       },
-      complete: () => resolve(null),
-      error: (error, file) => reject(error,file)
+      complete: () => {
+        if (!hasError) {
+          resolve(null);
+        }
+      },
+      error: (error) => {
+        hasError = true;
+        reject(new Error(`Failed to parse CSV: ${error.message}`));
+      }
     });
   });
 };
