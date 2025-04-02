@@ -106,4 +106,23 @@ describe("toExcel", function () {
         assert.equal(fs.existsSync(filePath), true)
     });
 
+    it("handles null values correctly", async function () {
+        const data = [
+            { 'name': 'Alice', 'age': 25 },
+            { 'name': null, 'age': 30 },
+            { 'name': 'Charlie', 'age': 35 }
+        ];
+        const df: any = new DataFrame(data);
+        const filePath = path.join(process.cwd(), "test", "samples", "people.xlsx");
+        
+        toExcel(df, { filePath, sheetName: 'Sheet1' });
+        const df2: any = await readExcel(filePath);
+        
+        assert.deepEqual(df2.values, [
+            ['Alice', 25],
+            [null, 30],
+            ['Charlie', 35]
+        ]);
+        assert.deepEqual(df2.columns, ['name', 'age']);
+    });
 })
