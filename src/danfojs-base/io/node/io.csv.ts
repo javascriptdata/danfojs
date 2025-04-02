@@ -25,6 +25,7 @@ import fs from 'fs'
  * hence all PapaParse options are supported.
  * @param options Configuration object. Supports all Papaparse parse config options.
  * @returns DataFrame containing the parsed CSV file.
+ * @throws {Error} If file cannot be read or parsed
  * @example
  * ```
  * import { readCSV } from "danfojs-node"
@@ -52,6 +53,7 @@ const $readCSV = async (filePath: string, options?: CsvInputOptionsNode): Promis
 
   if (filePath.startsWith("http") || filePath.startsWith("https")) {
     return new Promise((resolve, reject) => {
+      let hasError = false;
       const optionsWithDefaults = {
         header: true,
         dynamicTyping: true,
@@ -63,6 +65,7 @@ const $readCSV = async (filePath: string, options?: CsvInputOptionsNode): Promis
       // reject any non-2xx status codes
       dataStream.on('response', (response: any) => {
         if (response.statusCode < 200 || response.statusCode >= 300) {
+          hasError = true;
           reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
         }
       });
@@ -72,11 +75,31 @@ const $readCSV = async (filePath: string, options?: CsvInputOptionsNode): Promis
 
       const data: any = [];
       parseStream.on("data", (chunk: any) => {
-        data.push(chunk);
+        if (!hasError) {
+          data.push(chunk);
+        }
+      });
+
+      parseStream.on("error", (error: any) => {
+        hasError = true;
+        reject(new Error(`Failed to parse CSV: ${error.message}`));
       });
 
       parseStream.on("finish", () => {
-        resolve(new DataFrame(data, frameConfig));
+        if (hasError) return;
+
+        if (!data || data.length === 0) {
+          reject(new Error('No data found in CSV file'));
+          return;
+        }
+
+        try {
+          const df = new DataFrame(data, frameConfig);
+          resolve(df);
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+          reject(new Error(`Failed to create DataFrame: ${errorMessage}`));
+        }
       });
     });
 
@@ -84,18 +107,41 @@ const $readCSV = async (filePath: string, options?: CsvInputOptionsNode): Promis
     return new Promise((resolve, reject) => {
       fs.access(filePath, fs.constants.F_OK, (err) => {
         if (err) {
-          reject("ENOENT: no such file or directory");
+          reject(new Error("ENOENT: no such file or directory"));
+          return;
         }
 
         const fileStream = fs.createReadStream(filePath)
+        let hasError = false;
 
         Papa.parse(fileStream, {
           header: true,
           dynamicTyping: true,
           ...options,
+          error: (error) => {
+            hasError = true;
+            reject(new Error(`Failed to parse CSV: ${error.message}`));
+          },
           complete: results => {
-            const df = new DataFrame(results.data, frameConfig);
-            resolve(df);
+            if (hasError) return;
+
+            if (!results.data || results.data.length === 0) {
+              reject(new Error('No data found in CSV file'));
+              return;
+            }
+
+            if (results.errors && results.errors.length > 0) {
+              reject(new Error(`CSV parsing errors: ${results.errors.map(e => e.message).join(', ')}`));
+              return;
+            }
+
+            try {
+              const df = new DataFrame(results.data, frameConfig);
+              resolve(df);
+            } catch (error) {
+              const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+              reject(new Error(`Failed to create DataFrame: ${errorMessage}`));
+            }
           }
         });
       })
@@ -109,6 +155,7 @@ const $readCSV = async (filePath: string, options?: CsvInputOptionsNode): Promis
  * hence all PapaParse options are supported.
  * @param callback Callback function to be called once the specifed rows are parsed into DataFrame.
  * @param options Configuration object. Supports all Papaparse parse config options.
+ * @throws {Error} If file cannot be read or parsed
  * @example
  * ```
  * import { streamCSV } from "danfojs-node"
@@ -128,12 +175,14 @@ const $streamCSV = async (filePath: string, callback: (df: DataFrame) => void, o
       ...options,
     }
     return new Promise((resolve, reject) => {
-      let count = 0
+      let count = 0;
+      let hasError = false;
       const dataStream = request.get(filePath);
 
       // reject any non-2xx status codes
       dataStream.on('response', (response: any) => {
         if (response.statusCode < 200 || response.statusCode >= 300) {
+          hasError = true;
           reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
         }
       });
@@ -142,35 +191,71 @@ const $streamCSV = async (filePath: string, callback: (df: DataFrame) => void, o
       dataStream.pipe(parseStream);
 
       parseStream.on("data", (chunk: any) => {
-        const df = new DataFrame([chunk], { ...frameConfig, index: [count++], });
-        callback(df);
+        if (hasError) return;
+        try {
+          const df = new DataFrame([chunk], { ...frameConfig, index: [count++] });
+          callback(df);
+        } catch (error) {
+          hasError = true;
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+          reject(new Error(`Failed to process CSV chunk: ${errorMessage}`));
+        }
+      });
+
+      parseStream.on("error", (error: any) => {
+        hasError = true;
+        reject(new Error(`Failed to parse CSV: ${error.message}`));
       });
 
       parseStream.on("finish", () => {
-        resolve(null);
+        if (!hasError) {
+          resolve(null);
+        }
       });
-
     });
   } else {
-
     return new Promise((resolve, reject) => {
       fs.access(filePath, fs.constants.F_OK, (err) => {
         if (err) {
-          reject("ENOENT: no such file or directory");
+          reject(new Error("ENOENT: no such file or directory"));
+          return;
         }
 
         const fileStream = fs.createReadStream(filePath)
+        let hasError = false;
+        let count = 0;
 
-        let count = 0
         Papa.parse(fileStream, {
           header: true,
           dynamicTyping: true,
           ...options,
-          step: results => {
-            const df = new DataFrame([results.data], { ...frameConfig, index: [count++] });
-            callback(df);
+          error: (error) => {
+            hasError = true;
+            reject(new Error(`Failed to parse CSV: ${error.message}`));
           },
-          complete: () => resolve(null)
+          step: results => {
+            if (hasError) return;
+
+            if (results.errors && results.errors.length > 0) {
+              hasError = true;
+              reject(new Error(`CSV parsing errors: ${results.errors.map(e => e.message).join(', ')}`));
+              return;
+            }
+
+            try {
+              const df = new DataFrame([results.data], { ...frameConfig, index: [count++] });
+              callback(df);
+            } catch (error) {
+              hasError = true;
+              const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+              reject(new Error(`Failed to process CSV chunk: ${errorMessage}`));
+            }
+          },
+          complete: () => {
+            if (!hasError) {
+              resolve(null);
+            }
+          }
         });
       });
     });
