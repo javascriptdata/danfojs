@@ -40,6 +40,49 @@ describe("Utils", function () {
         assert.isTrue(utils.isUndefined(arr));
     });
 
+    describe("isEmpty", function () {
+        it("should return true for null values", function () {
+            assert.isTrue(utils.isEmpty(null));
+        });
+
+        it("should return true for undefined values", function () {
+            assert.isTrue(utils.isEmpty(undefined));
+        });
+
+        it("should return true for NaN values", function () {
+            assert.isTrue(utils.isEmpty(NaN));
+        });
+
+        it("should return false for strings (including empty strings)", function () {
+            assert.isFalse(utils.isEmpty(""));
+            assert.isFalse(utils.isEmpty("   "));
+            assert.isFalse(utils.isEmpty("hello"));
+        });
+
+        it("should return false for numbers (except NaN)", function () {
+            assert.isFalse(utils.isEmpty(0));
+            assert.isFalse(utils.isEmpty(-1));
+            assert.isFalse(utils.isEmpty(42.5));
+        });
+
+        it("should return false for BigInt values", function () {
+            assert.isFalse(utils.isEmpty(BigInt(9007199254740991)));
+            assert.isFalse(utils.isEmpty(BigInt(0)));
+        });
+
+        it("should return false for objects and arrays", function () {
+            assert.isFalse(utils.isEmpty({}));
+            assert.isFalse(utils.isEmpty([]));
+            assert.isFalse(utils.isEmpty({ key: "value" }));
+            assert.isFalse(utils.isEmpty([1, 2, 3]));
+        });
+
+        it("should return false for boolean values", function () {
+            assert.isFalse(utils.isEmpty(true));
+            assert.isFalse(utils.isEmpty(false));
+        });
+    });
+
     it("Checks if value is a valid Date object", function () {
         let date1 = new Date();
         let date2 = "2021-01-01 00:00:00";
