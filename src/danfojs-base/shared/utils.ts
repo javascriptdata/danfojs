@@ -86,12 +86,25 @@ export default class Utils {
     }
 
     /**
-     * Checks if a value is empty. Empty means it's either null, undefined or NaN
+     * Checks if a value is empty. Empty means it's either null, undefined or NaN.
+     * Empty strings are NOT considered empty.
      * @param value The value to check.
-     * @returns 
+     * @returns boolean indicating if the value is empty
      */
     isEmpty<T>(value: T): boolean {
-        return value === undefined || value === null || (isNaN(value as any) && typeof value !== "string");
+        if (value === undefined || value === null) {
+            return true;
+        }
+        
+        if (typeof value === 'bigint') {
+            return false; // BigInt values are never considered empty
+        }
+        
+        if (typeof value === 'number') {
+            return isNaN(value);
+        }
+        
+        return false; // All other types (strings, objects, arrays, etc) are not considered empty
     }
 
     /**
