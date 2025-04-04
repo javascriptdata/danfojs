@@ -231,7 +231,7 @@ export default class Groupby {
   private arithemetic(operation: {[key: string] : Array<string> | string} | string): { [key: string ]: {} } {
 
     const opsName = [ "mean", "sum", "count", "mode", "std", "var", "cumsum", "cumprod",
-    "cummax", "cummin", "median" , "min", "max"];
+    "cummax", "cummin", "median" , "min", "max", "countdistinct"];
     if (typeof operation === "string" ) {
       if (!opsName.includes(operation)) {
         throw new Error(`group operation: ${operation} is not valid`)
@@ -377,6 +377,9 @@ export default class Groupby {
           return sum
         }, 1)
         break;
+      case "countdistinct":
+        data.push(new Set(colVal).size);
+        break;
     }
     return data
   }
@@ -514,6 +517,14 @@ export default class Groupby {
    */
   min(): DataFrame{
     return this.operations("min")
+  }
+
+  /**
+   * Obtain the distinct number of columns for each group
+   * @returns DataFrame
+   */
+  countDistinct(): DataFrame{
+    return this.operations("countdistinct")
   }
 
   /**
