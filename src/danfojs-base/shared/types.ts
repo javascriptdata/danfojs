@@ -154,6 +154,7 @@ export interface SeriesInterface extends NDframeInterface {
     cumMin(options?: { inplace?: boolean }): Series | void
     cumMax(options?: { inplace?: boolean }): Series | void
     cumProd(options?: { inplace?: boolean }): Series | void
+    countDistinct(options?: { inplace?: boolean }): Series | void
     lt(other: Series | number | Array<number> | boolean[]): Series
     gt(other: Series | number | Array<number> | boolean[]): Series
     le(other: Series | number | Array<number> | boolean[]): Series
@@ -233,6 +234,7 @@ export interface DataFrameInterface extends NDframeInterface {
     cumMin(options?: { axis?: 0 | 1 }): DataFrame | void
     cumMax(options?: { axis?: 0 | 1 }): DataFrame | void
     cumProd(options?: { axis?: 0 | 1 }): DataFrame | void
+    countDistinct(options?: { axis?: 0 | 1 }): DataFrame | void
     copy(): DataFrame
     resetIndex(options: { inplace?: boolean }): DataFrame | void
     setIndex(
