@@ -201,10 +201,6 @@ Output in Node Console:
 ## Documentation
 The official documentation can be found [here](https://danfo.jsdata.org)
 
-## Danfo.js Official Book
-
-We published a book titled "Building Data Driven Applications with Danfo.js". Read more about it [here](https://danfo.jsdata.org/building-data-driven-applications-with-danfo.js-book)
-
 ## Discussion and Development
 Development discussions take place [here](https://github.com/opensource9ja/danfojs/discussions). 
 
@@ -212,7 +208,5 @@ Development discussions take place [here](https://github.com/opensource9ja/danfo
 All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome. A detailed overview on how to contribute can be found in the [contributing guide](https://danfo.jsdata.org/contributing-guide).
 
 #### Licence [MIT](https://github.com/opensource9ja/danfojs/blob/master/LICENCE)
-
-#### Created by [Rising Odegua](https://github.com/risenW) and [Stephen Oni](https://github.com/steveoni)
 
 <a href="https://www.producthunt.com/posts/danfo-js?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-danfo-js" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=233871&theme=light" alt="Danfo.js - Open Source JavaScript library for manipulating data. | Product Hunt Embed" style="width: 250px; height: 54px;" width="250px" height="54px" /></a>
