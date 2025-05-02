@@ -83,6 +83,20 @@ describe("DataFrame", function () {
                 assert.deepEqual(df.values[3], [1, 4, 90.1]);
                 assert.deepEqual(df.dtypes, ["float32", "int32", "float32",]);
             });
+
+            it("correctly converts to column-oriented JSON", function () {
+                const jsonData = [
+                    { campaignId: "toyota", agentId: "bob", metricValue: 1, metricId: "callCount" },
+                    { campaignId: "toyota", agentId: "jim", metricValue: 2, metricId: "callCount" },
+                    { campaignId: "sony", agentId: "ben", metricValue: 3, metricId: "callCount" },
+                    { campaignId: "sony", agentId: "karl", metricId: "callCount", metricValue: 4 },
+                ];
+
+                const df = new DataFrame(jsonData);
+                const columnJSON = df.toJSON({ format: "column" });
+
+                assert.deepEqual(columnJSON, jsonData);
+            });
         })
 
         describe("addColumn", function () {
