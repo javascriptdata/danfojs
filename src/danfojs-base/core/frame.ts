@@ -1908,6 +1908,120 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     }
 
     /**
+     * Identifies duplicate rows in the DataFrame.
+     *
+     * @param options.subset Array of column names to consider for duplicate checking. Defaults to all columns.
+     * @param options.keep Determines which duplicates to mark as False:
+     * - 'first' (default): Marks duplicates except for the first occurrence.
+     * - 'last': Marks duplicates except for the last occurrence.
+     * - false: Marks all duplicates as True.
+     * @returns Series of boolean values indicating duplicate rows.
+     * 
+     * @example
+     * ```
+     * // Create a DataFrame with duplicate rows
+     * const df = new DataFrame({
+     *   'A': [1, 2, 2, 3, 3],
+     *   'B': ['a', 'b', 'b', 'c', 'c']
+     * });
+     * 
+     * // Find duplicates keeping first occurrence (default)
+     * const dups = df.duplicated();
+     * // Returns: [false, false, true, false, true]
+     * 
+     * // Find duplicates keeping last occurrence
+     * const dupsLast = df.duplicated({ keep: 'last' });
+     * // Returns: [false, true, false, true, false]
+     * 
+     * // Find duplicates based on specific columns
+     * const dupsSubset = df.duplicated({ subset: ['B'] });
+     * // Returns: [false, false, true, false, true]
+     * ```
+     */
+    duplicated(
+        options?: { subset?: string[]; keep?: 'first' | 'last' | false }
+    ): Series {
+        // Use default parameters with a cleaner approach
+        const subset = options?.subset ?? this.columns;
+        const keep = options?.keep ?? 'first';
+
+        // Validate parameters at the top of the function
+        const validKeepValues = ['first', 'last', false];
+        if (!validKeepValues.includes(keep)) {
+            throw new Error("ParamError: keep must be 'first', 'last', or false.");
+        }
+
+        if (!Array.isArray(subset)) {
+            throw new Error('ParamError: subset must be an array of column names.');
+        }
+
+        // Validate columns exist in the DataFrame
+        subset.forEach((col) => {
+            if (!this.columns.includes(col)) {
+                throw new Error(`ParamError: column '${col}' not found in DataFrame.`);
+            }
+        });
+
+        // Get the data to check for duplicates
+        const dataToCheck = this.loc({ columns: subset }).values as unknown[];
+        const rowCount = this.shape[0];
+        const duplicates = new Array(rowCount).fill(false);
+
+        // hashing function for row data
+        const hashRow = (row: unknown): string => JSON.stringify(row);
+
+        if (keep === 'first') {
+            // Track seen hashes for 'first' option
+            const seen = new Set<string>();
+
+            for (let index = 0; index < rowCount; index++) {
+                const hash = hashRow(dataToCheck[index]);
+                if (seen.has(hash)) {
+                    duplicates[index] = true;
+                } else {
+                    seen.add(hash);
+                }
+            }
+        } else if (keep === 'last') {
+            // Track seen hashes for 'last' option
+            const seen = new Set<string>();
+
+            // Process in reverse order for 'last'
+            for (let index = rowCount - 1; index >= 0; index--) {
+                const hash = hashRow(dataToCheck[index]);
+                if (seen.has(hash)) {
+                    duplicates[index] = true;
+                } else {
+                    seen.add(hash);
+                }
+            }
+        } else {
+            // One-pass approach for keep === false
+            const valueCounts = new Map<string, number[]>();
+
+            // Track all indices for each hash
+            for (let index = 0; index < rowCount; index++) {
+                const hash = hashRow(dataToCheck[index]);
+                if (!valueCounts.has(hash)) {
+                    valueCounts.set(hash, []);
+                }
+                valueCounts.get(hash)?.push(index);
+            }
+
+            // Mark all duplicates
+            for (const [_, indices] of valueCounts.entries()) {
+                if (indices.length > 1) {
+                    indices.forEach(index => {
+                        duplicates[index] = true;
+                    });
+                }
+            }
+        }
+
+        return new Series(duplicates);
+    }
+
+    /**
      * Adds a new column to the DataFrame. If column exists, then the column values is replaced. 
      * @param column The name of the column to add or replace. 
      * @param values An array of values to be inserted into the DataFrame. Must be the same length as the columns
