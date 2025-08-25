@@ -2865,6 +2865,10 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         const data = this.values as ArrayType2D
 
         const newData = data.map((row) => {
+            if (row[columnIndex] === null || row[columnIndex] === undefined) {
+              return row
+            }
+
             if (dtype === "float32") {
                 row[columnIndex] = Number(row[columnIndex])
                 return row
