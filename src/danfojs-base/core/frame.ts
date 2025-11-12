@@ -43,7 +43,7 @@ const utils = new Utils();
  * @param options.index Array of numeric or string names for subseting array. If not specified, indexes are auto generated.
  * @param options.columns Array of column names. If not specified, column names are auto generated.
  * @param options.dtypes Array of data types for each the column. If not specified, dtypes are/is inferred.
- * @param options.config General configuration object for extending or setting NDframe behavior.      
+ * @param options.config General configuration object for extending or setting NDframe behavior.
  */
 export default class DataFrame extends NDframe implements DataFrameInterface {
     [key: string]: any
@@ -87,7 +87,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     }
 
     /**
-     * Returns the column data from the DataFrame by column name. 
+     * Returns the column data from the DataFrame by column name.
      * @param column column name to get the column data
      * @param returnSeries Whether to return the data in series format or not. Defaults to true
      */
@@ -217,7 +217,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         }
     }
 
-    /* 
+    /*
     * checks if DataFrame is compactible for arithmetic operation
     * compatible Dataframe must have only numerical dtypes
     **/
@@ -260,7 +260,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     /**
      * Returns the dtype for a given column name
-     * @param column 
+     * @param column
      */
     private $getColumnDtype(column: string): string {
         const columnIndex = this.columns.indexOf(column)
@@ -353,12 +353,12 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     * Purely integer-location based indexing for selection by position.
     * ``.iloc`` is primarily integer position based (from ``0`` to
     * ``length-1`` of the axis), but may also be used with a boolean array.
-    * 
+    *
     * @param rows Array of row indexes
     * @param columns Array of column indexes
-    *  
+    *
     * Allowed inputs are in rows and columns params are:
-    * 
+    *
     * - An array of single integer, e.g. ``[5]``.
     * - A list or array of integers, e.g. ``[4, 3, 0]``.
     * - A slice array string with ints, e.g. ``["1:7"]``.
@@ -367,10 +367,10 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     * DataFrame) and that returns valid output for indexing (one of the above).
     * This is useful in method chains, when you don't have a reference to the
     * calling object, but would like to base your selection on some value.
-    * 
+    *
     * ``.iloc`` will raise ``IndexError`` if a requested indexer is
     * out-of-bounds.
-    * 
+    *
     * @example
     * ```
     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B'] })
@@ -388,22 +388,22 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     /**
      * Access a group of rows and columns by label(s) or a boolean array.
      * ``loc`` is primarily label based, but may also be used with a boolean array.
-     * 
+     *
      * @param rows Array of row indexes
      * @param columns Array of column indexes
-     * 
+     *
      * Allowed inputs are:
-     * 
-     * - A single label, e.g. ``["5"]`` or ``['a']``, (note that ``5`` is interpreted as a 
+     *
+     * - A single label, e.g. ``["5"]`` or ``['a']``, (note that ``5`` is interpreted as a
      *   *label* of the index, and **never** as an integer position along the index).
-     * 
+     *
      * - A list or array of labels, e.g. ``['a', 'b', 'c']``.
-     * 
+     *
      * - A slice object with labels, e.g. ``["a:f"]``. Note that start and the stop are included
-     * 
+     *
      * - A boolean array of the same length as the axis being sliced,
      * e.g. ``[True, False, True]``.
-     * 
+     *
      * - A ``callable`` function with one argument (the calling Series or
      * DataFrame) and that returns valid output for indexing (one of the above)
     * @example
@@ -468,7 +468,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                 lastHalfValueS = dfSubset2.values as ArrayType2D
             }
 
-            // merge subset 
+            // merge subset
             for (let i = 0; i < subIdx.length; i++) {
                 const idx = subIdx[i];
                 const row = [idx, ...firstHalfValues[i], "...", ...lastHalfValueS[i]]
@@ -490,7 +490,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                 subIdx = this.index;
             }
 
-            // merge subset 
+            // merge subset
             for (let i = 0; i < subIdx.length; i++) {
                 const idx = subIdx[i];
                 const row = [idx, ...values[i]];
@@ -1297,7 +1297,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
      * df.count().print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
@@ -1322,14 +1322,14 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     }
 
     /**
-     * Return the sum of values across an axis. 
+     * Return the sum of values across an axis.
      * @param options.axis 0 or 1. If 0, count column-wise, if 1, add row-wise. Defaults to 1
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
      * df.sum().print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
@@ -1367,23 +1367,23 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @example
      * ```
      * const df = new DataFrame([[1, 2, 3, 4, 5, 6], [1, 1, 2, 3, 5, 8], [1, 4, 9, 16, 25, 36]], { columns: ['A', 'B', 'C'] })
-     * 
+     *
      * // Percentage difference with previous row
      * const df0 = df.pctChange(1)
      * console.log(df0)
-     * 
+     *
      * // Percentage difference with previous column
      * const df1 = df.pctChange(1, {axis: 0})
      * console.log(df1)
-     * 
+     *
      * // Percentage difference with previous 3rd previous row
      * const df2 = df.pctChange(3)
      * console.log(df2)
-     * 
+     *
      * // Percentage difference with following row
      * const df3 = df.pctChange(-1)
      * console.log(df3)
-     * 
+     *
      * // Percentage difference with another DataFrame
      * const df4 = df.pctChange(df3)
      * console.log(df4)
@@ -1448,23 +1448,23 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @example
      * ```
      * const df = new DataFrame([[1, 2, 3, 4, 5, 6], [1, 1, 2, 3, 5, 8], [1, 4, 9, 16, 25, 36]], { columns: ['A', 'B', 'C'] })
-     * 
+     *
      * // Difference with previous row
      * const df0 = df.diff(1)
      * console.log(df0)
-     * 
+     *
      * // Difference with previous column
      * const df1 = df.diff(1, {axis: 0})
      * console.log(df1)
-     * 
+     *
      * // Difference with previous 3rd previous row
      * const df2 = df.diff(3)
      * console.log(df2)
-     * 
+     *
      * // Difference with following row
      * const df3 = df.diff(-1)
      * console.log(df3)
-     * 
+     *
      * // Difference with another DataFrame
      * const df4 = df.diff(df3)
      * console.log(df4)
@@ -1521,14 +1521,14 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     }
 
     /**
-     * Return the absolute value of elements in a DataFrame. 
+     * Return the absolute value of elements in a DataFrame.
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
      * @example
      * ```
      * const df = new DataFrame([[1.0, 2.1], [3.1, 4]], { columns: ['A', 'B']})
      * df.abs().print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1.0, 2], [3.3, 4]], { columns: ['A', 'B']})
@@ -1562,7 +1562,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * const df2 = df.round(2)
      * df2.print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1.12, 2.34], [3.43, 4.0]], { columns: ['A', 'B']})
@@ -1600,21 +1600,21 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * Returns cumulative product accross specified axis.
      * @param options.axis 0 or 1. If 0, count column-wise, if 1, add row-wise. Defaults to 1
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
      * const df2 = df.cumprod()
      * df2.print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
      * const df2 = df.cumprod({ axis: 0 })
      * df2.print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
@@ -1637,14 +1637,14 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * const df2 = df.cumSum()
      * df2.print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
      * const df2 = df.cumSum({ axis: 0 })
      * df2.print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
@@ -1667,14 +1667,14 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * const df2 = df.cumMin()
      * df2.print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
      * const df2 = df.cumMin({ axis: 0 })
      * df2.print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
@@ -1697,14 +1697,14 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * const df2 = df.cumMax()
      * df2.print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
      * const df2 = df.cumMax({ axis: 0 })
      * df2.print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
@@ -1822,7 +1822,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * const df2 = df.dropna()
      * df2.print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4], [NaN, NaN]], { columns: ['A', 'B']})
@@ -1908,8 +1908,8 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     }
 
     /**
-     * Adds a new column to the DataFrame. If column exists, then the column values is replaced. 
-     * @param column The name of the column to add or replace. 
+     * Adds a new column to the DataFrame. If column exists, then the column values is replaced.
+     * @param column The name of the column to add or replace.
      * @param values An array of values to be inserted into the DataFrame. Must be the same length as the columns
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
      * @param options.atIndex Column index to insert after. Defaults to the end of the columns.
@@ -1919,13 +1919,13 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * const df2 = df.addColumn('C', [5, 6])
      * df2.print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
      * df.addColumn('C', [5, 6], { inplace: true }).print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
@@ -2070,19 +2070,19 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     * const df2 = df.fillNa(-99)
     * df2.print()
     * ```
-    * 
+    *
     * @example
     * ```
     * const df = new DataFrame([[1, 2], [3, 4], [NaN, NaN]], { columns: ['A', 'B']})
     * df.fillNa(-99, { inplace: true }).print()
     * ```
-    * 
+    *
     * @example
     * ```
     * const df = new DataFrame([[1, 2], [3, 4], [NaN, NaN]], { columns: ['A', 'B']})
     * df.fillNa(-99, { columns: ["A"], inplace: true }).print()
     * ```
-    * 
+    *
     */
     fillNa(
         values: number | string | boolean | ArrayType1D,
@@ -2184,7 +2184,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     * const df2 = df.drop({ columns: ['A'] })
     * df2.print()
     * ```
-    * 
+    *
     * @example
     * ```
     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
@@ -2332,7 +2332,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     * const df2 = df.sortBy('A')
     * df2.print()
     * ```
-    * 
+    *
     * @example
     * ```
     * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
@@ -2398,7 +2398,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
        * const df2 = df.setIndex({ index: ['a', 'b'] })
        * df2.print()
        * ```
-       * 
+       *
        * @example
        * ```
        * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
@@ -2520,11 +2520,11 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     /**
      * Apply a function along an axis of the DataFrame. To apply a function element-wise, use `applyMap`.
-     * Objects passed to the function are Series values whose 
+     * Objects passed to the function are Series values whose
      * index is either the DataFrame’s index (axis=0) or the DataFrame’s columns (axis=1)
      * @param callable Function to apply to each column or row.
      * @param options.axis 0 or 1. If 0, apply "callable" column-wise, else apply row-wise
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
@@ -2620,7 +2620,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * const sf = df.column('A')
      * sf.print()
      * ```
-     * 
+     *
     */
     column(column: string): Series {
         return this.$getColumnData(column) as Series
@@ -2635,14 +2635,14 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * const df2 = df.selectDtypes(['float32'])
      * df2.print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2.1, "Dog"], [3, 4.3, "Cat"]], { columns: ['A', 'B', 'C']})
      * const df2 = df.selectDtypes(['float32', 'int32'])
      * df2.print()
      * ```
-     * 
+     *
     */
     selectDtypes(include: Array<string>): DataFrame {
         const supportedDtypes = ["float32", "int32", "string", "boolean", 'undefined']
@@ -2675,7 +2675,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * const df2 = df.transpose()
      * df2.print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
@@ -2726,14 +2726,14 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
       * @param newValue The new value you want to replace the old value with
       * @param options.columns An array of column names you want to replace. If not provided replace accross all columns.
       * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
-      * 
+      *
       * @example
       * ```
       * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
-      * const df2 = df.replace(2, 5)    
+      * const df2 = df.replace(2, 5)
       * df.print()
       * ```
-      * 
+      *
       * @example
       * ```
       * const df = new DataFrame([[1, 2], [2, 20]], { columns: ['A', 'B']})
@@ -2759,16 +2759,24 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     ): DataFrame | void {
         const { columns, inplace } = { inplace: false, ...options }
 
-        if (typeof oldValue === 'number' && isNaN(oldValue)) {
-            throw Error(`Params Error: Param 'oldValue' does not support NaN. Use DataFrame.fillNa() instead.`);
-        }
-
-        if (!oldValue && typeof oldValue !== 'boolean' && typeof oldValue !== 'number' && typeof oldValue !== 'string') {
+        if (oldValue === undefined) {
             throw Error(`Params Error: Must specify param 'oldValue' to replace`);
         }
 
-        if (!newValue && typeof newValue !== 'boolean' && typeof newValue !== 'number' && typeof newValue !== 'string') {
+        if (newValue === undefined) {
             throw Error(`Params Error: Must specify param 'newValue' to replace with`);
+        }
+
+        if (typeof oldValue === 'number' && isNaN(oldValue)) {
+            throw Error(`Params Error: Param 'oldValue' does not support NaN. Use Series.fillNa() instead.`);
+        }
+
+        if (typeof oldValue !== 'boolean' && typeof oldValue !== 'number' && typeof oldValue !== 'string') {
+            throw Error(`Params Error: Param 'oldValue' must be of type string or number or boolean.`);
+        }
+
+        if (typeof newValue !== 'boolean' && typeof newValue !== 'number' && typeof newValue !== 'string') {
+            throw Error(`Params Error: Param 'newValue' must be of type string or number or boolean.`);
         }
 
         let newData: ArrayType2D = []
@@ -2826,14 +2834,14 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * @param column The name of the column to cast
      * @param dtype Data type to cast to. One of [float32, int32, string, boolean]
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2.2], [3, 4.3]], { columns: ['A', 'B']})
      * const df2 = df.asType('B', 'int32')
      * df2.print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2.2], [3, 4.3]], { columns: ['A', 'B']})
@@ -2897,14 +2905,14 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     /**
      * Return the number of unique elements in a column, across the specified axis.
-     * To get the values use `.unique()` instead. 
+     * To get the values use `.unique()` instead.
      * @param axis The axis to count unique elements across. Defaults to 1
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4], [1, 2], [5, 6]], { columns: ['A', 'B'] })
      * df.nunique().print()
      * ```
-     * 
+     *
     */
     nUnique(axis: 0 | 1 = 1): Series {
         if ([0, 1].indexOf(axis) === -1) {
@@ -2927,7 +2935,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     }
 
     /**
-     * Renames a column or index to specified value. 
+     * Renames a column or index to specified value.
      * @param mapper An object that maps each column or index in the DataFrame to a new value
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
      * @param options.axis The axis to perform the operation on. Defaults to 1
@@ -2937,21 +2945,21 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * const df2 = df.rename({ A: 'a', B: 'b' })
      * df2.print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4], [1, 2], [5, 6]], { columns: ['A', 'B'] })
      * df.rename({ A: 'a', B: 'b' }, { inplace: true })
      * df.print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4], [1, 2], [5, 6]], { columns: ['A', 'B'] })
      * df.rename({ 0: 'a', 1: 'b' }, { axis: 0, inplace: true})
      * df.print()
      * ```
-     * 
+     *
      */
     rename(
         mapper: {
@@ -3035,14 +3043,14 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     * const df2 = df.sortIndex()
     * df2.print()
     * ```
-    * 
+    *
     * @example
     * ```
     * const df = new DataFrame([[1, 2], [3, 4], [1, 2], [5, 6]], { columns: ['A', 'B'] })
     * df.sortIndex({ inplace: true })
     * df.print()
     * ```
-    * 
+    *
     * @example
     * ```
     * const df = new DataFrame([[1, 2], [3, 4], [1, 2], [5, 6]], { columns: ['A', 'B'] })
@@ -3092,11 +3100,11 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     /**
      * Add new rows at the end of the DataFrame.
-     * @param newValues Array, Series or DataFrame to append to the DataFrame 
+     * @param newValues Array, Series or DataFrame to append to the DataFrame
      * @param index The new index value(s) to append to the Series. Must contain the same number of values as `newValues`
-     * as they map `1 - 1`. 
+     * as they map `1 - 1`.
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4], [1, 2], [5, 6]], { columns: ['A', 'B'] })
@@ -3105,7 +3113,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * const df2 = df.append(values, index)
      * df2.print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4], [1, 2], [5, 6]], { columns: ['A', 'B'] })
@@ -3114,7 +3122,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * const df2 = df.append(values, index)
      * df2.print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4], [1, 2], [5, 6]], { columns: ['A', 'B'] })
@@ -3217,28 +3225,28 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * Queries the DataFrame for rows that meet the boolean criteria. This is just a wrapper for the `iloc` method.
      * @param condition An array of boolean mask, one for each row in the DataFrame. Rows where the value are true will be returned.
      * @param options.inplace Boolean indicating whether to perform the operation inplace or not. Defaults to false
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4], [1, 2], [5, 6]], { columns: ['A', 'B'] })
      * const df2 = df.query([true, false, true, true])
      * df2.print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4], [1, 2], [5, 6]], { columns: ['A', 'B'] })
      * const df2 = df.query(df["A"].gt(2))
      * df2.print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4], [1, 2], [5, 6]], { columns: ['A', 'B'] })
      * const df2 = df.query(df["A"].gt(2).and(df["B"].lt(5)))
      * df2.print()
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4], [1, 2], [5, 6]], { columns: ['A', 'B'] })
@@ -3297,19 +3305,19 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
      * const df2 = df.getDummies({ columns: ['A'] })
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
      * const df2 = df.getDummies({ prefix: 'cat' })
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
      * const df2 = df.getDummies({ prefix: 'cat', prefixSeparator: '_' })
      * ```
-     * 
+     *
      * @example
      * ```
      * const df = new DataFrame([[1, 2], [3, 4]], { columns: ['A', 'B']})
@@ -3367,7 +3375,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     /**
      * Access a single value for a row/column pair by integer position.
-     * Similar to {@link iloc}, in that both provide integer-based lookups. 
+     * Similar to {@link iloc}, in that both provide integer-based lookups.
      * Use iat if you only need to get or set a single value in a DataFrame.
      * @param row Row index of the value to access.
      * @param column Column index of the value to access.
@@ -3389,7 +3397,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
     /**
      * Access a single value for a row/column label pair.
-     * Similar to {@link loc}, in that both provide label-based lookups. 
+     * Similar to {@link loc}, in that both provide label-based lookups.
      * Use at if you only need to get or set a single value in a DataFrame.
      * @param row Row index of the value to access.
      * @param column Column label of the value to access.
@@ -3409,7 +3417,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     }
 
     /**
-     * Exposes functions for creating charts from a DataFrame. 
+     * Exposes functions for creating charts from a DataFrame.
      * Charts are created using the Plotly.js library, so all Plotly's configuration parameters are available.
      * @param divId name of the HTML Div to render the chart in.
     */
