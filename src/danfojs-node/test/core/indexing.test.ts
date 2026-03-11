@@ -7,7 +7,7 @@ describe("Iloc and Loc based Indexing", function () {
         it("throw error for wrong row index value", function () {
             let data = [1, 2, 34, 5, 6];
             let df = new Series(data);
-            
+
             assert.throws(function () { df.iloc(0 as any) }, Error, `rows parameter must be an Array. For example: rows: [1,2] or rows: ["0:10"]`);
         });
 
@@ -427,6 +427,34 @@ describe("Iloc and Loc based Indexing", function () {
             assert.deepEqual(subDf.dtypes, [ "string", "int32", "int32" ]);
 
           });
+
+        it("loc works with column names containing colons", function () {
+            const data = {
+                "my:column": [1, 2, 3, 4],
+                "time:timestamp": ["2023-01-01", "2023-01-02", "2023-01-03", "2023-01-04"],
+                "normal_column": [10, 20, 30, 40]
+            };
+            const df = new DataFrame(data);
+
+            // Test accessing a single column with a colon
+            const singleCol = df.loc({ columns: ["my:column"] });
+            const singleColExpected = [[1], [2], [3], [4]];
+            assert.deepEqual(singleCol.values, singleColExpected);
+            assert.deepEqual(singleCol.columns, ["my:column"]);
+
+            // Test accessing multiple columns with colons
+            const multiCol = df.loc({ columns: ["my:column", "time:timestamp"] });
+            const multiColExpected = [[1, "2023-01-01"], [2, "2023-01-02"], [3, "2023-01-03"], [4, "2023-01-04"]];
+            assert.deepEqual(multiCol.values, multiColExpected);
+            assert.deepEqual(multiCol.columns, ["my:column", "time:timestamp"]);
+
+            // Test accessing a mix of columns with and without colons
+            const mixedCol = df.loc({ columns: ["my:column", "normal_column"] });
+            const mixedColExpected = [[1, 10], [2, 20], [3, 30], [4, 40]];
+            assert.deepEqual(mixedCol.values, mixedColExpected);
+            assert.deepEqual(mixedCol.columns, ["my:column", "normal_column"]);
+
+        });
 
     })
 

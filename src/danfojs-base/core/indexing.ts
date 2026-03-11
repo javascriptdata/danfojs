@@ -22,7 +22,7 @@ const utils = new Utils();
 
 /**
 * Internal function to slice a Series/DataFrame by index based labels
-* @param Object 
+* @param Object
 */
 export function _iloc({ ndFrame, rows, columns }: {
     ndFrame: NDframeInterface
@@ -207,7 +207,7 @@ export function _iloc({ ndFrame, rows, columns }: {
 
 /**
 * Internal function to slice a Series/DataFrame by specified string location based labels
-* @param Object 
+* @param Object
 */
 export function _loc({ ndFrame, rows, columns }: {
     ndFrame: NDframeInterface
@@ -327,9 +327,12 @@ export function _loc({ ndFrame, rows, columns }: {
             throw new Error(`ColumnIndexError: columns parameter must be an array of a string name. For example: columns: ["b"]`)
         }
 
-        if (columns[0].indexOf(":") == -1) { // Input type ==> ["A"] 
+        if (_columnNames.indexOf(columns[0]) !== -1) {
+            // Column exists as a literal name, use it directly
             _columnIndexes = [_columnNames.indexOf(columns[0])]
-
+        } else if (columns[0].indexOf(":") == -1) {
+            // Input type ==> ["A"] but column doesn't exist
+            throw new Error(`ColumnIndexError: Specified column (${columns[0]}) not found`);
         } else { // Input type ==> ["a:b"] or [`"col1":"col5"`]
             const columnSplit = columns[0].split(":")
 
