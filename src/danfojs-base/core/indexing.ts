@@ -243,7 +243,10 @@ export function _loc({ ndFrame, rows, columns }: {
             if (rows[0].startsWith(`"`) || rows[0].startsWith(`'`) || rows[0].startsWith("`")) {
                 temp = _index.indexOf(rows[0].replace(/['"`]/g, ''))
             } else {
-                temp = _index.indexOf(Number(rows[0]))
+                temp = _index.indexOf(rows[0]);
+                if (temp === -1 && !isNaN(Number(rows[0]))) {
+                    temp = _index.indexOf(Number(rows[0]));
+                }
             }
 
             if (temp === -1) {
