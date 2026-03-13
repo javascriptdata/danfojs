@@ -1780,6 +1780,30 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
     }
 
     /**
+     * Creates a deep copy of values while preserving NaN values
+     * @param values The values to deep copy
+     * @returns A deep copy of the values with NaN preserved
+     */
+    private $deepCopyValues(values: any): any {
+        if (values === null || typeof values !== 'object') {
+            return values;
+        }
+        if (values instanceof Date) {
+            return new Date(values.getTime());
+        }
+        if (Array.isArray(values)) {
+            return values.map(value => this.$deepCopyValues(value));
+        }
+        const result: any = {};
+        for (const key in values) {
+            if (Object.prototype.hasOwnProperty.call(values, key)) {
+                result[key] = this.$deepCopyValues(values[key]);
+            }
+        }
+        return result;
+    }
+
+    /**
      * Generate descriptive statistics for all numeric columns.
      * Descriptive statistics include those that summarize the central tendency,
      * dispersion and shape of a dataset’s distribution, excluding NaN values.
@@ -2130,7 +2154,12 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
         if (!columns) {
             //Fill all columns
             for (let i = 0; i < oldValues.length; i++) {
-                const valueArr = [...oldValues[i] as ArrayType1D]
+                let valueArr = [];
+                if (inplace) {
+                    valueArr = this.$deepCopyValues(oldValues[i]) as ArrayType1D;
+                } else {
+                    valueArr = [...oldValues[i] as ArrayType1D];
+                }
 
                 const tempArr = valueArr.map((innerVal) => {
                     if (utils.isEmpty(innerVal)) {
@@ -2145,14 +2174,17 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
 
         } else {
             //Fill specific columns
-            const tempData = [...this.values]
+            for (let i = 0; i < oldValues.length; i++) {
+                let valueArr = [];
+                if (inplace) {
+                    valueArr = this.$deepCopyValues(oldValues[i]) as ArrayType1D;
+                } else {
+                    valueArr = [...oldValues[i] as ArrayType1D];
+                }
 
-            for (let i = 0; i < tempData.length; i++) {
-                const valueArr = tempData[i] as ArrayType1D
-
-                for (let i = 0; i < columns.length; i++) { //B
-                    const columnIndex = this.columns.indexOf(columns[i])
-                    const replaceWith = Array.isArray(values) ? values[i] : values
+                for (let j = 0; j < columns.length; j++) { 
+                    const columnIndex = this.columns.indexOf(columns[j])
+                    const replaceWith = Array.isArray(values) ? values[j] : values
                     valueArr[columnIndex] = utils.isEmpty(valueArr[columnIndex]) ? replaceWith : valueArr[columnIndex]
                 }
                 newData.push(valueArr)
