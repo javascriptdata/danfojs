@@ -19,24 +19,24 @@
     "dist/"
   ],
   "dependencies": {
-    "@tensorflow/tfjs-node": "^3.13.0",
-    "mathjs": "^9.4.4",
-    "node-fetch": "^2.6.1",
-    "papaparse": "^5.3.1",
+    "@tensorflow/tfjs-node": "^4.22.0",
+    "mathjs": "^14.4.0",
+    "node-fetch": "2.6.7",
+    "papaparse": "^5.5.2",
     "request": "^2.88.2",
-    "stream-json": "^1.7.3",
-    "table": "6.7.1",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz"
+    "stream-json": "^1.9.1",
+    "table": "6.9.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "scripts": {
-    "test": "nyc mocha --require ts-node/register test/**/*.test.ts",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "test:clean": "yarn build:clean && yarn test",
     "dev": "nodemon",
     "build": "tsc",
     "build:clean": "rm -rf ./dist && node ./scripts/prebuild.js && tsc",
     "lint": "eslint ./src",
-    "coveralls": "cat ./coverage/lcov.info | ./node_modules/.bin/coveralls",
-    "coverage": "nyc report --reporter=text-lcov | coveralls && nyc report --reporter=lcov",
     "patch": "npm version patch"
   },
   "publishConfig": {
@@ -67,33 +67,22 @@
     "@babel/plugin-transform-runtime": "^7.12.10",
     "@babel/preset-env": "^7.10.4",
     "@babel/register": "^7.10.1",
-    "@types/chai": "^4.2.19",
-    "@types/chai-as-promised": "^7.1.5",
-    "@types/mocha": "^9.0.0",
-    "@types/node": "^16.9.6",
-    "@types/papaparse": "^5.2.6",
-    "@types/request": "^2.48.7",
-    "@types/stream-json": "^1.7.1",
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.14.0",
+    "@types/papaparse": "^5.3.15",
+    "@types/request": "^2.48.12",
+    "@types/stream-json": "^1.7.8",
     "@types/table": "^6.3.2",
-    "chai": "^4.2.0",
-    "chai-as-promised": "^7.1.1",
-    "coveralls": "^3.1.0",
     "dotenv": "^10.0.0",
     "dts-bundle-generator": "^5.9.0",
     "eslint": "^7.1.0",
-    "mocha": "^7.2.0",
+    "jest": "^29.7.0",
     "nodemon": "^2.0.7",
-    "nyc": "^15.1.0",
     "rimraf": "^3.0.2",
-    "ts-mocha": "^10.0.0",
-    "ts-node": "^10.0.0",
-    "typescript": "^4.4.2",
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.2",
     "yarn": "^1.22.10"
-  },
-  "nyc": {
-    "reporter": [
-      "lcov",
-      "text"
-    ]
   }
 }
