@@ -177,7 +177,7 @@ export default class DataFrame extends NDframe implements DataFrameInterface {
                 (this.$data as any)[i][columnIndex] = colunmValuesToAdd[i]
             }
             //Update column ($dataIncolumnFormat) array since it's available in object
-            (this.$dataIncolumnFormat as any)[columnIndex] = arr
+            (this.$dataIncolumnFormat as any)[columnIndex] = colunmValuesToAdd
 
             //Update the dtypes
             this.$dtypes[columnIndex] = utils.inferDtype(colunmValuesToAdd)[0]
