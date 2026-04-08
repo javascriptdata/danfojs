@@ -1755,4 +1755,38 @@ describe("Series Functions", () => {
         });
 
     });
+
+    describe("shift", function () {
+        it("Shifts values down by 1 with NaN fill", function () {
+            const sf = new Series([1, 2, 3, 4, 5]);
+            const result = sf.shift(1);
+            assert.deepEqual(result.values[0], NaN);
+            assert.deepEqual(result.values.slice(1), [1, 2, 3, 4]);
+        });
+
+        it("Shifts values up by -1 with NaN fill", function () {
+            const sf = new Series([1, 2, 3, 4, 5]);
+            const result = sf.shift(-1);
+            assert.deepEqual(result.values.slice(0, 4), [2, 3, 4, 5]);
+            assert.deepEqual(result.values[4], NaN);
+        });
+
+        it("Returns copy when periods is 0", function () {
+            const sf = new Series([1, 2, 3]);
+            const result = sf.shift(0);
+            assert.deepEqual(result.values, sf.values);
+        });
+
+        it("Uses custom fillValue", function () {
+            const sf = new Series([1, 2, 3, 4]);
+            const result = sf.shift(2, { fillValue: 0 });
+            assert.deepEqual(result.values, [0, 0, 1, 2]);
+        });
+
+        it("Returns all fill values when shift exceeds length", function () {
+            const sf = new Series([1, 2, 3]);
+            const result = sf.shift(5);
+            assert.ok(result.values.every((v: any) => isNaN(v)));
+        });
+    });
 })

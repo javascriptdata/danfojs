@@ -193,6 +193,61 @@ export default class Series extends NDframe implements SeriesInterface {
     }
 
     /**
+      * Shift index by desired number of periods. Shifted data is filled with NaN (or fillValue).
+      * @param periods Number of periods to shift. Positive shifts down, negative shifts up.
+      * @param options Optional. An object with a `fillValue` property for filling shifted positions.
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5]);
+      * const sf2 = sf.shift(1);
+      * console.log(sf2.values); // [NaN, 1, 2, 3, 4]
+      * ```
+      * @example
+      * ```
+      * const sf = new Series([1, 2, 3, 4, 5]);
+      * const sf2 = sf.shift(-1);
+      * console.log(sf2.values); // [2, 3, 4, 5, NaN]
+      * ```
+    */
+    shift(periods: number = 1, options?: { fillValue?: number | string | boolean }): Series {
+        const fillValue = options?.fillValue !== undefined ? options.fillValue : NaN;
+        const values = this.values as ArrayType1D;
+        const len = values.length;
+        const newValues: ArrayType1D = new Array(len).fill(fillValue);
+
+        if (periods === 0) {
+            return this.copy();
+        }
+
+        if (Math.abs(periods) >= len) {
+            return new Series(newValues, {
+                index: [...this.index],
+                columns: this.columns,
+                dtypes: this.dtypes,
+                config: { ...this.config }
+            });
+        }
+
+        if (periods > 0) {
+            for (let i = periods; i < len; i++) {
+                newValues[i] = values[i - periods];
+            }
+        } else {
+            const absPeriods = Math.abs(periods);
+            for (let i = 0; i < len - absPeriods; i++) {
+                newValues[i] = values[i + absPeriods];
+            }
+        }
+
+        return new Series(newValues, {
+            index: [...this.index],
+            columns: this.columns,
+            dtypes: this.dtypes,
+            config: { ...this.config }
+        });
+    }
+
+    /**
      * Returns specified number of random rows in a Series
      * @param num The number of rows to return
      * @param options.seed An integer specifying the random seed that will be used to create the distribution.
